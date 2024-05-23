@@ -93,23 +93,26 @@ def get_timeular_activities_list(timeular_token):
         timeular_activities_list_json = timeular_activities_list.json()
         return True, timeular_activities_list_json
 
-def render_text_no_activity():
+def render_text_no_activity(config):
     """
     Renders the text for when there is no activity
 
     Returns:
         render.Root: Rendered text
     """
-    return render.Root(
-        child = render.Box(
-            render.Row(
-                cross_align = "center",
-                main_align = "center",
-                children = [render.Marquee(width = 64, child = render.Text("Not Tracking Activity"))],
-                expanded = True,
+    if config.bool("active_only_when_tracking", False):  ## no activity, hide app
+        return []
+    else:
+        return render.Root(
+            child = render.Box(
+                render.Row(
+                    cross_align = "center",
+                    main_align = "center",
+                    children = [render.Marquee(width = 64, child = render.Text("Not tracking activity"))],
+                    expanded = True,
+                ),
             ),
-        ),
-    )
+        )
 
 def build_timeular_current_activity(timeular_activities_json, timeular_activities_list_json):
     """
@@ -142,7 +145,7 @@ def get_current_activity(timeular_activities_json):
     else:
         return build_timeular_current_activity(timeular_activities_json)
 
-def render_text_activity(activity_name, activity_color, parsed_time):
+def render_text_activity(config, activity_name, activity_color, parsed_time):
     """
     Renders the text for the current activity
 
@@ -234,7 +237,7 @@ def main(config):
         return print_error(timeular_activities_list_json)
 
     if timeular_activities_json["currentTracking"] == None:
-        return render_text_no_activity()
+        return render_text_no_activity(config)
 
     could_build_activity, activity_name, activity_color, activity_started_at = build_timeular_current_activity(timeular_activities_json, timeular_activities_list_json)
     if not could_build_activity:
@@ -248,7 +251,7 @@ def main(config):
         "started_at": activity_started_at[:-1] + "Z",
     }
 
-    return render_text_activity(timeular_current_activity.get("name"), timeular_current_activity.get("color"), get_parsed_time(timeular_current_activity["started_at"], now))
+    return render_text_activity(config, timeular_current_activity.get("name"), timeular_current_activity.get("color"), get_parsed_time(timeular_current_activity["started_at"], now))
 
 def get_schema():
     """
@@ -271,6 +274,13 @@ def get_schema():
                 name = "Timeular API Secret",
                 desc = "Your Timeular API Secret",
                 icon = "lock",
+            ),
+            schema.Toggle(
+                id = "active_only_when_tracking",
+                name = "Hide when not tracking activity",
+                desc = "Enable to only show app when an activity is being tracked.",
+                icon = "eyeSlash",
+                default = False,
             ),
         ],
     )
