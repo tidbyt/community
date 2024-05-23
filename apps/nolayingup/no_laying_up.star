@@ -5,6 +5,9 @@ Description: No Laying Up produces golf and golf adjacent media content. This ap
 Author: M0ntyP
 
 Very niche app for the true NLU sickos out there
+
+v1.1
+Updated to reflect change in titles in RSS feed
 """
 
 load("http.star", "http")
@@ -33,10 +36,7 @@ def main():
         # if its a podcast, check which one and remove chars at the front depending on which one - NLU or TrapDraw
         if strippedlink.startswith("p"):
             podstrip = strippedlink[9:]
-            if podstrip.startswith("n"):
-                desc = desc[26:]
-            else:
-                desc = desc[13:]
+            if podstrip.startswith("t"):
                 NLUPOD = False
 
         # if its video content, check if its Nest or NLU content and revise description

@@ -141,7 +141,7 @@ def main(config):
     diff = dict()
 
     for rating in resp:
-        if "rating" not in rating["stats"].keys():
+        if "rating" not in rating["stats"].keys() or rating["stats"]["rating"] == "Unrated":
             continue
         stats[rating["key"]] = int(rating["stats"]["rating"])
         if "rating_time_change_value" in rating["stats"].keys():
