@@ -13,6 +13,7 @@ load("render.star", "render")
 GLOBAL_HTTP_TTL_SECONDS = 600
 GLOBAL_RESULT_LIMIT = 1  # Limit results to minimize rendered file size
 FEATURED_CATEGORIES_RESOURCE = "https://store.steampowered.com/api/featuredcategories"
+MARQUEE_NAME_LENGTH = 60
 
 def main():
     response = call_steam_api()
@@ -65,7 +66,8 @@ def build_frames(top_sellers):
             image = fetch_image(item["small_capsule_image"])
 
             # Add Details
-            frames.append(get_details_widget(name, final_price_formatted, discount_percent))
+            padded_name = pad_string(name, MARQUEE_NAME_LENGTH)
+            frames.append(get_details_widget(padded_name, final_price_formatted, discount_percent))
 
             # Add Image
             frames.append(get_image_widget(image))
@@ -73,6 +75,19 @@ def build_frames(top_sellers):
             counter = counter + 1
 
     return frames
+
+def pad_string(input, total_length):
+    if len(input) >= total_length:
+        return input
+    
+    # Pad the string for more consistent displays in the marquee
+    truncated_string = input[:total_length]
+    total_padding = total_length - len(truncated_string)
+    left_padding = total_padding // 2
+    right_padding = total_padding - left_padding
+    padded_string = ' ' * left_padding + truncated_string + ' ' * right_padding
+    return padded_string
+
 
 def get_details_widget(name, final_price_formatted, discount_percent):
     return render.Stack(
