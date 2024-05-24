@@ -11,7 +11,6 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 load("time.star", "time")
 
 BILLBOARD_CACHED_TOP10_NAME = "BillboardCache"
