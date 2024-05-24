@@ -2,7 +2,7 @@
 Applet: Bible Verse
 Summary: Bible verse every 3 minutes
 Description: Displays new bible verse every 3 seconds from different bible translations.
-Author: Blaise Sebagabo
+Author: blaiseAI
 """
 
 load("http.star", "http")
@@ -17,7 +17,7 @@ DEFAULT_REFERENCE_COLOR = "#00FF00"
 def main(config):
     translation = config.get("translation", DEFAULT_TRANSLATION)
     color = config.str("color", DEFAULT_REFERENCE_COLOR)
-    response = http.get(API_URL.format(translation), ttl_seconds = 240)
+    response = http.get(API_URL.format(translation), ttl_seconds = 180)
     if response.status_code != 200:
         fail("Bible API request failed with status %d" % response.status_code)
 
