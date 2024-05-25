@@ -8,6 +8,7 @@ TF2_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNS
 """)
 
 def main(config):
+
     rep = http.get(KEY_PRICE_URL, ttl_seconds = 240)
     if rep.status_code != 200:
         fail("Bakcpack.tf request failed with status %d", rep.status_code)
