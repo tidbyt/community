@@ -180,6 +180,8 @@ def main(config):
     idx = random.number(0, len(quotes_list) - 1) if len(quotes_list) > 0 else 0
     current_quote = quotes_list[idx] if len(quotes_list) > 0 else ""
 
+    offset_marquee = config.bool("offsetStart", True)
+
     style1 = render.Padding(
         pad = 1,
         child = render.Marquee(
@@ -187,7 +189,10 @@ def main(config):
             child = render.Column(
                 cross_align = "center",
                 children = [
-                    render.Image(src = THE_LOGO, width = 52),
+                    render.Padding(
+                        pad = (0, 18, 0, 0) if offset_marquee else (0, 0, 0, 0),
+                        child = render.Image(src = THE_LOGO, width = 52),
+                    ),
                     render.Box(height = 4),
                     render.WrappedText(current_quote, font = "tom-thumb", width = 62, linespacing = 2, align = "center") if font_style == "tom-thumb" else render.WrappedText(current_quote, width = 62, align = "center"),
                 ],
@@ -210,7 +215,13 @@ def main(config):
                 render.Box(height = 3),
                 render.Marquee(
                     height = 19,
-                    child = render.WrappedText(current_quote, font = "tom-thumb", width = 62, linespacing = 2, align = "center") if font_style == "tom-thumb" else render.WrappedText(current_quote, width = 62, align = "center"),
+                    child = render.Column(
+                        children = [
+                            render.Box(width = 64, height = 18) if offset_marquee else None,
+                            render.WrappedText(current_quote, font = "tom-thumb", width = 62, linespacing = 2, align = "center") if font_style == "tom-thumb" else render.WrappedText(current_quote, width = 62, align = "center"),
+                        ],
+                        main_align = "center",
+                    ),
                     scroll_direction = "vertical",
                 ),
             ],
@@ -296,6 +307,13 @@ def get_schema():
                         value = "Slow",
                     ),
                 ],
+            ),
+            schema.Toggle(
+                id = "offsetStart",
+                name = "Offset start",
+                desc = "Offset the point where the marquee begins scrolling",
+                icon = "arrowsDownToLine",
+                default = True,
             ),
             schema.Toggle(
                 id = "enableQuotesByJoey",
