@@ -169,7 +169,7 @@ def main(config):
     random.seed(time.now().unix)
     animation_style = config.get("animationStyle", "style1")
     font_style = config.get("fontStyle", "tb-8")
-    quotes_list, root = [], ""
+    quotes_list, delay_speed, root = [], 40, ""
 
     for person in QUOTES:
         if config.get("enableQuotesBy" + person.replace(".", "").replace(" ", ""), True) == "true":
@@ -218,13 +218,23 @@ def main(config):
         ),
     )
 
+    animationSpeed = config.get("animationSpeed", 0)
+    if animationSpeed == "Fast":
+        delay_speed = 20
+    elif animationSpeed == "Slow":
+        delay_speed = 80
+
     if animation_style == "style1":
         root = render.Root(
             child = style1,
+            delay = delay_speed,
+            show_full_animation = True,
         )
     elif animation_style == "style2":
         root = render.Root(
             child = style2,
+            delay = delay_speed,
+            show_full_animation = True,
         )
     return root
 
@@ -263,6 +273,27 @@ def get_schema():
                     schema.Option(
                         display = "tom-thumb",
                         value = "tom-thumb",
+                    ),
+                ],
+            ),
+            schema.Dropdown(
+                id = "animationSpeed",
+                name = "Marquee speed",
+                desc = "Choose your preferred scroll speed",
+                icon = "gaugeSimpleHigh",
+                default = "Medium",
+                options = [
+                    schema.Option(
+                        display = "Fast",
+                        value = "Fast",
+                    ),
+                    schema.Option(
+                        display = "Medium",
+                        value = "Medium",
+                    ),
+                    schema.Option(
+                        display = "Slow",
+                        value = "Slow",
                     ),
                 ],
             ),
