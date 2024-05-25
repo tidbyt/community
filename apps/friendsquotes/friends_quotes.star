@@ -150,7 +150,7 @@ QUOTES = {
         "Lips moving, still talking!",
         "Seven!",
         "Your little Harmonica is hammered.",
-        "Monica:\n\"Okay, everybody relax. This is not even a date. It's just two people going out to dinner and not having s**.\"\nChandler:\n\"Sounds like a date to me.\"",
+        "Monica:\n\"Okay, everybody relax. This is not even a date. It's just two people going out to dinner and not having sex.\"\nChandler:\n\"Sounds like a date to me.\"",
         "Fine! Judge all you want, but: married a lesbian, left a man at the altar, fell in love with a gay ice dancer, threw a girl's wooden leg in a fire, LIVE IN A BOX!",
     ],
     "Mike H.": [
