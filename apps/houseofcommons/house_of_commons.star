@@ -47,9 +47,21 @@ PARTY_COLOURS = {
 NEW_STATESMAN = "New Statesman"
 ELECTORAL_CALCULUS = "Electoral Calculus"
 ELECTION_POLLING = "Election Polling"
+POLLING_REPORT_DEFAULT = "Polling Report - Default"
+POLLING_REPORT_UNIFORM_SWING = "Polling Report - UNS"
 URL = "url"
 NAMES = "names"
 DISPLAY = "display"
+
+POLLING_REPORT_NAMES = {
+    "con": CONSERVATIVE,
+    "lab": LABOUR,
+    "lib": LIBDEM,
+    "snp": SCOTTISH_NATIONAL_PARTY,
+    "green": GREEN,
+    "reform": REFORM,
+    "other": OTHER,
+}
 
 SOURCES = {
     NEW_STATESMAN: {
@@ -82,6 +94,16 @@ SOURCES = {
             "SNP": SCOTTISH_NATIONAL_PARTY,
             "Plaid Cymru": PLAID_CYMRU,
         },
+    },
+    POLLING_REPORT_DEFAULT: {
+        DISPLAY: "pollingreport.uk",
+        URL: "https://pollingreport.uk/api/v1/results?legacy=false&simplified=true&model=default",
+        NAMES: POLLING_REPORT_NAMES,
+    },
+    POLLING_REPORT_UNIFORM_SWING: {
+        DISPLAY: "pollingreport.uk",
+        URL: "https://pollingreport.uk/api/v1/results?legacy=false&simplified=true&model=uniform",
+        NAMES: POLLING_REPORT_NAMES,
     },
 }
 
@@ -287,7 +309,6 @@ def election_polling_predictions():
         _, party, _, vote_share, _, _, seat_count, _, _, _ = [td.get_text() for td in row.find_all("td")]
         seat_count = extract_int(seat_count)
         total_seats += seat_count
-        print(party, seat_count, extract_percentage(vote_share))
         predictions[SOURCES[ELECTION_POLLING][NAMES][party]] = {
             SEATS: seat_count,
             VOTE_SHARE: extract_percentage(vote_share),
@@ -298,6 +319,26 @@ def election_polling_predictions():
     }
     return predictions
 
+def polling_report_predictions(source):
+    resp = fetch_source(source)
+    if not resp:
+        return None
+    data = resp.json()["data"]["datasets"]
+
+    # print(dataset['label'], dataset['vote'][-1], dataset['seats'][-1])
+
+    predictions = {}
+    for dataset in data:
+        party = dataset["label"]
+        predictions[SOURCES[source][NAMES][party]] = {
+            SEATS: int(dataset["seats"][-1]),
+            VOTE_SHARE: dataset["vote"][-1] / 100.0,
+        }
+    predictions[OTHER][SEATS] -= NORTHERN_IRELAND_SEATS  # They include this in their other
+    predictions[OTHER][VOTE_SHARE] = 0.0  # Always sort last
+
+    return predictions
+
 def main(config):
     source = config.get(SOURCE, NEW_STATESMAN)
     if source == NEW_STATESMAN:
@@ -306,6 +347,10 @@ def main(config):
         predictions = electoral_calculus_predictions()
     elif source == ELECTION_POLLING:
         predictions = election_polling_predictions()
+    elif source == POLLING_REPORT_DEFAULT:
+        predictions = polling_report_predictions(source)
+    elif source == POLLING_REPORT_UNIFORM_SWING:
+        predictions = polling_report_predictions(source)
     else:
         return render_error("You must select a source")
 
@@ -354,7 +399,7 @@ def get_schema():
                         display = key,
                         value = key,
                     )
-                    for key in sorted(SOURCES, reverse = True)
+                    for key in sorted(SOURCES)
                 ],
             ),
         ],
