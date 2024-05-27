@@ -14,7 +14,7 @@ load("schema.star", "schema")
 GLOBAL_HTTP_TTL_SECONDS = 600
 GLOBAL_RESULT_LIMIT = 1  # Limit results to minimize rendered file size
 FEATURED_CATEGORIES_RESOURCE = "https://store.steampowered.com/api/featuredcategories"
-DEFAULT_REGION_CODE = "us" #ISO 3166, alpha-2
+DEFAULT_REGION_CODE = "us"  #ISO 3166, alpha-2
 MARQUEE_NAME_LENGTH = 60
 
 def main(config):
