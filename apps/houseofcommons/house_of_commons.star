@@ -1,7 +1,7 @@
 """
 Applet: House of Commons
 Summary: Predicted election results
-Description: Predicted seat and vote shares for the UK's House of Commons according to the New Statesman.
+Description: Predicted seat and vote shares for the UK's House of Commons based on opinion polls.
 Author: dinosaursrarr
 """
 
@@ -27,6 +27,8 @@ REFORM = "Ref"
 SCOTTISH_NATIONAL_PARTY = "SNP"
 PLAID_CYMRU = "PC"
 OTHER = "Oth"
+
+SIZE_OF_HOUSE_OF_COMMONS = 650
 NORTHERN_IRELAND_SEATS = 18
 
 WHITE = "#ffffff"
@@ -44,6 +46,7 @@ PARTY_COLOURS = {
 
 NEW_STATESMAN = "New Statesman"
 ELECTORAL_CALCULUS = "Electoral Calculus"
+ELECTION_POLLING = "Election Polling"
 URL = "url"
 NAMES = "names"
 DISPLAY = "display"
@@ -67,14 +70,30 @@ SOURCES = {
             "Other": OTHER,
         },
     },
+    ELECTION_POLLING: {
+        DISPLAY: "electionpolling",
+        URL: "https://www.electionpolling.co.uk/forecasts/uk-parliament",
+        NAMES: {
+            "Labour": LABOUR,
+            "Conservative": CONSERVATIVE,
+            "Reform UK": REFORM,
+            "Liberal Democrat": LIBDEM,
+            "Green": GREEN,
+            "SNP": SCOTTISH_NATIONAL_PARTY,
+            "Plaid Cymru": PLAID_CYMRU,
+        },
+    },
 }
 
 SEAT_HEIGHT = 13
 FONT = "tom-thumb"
 SIX_HOURS = 60 * 60 * 6
 
-def extract_number(s):
-    return "".join([c for c in s.elems() if c.isdigit()])
+def extract_int(s):
+    return int("".join([c for c in s.elems() if c.isdigit()]))
+
+def extract_percentage(s):
+    return float(s.strip().removesuffix("%").strip()) / 100.0
 
 def divmod(x, a):
     return x // a, x % a
@@ -177,7 +196,6 @@ def render_seats(predictions, source):
                                 SOURCES[source][DISPLAY],
                                 align = "center",
                                 width = 64,
-                                height = 8,
                                 font = FONT,
                             ),
                         ),
@@ -233,8 +251,8 @@ def new_statesman_predictions():
     predictions = {}
     for card in j[CARDS]:
         predictions[card[CATEGORY]] = {
-            SEATS: int(extract_number(card[TEXT][2])),
-            VOTE_SHARE: float("0." + extract_number(card[TEXT][0])),
+            SEATS: extract_int(card[TEXT][2]),
+            VOTE_SHARE: extract_percentage(card[TEXT][0]),
         }
     return predictions
 
@@ -251,9 +269,33 @@ def electoral_calculus_predictions():
         if party.get_text() not in SOURCES[ELECTORAL_CALCULUS][NAMES]:
             continue
         predictions[SOURCES[ELECTORAL_CALCULUS][NAMES][party.get_text()]] = {
-            SEATS: int(extract_number(seat_count.find("b").get_text())),
-            VOTE_SHARE: float("0." + extract_number(vote_share.get_text())),
+            SEATS: extract_int(seat_count.find("b").get_text()),
+            VOTE_SHARE: extract_percentage(vote_share.get_text()),
         }
+    return predictions
+
+def election_polling_predictions():
+    resp = fetch_source(ELECTION_POLLING)
+    if not resp:
+        return None
+    page = bsoup.parseHtml(resp.body())
+    rows = page.find("table").find_all("tr")[2:]
+
+    total_seats = 0
+    predictions = {}
+    for row in rows:
+        _, party, _, vote_share, _, _, seat_count, _, _, _ = [td.get_text() for td in row.find_all("td")]
+        seat_count = extract_int(seat_count)
+        total_seats += seat_count
+        print(party, seat_count, extract_percentage(vote_share))
+        predictions[SOURCES[ELECTION_POLLING][NAMES][party]] = {
+            SEATS: seat_count,
+            VOTE_SHARE: extract_percentage(vote_share),
+        }
+    predictions[OTHER] = {
+        SEATS: SIZE_OF_HOUSE_OF_COMMONS - total_seats - NORTHERN_IRELAND_SEATS,
+        VOTE_SHARE: 0,
+    }
     return predictions
 
 def main(config):
@@ -262,6 +304,8 @@ def main(config):
         predictions = new_statesman_predictions()
     elif source == ELECTORAL_CALCULUS:
         predictions = electoral_calculus_predictions()
+    elif source == ELECTION_POLLING:
+        predictions = election_polling_predictions()
     else:
         return render_error("You must select a source")
 
@@ -310,7 +354,7 @@ def get_schema():
                         display = key,
                         value = key,
                     )
-                    for key in SOURCES
+                    for key in sorted(SOURCES, reverse = True)
                 ],
             ),
         ],
