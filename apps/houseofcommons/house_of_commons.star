@@ -11,8 +11,8 @@ load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
+NEW_STATESMAN = "New Statesman"
 NEW_STATESMAN_URL = "https://flo.uri.sh/visualisation/18073501/embed?auto=1"
-NORTHERN_IRELAND_SEATS = 18
 
 CARDS = "cards"
 CATEGORY = "category"
@@ -28,6 +28,7 @@ REFORM = "Ref"
 SCOTTISH_NATIONAL_PARTY = "SNP"
 PLAID_CYMRU = "PC"
 OTHER = "Oth"
+NORTHERN_IRELAND_SEATS = 18
 
 WHITE = "#ffffff"
 BLACK = "#000000"
@@ -43,6 +44,7 @@ PARTY_COLOURS = {
 }
 
 SEAT_HEIGHT = 13
+FONT = "tom-thumb"
 
 def extract_number(s):
     return "".join([c for c in s.elems() if c.isdigit()])
@@ -79,7 +81,7 @@ def render_seat_count(party, seats):
         ),
     )
 
-def render_seats(predictions):
+def render_seats(predictions, source):
     mps = {
         party: render.Box(height = 1, width = 1, color = PARTY_COLOURS[party][0])
         for party in predictions
@@ -130,12 +132,28 @@ def render_seats(predictions):
             ),
             render.Padding(
                 pad = (0, 1, 0, 0),
-                child = render.Row(
-                    expanded = True,
-                    main_align = "space_evenly",
+                child = render.Animation(
                     children = [
-                        render_seat_count(party, seat_count)
-                        for seat_count, _, party in seats[:4]
+                        render.Row(
+                            expanded = True,
+                            main_align = "space_evenly",
+                            children = [
+                                render_seat_count(party, seat_count)
+                                for seat_count, _, party in seats[i:i + 4]
+                            ],
+                        )
+                        for i in range(0, len(seats) - 1, 4)
+                    ] + [
+                        render.Padding(
+                            pad = (0, 1, 0, 0),
+                            child = render.WrappedText(
+                                source,
+                                align = "center",
+                                width = 64,
+                                height = 8,
+                                font = FONT,
+                            ),
+                        ),
                     ],
                 ),
             ),
@@ -152,7 +170,7 @@ def render_error(msg):
                     color = PARTY_COLOURS[OTHER][0],
                     child = render.WrappedText(
                         "House of Commons",
-                        font = "tom-thumb",
+                        font = FONT,
                         width = 64,
                         align = "center",
                         color = PARTY_COLOURS[OTHER][1],
@@ -170,7 +188,7 @@ def render_error(msg):
         ),
     )
 
-def main():
+def new_statesman_predictions():
     resp = http.get(NEW_STATESMAN_URL, ttl_seconds = 60 * 60 * 24)
     if resp.status_code != 200:
         return render_error("Could not fetch data")
@@ -185,10 +203,15 @@ def main():
             SEATS: int(extract_number(card[TEXT][2])),
             VOTE_SHARE: float("0." + extract_number(card[TEXT][0])),
         }
+    return predictions, NEW_STATESMAN
+
+def main():
+    predictions, source = new_statesman_predictions()
 
     outcome, winner = compute_outcome(predictions)
 
     return render.Root(
+        delay = 2000,
         child = render.Column(
             cross_align = "center",
             children = [
@@ -198,7 +221,7 @@ def main():
                     color = PARTY_COLOURS[winner][0],
                     child = render.WrappedText(
                         outcome,
-                        font = "tom-thumb",
+                        font = FONT,
                         width = 64,
                         align = "center",
                         color = PARTY_COLOURS[winner][1],
@@ -206,7 +229,7 @@ def main():
                 ),
                 render.Padding(
                     pad = (0, 2, 0, 0),
-                    child = render_seats(predictions),
+                    child = render_seats(predictions, source),
                 ),
             ],
         ),
