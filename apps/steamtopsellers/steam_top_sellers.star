@@ -1,7 +1,7 @@
 """
 Applet: Steam Top Sellers
 Summary: Display Steam Top Sellers
-Description: A simple app intended to render a random selection from Steam's Top Seller list.
+Description: A simple app intended to render a random selection from Steam's Top Seller list. Provide a region (country code) to customize pricing details.
 Author: John Kalbac (@johnkalbac)
 """
 
@@ -9,14 +9,17 @@ load("animation.star", "animation")
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
+load("schema.star", "schema")
 
 GLOBAL_HTTP_TTL_SECONDS = 600
 GLOBAL_RESULT_LIMIT = 1  # Limit results to minimize rendered file size
 FEATURED_CATEGORIES_RESOURCE = "https://store.steampowered.com/api/featuredcategories"
+DEFAULT_REGION_CODE = "us" #ISO 3166, alpha-2
 MARQUEE_NAME_LENGTH = 60
 
-def main():
-    response = call_steam_api()
+def main(config):
+    region = config.get("region", DEFAULT_REGION_CODE)
+    response = call_steam_api(region)
     if response.status_code != 200:
         return handle_failure()
 
@@ -29,10 +32,11 @@ def main():
         delay = 90,
     )
 
-def call_steam_api():
+def call_steam_api(region):
     # Fetch the featured games from the Steam API
+    full_url = FEATURED_CATEGORIES_RESOURCE + "?cc=" + region
     return http.get(
-        FEATURED_CATEGORIES_RESOURCE,
+        full_url,
         ttl_seconds = GLOBAL_HTTP_TTL_SECONDS,
     )
 
@@ -56,7 +60,7 @@ def build_frames(top_sellers):
     for item in top_sellers_sorted:
         name = item["name"]
 
-        # Omit Steam Deck entries
+        # Omit Steam Deck hardware entries
         if name != "Steam Deck" and counter < GLOBAL_RESULT_LIMIT:
             print("name: %s, counter: %s" % (name, str(counter)))
             discount_percent = item["discount_percent"]
@@ -121,7 +125,7 @@ def get_details_widget(name, final_price_formatted, discount_percent):
                                 height = 15,
                                 child = render.Marquee(
                                     height = 10,
-                                    width = 60,
+                                    width = MARQUEE_NAME_LENGTH,
                                     #delay=10,
                                     child = render.Text(name, color = "#ffff"),
                                     offset_start = 0,
@@ -210,3 +214,29 @@ def get_discount(discount_percent):
         return "-%s" % str(discount_percent)[:-2] + "%"
     else:
         return ""
+
+def get_schema():
+    options = [
+        schema.Option(display = "US", value = "us"),
+        schema.Option(display = "Spain", value = "es"),
+        schema.Option(display = "Germany", value = "de"),
+        schema.Option(display = "France", value = "fr"),
+        schema.Option(display = "New Zealand", value = "nz"),
+        schema.Option(display = "Australia", value = "au"),
+        schema.Option(display = "UK", value = "uk"),
+        schema.Option(display = "Brazil", value = "br"),
+    ]
+
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Dropdown(
+                id = "region",
+                name = "Region",
+                desc = "Steam country code for pricing details.",
+                icon = "map",
+                default = options[0].value,
+                options = options,
+            ),
+        ],
+    )
