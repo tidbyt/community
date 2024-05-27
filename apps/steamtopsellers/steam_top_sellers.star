@@ -1,7 +1,7 @@
 """
 Applet: Steam Top Sellers
 Summary: Display Steam Top Sellers
-Description: A simple app intended to render a random selection from Steam's Top Seller list. Provide a region (country code) to customize pricing details.
+Description: A simple app intended to render a random selection from Steam's Top Seller list.
 Author: John Kalbac (@johnkalbac)
 """
 
