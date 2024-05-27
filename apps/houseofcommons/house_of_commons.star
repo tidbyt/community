@@ -5,15 +5,14 @@ Description: Predicted seat and vote shares for the UK's House of Commons accord
 Author: dinosaursrarr
 """
 
+load("bsoup.star", "bsoup")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
-NEW_STATESMAN = "New Statesman"
-NEW_STATESMAN_URL = "https://flo.uri.sh/visualisation/18073501/embed?auto=1"
-
+SOURCE = "source"
 CARDS = "cards"
 CATEGORY = "category"
 TEXT = "text"
@@ -43,8 +42,36 @@ PARTY_COLOURS = {
     OTHER: ("#cccccc", BLACK),
 }
 
+NEW_STATESMAN = "New Statesman"
+ELECTORAL_CALCULUS = "Electoral Calculus"
+URL = "url"
+NAMES = "names"
+DISPLAY = "display"
+
+SOURCES = {
+    NEW_STATESMAN: {
+        DISPLAY: "New Statesman",
+        URL: "https://flo.uri.sh/visualisation/18073501/embed?auto=1",
+    },
+    ELECTORAL_CALCULUS: {
+        DISPLAY: "ElectoralCalculus",
+        URL: "https://www.electoralcalculus.co.uk/prediction_main.html",
+        NAMES: {
+            "CON": CONSERVATIVE,
+            "LAB": LABOUR,
+            "LIB": LIBDEM,
+            "Reform": REFORM,
+            "Green": GREEN,
+            "SNP": SCOTTISH_NATIONAL_PARTY,
+            "PlaidC": PLAID_CYMRU,
+            "Other": OTHER,
+        },
+    },
+}
+
 SEAT_HEIGHT = 13
 FONT = "tom-thumb"
+SIX_HOURS = 60 * 60 * 6
 
 def extract_number(s):
     return "".join([c for c in s.elems() if c.isdigit()])
@@ -147,7 +174,7 @@ def render_seats(predictions, source):
                         render.Padding(
                             pad = (0, 1, 0, 0),
                             child = render.WrappedText(
-                                source,
+                                SOURCES[source][DISPLAY],
                                 align = "center",
                                 width = 64,
                                 height = 8,
@@ -188,10 +215,16 @@ def render_error(msg):
         ),
     )
 
-def new_statesman_predictions():
-    resp = http.get(NEW_STATESMAN_URL, ttl_seconds = 60 * 60 * 24)
+def fetch_source(source):
+    resp = http.get(SOURCES[source][URL], ttl_seconds = SIX_HOURS)
     if resp.status_code != 200:
-        return render_error("Could not fetch data")
+        return None
+    return resp
+
+def new_statesman_predictions():
+    resp = fetch_source(NEW_STATESMAN)
+    if not resp:
+        return None
 
     (data,) = re.match(r"_Flourish_data\s*=\s*({.+?}),\n", resp.body())
     (_, data) = data
@@ -203,10 +236,37 @@ def new_statesman_predictions():
             SEATS: int(extract_number(card[TEXT][2])),
             VOTE_SHARE: float("0." + extract_number(card[TEXT][0])),
         }
-    return predictions, NEW_STATESMAN
+    return predictions
 
-def main():
-    predictions, source = new_statesman_predictions()
+def electoral_calculus_predictions():
+    resp = fetch_source(ELECTORAL_CALCULUS)
+    if not resp:
+        return None
+    page = bsoup.parseHtml(resp.body())
+    rows = page.find("div", id = "seatpred").find("tbody").find_all("tr")[1:]  # ignore headers
+
+    predictions = {}
+    for row in rows:
+        party, _, _, vote_share, _, seat_count, _ = row.find_all("td")
+        if party.get_text() not in SOURCES[ELECTORAL_CALCULUS][NAMES]:
+            continue
+        predictions[SOURCES[ELECTORAL_CALCULUS][NAMES][party.get_text()]] = {
+            SEATS: int(extract_number(seat_count.find("b").get_text())),
+            VOTE_SHARE: float("0." + extract_number(vote_share.get_text())),
+        }
+    return predictions
+
+def main(config):
+    source = config.get(SOURCE, NEW_STATESMAN)
+    if source == NEW_STATESMAN:
+        predictions = new_statesman_predictions()
+    elif source == ELECTORAL_CALCULUS:
+        predictions = electoral_calculus_predictions()
+    else:
+        return render_error("You must select a source")
+
+    if not predictions:
+        return render_error("Could not fetch data")
 
     outcome, winner = compute_outcome(predictions)
 
@@ -238,5 +298,20 @@ def main():
 def get_schema():
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = [
+            schema.Dropdown(
+                id = SOURCE,
+                name = "Source",
+                desc = "Which prediction to use?",
+                icon = "book",
+                default = NEW_STATESMAN,
+                options = [
+                    schema.Option(
+                        display = key,
+                        value = key,
+                    )
+                    for key in SOURCES
+                ],
+            ),
+        ],
     )
