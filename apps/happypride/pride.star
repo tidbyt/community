@@ -1,8 +1,9 @@
-# tidbyt-pride: a simple "happy pride" application for the Tidbyt
+#######################################################################
+# happypride: a simple "happy pride" application for the Tidbyt
 # display device.
 #
 #
-# Copyright (c) 2004 Robin Knauerhase. Distributed under MIT license,
+# Copyright (c) 2024 Robin Knauerhase. Distributed under MIT license,
 # see LICENSE
 #
 
