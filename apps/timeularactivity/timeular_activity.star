@@ -303,8 +303,8 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "active_only_when_tracking",
-                name = "Hide when not tracking activity",
-                desc = "Enable to only show app when an activity is being tracked.",
+                name = "Hide when inactive",
+                desc = "Enable to only show app when an activity is actively being tracked.",
                 icon = "eyeSlash",
                 default = False,
             ),
