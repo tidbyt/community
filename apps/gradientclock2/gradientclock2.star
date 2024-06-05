@@ -63,9 +63,9 @@ def get_rectangle(row, col, frame_num):
         alpha = 2 * period + 200 - (frame_num + (num_rows - row) - (num_rows - col))
 
     if (row + col) % 2 == 0:
-        return render.Box(width = 2, height = 2, color = hex_map(15 - row, row, col, alpha))
+        return render.Box(width = 2, height = 2, color = hex_map(15 - row - 1, row - 1, col - 1, alpha))
     else:
-        return render.Box(width = 2, height = 2, color = hex_map(15 - row - 3, row - 3, col - 3, alpha))
+        return render.Box(width = 2, height = 2, color = hex_map(15 - row - 4, row - 4, col - 4, alpha))
 
 def render_grid(frame_num):
     rows = []
@@ -95,6 +95,5 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            
         ],
     )
