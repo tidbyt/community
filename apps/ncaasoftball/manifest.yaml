@@ -1,0 +1,8 @@
+---
+id: ncaa-softball
+name: NCAA Softball
+summary: Shows NCAA Softball Scores
+desc: Displays current NCAA Softball Scores. Use the Top 25 toggle to show games for all the ranked schools or turn it off and pick your favorite school to follow. Choose between showing upcoming game times in relative or absolute terms and at what hour of the day to switch between showing yesterday's results and today's upcoming games.
+author: Jake Manske
+fileName: ncaa_softball.star
+packageName: ncaasoftball

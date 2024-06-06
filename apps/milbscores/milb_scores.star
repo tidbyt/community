@@ -10,6 +10,12 @@ v1.1
 Changed date logic from Eastern Time to Pacific Time as games were still being played when its the following day on the east coast
 Added Double A leagues & team colors
 Added team logos for both Triple-A and Double-A teams
+
+v1.2
+Changed the names on the league selection dropdown
+
+v1.3
+Changed date check to be Hawaii timezone - this will mean that the scores will not change to the following day until 6am ET, leaving the day's scores displayed on the Tidbyt for longer
 """
 
 load("encoding/json.star", "json")
@@ -29,6 +35,7 @@ LOGO_PREFIX = "https://milbpng.blob.core.windows.net/milb/"
 LOGO_SUFFIX = ".png"
 
 PT_TIMEZONE = "America/Los_Angeles"
+HAWAII_TIMEZONE = "Pacific/Honolulu"
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 
 COLORS = """
@@ -128,15 +135,13 @@ def main(config):
         Title = "TEXAS"
         SportID = "12"
 
-    # Get the date on the West Coast of US
-    now = time.now().in_location(PT_TIMEZONE)
+    # Get the date in Hawaii
+    now = time.now().in_location(HAWAII_TIMEZONE)
     strnow = str(now)
     date = strnow[:10]
 
-    #date = "2023-08-27"
     APIDate = "startDate=" + date + "&endDate=" + date
     API = API_PREFIX + SportID + "&" + APIDate + API_SUFFIX + SelectedLeague + API_SUFFIX2
-    #print(API)
 
     teamFont = "Dina_r400-6"
     scoreFont = "Dina_r400-6"
@@ -325,31 +330,31 @@ def main(config):
 
 LeagueOptions = [
     schema.Option(
-        display = "Triple A",
+        display = "All Triple A",
         value = "1",
     ),
     schema.Option(
-        display = "International League",
+        display = "AAA - International League",
         value = "117",
     ),
     schema.Option(
-        display = "Pacific Coast League",
+        display = "AAA - Pacific Coast League",
         value = "112",
     ),
     schema.Option(
-        display = "Double A",
+        display = "All Double A",
         value = "2",
     ),
     schema.Option(
-        display = "Eastern League",
+        display = "AA - Eastern League",
         value = "113",
     ),
     schema.Option(
-        display = "Southern League",
+        display = "AA - Southern League",
         value = "111",
     ),
     schema.Option(
-        display = "Texas League",
+        display = "AA - Texas League",
         value = "109",
     ),
 ]
