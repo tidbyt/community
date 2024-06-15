@@ -49,15 +49,18 @@ def main(config):
     if not config.str("ha_instance") or not config.str("ha_entity") or not config.str("ha_token"):
         print("Using placeholder data, please configure the app")
         data = PLACEHOLDER_DATA
+        error = None
     else:
         time_period = get_time_period(config.str("time_period"))
         if time_period == None:
             return render_error_message("Invalid time period")
 
         start_time = time.now() - time.hour * time_period
-        data = get_entity_data(config, start_time)
+        data, error = get_entity_data(config, start_time)
 
-    if len(data) < 1:
+    if data == None:
+        return render_error_message("Error: received status " + str(error))
+    elif len(data) < 1:
         return render_error_message("No data available")
 
     unit = data[0]["attributes"]["unit_of_measurement"]
@@ -134,10 +137,10 @@ def get_entity_data(config, start_time):
 
     rep = http.get(url, ttl_seconds = 240, headers = headers)
     if rep.status_code != 200:
-        render_error_message("Home Assistant request failed with status " + str(rep.status_code))
+        return None, rep.status_code
 
     data = rep.json()
-    return data[0] if data else []
+    return (data[0], None) if data else ([], None)
 
 def get_icon(config):
     icon = config.str("icon")
@@ -162,12 +165,12 @@ def render_app(config, current_value, points, stats, unit):
                 ],
             ),
             width = 107,
-            duration = 300,
+            duration = 100,
             delay = 100,
             keyframes = [
                 animation.Keyframe(percentage = 0.0, transforms = [animation.Translate(0, 0)]),
-                animation.Keyframe(percentage = 0.6, transforms = [animation.Translate(-43, 0)]),
-                animation.Keyframe(percentage = 1.0, transforms = [animation.Translate(-43, 0)]),
+                animation.Keyframe(curve = "ease_in", percentage = 0.2, transforms = [animation.Translate(-43, 0)]),
+                animation.Keyframe(curve = "ease_in", percentage = 1.0, transforms = [animation.Translate(-43, 0)]),
             ],
         ),
     )
@@ -234,6 +237,7 @@ def render_error_message(message):
                 render.Box(child = render.Image(src = ICONS["ha"], width = 15, height = 15), height = 15),
                 render.WrappedText(
                     align = "center",
+                    font = "tom-thumb",
                     content = message,
                     color = "#FF0000",
                     width = 64,
