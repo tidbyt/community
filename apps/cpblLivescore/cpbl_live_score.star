@@ -142,33 +142,44 @@ def main(config):
             awayScore = s["scores"]["run"]["home"]
             awayColor = get_teamcolor(awayId)
             gameTime = s["time"]
+            currentInning = 0
             if gameStatus == "Live":
                 liveinning = "Live"
-                for x in range(11):
+                for x in range(12):
                     if x == 0:
                         continue
-                    tempVal = s["scores"].get(str(x), "NO_YET")
-                    if tempVal == "NO_YET":
-                        if x == 1:
+                    tempVal = s["scores"].get(str(x), "FALSE")
+                    if tempVal != "FALSE":
+                        xhomeScore = s["scores"][str(x)]["home"]
+                        xawayScore = s["scores"][str(x)]["away"]
+                        if xhomeScore != "":
+                            if xawayScore == "":
+                                currentInning = x
+                                liveinning = "TOP " + str(currentInning) + get_inningStr(currentInning)
+                                break
+                            else:
+                                if x == 9:
+                                    TBCheck = s["scores"].get(str(10), "FALSE")
+                                    if TBCheck == "FALSE":
+                                        currentInning = x
+                                        liveinning = "BOT " + str(currentInning) + get_inningStr(currentInning)
+                                        break
+                                continue
+                        elif xhomeScore == "":
+                            if x == 1:
+                                currentInning = x
+                                liveinning = "TOP " + str(currentInning) + get_inningStr(currentInning)
+                                break
+                            else:
+                                currentInning = x - 1
+                                liveinning = "BOT " + str(currentInning) + get_inningStr(currentInning)
+                                break
+                    elif tempVal == "FALSE":
+                        if x - 1 > 9:
+                            liveinning = "TB"
                             break
-                        x = x - 1
-                        if x == 1:
-                            intStr = "st"
-                        elif x == 2:
-                            intStr = "nd"
-                        elif x == 3:
-                            intStr = "rd"
                         else:
-                            intStr = "th"
-                        tempinnAwayVal = s["scores"][str(x)].get("away", "")
-                        if tempinnAwayVal == "":
-                            liveinning = "TOP " + str(x) + intStr
                             break
-                        elif tempinnAwayVal != "":
-                            liveinning = "BOT " + str(x) + intStr
-                            break
-                    else:
-                        continue
                 gameTime = liveinning
             else:
                 convertedTime = time.from_timestamp(int(gameTime)).in_location(timezone)
@@ -574,3 +585,14 @@ def get_gamestatus(status):
     gamestatus = json.decode(GAME_STATUS)
     sta = gamestatus.get(status, "NO")
     return sta
+
+def get_inningStr(x):
+    if x == 1:
+        intStr = "st"
+    elif x == 2:
+        intStr = "nd"
+    elif x == 3:
+        intStr = "rd"
+    else:
+        intStr = "th"
+    return intStr
