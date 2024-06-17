@@ -78,6 +78,9 @@ def calculate_hourly_average(data):
     index = 0
 
     for entry in data:
+        if entry["state"] == "unavailable":
+            continue
+
         timestamp = entry["last_changed"]
         hour = int(timestamp.split("T")[1].split(":")[0])
         value = float(entry["state"])
@@ -107,6 +110,9 @@ def calc_stats(data):
     count = 0
 
     for entry in data:
+        if entry["state"] == "unavailable":
+            continue
+
         value = float(entry["state"])
         total_value += value
         count += 1
