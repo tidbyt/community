@@ -5,6 +5,13 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
+DEFAULT_COLOURS = {
+    "line_positive": "#FFA500",
+    "line_negative": "#344FEB",
+    "fill_positive": "#FFCC66",
+    "fill_negative": "#87CEFA",
+}
+
 ICONS = {
     "thermometer": base64.decode("""
 PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBVcGxvYWRlZCB0bzogU1ZHIFJlcG8sIHd3dy5zdmdyZXBvLmNvbSwgR2VuZXJhdG9yOiBTVkcgUmVwbyBNaXhlciBUb29scyAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgDQoJIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwb2x5Z29uIHN0eWxlPSJmaWxsOiNGRkZGRkY7IiBwb2ludHM9IjQxMS44MjYsMjc4LjI2IDM3OC40MSwyNzguMjYgMzc4LjQxLDI0NC44NyAzNDUuMDE5LDI0NC44NyAzNDUuMDE5LDMzLjM5MSAzMTEuNjI4LDMzLjM5MSANCgkzMTEuNjI4LDAgMjAwLjMyMywwIDIwMC4zMjMsMzMuMzkxIDE2Ni45MzIsMzMuMzkxIDE2Ni45MzIsMjQ0Ljg3IDEzMy41NDEsMjQ0Ljg3IDEzMy41NDEsMjc4LjI2IDEwMC4xNzQsMjc4LjI2IDEwMC4xNzQsNDQ1LjIxNiANCgkxMzMuNTQxLDQ0NS4yMTYgMTMzLjU0MSw0NDUuMjE3IDEzMy41NDEsNDc4LjYwOSAxNjYuOTMyLDQ3OC42MDkgMTY2LjkzMiw1MTIgMzQ1LjAxOSw1MTIgMzQ1LjAxOSw0NzguNjA5IDM3OC40MSw0NzguNjA5IA0KCTM3OC40MSw0NDUuMjE3IDQxMS44MDIsNDQ1LjIxNyA0MTEuODAyLDQ0NS4yMTYgNDExLjgyNiw0NDUuMjE2ICIvPg0KPHJlY3QgeD0iMTMzLjU2NSIgeT0iMjQ0Ljg3IiB3aWR0aD0iMzMuMzkxIiBoZWlnaHQ9IjMzLjM5MSIvPg0KPHJlY3QgeD0iMTMzLjU2NSIgeT0iNDQ1LjIxNyIgd2lkdGg9IjMzLjM5MSIgaGVpZ2h0PSIzMy4zOTEiLz4NCjxyZWN0IHg9IjE2Ni45NTciIHk9IjQ3OC42MDkiIHdpZHRoPSIxNzguMDg3IiBoZWlnaHQ9IjMzLjM5MSIvPg0KPHJlY3QgeD0iMTAwLjE3NCIgeT0iMjc4LjI2MSIgd2lkdGg9IjMzLjM5MSIgaGVpZ2h0PSIxNjYuOTU3Ii8+DQo8cmVjdCB4PSIzNDUuMDQzIiB5PSIyNDQuODciIHdpZHRoPSIzMy4zOTEiIGhlaWdodD0iMzMuMzkxIi8+DQo8cmVjdCB4PSIzNDUuMDQzIiB5PSI0NDUuMjE3IiB3aWR0aD0iMzMuMzkxIiBoZWlnaHQ9IjMzLjM5MSIvPg0KPHJlY3QgeD0iMzc4LjQzNSIgeT0iMjc4LjI2MSIgd2lkdGg9IjMzLjM5MSIgaGVpZ2h0PSIxNjYuOTU3Ii8+DQo8cmVjdCB4PSIyMDAuMzQ4IiB3aWR0aD0iMTExLjMwNCIgaGVpZ2h0PSIzMy4zOTEiLz4NCjxyZWN0IHg9IjE2Ni45NTciIHk9IjMzLjM5MSIgd2lkdGg9IjMzLjM5MSIgaGVpZ2h0PSIyMTEuNDc4Ii8+DQo8cmVjdCB4PSIzMTEuNjUyIiB5PSIzMy4zOTEiIHdpZHRoPSIzMy4zOTEiIGhlaWdodD0iMjExLjQ3OCIvPg0KPHBvbHlnb24gc3R5bGU9ImZpbGw6I0ZGMEMzODsiIHBvaW50cz0iMzExLjY1MiwzMTEuNjUyIDMxMS42NTIsMjc4LjI2MSAyNzguMjYxLDI3OC4yNjEgMjc4LjI2MSw2Ni43ODMgMjMzLjczOSw2Ni43ODMgDQoJMjMzLjczOSwyNzguMjYxIDIwMC4zNDgsMjc4LjI2MSAyMDAuMzQ4LDMxMS42NTIgMTY2Ljk1NywzMTEuNjUyIDE2Ni45NTcsNDExLjgyNiAyMDAuMzQ4LDQxMS44MjYgMjAwLjM0OCw0MTEuODI2IA0KCTIwMC4zNDgsNDQ1LjIxNyAzMTEuNjUyLDQ0NS4yMTcgMzExLjY1Miw0MTEuODI2IDMxMS42NTIsNDExLjgyNiAzNDUuMDQzLDQxMS44MjYgMzQ1LjA0MywzMTEuNjUyICIvPg0KPC9zdmc+
@@ -208,8 +215,10 @@ def render_graph_column(config, current_value, points, unit):
                 data = points,
                 width = 64,
                 height = 18,
-                color = config.str("line_positive", "#FFA500"),
-                color_inverted = config.str("line_negative", "#87CEFA"),
+                color = config.str("line_positive", DEFAULT_COLOURS["line_positive"]),
+                color_inverted = config.str("line_negative", DEFAULT_COLOURS["line_negative"]),
+                fill_color = config.str("fill_positive", DEFAULT_COLOURS["fill_positive"]),
+                fill_color_inverted = config.str("fill_negative", DEFAULT_COLOURS["fill_negative"]),
                 fill = True,
             ),
         ],
@@ -292,38 +301,52 @@ def get_schema():
             ),
             schema.Text(
                 id = "ha_entity",
-                desc = "Entity name of the sensor to display, e.g. 'sensor.temperature'",
+                desc = "Entity name of the sensor to display, e.g. 'sensor.temperature'.",
                 icon = "ruler",
                 name = "Entity name",
             ),
             schema.Text(
                 id = "time_period",
                 default = "24",
-                desc = "In hours, how far back to look for data. Enter a number from 2 to " + str(MAX_TIME_PERIOD) + ".",
+                desc = "In hours, how far back to look for data. Enter a number from 2 to %s." % str(MAX_TIME_PERIOD),
                 icon = "timeline",
                 name = "Time period",
             ),
             schema.Dropdown(
                 id = "icon",
                 default = icons[0].value,
-                desc = "Icon to display for the entity",
+                desc = "Icon to display for the entity.",
                 icon = "icons",
                 name = "Icon",
                 options = icons,
             ),
             schema.Color(
                 id = "line_positive",
-                default = "#FFA500",
-                desc = "Colour of the graph line for positive values",
+                default = DEFAULT_COLOURS["line_positive"],
+                desc = "Colour of the graph line for positive values.",
                 icon = "chartLine",
                 name = "Graph line for positive values",
             ),
             schema.Color(
                 id = "line_negative",
-                default = "#87CEFA",
-                desc = "Colour of the graph line for negative values",
+                default = DEFAULT_COLOURS["line_negative"],
+                desc = "Colour of the graph line for negative values.",
                 icon = "chartLine",
                 name = "Graph line for negative values",
+            ),
+            schema.Color(
+                id = "fill_positive",
+                default = DEFAULT_COLOURS["fill_positive"],
+                desc = "Fill colour of the graph for positive values.",
+                icon = "chartLine",
+                name = "Fill colour for positive values",
+            ),
+            schema.Color(
+                id = "fill_negative",
+                default = DEFAULT_COLOURS["fill_negative"],
+                desc = "Fill colour of the graph for negative values.",
+                icon = "chartLine",
+                name = "Fill colour for negative values",
             ),
         ],
     )
