@@ -20,19 +20,20 @@ DEFAULT_TIMEZONE = "US/Pacific"
 
 DEBUG = False
 
-def render_root(todays_shots, latest_shot):
+def render_root(todays_shots, latest_shot, timezone):
     """ Renders the root for the app while we have data for it 
 
     Args:
       todays_shots: list containing the shots that are timestamped today.
       latest_shot: the latest shot data we found.
+      timezone: the timezone location string to compare the day to.
     Returns:
         rendered root for the app
     """
 
     render_text = "{}".format(
         humanize.time(
-            time.from_timestamp(latest_shot.get("clock", 1)).in_location(DEFAULT_TIMEZONE),
+            time.from_timestamp(latest_shot.get("clock", 1)).in_location(timezone),
         ),
     )
 
@@ -143,27 +144,30 @@ def get_latest_shot(my_shots):
     # loop to find the latest shot from the list.
     latest_shot = {}
     for shot in my_shots["data"]:
-        timestamp = time.from_timestamp(shot.get("clock", 1)).in_location(DEFAULT_TIMEZONE)
-        if timestamp > time.from_timestamp(latest_shot.get("clock", 1)).in_location(DEFAULT_TIMEZONE):
+        timestamp = time.from_timestamp(shot.get("clock", 1))
+        if timestamp > time.from_timestamp(latest_shot.get("clock", 1)):
             latest_shot = shot
 
     return latest_shot
 
-def get_todays_shots(my_shots):
+def get_todays_shots(my_shots, timezone):
     """ Returns a list of shots from today (starting at midnight).
 
     Args:
       my_shots: data returned from getting shots
+      timezone: the timezone location string to compare the day to.
     Returns:
         list of todays shots
     """
-    n = time.now().in_location(DEFAULT_TIMEZONE).unix
-    today_ts = time.from_timestamp(n).in_location(DEFAULT_TIMEZONE)
+    now = time.now().in_location(timezone)
+    today_start_midnight = time.time(year = now.year, month = now.month, day = now.day, location = timezone)
 
     todays_shots = []
+
+    # data from visulizer are UTC
     for shot in my_shots.get("data"):
-        ts = time.from_timestamp(shot.get("clock", 1)).in_location(DEFAULT_TIMEZONE)
-        if ts > today_ts:
+        ts = time.from_timestamp(shot.get("clock", 1)).in_location(timezone)
+        if ts > today_start_midnight:
             todays_shots.append(shot)
 
     return todays_shots
@@ -234,4 +238,4 @@ def main(config):
     if my_shots == None:
         return render_problem("could not get shots from vizulizer...")
 
-    return render_root(get_todays_shots(my_shots), get_latest_shot(my_shots))
+    return render_root(get_todays_shots(my_shots, DEFAULT_TIMEZONE), get_latest_shot(my_shots), DEFAULT_TIMEZONE)
