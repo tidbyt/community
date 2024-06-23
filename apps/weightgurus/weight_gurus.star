@@ -20,7 +20,7 @@ CACHE_TTL = 60 * 60 * 24  # updates once daily
 
 #API information from https://gist.github.com/MarkWalters-pw/08ea0e8737e3e4d11f70427ef8fdc7df and https://github.com/merval/weightgurus
 WEIGHTGURUS_LOGIN = "https://api.weightgurus.com/v3/account/login"
-WEIGHTGURUS_HISTORY = "https://api.weightgurus.com/v3/operation/?%s"
+WEIGHTGURUS_HISTORY = "https://api.weightgurus.com/v3/operation/"
 
 #Weight Gurus Data Display
 DISPLAY_FONT = "CG-pixel-3x5-mono"
@@ -56,16 +56,25 @@ def main(config):
 
         # For weight, fat % and bmi, let's get the data from cache, and if it doesn't exist, get it from weight gurus
         print("Checking cache for weight data")
-        cache_item_name = "%s_operations" % access_token
+        cache_item_name = "%s_operations_%s" % (access_token, period)
         cached_operations = cache.get(cache_item_name)
         if cached_operations == None:
             print("No weight data in cache, fetching from weight gurus")
 
             #TODO: Filter this based on requested period to reduce data size
-            operations = get_data_from_weightgurus(access_token)
+            operations = get_data_from_weightgurus(access_token, period)
 
             # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(cache_item_name, json.encode(operations), ttl_seconds = CACHE_TTL)
+            if (operations):
+                cache.set(cache_item_name, json.encode(operations), ttl_seconds = CACHE_TTL)
+            else:
+                print("Did not get a valid response from the weight gurus API")
+                return render.Root(
+                    child = render.WrappedText(
+                        content = "Got invalid data from Weight Gurus",
+                        color = "#fa0",
+                    ),
+                )
         else:
             print("Using cached weight data")
             operations = json.decode(cached_operations)
@@ -316,9 +325,23 @@ def get_days_between(day1, day2):
     return days
 
 # buildifier: disable=function-docstring
-def get_data_from_weightgurus(access_token):
+def get_data_from_weightgurus(access_token, period):
+    start_date = time.now() - time.parse_duration("%dh" % (int(period) * 24))
+
+    # start=1970-01-01T01:00:00.504Z
+    formatted_date = (
+        zero_pad(start_date.year, 4) + "-" +
+        zero_pad(start_date.month, 2) + "-" +
+        zero_pad(start_date.day, 2) + "T" +
+        "00:" +
+        "00:" +
+        "00." +
+        "000Z"
+    )
+
+    url = WEIGHTGURUS_HISTORY + ("?start=%s" % formatted_date)
     res = http.get(
-        url = WEIGHTGURUS_HISTORY,
+        url = url,
         headers = {
             "Authorization": "Bearer %s" % access_token,
         },
@@ -378,6 +401,11 @@ def get_access_token(email, password):
         cache.set(cache_key, access_token, ttl_seconds = int(ttl.seconds - 30))
 
     return access_token
+
+# I'm so annoyed that I have to provide this function
+def zero_pad(number, width):
+    str_num = str(number)
+    return "0" * (width - len(str_num)) + str_num
 
 def get_schema():
     period_options = [
