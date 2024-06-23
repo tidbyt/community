@@ -414,7 +414,6 @@ def get_schema():
         schema.Option(value = "360", display = "1 Year"),
         schema.Option(value = "720", display = "2 Years"),
         schema.Option(value = "1825", display = "5 Years"),
-        schema.Option(value = "0", display = "Maximum Allowed"),
     ]
 
     measurement_options = [
