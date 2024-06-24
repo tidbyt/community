@@ -200,7 +200,10 @@ def face_layout(character_data, job_color):
                                 ),
                                 render.Padding(
                                     pad = (1, 0, 0, 0),
-                                    child = render.Text(content = character_data["home_world"], color = WORLD_COLOR),
+                                    child = render.Marquee(
+                                        child = render.Text(content = character_data["home_world"], color = WORLD_COLOR),
+                                        width = 40
+                                    )
                                 ),
                             ],
                         ),
