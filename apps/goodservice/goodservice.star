@@ -1,7 +1,7 @@
 """
-Applet: Goodservice
-Summary: Goodservice NYC subway
-Description: Projected New York City subway departure times, powered by goodservice.io.
+Applet: The Weekendest
+Summary: The Weekendest - NYC subway
+Description: Real-time New York City Subway projected departure times for a selected station, as seen on The Weekendest app. Takes into account of overnight and weekend service changes.
 Author: blahblahblah-
 """
 
@@ -27,6 +27,7 @@ NAME_OVERRIDE = {
     "Times Sq-42 St": "Times Sq",
     "Coney Island-Stillwell Av": "Coney Is",
     "South Ferry": "S Ferry",
+    "Mets-Willets Point": "Willets Pt",
 }
 
 STREET_ABBREVIATIONS = [
