@@ -13,6 +13,9 @@ load("schema.star", "schema")
 NOT_FOUND = "Not Found"
 LOAD_ERROR = "Load Error"
 
+NAME_COLOR = "#ffffff"
+WORLD_COLOR = "#B89A40"
+
 ROLE_COLORS = {
     "dps": "#7E3A3B",
     "tank": "#4155B9",
@@ -69,67 +72,55 @@ def get_raw_url(url):
         return "%s: %d" % (LOAD_ERROR, res.status_code)
     return res.body()
 
+def get_img_src(soup, parent_class, parent_elem = "div", default = ""):
+    tag = soup.find(parent_elem, {"class": parent_class})
+    img = tag.find("img") if tag else None
+    return img.attrs()["src"] if img else default
+
+def get_text(soup, class_, elem = "p", default = ""):
+    tag = soup.find(elem, {"class": class_})
+    return tag.get_text() if tag else default
+
 def extract_character_info(profile):
     soup = bsoup.parseHtml(profile)
 
     # Extract the character face
-    face_tag = soup.find("div", {"class": "frame__chara__face"}).find("img")
-    face_src = face_tag.attrs()["src"] if face_tag else ""
+    face_src = get_img_src(soup, "frame__chara__face")
 
     # Extract the character image
-    image_tag = soup.find("div", {"class": "character__detail__image"}).find("img")
-    image_src = image_tag.attrs()["src"] if image_tag else ""
+    image_src = get_img_src(soup, "character__detail__image")
 
-    # Extract the character name
-    title_tag = soup.find("p", {"class": "frame__chara__title"})
-    name_tag = soup.find("p", {"class": "frame__chara__name"})
-    home_world_tag = soup.find("p", {"class": "frame__chara__world"})
-    title = title_tag.get_text() if title_tag else ""
-    name = name_tag.get_text() if name_tag else "???"
-    home_world = home_world_tag.get_text().split(" ")[0] if home_world_tag else "???"
+    # Extract the character name and title
+    char_info = soup.find("div", {"class": "frame__chara__box"}).find_all("p")
+    name = " ".join([p.get_text().strip() for p in char_info if p.attrs().get("class") in ["frame__chara__name", "frame__chara__title"]])
+    name = name or "???"
+    home_world = get_text(soup, "frame__chara__world").split(" ")[0]
 
     # Class data
-    class_data = soup.find("div", {"class": "character__class__data"})
-    level = class_data.find("p").get_text().strip().split(" ")[-1]
-    class_icon = class_data.find("div", {"class": "character__class_icon"}).find("img").attrs()["src"]
-    class_name_img = class_data.find("img", {"class": "character__classjob"}).attrs()["src"]
-    class_icon_images = soup.find_all("img", {"src": class_icon})
-    class_name = ""
-    for img in class_icon_images:
-        class_name = img.attrs().get("data-tooltip")
-        if class_name:
+    job_data = soup.find("div", {"class": "character__class__data"})
+    job_level = job_data.find("p").get_text().strip().split(" ")[-1]
+    job_icon_src = get_img_src(job_data, "character__class_icon")
+    job_icon_images = soup.find_all("img", {"src": job_icon_src})
+    job_name = None
+    for img in job_icon_images:
+        job_name = img.attrs().get("data-tooltip")
+        if job_name:
             break
 
     return {
         "name": name,
-        "title": title,
         "home_world": home_world,
         "face_url": face_src,
         "image_url": image_src,
-        "job_level": level,
-        "job_icon_url": class_icon,
-        "job_name": class_name or "",
-        "job_name_url": class_name_img,
+        "job_level": job_level,
+        "job_icon_url": job_icon_src,
+        "job_name": job_name or "???",
     }
 
 def make_error(msg):
     return render.Root(child = render.WrappedText(content = msg, color = "#ff0000"))
 
-def main(config):
-    lodestone_id = config.get("lodestone_id")
-    if not lodestone_id:
-        return make_error("No Lodestone ID provided")
-
-    profile = load_character_profile(lodestone_id)
-
-    if profile == NOT_FOUND:
-        return make_error("Character %s not found..." % lodestone_id)
-    elif profile.startswith(LOAD_ERROR):
-        return make_error(profile)
-
-    character_data = extract_character_info(profile)
-    job_color = ROLE_COLORS.get(JOB_ROLES.get(character_data["job_name"]), "#ffffff")
-
+def portrait_layout(character_data, job_color):
     return render.Root(
         delay = 100,
         child = render.Row(
@@ -148,8 +139,8 @@ def main(config):
                     main_align = "space_around",
                     expanded = True,
                     children = [
-                        render.Marquee(child = render.Text(content = character_data["title"] + " " + character_data["name"], color = job_color), width = 40),
-                        render.WrappedText(content = character_data["home_world"]),
+                        render.Marquee(child = render.Text(content = character_data["name"], color = NAME_COLOR), width = 40),
+                        render.WrappedText(content = character_data["home_world"], color = WORLD_COLOR),
                         render.Row(
                             cross_align = "center",
                             children = [
@@ -166,6 +157,75 @@ def main(config):
             ],
         ),
     )
+
+def face_layout(character_data, job_color):
+    return render.Root(
+        delay = 100,
+        child = render.Column(
+            children = [
+                render.Row(
+                    children = [
+                        render.Marquee(child = render.Text(content = character_data["name"], color = NAME_COLOR), width = 64),
+                    ],
+                ),
+                render.Row(
+                    cross_align = "space_around",
+                    expanded = True,
+                    children = [
+                        render.Column(
+                            children = [
+                                render.Padding(
+                                    pad = (1, 1, 1, 0),
+                                    child = render.Image(src = get_raw_url(character_data["face_url"]), width = 22),
+                                ),
+                            ],
+                        ),
+                        render.Column(
+                            children = [render.Box(width = 1)],
+                        ),
+                        render.Column(
+                            main_align = "space_around",
+                            expanded = True,
+                            children = [
+                                render.Row(
+                                    main_align = "center",
+                                    cross_align = "center",
+                                    children = [
+                                        render.Padding(
+                                            pad = (0, 0, 1, 0),
+                                            child = render.Image(src = get_raw_url(character_data["job_icon_url"]), width = 16),
+                                        ),
+                                        render.Text(content = character_data["job_level"], color = job_color),
+                                    ],
+                                ),
+                                render.Padding(
+                                    pad = (1, 0, 0, 0),
+                                    child = render.Text(content = character_data["home_world"], color = WORLD_COLOR),
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    )
+
+def main(config):
+    lodestone_id = config.get("lodestone_id")
+    if not lodestone_id:
+        return make_error("No Lodestone ID provided")
+
+    profile = load_character_profile(lodestone_id)
+
+    if profile == NOT_FOUND:
+        return make_error("Character %s not found..." % lodestone_id)
+    elif profile.startswith(LOAD_ERROR):
+        return make_error(profile)
+
+    character_data = extract_character_info(profile)
+    job_color = ROLE_COLORS.get(JOB_ROLES.get(character_data["job_name"]), "#ffffff")
+
+    return face_layout(character_data, job_color)
 
 def get_schema():
     return schema.Schema(
