@@ -93,7 +93,7 @@ def get_baby_size_message(weeks_pregnant):
 def get_default_due_date():
     current_time = time.now()
     hours_in_week = 7 * 24
-    duration = time.parse_duration(str(hours_in_week * 22) + "h")
+    duration = time.parse_duration(str(hours_in_week * 30) + "h")
     default_due_date = current_time + duration
     return default_due_date.format("2006-01-02T15:04:05Z07:00")
 
