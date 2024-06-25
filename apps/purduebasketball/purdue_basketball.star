@@ -68,7 +68,7 @@ def get_schema():
             schema.Text(
                 id = "api_key",
                 name = "api key",
-                desc = "API key you can get for free at api.sportsdata.io",
+                desc = "API key you can get for free at https://sportsdata.io/",
                 icon = "key",
             ),
         ],
