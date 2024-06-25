@@ -11,10 +11,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 def main(config):
-    config_date = config.get("due_date")
-    if not config_date:
-        return render_marquee("Please select your baby's due date from the app settings.")
-
+    config_date = config.get("due_date", get_default_due_date())
     due_date = time.parse_time(config_date)
     weeks_pregnant = calculate_weeks_pregnant(due_date)
 
@@ -92,6 +89,13 @@ def get_baby_size_message(weeks_pregnant):
     if weeks_pregnant < 4:
         return "Baby is still a glimmer in your eye!"
     return "Baby is the size of " + fruit_names[weeks_pregnant] + "!"
+
+def get_default_due_date():
+    current_time = time.now()
+    hours_in_week = 7 * 24
+    duration = time.parse_duration(str(hours_in_week * 22) + "h")
+    default_due_date = current_time + duration
+    return default_due_date.format("2006-01-02T15:04:05Z07:00")
 
 month_abbreviations = {
     1: "Jan",
