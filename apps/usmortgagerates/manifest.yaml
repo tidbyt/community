@@ -1,0 +1,8 @@
+---
+id: us-mortgage-rates
+name: US Mortgage Rates
+summary: Average US mortgage rates
+desc: Tracks average mortgage rates in the US based on FRED economic data.
+author: sullivan1337
+fileName: us_mortgage_rates.star
+packageName: usmortgagerates

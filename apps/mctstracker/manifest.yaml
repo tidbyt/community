@@ -1,0 +1,8 @@
+---
+id: mcts-tracker
+name: MCTS Tracker
+summary: Track MCTS buses
+desc: 'View live tracking information for Milwaukee County Transit System buses. Note: it is recommended that you apply for an API key at https://realtime.ridemcts.com/bustime/newDeveloper.jsp.'
+author: Josiah Winslow
+fileName: mcts_tracker.star
+packageName: mctstracker

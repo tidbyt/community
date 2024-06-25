@@ -13,6 +13,8 @@ DEV_API_KEY = ""
 PROD_API_KEYS = [
     "AV6+xWcEZIMGFviu8oqBudMgmkxE1fU8GovLMKoBnQ4qAAbxGy6+HJWkSa4Or1g37TlcSepcNSsL7tORiavmprZfs9Ou7/Yen8FtI6hcIgreqKY/jQKA3QV6VtvCXXfwanjxwV2KZbcHi4W0mf5U0s4Xesy32wGLLclT/up2keKAXdgVaZE=",
     "AV6+xWcEX8BBnVXJmCZLWWTaw/YBgpmXjqdTjGtdZWfqOJHJZU0X+x2t/xsSI/OkZ256iP3cyWF5ft528Lfz7W2Ss+InURzEmEp/t1aGr3b+c9DqcwXzTcdqBybg/H4CeSf+idUuBhyIRRMCA+eo9Y4ttckthcM26AlbAbbY5YZAhVUvsu0=",
+    "AV6+xWcELYBrQIbYQsAtOuG0sAm/6CRxGNuYtDJGKW9kdtNgGGTIcQ4Syu2HTY1xXQDaNxgqHtGk56rwGoPDEHkrLpBwf4qYz3GUx5b+gCqQ5Mou2ypLk2g2mIuJ5YiBOihrblRB1GMwFxQCVySf9j76rrJDob6ltTE+tdXSO02q8HzxeQA=",
+    "AV6+xWcE711ngp2EzjNy3mzxTrppOGkYHMVq8THvJ/BTDOW0zjYloFnLTqmNb03383CWwj6CH9EiItfTE+5TBy2Un0D04m9Edi3IuGIAFnfJhRaKJe7ctGZIWFc6BMG6jLjFBcX2+cGKQ8W40tGqXb4u7nKEcNFkSaRUT+deO5e55TaH36g=",
 ]
 
 # Only query APIs once per 6 hours
@@ -96,7 +98,7 @@ DEFAULT_LOCATION = """
 def fetch(url, request_name):
     rep = http.get(url, ttl_seconds = CACHE_TTL_SEC)
     if rep.status_code != 200:
-        fail(request_name + " request failed with status " + rep.status_code + ": " + rep.body())
+        fail(request_name + " request failed with status " + str(rep.status_code) + ": " + rep.body())
     return rep.json()
 
 def fetch_weather_data(lat, long, api_key):
@@ -184,6 +186,7 @@ def get_api_key(long):
 
 def main(config):
     location = config.get("location", DEFAULT_LOCATION)
+    temperature_display = config.get("temperature_display", "Fahrenheit")
 
     location = json.decode(location)
     lat = str(location["lat"])
@@ -199,8 +202,11 @@ def main(config):
         weather_response = fetch_weather_data(lat, long, api_key)
         aqi_response = fetch_aqi_data(lat, long, api_key)
 
-    temp_kelvin = weather_response["current"]["temp"]
-    temp_fahrenheit = (temp_kelvin - 273.15) * 1.8 + 32
+    temperature_kelvin = weather_response["current"]["temp"]
+    if temperature_display == "Celsius":
+        temperature = temperature_kelvin - 273.15
+    else:
+        temperature = (temperature_kelvin - 273.15) * 1.8 + 32
 
     humidity = int(weather_response["current"]["humidity"])
     humidity_icon = base64.decode(get_humidity_icon(humidity))
@@ -223,7 +229,7 @@ def main(config):
                         children = [
                             render.Padding(
                                 pad = (0, 3, 0, 1),
-                                child = render.Text(font = "tb-8", content = str(int(temp_fahrenheit)) + chr(176)),
+                                child = render.Text(font = "tb-8", content = str(int(temperature)) + chr(176)),
                             ),
                             render.Image(src = weather_icon),
                         ],
@@ -256,6 +262,17 @@ def main(config):
     )
 
 def get_schema():
+    temperature_display_options = [
+        schema.Option(
+            display = "Fahrenheit",
+            value = "Fahrenheit",
+        ),
+        schema.Option(
+            display = "Celsius",
+            value = "Celsius",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -264,6 +281,14 @@ def get_schema():
                 name = "Location",
                 desc = "Location for which to display the weather",
                 icon = "locationDot",
+            ),
+            schema.Dropdown(
+                id = "temperature_display",
+                name = "Temperature Display",
+                desc = "The temperature units to display",
+                icon = "temperatureHalf",
+                default = temperature_display_options[0].value,
+                options = temperature_display_options,
             ),
         ],
     )

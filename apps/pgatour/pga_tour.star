@@ -57,6 +57,12 @@ Updated PLAYER_MAPPING
 v2.6.2
 Updated PLAYER_MAPPING
 Allowed extra char in Tournament Name
+
+v2.6.3
+Updated Player Name Mapping logic to stop partial ID matches
+
+v2.7
+Bug fix - During play, the completed round scores were showing the previous round's score
 """
 
 load("encoding/json.star", "json")
@@ -111,7 +117,9 @@ TOURNAMENT_MAPPING = """
     "401580363": "Wyndham",
     "401580364": "FedEx St.J",
     "401580365": "BMW Champ",
-    "401558309": "Q-School"
+    "401558309": "Q-School",
+    "401634279": "Kentucky",
+    "401580361": "Barracuda"
 }
 """
 
@@ -146,20 +154,18 @@ def main(config):
 
     Title = leaderboard["sports"][0]["leagues"][0]["shortName"]
 
-    # Check if there is an opposite field event, happens 4 times a season
+    # Check if there is an opposite field event
     # Get the ID of the first event listed in the API
     FirstTournamentID = leaderboard["sports"][0]["leagues"][0]["events"][0]["id"]
-    i = OppositeFieldCheck(FirstTournamentID)
 
-    # if user wants to see opposite event
-    if i == 1 and OppField == True:
-        i = 0
+    # check if user wants to see opp field
+    if OppField == True:
+        i = OppositeFieldCheck(FirstTournamentID)
 
     # Get Tournament Name and ID
     TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
     PreTournamentName = TournamentName
     TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][i]["id"]
-    #print(TournamentID)
 
     # Check if its a major (or The Players) and show a different color in the title bar
     if TournamentID in MAJOR_MAPPING:
@@ -317,8 +323,9 @@ def getPlayerScore(x, s, Title, TitleColor, ColorGradient, stage, state, Mapping
             playerID = s[i + x]["id"]
 
             # Check for certain player IDs and outputs an altername name if needed
-            if playerID in PLAYER_MAPPING:
-                playerName = Mapping.get(playerID, "unknown")
+            if playerID in Mapping:
+                playerName = Mapping[playerID]
+
             else:
                 playerName = s[i + x]["lastName"][:12]
 
@@ -407,8 +414,8 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
             playerID = s[i + x]["id"]
 
             # Check for certain player IDs and outputs an altername name if needed
-            if playerID in PLAYER_MAPPING:
-                playerName = Mapping.get(playerID, "unknown")
+            if playerID in Mapping:
+                playerName = Mapping[playerID]
             else:
                 playerName = s[i + x]["lastName"][:12]
 
@@ -439,6 +446,10 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
                             if playerID == t[i]["id"]:
                                 RoundScore = t[i]["linescores"][RoundNumber]["value"]
                                 ProgressStr = str(int(RoundScore))
+
+                            # print(playerName)
+                            # print(ProgressStr)
+
                 else:
                     ProgressStr = "PO"
 
@@ -452,15 +463,12 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
 
             # if the player's round is completed, show their score
             if playerState == "post":
-                RoundNumber = len(t[0]["linescores"]) - 2
-
-                #print(RoundNumber)
                 for i in range(0, len(t), 1):
                     if playerID == t[i]["id"]:
-                        #print(playerID)
-                        RoundScore = t[i]["linescores"][RoundNumber]["value"]
+                        CompletedRound = len(t[i]["linescores"]) - 2
 
-                        #print(RoundScore)
+                        #print(CompletedRound)
+                        RoundScore = t[i]["linescores"][CompletedRound]["value"]
                         ProgressStr = str(int(RoundScore))
 
             # If ColorGradient is selected...
@@ -547,16 +555,13 @@ def getPlayerFontColor(HolesCompleted, ColorGradient):
     return playerFontColor
 
 def OppositeFieldCheck(ID):
-    # check if the first tournament listed in the ESPN API is an opposite field event, one of the four below
-    # and if it is, go to the second event in the API
+    # check the ID of the event, and if its a tournament with an opposite field go to the second event in the API
     i = 0
-    if ID == "401580350":  # Myrtle Beach
+    if ID == "401580349":  # Wells Fargo -> Myrtle Beach
         i = 1
-    elif ID == "401580346":  # Puntacana
+    elif ID == "401580360":  # The Open -> Barracuda
         i = 1
-    elif ID == "401580361":  # Barracuda
-        i = 1
-    elif ID == "401580339":  # Puerto Rico
+    elif ID == "401580359":  # Scottish Open -> Kentucky Champ
         i = 1
     else:
         i = 0
