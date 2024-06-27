@@ -170,6 +170,17 @@ def render_seats(predictions, source):
     opposition[-1] = [mps[None]] * (SEAT_HEIGHT - len(opposition[-1])) + opposition[-1]
 
     government = divmod(seats[0][0], SEAT_HEIGHT)
+    government_stragglers = None
+    if government[1] > 0:
+        government_stragglers = render.Padding(
+            pad = (government[0], 0, 0, 0),
+            child = render.Box(
+                width = 1,
+                height = government[1],
+                color = PARTY_COLOURS[seats[0][2]][0],
+            ),
+        )
+
     return render.Column(
         cross_align = "center",
         children = [
@@ -180,14 +191,7 @@ def render_seats(predictions, source):
                         height = SEAT_HEIGHT,
                         color = PARTY_COLOURS[seats[0][2]][0],
                     ),
-                    render.Padding(
-                        pad = (government[0], 0, 0, 0),
-                        child = render.Box(
-                            width = 1,
-                            height = government[1],
-                            color = PARTY_COLOURS[seats[0][2]][0],
-                        ),
-                    ),
+                    government_stragglers,
                 ] + [
                     render.Padding(
                         pad = (government[0] + 2 + i, 0, 0, 0),
