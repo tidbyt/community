@@ -1,0 +1,30 @@
+{
+    "data_api_url": {
+        "id": "data_api_url",
+        "value": ""
+    },
+    "api_key": {
+        "id": "api_key",
+        "value": ""
+    },
+    "datasource": {
+        "id": "datasource",
+        "value": ""
+    },
+    "database": {
+        "id": "database",
+        "value": "tidbyt"
+    },
+    "collection": {
+        "id": "collection",
+        "value": "notify"
+    },
+    "rotationSpeed": {
+        "id": "rotationSpeed",
+        "value": "3"
+    },
+    "topic": {
+        "id": "topic",
+        "value": "homeassistant"
+    }
+}

@@ -1,0 +1,6 @@
+---
+id: mongodb-notify
+name: MongoDB Notify
+summary: Message notifications
+desc: Be sure to read the README.md which will walk you through the setup process. This uses MongoDB for notifications. It must be configured. It can be used with Home Assistant to get Notifications to Tidbyt.
+author: bsbishop
