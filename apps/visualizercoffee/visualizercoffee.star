@@ -16,6 +16,8 @@ load("time.star", "time")
 VISUALIZER_CLIENT_ID = secret.decrypt("AV6+xWcEmpNnOn5bdEhhlhz53Yz0qwomDILXMktc9nEVoXROf0S56lbUlR6BTlAe5Z7jiEGRB2QwPiCZb20nsdzXUZTFRtfKC+boIYCbDEqunKR85NyoOi0m51JVb7Q5+Qp2+/Tmf+8EZZzugPYkY+aRCWWsHQiN6CWwy1DHw5Vkb7MiYiORhpaT18sXj7C8Og==")
 VISUALZER_CLIENT_SECRET = secret.decrypt("AV6+xWcE1qF0RYSlJXn4oBgRhSlfN/hWZz63gj2qfj/Y2bf8M+mdSQH7ZhRHsBKYC8FEAqJDAC3V3RAjs4TSpGo+Exu+3+S6WwcKcHQCVO4uXviLVmYWzVcPhs4tHOm7btcY/98E9j93Dkz4Ng+6XejhLtAo7rSE5dx4qKqH60jp6fH016rk9s3Ciu5Qjxxr5g==")
 
+DEFAULT_TIMEZONE = "US/Pacific"
+
 DEBUG = False
 
 def render_root(todays_shots, latest_shot):
@@ -30,7 +32,7 @@ def render_root(todays_shots, latest_shot):
 
     render_text = "{}".format(
         humanize.time(
-            time.from_timestamp(latest_shot.get("clock", 1)),
+            time.from_timestamp(latest_shot.get("clock", 1)).in_location(DEFAULT_TIMEZONE),
         ),
     )
 
@@ -141,8 +143,8 @@ def get_latest_shot(my_shots):
     # loop to find the latest shot from the list.
     latest_shot = {}
     for shot in my_shots["data"]:
-        timestamp = time.from_timestamp(shot.get("clock", 1))
-        if timestamp > time.from_timestamp(latest_shot.get("clock", 1)):
+        timestamp = time.from_timestamp(shot.get("clock", 1)).in_location(DEFAULT_TIMEZONE)
+        if timestamp > time.from_timestamp(latest_shot.get("clock", 1)).in_location(DEFAULT_TIMEZONE):
             latest_shot = shot
 
     return latest_shot
@@ -155,12 +157,12 @@ def get_todays_shots(my_shots):
     Returns:
         list of todays shots
     """
-    n = time.now()
-    today_ts = time.time(year = n.year, month = n.month, day = n.day)
+    n = time.now().in_location(DEFAULT_TIMEZONE).unix
+    today_ts = time.from_timestamp(n).in_location(DEFAULT_TIMEZONE)
 
     todays_shots = []
     for shot in my_shots.get("data"):
-        ts = time.from_timestamp(shot.get("clock", 1))
+        ts = time.from_timestamp(shot.get("clock", 1)).in_location(DEFAULT_TIMEZONE)
         if ts > today_ts:
             todays_shots.append(shot)
 

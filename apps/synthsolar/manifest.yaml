@@ -1,0 +1,6 @@
+---
+id: synth-solar
+name: Synth Solar
+summary: Synth Solar monitor
+desc: Connect to your solar system by putting in the serial number of your inverter. \n This will be in your Synth Handover Pack. Screen description - 1) Sun - % of your full potential generation; 2) Lightning - current load from your property right now; 3) Battery - your battery level right now; 4) Piggy bank - today's savings from solar; 5) Panel - today's energy from solar.
+author: SynthSolar
