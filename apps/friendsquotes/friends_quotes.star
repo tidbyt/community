@@ -150,7 +150,7 @@ QUOTES = {
         "Lips moving, still talking!",
         "Seven!",
         "Your little Harmonica is hammered.",
-        "Monica:\n\"Okay, everybody relax. This is not even a date. It's just two people going out to dinner and not having s**.\"\nChandler:\n\"Sounds like a date to me.\"",
+        "Monica:\n\"Okay, everybody relax. This is not even a date. It's just two people going out to dinner and not having sex.\"\nChandler:\n\"Sounds like a date to me.\"",
         "Fine! Judge all you want, but: married a lesbian, left a man at the altar, fell in love with a gay ice dancer, threw a girl's wooden leg in a fire, LIVE IN A BOX!",
     ],
     "Mike H.": [
@@ -169,7 +169,7 @@ def main(config):
     random.seed(time.now().unix)
     animation_style = config.get("animationStyle", "style1")
     font_style = config.get("fontStyle", "tb-8")
-    quotes_list, root = [], ""
+    quotes_list, delay_speed, root = [], 40, ""
 
     for person in QUOTES:
         if config.get("enableQuotesBy" + person.replace(".", "").replace(" ", ""), True) == "true":
@@ -180,6 +180,8 @@ def main(config):
     idx = random.number(0, len(quotes_list) - 1) if len(quotes_list) > 0 else 0
     current_quote = quotes_list[idx] if len(quotes_list) > 0 else ""
 
+    offset_marquee = config.bool("offsetStart", True)
+
     style1 = render.Padding(
         pad = 1,
         child = render.Marquee(
@@ -187,7 +189,10 @@ def main(config):
             child = render.Column(
                 cross_align = "center",
                 children = [
-                    render.Image(src = THE_LOGO, width = 52),
+                    render.Padding(
+                        pad = (0, 18, 0, 0) if offset_marquee else (0, 0, 0, 0),
+                        child = render.Image(src = THE_LOGO, width = 52),
+                    ),
                     render.Box(height = 4),
                     render.WrappedText(current_quote, font = "tom-thumb", width = 62, linespacing = 2, align = "center") if font_style == "tom-thumb" else render.WrappedText(current_quote, width = 62, align = "center"),
                 ],
@@ -210,7 +215,13 @@ def main(config):
                 render.Box(height = 3),
                 render.Marquee(
                     height = 19,
-                    child = render.WrappedText(current_quote, font = "tom-thumb", width = 62, linespacing = 2, align = "center") if font_style == "tom-thumb" else render.WrappedText(current_quote, width = 62, align = "center"),
+                    child = render.Column(
+                        children = [
+                            render.Box(width = 64, height = 18) if offset_marquee else None,
+                            render.WrappedText(current_quote, font = "tom-thumb", width = 62, linespacing = 2, align = "center") if font_style == "tom-thumb" else render.WrappedText(current_quote, width = 62, align = "center"),
+                        ],
+                        main_align = "center",
+                    ),
                     scroll_direction = "vertical",
                 ),
             ],
@@ -218,13 +229,23 @@ def main(config):
         ),
     )
 
+    animationSpeed = config.get("animationSpeed", 0)
+    if animationSpeed == "Fast":
+        delay_speed = 20
+    elif animationSpeed == "Slow":
+        delay_speed = 80
+
     if animation_style == "style1":
         root = render.Root(
             child = style1,
+            delay = delay_speed,
+            show_full_animation = True,
         )
     elif animation_style == "style2":
         root = render.Root(
             child = style2,
+            delay = delay_speed,
+            show_full_animation = True,
         )
     return root
 
@@ -265,6 +286,34 @@ def get_schema():
                         value = "tom-thumb",
                     ),
                 ],
+            ),
+            schema.Dropdown(
+                id = "animationSpeed",
+                name = "Marquee speed",
+                desc = "Choose your preferred scroll speed",
+                icon = "gaugeSimpleHigh",
+                default = "Medium",
+                options = [
+                    schema.Option(
+                        display = "Fast",
+                        value = "Fast",
+                    ),
+                    schema.Option(
+                        display = "Medium",
+                        value = "Medium",
+                    ),
+                    schema.Option(
+                        display = "Slow",
+                        value = "Slow",
+                    ),
+                ],
+            ),
+            schema.Toggle(
+                id = "offsetStart",
+                name = "Offset start",
+                desc = "Offset the point where the marquee begins scrolling",
+                icon = "arrowsDownToLine",
+                default = True,
             ),
             schema.Toggle(
                 id = "enableQuotesByJoey",
