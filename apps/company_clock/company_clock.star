@@ -6,11 +6,12 @@ Author: qqvq-d
 """
 
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-orange = "d6440b"
+orange = "#d6440b"
 font = "5x8"
 
 # Image Data
@@ -23,7 +24,7 @@ skull = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAB8AAAAgCAYAAADqgqNBAAABF0lEQVR
 debug = False
 
 def main(config):
-    timezone = config.get("location")["timezone"] if config.get("location") != None else "America/New_York"
+    timezone = json.decode(config.get("timezone"))["timezone"] if config.get("timezone") != None else "America/New_York"
     now = time.now().in_location(timezone)
 
     if debug == True:
