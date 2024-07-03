@@ -39,7 +39,7 @@ def main(config):
     # US, Global,
     selected_list = config.get("list", list_options[0].value)
     cache_name = "%s_%s" % (BILLBOARD_CACHED_TOP10_NAME, selected_list)
-    print(cache_name)
+
     top10_data = cache.get(cache_name)
 
     if top10_data == None:
@@ -161,26 +161,29 @@ def getDisplayInfo(item):
     else:
         lastweek = int(lastweek)
 
-    display = "#%s%s \"%s\" by %s %s weeks on charts" % (item["rank"], getMovementIndicator(current, lastweek), item["title"], item["artist"], item["weeks on chart"])
+    display = "%s by %s #%s%s %s weeks on charts" % (item["title"], item["artist"], item["rank"], getMovementIndicator(current, lastweek), item["weeks on chart"])
     return display
 
 def getDisplayInfoMulti(items, start, end):
     display = ""
+    divider = " ** "
     for i in range(10):
         if i + 1 >= start and i + 1 <= end:
             key = "%s" % (i + 1)
             item = items[key]
             current = int(item["rank"])
             lastweek = "" if item["last week"] == "None" else int(item["last week"])
-            display = display + "#%s%s \"%s\" by %s " % (item["rank"], getMovementIndicator(current, lastweek), item["title"], item["artist"])
+            if i + 1 == end:
+                divider = ""
+            display = display + "%s by %s is #%s%s%s" % (item["title"], item["artist"], item["rank"], getMovementIndicator(current, lastweek), divider)
 
     return display
 
 def display_instructions():
     ##############################################################################################################################################################################################################################
     instructions_1 = "Get a RapidAPI.com Key. Create an account at RapidAPI.com "
-    instructions_2 = "Click 'Apps', 'Add New App'. Fill in App Name and Descriptino, leave everything else as is, then click 'Add App'. "
-    instructions_3 = "Find your API Key by clicking your app name, then click 'Authorization'. Click the icons next to the API Key to see and/or view your key. Paste it into the Rapid API Key setting. "
+    instructions_2 = "Click 'Apps', 'Add New App'. Fill in App Name and Description, leave everything else as is, then click 'Add App'. "
+    instructions_3 = "Find your API Key by clicking your app name, then click 'Authorization'. Click the icons next to the API Key to your key. Paste it into the Rapid API Key setting. "
     return render.Root(
         render.Column(
             children = [
