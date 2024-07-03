@@ -16,6 +16,9 @@ Changed the names on the league selection dropdown
 
 v1.3
 Changed date check to be Hawaii timezone - this will mean that the scores will not change to the following day until 6am ET, leaving the day's scores displayed on the Tidbyt for longer
+
+v1.3.1
+Updated status check for completed games
 """
 
 load("encoding/json.star", "json")
@@ -142,6 +145,7 @@ def main(config):
 
     APIDate = "startDate=" + date + "&endDate=" + date
     API = API_PREFIX + SportID + "&" + APIDate + API_SUFFIX + SelectedLeague + API_SUFFIX2
+    #print(API)
 
     teamFont = "Dina_r400-6"
     scoreFont = "Dina_r400-6"
@@ -171,6 +175,7 @@ def main(config):
             DisplayAwayLogo = get_teamlogo(AwayLogoURL)
 
             Status = GameList[x]["status"]["statusCode"]
+            #print(HomeAbbr, Status)
 
             if Status == "I":
                 # In progress game
@@ -180,7 +185,7 @@ def main(config):
                 HomeScore = str(GameList[x]["teams"]["home"]["score"])
                 AwayScore = str(GameList[x]["teams"]["away"]["score"])
                 scoreFont = "Dina_r400-6"
-            elif Status == "F":
+            elif Status.startswith("F"):
                 # Game is finished
                 if GameList[x]["linescore"]["currentInning"] > 9:
                     GameSituation = "FINAL/" + str(GameList[x]["linescore"]["currentInning"])
