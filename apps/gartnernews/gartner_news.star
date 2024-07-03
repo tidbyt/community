@@ -29,7 +29,7 @@ def main(config):
 
     xml_body = cache.get(GARTNER_RSS_URL)
     if xml_body == None:
-        gartner_xml = http.get(GARTNER_RSS_URL, headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36', 'Accept':'text/html'})
+        gartner_xml = http.get(GARTNER_RSS_URL, headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36", "Accept": "text/html"})
 
         if gartner_xml.status_code == 200:
             xml_body = gartner_xml.body()
