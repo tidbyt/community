@@ -88,7 +88,10 @@ def get_departures(config):
     from_cache = cache.get("gvb-" + stop_config["value"])
     if from_cache == None:
         url = GVB_URL + stop_config["value"]
-        response = http.get(url)
+        headers = {
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        }
+        response = http.get(url, headers = headers)
         if response.status_code != 200:
             return []
         cache.set("gvb-" + stop_config["value"], response.body(), ttl_seconds = 60)
@@ -106,7 +109,11 @@ def search_stop(pattern):
 
     url = GVB_STOP_SEARCH_URL + pattern
 
-    stopSearch = http.get(url)
+    headers = {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+    }
+
+    stopSearch = http.get(url, headers = headers)
     stopJs = stopSearch.json()
 
     result = []
