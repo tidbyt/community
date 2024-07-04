@@ -64,7 +64,7 @@ def main(config):
     """ Main routine to display hurricane tracking info.
 
     Args:
-        config: A decimal integer
+        config: The configuation
     Returns:
         main display
     """
@@ -78,7 +78,7 @@ def main(config):
     basin_xml = cache.get(basin)
 
     #TEST DATA These lines should be commented out before release
-    if DEBUG_MODE == False and rss_example != None:
+    if DEBUG_MODE == True and rss_example != None:
         basin_xml = rss_example
 
     #If nothing from cache, then we go to nhc and download new data
