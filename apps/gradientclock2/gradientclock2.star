@@ -6,7 +6,6 @@ Author: tpatel12
 """
 
 load("render.star", "render")
-load("schema.star", "schema")
 load("time.star", "time")
 
 num_rows = 16
@@ -78,7 +77,7 @@ def render_frame(frame_num, now):
     return render.Stack(children = [render_grid(frame_num), render_time_text(now)])
 
 def main(config):
-    timezone = config.get("timezone") or "America/New_York"
+    timezone = config.get("$tz", "America/New_York")
     now = time.now().in_location(timezone)
 
     frames = []
@@ -89,11 +88,4 @@ def main(config):
     return render.Root(
         delay = 60,
         child = render.Animation(frames),
-    )
-
-def get_schema():
-    return schema.Schema(
-        version = "1",
-        fields = [
-        ],
     )
