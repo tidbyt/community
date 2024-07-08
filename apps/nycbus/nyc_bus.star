@@ -58,10 +58,10 @@ def get_stops(location):
     stops = [
         schema.Option(display = "%s - %s" % (stop["name"], stop["direction"]), value = stop["code"])
         for stop in sorted(
-                data,
-                key = lambda x: math.sqrt(
-                    math.pow(x["lat"] - float(loc["lat"]), 2) + math.pow(x["lon"] - float(loc["lng"]), 2)
-                )
+            data,
+            key = lambda x: math.sqrt(
+                math.pow(x["lat"] - float(loc["lat"]), 2) + math.pow(x["lon"] - float(loc["lng"]), 2),
+            ),
         )
     ]
 
