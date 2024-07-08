@@ -9,12 +9,12 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("math.star", "math")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
-load("math.star", "math")
 
 EXAMPLE_STOP_CODE = "550685"
 ENCRYPTED_API_KEY = "AV6+xWcEyevKcdrIpIo95aDtG0+14nQ1GG+kEuwmjiUiyFaJBRX6CL1/bi31WpHXwyV2AgApxwxDgWlGtvT5SDapGAwoma96vsVKfrXnH4Jlr5Oy38r5F3y+GbDm0Obw1fo6aaqIvr1y4fI7W0neS30mbmdkVBc6H2oK6KpB4HMtOxkm2UkXKSGA"
