@@ -14,6 +14,7 @@ load("schema.star", "schema")  #Keep Track of Settings
 load("secret.star", "secret")  #Encrypt the API Key
 load("time.star", "time")  #Ensure Timely display of congressional actions
 
+API_KEY = "IwiU6rcUFvTMiiVCz1HXblunVhKixvY5L3mDTHsU"
 API_KEY_ENCRYPTED = "AV6+xWcEOpj+cWCjxVjSHzqR7W/gqvbZNvz/UjBp3vGR/o3x9oYVAEM/1Dv/T5HdFyHP3zqlZdQZtDOkV1l+GFmwzJAsUnaFK3AsDQvLp7AuSkYvlRKeW/8xXfQfWU9WTTboA+JavP62OgBrR4mau7PhCQth6wdByuW2ANVW/hlwNqT2AZrSiy4PGcSpaA=="
 CONGRESS_API_URL = "https://api.congress.gov/v3/"
 CONGRESS_SESSION_LENGTH_IN_DAYS = 720  #730, but we'll shorten it some to make sure we don't miss
@@ -72,7 +73,7 @@ scroll_speed_options = [
 ]
 
 def main(config):
-    api_key = secret.decrypt(API_KEY_ENCRYPTED) #or API_KEY
+    api_key = secret.decrypt(API_KEY_ENCRYPTED) or API_KEY
 
     #Get the current congress
     congress_session_url = "%scongress/current?API_KEY=%s&format=json" % (CONGRESS_API_URL, api_key)
