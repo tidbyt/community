@@ -18,11 +18,15 @@ AZ_511_API_KEY_ENC = "AV6+xWcElNUxy13PiZk50KSeRVpd8LanTKPhbBsOqWjCsGYoidZXDXWG2X
 
 DEFAULT_SIGN = """{"value": "AZ--858d88ac-89d8-4760-97cc-642bfe3ca07c"}"""
 
-def get_all_signs(api_key=secret.decrypt(AZ_511_API_KEY_ENC)):
+def get_all_signs(api_key = secret.decrypt(AZ_511_API_KEY_ENC)):
+    if api_key == None:
+        return []
+
     # Returns a list of all AZ Highway signs from the 511 API.
     rep = http.get(AZ_511_API_URL + "?key=" + api_key, ttl_seconds = 300)
     if rep.status_code != 200:
         print("Failed to get message signs with status code %d.", rep.status_code)
+
     return rep.json()
 
 def get_sign(api_key, id):
@@ -57,6 +61,9 @@ def get_sign_options(loc):
     return sign_options
 
 def get_message_lines(sign):
+    if sign == None:
+        return []
+
     messages = sign["Messages"]
     message_idx = 0
 
@@ -151,7 +158,22 @@ def render_message_nomessage(sign):
 
     return message_rows
 
+def render_message_apierror():
+    return [
+        render.Marquee(
+            width = 64,
+            align = "center",
+            child = render.Text(
+                content = "API Key Missing",
+                color = "#f00",
+            ),
+        ),
+    ]
+
 def render_message(sign):
+    if sign == None:
+        return render_message_apierror()
+
     lines = get_message_lines(sign)
 
     # If this is a "minutes-to" message, render appropriately
