@@ -119,11 +119,6 @@ def main(config):
         print("Using " + NextSessionStartTime.format("January 2, 15:04:05, 2006 TZ Z07:00") + " As Precious Metal session start time")
 
     ClosingTimeMili = int(ClosingTime.unix_nano) / 1000000
-    NextSessionStartMili = int(NextSessionStartTime.unix_nano) / 1000000
-
-    sessionstart_price_period = NextSessionStartMili / 1000 / (20 * 60)
-    if (GRAPH_PERIOD == "30day" or GRAPH_PERIOD == "90day" or GRAPH_PERIOD == "1year"):
-        sessionstart_price_period = NextSessionStartMili / 1000 / (360 * 60)
 
     if (is_debug == True):
         print("%d" % (ClosingTimeMili))
@@ -227,8 +222,6 @@ def main(config):
         PercentageColor = red_color
         NumPrefix = ""
 
-    last_timekey = 0
-    last_timekey_value = 0
     mingraph = 0
     maxgraph = 0
     plot_array = [(mingraph, 0), (maxgraph, 0)]
