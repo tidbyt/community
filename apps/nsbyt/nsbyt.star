@@ -115,7 +115,7 @@ def renderTrain(stop_info):
         departureTime = "-"
         actualTime = "-"
 
-    # If trains is cancelled, rewrite to message.
+    # If trains is changed due to maintenance, rewrite to message.
     if stop_info.get("alternativeTransport") == True:
         backgroundColor = MAINTENANCE_BACKGROUND_COLOR
         message = stop_info["displayName"]
