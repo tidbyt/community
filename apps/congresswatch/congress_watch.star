@@ -16,7 +16,7 @@ load("time.star", "time")  #Ensure Timely display of congressional actions
 
 #API_KEY = "IwiU6rcUFvTMiiVCz1HXblunVhKixvY5L3mDTHsU"
 #API_KEY_ENCRYPTED = "AV6+xWcEOpj+cWCjxVjSHzqR7W/gqvbZNvz/UjBp3vGR/o3x9oYVAEM/1Dv/T5HdFyHP3zqlZdQZtDOkV1l+GFmwzJAsUnaFK3AsDQvLp7AuSkYvlRKeW/8xXfQfWU9WTTboA+JavP62OgBrR4mau7PhCQth6wdByuW2ANVW/hlwNqT2AZrSiy4PGcSpaA==" #[app id]
-API_KEY_ENCRYPTED = "AV6+xWcEilc5jnGGWn309ZXSerOM5TeTeRANc8MkwfdBcuuXKh41QCHph+2hj7Y7cfw0ULNXqxMEB0NWKRrrOOE+wkEkDkcB1s6DFa31DUexqut6BzslRrfnZaacwhcOvcqbUi+JgbeqoMzwdojdpxxddbEU/8pdWi5lpoRFfvL4IdSe4H9FPaikkvhSLQ==" #[app name]
+#API_KEY_ENCRYPTED = "AV6+xWcEilc5jnGGWn309ZXSerOM5TeTeRANc8MkwfdBcuuXKh41QCHph+2hj7Y7cfw0ULNXqxMEB0NWKRrrOOE+wkEkDkcB1s6DFa31DUexqut6BzslRrfnZaacwhcOvcqbUi+JgbeqoMzwdojdpxxddbEU/8pdWi5lpoRFfvL4IdSe4H9FPaikkvhSLQ==" #[app name]
 API_KEY_ENCRYPTED = "AAV6+xWcEsOMtYkdTK4ZB8hdFZDSnFl1oxSmeBHYw0IPaLiz+ZVBwuFcM1hlHD4d5JGxRiy5CzNXTxVB9yyY+pp3UJ3gX0tIcqIKTTWtVdS5xqWjkHfPavxCjvD4s1xtdxlReXpUF6332JLJhIBFyPHNuZNay7X6nWV5Lg8RjTOd+fVEr/fwHwVy+TaacFg==" #[app name in quotes]
 CONGRESS_API_URL = "https://api.congress.gov/v3/"
 CONGRESS_SESSION_LENGTH_IN_DAYS = 720  #730, but we'll shorten it some to make sure we don't miss
