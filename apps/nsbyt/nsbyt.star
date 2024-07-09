@@ -25,12 +25,14 @@ BLACK_TEXT_COLOR = "#000"
 CORE_TEXT_COLOR = "#FFFFFF"
 NORMAL_TEXT_COLOR = "#FFC917"
 DELAYED_TEXT_COLOR = "#DB0029"
+MAINTENANCE_TEXT_COLOR = "#FF7700";
 
 NO_FRAMES_TOGGLE = 60
 
 DEFAULT_STATION = "ehv"
 
 def main(config):
+
     station_id = config.str("station")
     station_dest = config.str("dest_station")
     skiptime = config.get("skiptime", 0)
@@ -41,8 +43,9 @@ def main(config):
         station_id = json.decode(station_id)["value"]
 
     # Check if we need to convert the skiptime to Int
-    if type(skiptime) == "string":
-        skiptime = int(skiptime)
+    if(skiptime):
+        if type(skiptime) == "string":
+            skiptime = int(skiptime)
 
     # Check that the skip time is valid
     if skiptime < 0:
@@ -50,18 +53,9 @@ def main(config):
 
     # If we don't have a Trip, list trains for station.
     if station_dest == None:
-        # Normal Train Operations
-        resp_cached = cache.get("ns_%s" % station_id)
-        if resp_cached != None:
-            # Get the cached response
-            # print("Hit!")
-            stops = json.decode(resp_cached)
-        else:
-            # print("Miss!")
-            stops = getTrains(station_id, skiptime)
 
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("ns_%s" % station_id, json.encode(stops), ttl_seconds = 30)
+        # Normal Train Operations
+        stops = getTrains(station_id, skiptime)
 
     else:
         station_dest = json.decode(station_dest)["value"]
@@ -113,6 +107,9 @@ def renderTrain(stop_info):
 
     # destination = train + " " + destination
 
+    # Info messages.
+    message = None
+
     # If trains is cancelled, rewrite to message.
     if stop_info["cancelled"] == True:
         backgroundColor = CANCELED_BACKGROUND_COLOR
@@ -120,8 +117,10 @@ def renderTrain(stop_info):
         departureTime = "-"
         actualTime = "-"
 
-    # Info messages.
-    message = None
+    # If trains is cancelled, rewrite to message.
+    if stop_info.get("alternativeTransport") == True:
+        backgroundColor = MAINTENANCE_BACKGROUND_COLOR
+        message = stop_info["displayName"]
 
     if stop_info.get("messages") != None:
         if len(stop_info.get("messages")) > 0:
@@ -139,6 +138,7 @@ def renderTrain(stop_info):
 
     # If there is a delay, change render.
     if trainDelay != "":
+
         renderTimeChild = []
         renderTimeChild.extend([departureTimeRender] * NO_FRAMES_TOGGLE)
         renderTimeChild.extend(
@@ -150,25 +150,55 @@ def renderTrain(stop_info):
             ] * NO_FRAMES_TOGGLE,
         )
 
+        departureTimeRender = render.Animation(children = renderTimeChild)
+
     else:
-        renderTimeChild = []
-        renderTimeChild.extend([departureTimeRender] * NO_FRAMES_TOGGLE)
-        renderTimeChild.extend(
-            [
-                render.Text(
-                    content = departureTimeText,
-                    color = NORMAL_TEXT_COLOR,
-                ),
-            ] * NO_FRAMES_TOGGLE,
-        )
+        # Special notices content = actualTime + " | " + message,
+        if message :
 
-    # Render Messages.
-    if message != None:
-        backgroundColor = INFO_BACKGROUND_COLOR
-        destination = destination + " - " + message
+            departureTimeRender = render.Marquee(
+                                    width = 64 - 13,
+                                    child = render.Text(
+                                        content = actualTime,
+                                        color = MAINTENANCE_TEXT_COLOR,
+                                    ),
+                                )
 
-    # Departure Rendering.
-    departureTimeRender = render.Animation(children = renderTimeChild)
+            departureTimeRenderMaintenance = render.Marquee(
+                                    width = 64 - 13,
+                                    child = render.Text(
+                                        content = message,
+                                        color = MAINTENANCE_TEXT_COLOR,
+                                    ),
+                                )
+
+            renderTimeChild = []
+            renderTimeChild.extend([departureTimeRender] * departureTimeRender.frame_count())
+            renderTimeChild.extend([departureTimeRenderMaintenance] * (departureTimeRenderMaintenance.frame_count() + departureTimeRender.frame_count()))
+            renderTimeChild.extend(
+                [
+                    render.Text(
+                        content = departureTimeText,
+                        color = NORMAL_TEXT_COLOR,
+                    ),
+                ] * NO_FRAMES_TOGGLE,
+            )
+
+            departureTimeRender = render.Animation(children = renderTimeChild)
+
+        else :
+            renderTimeChild = []
+            renderTimeChild.extend([departureTimeRender] * NO_FRAMES_TOGGLE)
+            renderTimeChild.extend(
+                [
+                    render.Text(
+                        content = departureTimeText,
+                        color = NORMAL_TEXT_COLOR,
+                    ),
+                ] * NO_FRAMES_TOGGLE,
+            )
+
+            departureTimeRender = render.Animation(children = renderTimeChild)
 
     return render.Row(
         expanded = True,
@@ -231,13 +261,10 @@ def getTrip(station_id, station_dest, skiptime):
         resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/trips", params = {"fromStation": station_id, "toStation": station_dest}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
 
         if resp.status_code != 200:
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("ns_%s" % station_id + station_dest, json.encode([]), ttl_seconds = 30)
             return []
         else:
             departures = json.decode(resp.body())
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("ns_%s" % station_id + station_dest, resp.body(), ttl_seconds = 30)
 
     # Create return list
@@ -263,19 +290,24 @@ def getTrip(station_id, station_dest, skiptime):
                         "direction": trip["legs"][0]["direction"],
                         "plannedDateTime": trip["legs"][0]["origin"]["plannedDateTime"],
                         "actualDateTime": originTime,
-                        "actualTrack": trip["legs"][0]["origin"]["plannedTrack"],
+                        "actualTrack": trip["legs"][0]["origin"].get("plannedTrack", "-"),
                         "trainCategory": trip["legs"][0]["product"]["categoryCode"],
+                        "alternativeTransport": trip["legs"][0].get("alternativeTransport"),
+                        "displayName": trip["legs"][0]["product"]["displayName"],
                         "cancelled": trip["legs"][0]["cancelled"],
                     },
                 )
         else:
+
             stops.append(
                 {
                     "direction": trip["legs"][0]["direction"],
                     "plannedDateTime": trip["legs"][0]["origin"]["plannedDateTime"],
                     "actualDateTime": originTime,
-                    "actualTrack": trip["legs"][0]["origin"]["plannedTrack"],
+                    "actualTrack": trip["legs"][0]["origin"].get("plannedTrack", "-"),
                     "trainCategory": trip["legs"][0]["product"]["categoryCode"],
+                    "alternativeTransport": trip["legs"][0].get("alternativeTransport"),
+                    "displayName": trip["legs"][0]["product"]["displayName"],
                     "cancelled": trip["legs"][0]["cancelled"],
                 },
             )
@@ -283,13 +315,28 @@ def getTrip(station_id, station_dest, skiptime):
     return stops
 
 def getTrains(station_id, skiptime):
-    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params = {"station": station_id}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
 
-    if resp.status_code != 200:
-        # Return an Empty list
-        return []
+    # Check the cache for travel info
+    resp_cached = cache.get("ns_%s" % station_id)
 
-    departures = json.decode(resp.body())
+    if resp_cached != None:
+        # Get the cached response
+        # print("Hit!")
+        departures = json.decode(resp_cached)
+
+    else:
+        # Fetch new schedule from API
+        # print("MISS!")
+        resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params = {"station": station_id}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
+
+        if resp.status_code != 200:
+            cache.set("ns_%s" % station_id, json.encode([]), ttl_seconds = 30)
+            return []
+        else:
+            departures = json.decode(resp.body())
+            cache.set("ns_%s" % station_id, resp.body(), ttl_seconds = 30)
+
+    # Return the trains
     departuresTrains = departures["payload"]["departures"]
 
     startID = 0
