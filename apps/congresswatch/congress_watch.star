@@ -93,7 +93,7 @@ def main(config):
         fail("Error: Failed to get data from cache or http get calling")
 
     #Congress Session INfo
-    congress_number = congress_session_body["congress"]["number"]
+    congress_number = congress_session_body[api_key]["number"]
     senate_start = None
     house_start = None
 
