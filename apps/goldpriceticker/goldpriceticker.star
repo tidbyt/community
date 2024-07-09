@@ -140,7 +140,7 @@ def main(config):
         if (is_debug == True):
             print("Fetching " + GRAPH_PERIOD + " price history for " + PRECIOUS_METAL)
 
-        httpresponse = http.get(PRICE_HISTORY_URL + GRAPH_PERIOD + "/" + PRECIOUS_METAL + "?API_KEY=" + API_KEY, ttl_seconds=600)
+        httpresponse = http.get(PRICE_HISTORY_URL + GRAPH_PERIOD + "/" + PRECIOUS_METAL + "?API_KEY=" + API_KEY, ttl_seconds = 600)
 
         if (httpresponse.status_code == 401):
             return render.Root(
@@ -196,7 +196,7 @@ def main(config):
         if (is_debug == True):
             print("Fetching realtime price")
 
-        httpresponse = http.get(REALTIME_QUOTE + "?API_KEY=" + API_KEY, ttl_seconds=600)
+        httpresponse = http.get(REALTIME_QUOTE + "?API_KEY=" + API_KEY, ttl_seconds = 600)
 
         if httpresponse.status_code != 200:
             fail("Could not fetch realtime spot price for URL " + REALTIME_QUOTE + " Error code %d" % (httpresponse.status_code))
