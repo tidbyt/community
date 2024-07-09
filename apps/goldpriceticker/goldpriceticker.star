@@ -140,7 +140,7 @@ def main(config):
         if (is_debug == True):
             print("Fetching " + GRAPH_PERIOD + " price history for " + PRECIOUS_METAL)
 
-        httpresponse = http.get(PRICE_HISTORY_URL + GRAPH_PERIOD + "/" + PRECIOUS_METAL + "?API_KEY=" + API_KEY)
+        httpresponse = http.get(PRICE_HISTORY_URL + GRAPH_PERIOD + "/" + PRECIOUS_METAL + "?API_KEY=" + API_KEY, ttl_seconds=600)
 
         if (httpresponse.status_code == 401):
             return render.Root(
@@ -196,7 +196,8 @@ def main(config):
         if (is_debug == True):
             print("Fetching realtime price")
 
-        httpresponse = http.get(REALTIME_QUOTE + "?API_KEY=" + API_KEY)
+        httpresponse = http.get(REALTIME_QUOTE + "?API_KEY=" + API_KEY, ttl_seconds=600)
+
         if httpresponse.status_code != 200:
             fail("Could not fetch realtime spot price for URL " + REALTIME_QUOTE + " Error code %d" % (httpresponse.status_code))
 
@@ -226,85 +227,11 @@ def main(config):
         PercentageColor = red_color
         NumPrefix = ""
 
-    plot_array = []
-
     last_timekey = 0
     last_timekey_value = 0
     mingraph = 0
     maxgraph = 0
-
-    # Now lets build the plot array if we arent cached
-    if (is_cached == False):
-        for timekey in sorted(HistoricalPrices):
-            if (int(timekey) < sessionstart_price_period):
-                # This entry is from before our established session start time of 6PM, not part of graph
-                print("Discarding")
-                continue
-            if ((int(timekey) != last_timekey + 1) and last_timekey != 0):
-                for x in range(last_timekey + 1, int(timekey)):
-                    plot_array.append((x, last_timekey_value))
-                    if (is_debug == True):
-                        print("%d %f" % (x, last_timekey_value))
-
-                    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-                    cache.set(PRECIOUS_METAL + GRAPH_PERIOD + ":" + "%d" % (x), "%f" % (last_timekey_value), 172800)
-
-            PercentageChange_hist = (float(HistoricalPrices[timekey]) / ClosingPrice - 1) * 100
-            last_timekey_value = PercentageChange_hist
-            last_timekey = int(timekey)
-            plot_array.append((int(timekey), PercentageChange_hist))
-
-            if (is_debug == True):
-                print("%d %f" % (int(timekey), float(PercentageChange_hist)))
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(PRECIOUS_METAL + GRAPH_PERIOD + ":" + "%d" % (timekey), "%f" % (PercentageChange_hist), 172800)
-            if (mingraph == 0):
-                mingraph = int(timekey)
-
-                maxgraph = mingraph + (30 * 3)  # 20 minute intervals means 3 per hour, a total of 30 hours between 6PM and Midnight the next night
-                if (GRAPH_PERIOD == "30day"):
-                    maxgraph = mingraph + (4 * 30)  # 6 hour intervals for 30day, which is 4 per day or 120 positions
-                if (GRAPH_PERIOD == "90day"):
-                    maxgraph = mingraph + (4 * 90)  # 6 hour intervals for 90day, which is 4 per day or 360 positions
-                if (GRAPH_PERIOD == "1year"):
-                    maxgraph = mingraph + (4 * 365)  # 6 hour intervals for 365day, which is 4 per day or 1460 positions
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(PRECIOUS_METAL + GRAPH_PERIOD + ":GRAPHSTART", "%d" % (mingraph), (20 * 60))
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(PRECIOUS_METAL + GRAPH_PERIOD + ":GRAPHEND", "%d" % (last_timekey), (20 * 60))
-        if (is_debug == True):
-            print(PRECIOUS_METAL + ":GRAPHSTART=" + "%d" % (mingraph))
-            print(PRECIOUS_METAL + ":GRAPHEND=" + "%d" % (last_timekey))
-
-    elif (int(graphstart_cache) != 0):  #If graphstart_cache is 0, market is probably closed
-        mingraph = int(graphstart_cache)
-        graphend = int(graphend_cache)
-
-        maxgraph = mingraph + (30 * 3)
-        if (GRAPH_PERIOD == "30day"):
-            maxgraph = mingraph + (4 * 30)  # 6 hour intervals for 30day, which is 4 per day or 120 positions
-        if (GRAPH_PERIOD == "90day"):
-            maxgraph = mingraph + (4 * 90)  # 6 hour intervals for 90day, which is 4 per day or 360 positions
-        if (GRAPH_PERIOD == "1year"):
-            maxgraph = mingraph + (4 * 365)  # 6 hour intervals for 365day, which is 4 per day or 1460 positions
-
-        for timekey in range(mingraph, graphend + 1):
-            percent_cache = cache.get(PRECIOUS_METAL + GRAPH_PERIOD + ":" + "%d" % (timekey))
-
-            if (percent_cache == None):
-                # TODO: Determine if this cache call can be converted to the new HTTP cache.
-                cache.set(PRECIOUS_METAL + GRAPH_PERIOD + ":GRAPHSTART", "")
-
-                # TODO: Determine if this cache call can be converted to the new HTTP cache.
-                cache.set(PRECIOUS_METAL + GRAPH_PERIOD + ":GRAPHEND", "")
-                fail("Tried to fetch cache key " + PRECIOUS_METAL + GRAPH_PERIOD + ":" + "%d" % (timekey) + "but failed, invalidating cache")
-
-            if (is_debug == True):
-                print("%d %f" % (timekey, float(cache.get(PRECIOUS_METAL + GRAPH_PERIOD + ":" + "%d" % (timekey)))))
-            plot_array.append((int(timekey), float(cache.get(PRECIOUS_METAL + GRAPH_PERIOD + ":" + "%d" % (timekey)))))
+    plot_array = [(mingraph, 0), (maxgraph, 0)]
 
     PLOT_SECTION = ""
 
