@@ -14,8 +14,9 @@ load("schema.star", "schema")  #Keep Track of Settings
 load("secret.star", "secret")  #Encrypt the API Key
 load("time.star", "time")  #Ensure Timely display of congressional actions
 
-API_KEY = "IwiU6rcUFvTMiiVCz1HXblunVhKixvY5L3mDTHsU"
-API_KEY_ENCRYPTED = "AV6+xWcEOpj+cWCjxVjSHzqR7W/gqvbZNvz/UjBp3vGR/o3x9oYVAEM/1Dv/T5HdFyHP3zqlZdQZtDOkV1l+GFmwzJAsUnaFK3AsDQvLp7AuSkYvlRKeW/8xXfQfWU9WTTboA+JavP62OgBrR4mau7PhCQth6wdByuW2ANVW/hlwNqT2AZrSiy4PGcSpaA=="
+#API_KEY = "IwiU6rcUFvTMiiVCz1HXblunVhKixvY5L3mDTHsU"
+#API_KEY_ENCRYPTED = "AV6+xWcEOpj+cWCjxVjSHzqR7W/gqvbZNvz/UjBp3vGR/o3x9oYVAEM/1Dv/T5HdFyHP3zqlZdQZtDOkV1l+GFmwzJAsUnaFK3AsDQvLp7AuSkYvlRKeW/8xXfQfWU9WTTboA+JavP62OgBrR4mau7PhCQth6wdByuW2ANVW/hlwNqT2AZrSiy4PGcSpaA==" #[app id]
+API_KEY_ENCRYPTED = "AV6+xWcEilc5jnGGWn309ZXSerOM5TeTeRANc8MkwfdBcuuXKh41QCHph+2hj7Y7cfw0ULNXqxMEB0NWKRrrOOE+wkEkDkcB1s6DFa31DUexqut6BzslRrfnZaacwhcOvcqbUi+JgbeqoMzwdojdpxxddbEU/8pdWi5lpoRFfvL4IdSe4H9FPaikkvhSLQ==" #[app name]
 CONGRESS_API_URL = "https://api.congress.gov/v3/"
 CONGRESS_SESSION_LENGTH_IN_DAYS = 720  #730, but we'll shorten it some to make sure we don't miss
 CONGRESS_BILL_TTL = 12 * 60 * 60  #12 hours * 60 mins/hour * 60 seconds/min
@@ -73,7 +74,7 @@ scroll_speed_options = [
 ]
 
 def main(config):
-    api_key = secret.decrypt(API_KEY_ENCRYPTED) or API_KEY
+    api_key = secret.decrypt(API_KEY_ENCRYPTED) #or API_KEY
 
     #Get the current congress
     congress_session_url = "%scongress/current?API_KEY=%s&format=json" % (CONGRESS_API_URL, api_key)
@@ -118,15 +119,15 @@ def main(config):
     congress_data = json.decode(get_cachable_data(congress_bill_url, CONGRESS_BILL_TTL))
     filtered_congress_data = filter_bills(congress_data, config.get("period", period_options[0].value), config.get("source", source[-1].value))
 
+    number_filtered_items = len(filtered_congress_data)
+    if (number_filtered_items==0):
+        return []
+
     #let's diplay a random bill from the filtered list
-    random_number = randomize(0, len(filtered_congress_data))
+    random_number = randomize(0, number_filtered_items)
     row1 = filtered_congress_data[random_number]["originChamber"]
     row2 = "%s%s %s" % (filtered_congress_data[random_number]["type"], filtered_congress_data[random_number]["number"], filtered_congress_data[random_number]["title"])
     row3 = (filtered_congress_data[random_number]["latestAction"]["text"])
-
-    print(row1)
-    print(row2)
-    print(row3)
 
     return render.Root(
         render.Column(
