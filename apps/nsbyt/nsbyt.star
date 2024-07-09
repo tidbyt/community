@@ -25,14 +25,13 @@ BLACK_TEXT_COLOR = "#000"
 CORE_TEXT_COLOR = "#FFFFFF"
 NORMAL_TEXT_COLOR = "#FFC917"
 DELAYED_TEXT_COLOR = "#DB0029"
-MAINTENANCE_TEXT_COLOR = "#FF7700";
+MAINTENANCE_TEXT_COLOR = "#FF7700"
 
 NO_FRAMES_TOGGLE = 60
 
 DEFAULT_STATION = "ehv"
 
 def main(config):
-
     station_id = config.str("station")
     station_dest = config.str("dest_station")
     skiptime = config.get("skiptime", 0)
@@ -43,7 +42,7 @@ def main(config):
         station_id = json.decode(station_id)["value"]
 
     # Check if we need to convert the skiptime to Int
-    if(skiptime):
+    if (skiptime):
         if type(skiptime) == "string":
             skiptime = int(skiptime)
 
@@ -53,7 +52,6 @@ def main(config):
 
     # If we don't have a Trip, list trains for station.
     if station_dest == None:
-
         # Normal Train Operations
         stops = getTrains(station_id, skiptime)
 
@@ -138,7 +136,6 @@ def renderTrain(stop_info):
 
     # If there is a delay, change render.
     if trainDelay != "":
-
         renderTimeChild = []
         renderTimeChild.extend([departureTimeRender] * NO_FRAMES_TOGGLE)
         renderTimeChild.extend(
@@ -154,23 +151,22 @@ def renderTrain(stop_info):
 
     else:
         # Special notices content = actualTime + " | " + message,
-        if message :
-
+        if message:
             departureTimeRender = render.Marquee(
-                                    width = 64 - 13,
-                                    child = render.Text(
-                                        content = actualTime,
-                                        color = MAINTENANCE_TEXT_COLOR,
-                                    ),
-                                )
+                width = 64 - 13,
+                child = render.Text(
+                    content = actualTime,
+                    color = MAINTENANCE_TEXT_COLOR,
+                ),
+            )
 
             departureTimeRenderMaintenance = render.Marquee(
-                                    width = 64 - 13,
-                                    child = render.Text(
-                                        content = message,
-                                        color = MAINTENANCE_TEXT_COLOR,
-                                    ),
-                                )
+                width = 64 - 13,
+                child = render.Text(
+                    content = message,
+                    color = MAINTENANCE_TEXT_COLOR,
+                ),
+            )
 
             renderTimeChild = []
             renderTimeChild.extend([departureTimeRender] * departureTimeRender.frame_count())
@@ -186,7 +182,7 @@ def renderTrain(stop_info):
 
             departureTimeRender = render.Animation(children = renderTimeChild)
 
-        else :
+        else:
             renderTimeChild = []
             renderTimeChild.extend([departureTimeRender] * NO_FRAMES_TOGGLE)
             renderTimeChild.extend(
@@ -298,7 +294,6 @@ def getTrip(station_id, station_dest, skiptime):
                     },
                 )
         else:
-
             stops.append(
                 {
                     "direction": trip["legs"][0]["direction"],
@@ -315,7 +310,6 @@ def getTrip(station_id, station_dest, skiptime):
     return stops
 
 def getTrains(station_id, skiptime):
-
     # Check the cache for travel info
     resp_cached = cache.get("ns_%s" % station_id)
 
