@@ -77,7 +77,7 @@ scroll_speed_options = [
 
 def main(config):
     api_key = secret.decrypt(API_KEY_ENCRYPTED) #or API_KEY
-
+    print(api_key)
     #Get the current congress
     congress_session_url = "%scongress/current?API_KEY=%s&format=json" % (CONGRESS_API_URL, api_key)
     congress_session_body = cache.get(congress_session_url)
