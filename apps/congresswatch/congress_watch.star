@@ -119,7 +119,7 @@ def main(config):
     filtered_congress_data = filter_bills(congress_data, config.get("period", period_options[0].value), config.get("source", source[-1].value))
 
     number_filtered_items = len(filtered_congress_data)
-    if (number_filtered_items==0):
+    if (number_filtered_items == 0):
         return []
 
     #let's diplay a random bill from the filtered list
