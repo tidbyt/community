@@ -15,7 +15,7 @@ load("secret.star", "secret")  #Encrypt the API Key
 load("time.star", "time")  #Ensure Timely display of congressional actions
 
 API_KEY = "IwiU6rcUFvTMiiVCz1HXblunVhKixvY5L3mDTHsU"
-API_KEY_ENCRYPTED = "AV6+xWcEONGMeP4KdGqCO9aQ5vhdBFz4VLyxinpFW+SIsoiYmqcCR33CU6kNEc01NR/ywxYUNJl0CeNkNTZ/lT8rDEjKlENdTMU8/A8YsYjnrUhnq6QLIeO6BRVtGRTwcILtm0fPZrEWId8Ta4cETXU09Ib6LO8AYeHorr0mvi2wNiNn776WxcF+UIkBXg=="#
+API_KEY_ENCRYPTED = "AV6+xWcEONGMeP4KdGqCO9aQ5vhdBFz4VLyxinpFW+SIsoiYmqcCR33CU6kNEc01NR/ywxYUNJl0CeNkNTZ/lT8rDEjKlENdTMU8/A8YsYjnrUhnq6QLIeO6BRVtGRTwcILtm0fPZrEWId8Ta4cETXU09Ib6LO8AYeHorr0mvi2wNiNn776WxcF+UIkBXg=="  #
 CONGRESS_API_URL = "https://api.congress.gov/v3/"
 CONGRESS_SESSION_LENGTH_IN_DAYS = 720  #730, but we'll shorten it some to make sure we don't miss
 CONGRESS_BILL_TTL = 12 * 60 * 60  #12 hours * 60 mins/hour * 60 seconds/min
