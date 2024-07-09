@@ -122,3 +122,9 @@ data: {
 }`
 
 Note: `mins` is how many minutes into the future that the this notification will expire.
+
+# Notes
+
+- When you first start it there won't be any notifications so you won't see anything.
+- Config is case-sensitive. If you have a database named "homeassistant" and then you type "Homeassistant" into the config then it won't error out but it also won't be looking in your "homeassistant" database for your notifications.
+- The app is designed to give you error messages through the Tidbyt itself. If you're missing config settings or get a an error back from it trying to connect to the database then you'll see those errors on the Tidbyt.
