@@ -36,7 +36,7 @@ TEAMS = [
     {"name": "Orioles", "id": 110, "nick": "BAL", "image": "%sbal.png" % IMAGE_BASE},
     {"name": "Padres", "id": 135, "nick": "SD", "image": "%ssd.png" % IMAGE_BASE_DARK},
     {"name": "Phillies", "id": 143, "nick": "PHI", "image": "%sphi.png" % IMAGE_BASE},
-    {"name": "Pirates", "id": 134, "nick": "PIT", "image": "%spit.png" % IMAGE_BASE},
+    {"name": "Pirates", "id": 134, "nick": "PIT", "image": "%spit.png" % IMAGE_BASE_DARK},
     {"name": "Rangers", "id": 140, "nick": "TEX", "image": "%stex.png" % IMAGE_BASE},
     {"name": "Rays", "id": 139, "nick": "TB", "image": "%stb.png" % IMAGE_BASE},
     {"name": "Red Sox", "id": 111, "nick": "BOS", "image": "%sbos.png" % IMAGE_BASE},
@@ -131,7 +131,7 @@ def create_game_display(game_date, opponent_nickname, logo):
 
 def main(config):
     team = config.get("team", "Angels")
-    timezone = config.get("timezone") or "America/New_York"
+    timezone = config.get("$tz") or "America/New_York"
 
     url_params = generate_url_parameters(team, timezone)
     schedule = get_schedule(BASE + url_params)
@@ -142,7 +142,7 @@ def main(config):
     if schedule == "":  # error occurred while calling API
         game_cols.append(render.WrappedText(content = "Error getting schedule", color = "#FFF", linespacing = 3))
     elif len(schedule["dates"]) == 0:  # no games in time period searched
-        game_cols.append(render.WrappedText(content = "No games this week for the %s" % team, color = "#FFF", linespacing = 3))
+        return []
     else:
         for game_day in schedule["dates"]:
             todays_games = get_date_info(game_day, timezone)
@@ -152,8 +152,16 @@ def main(config):
                 if games_processed > GAMES_TO_DISPLAY:
                     break
                 opponent_id = get_opponent(tg, team)
-                opponent_nickname = [x["nick"] for x in TEAMS if x["id"] == opponent_id][0]
-                logo = get_team_logo(opponent_id)
+
+                opponent_nicknames = [x["nick"] for x in TEAMS if x["id"] == opponent_id]
+
+                if len(opponent_nicknames) > 0:
+                    opponent_nickname = opponent_nicknames[0]
+                    logo = get_team_logo(opponent_id)
+                else:
+                    opponent_nickname = "TBD"
+                    logo = ""
+
                 game_cols.append(create_game_display(tg["date"], opponent_nickname, logo))
 
             if games_processed > GAMES_TO_DISPLAY:

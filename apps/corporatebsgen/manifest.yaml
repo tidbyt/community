@@ -1,0 +1,8 @@
+---
+id: corporate-bs-gen
+name: Corporate BS Gen
+summary: Corporate jargon on tap
+desc: Your go-to generator for top-tier corporate mumbo-jumbo. Need to sound impressively vague in a meeting? Want to mystify your colleagues with business buzzwords? Turn to the Tidbyt and unleash a flurry of corporate jargon that’ll have everyone nodding in confused agreement.
+author: Ryan Taylor
+fileName: corporate_bs_gen.star
+packageName: corporatebsgen

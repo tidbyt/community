@@ -35,7 +35,7 @@ iVBORw0KGgoAAAANSUhEUgAABAAAAAQACAYAAAB/HSuDAAUeNElEQVR42uy9e5hbd3nv+5HWLHnJy6NI
 }
 
 def main(config):
-    api_key = secret.decrypt("AV6+xWcEUcp9Krxye9vTK02nLB8QvKRtdJA//aPj5d/hUZhOMusWD0vGO19AwKSSi0bszlbEuYxDX9wJn8egIvPyw0+SKqHa/KSkneBfcITWtMUgK39Qpj0Su9ZbDV0WpH+To+sNcENOo4uKIMldhLunjTgm20rPeKX0GduUr+EmvhW8FGimQiG4") or config.get("dev_api_key")
+    api_key = secret.decrypt("AV6+xWcEuaKV5wZdc1Ga54t9PMb53Whf4JhhnUBnhFBqczkewlzfLHNQlBpYnkOOv26zJJXx2Wdk5b0UpVqR2PLXOLmKmd+ORAhKfY6wP+yS8DS/HgrlQ+lqaX1TCr/N0F8OlkTVtf1ROsvjoOinPJb5T2zg3jdv+458QFeu7hmDYhsunyqcTK8Y") or config.get("dev_api_key")
     items = cache.get("items")
     if api_key:
         if items == None:

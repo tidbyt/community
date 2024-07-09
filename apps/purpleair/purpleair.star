@@ -11,15 +11,13 @@ Author: posburn
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 
 # DEFAULTS
 
-DEFAULT_SENSOR_ID = "33997"  # Alcatraz Dock sensor
+DEFAULT_SENSOR_ID = None
 DEFAULT_LOCATION_BASED_SENSOR = '{"display": "SF Maritime NHP", "value": 70251}'
 TEMP_UNIT_F = "F"
 TEMP_UNIT_C = "C"
@@ -30,8 +28,10 @@ PARTICLE_SENSOR_B = "Sensor B"
 
 # MAIN APP
 
+api_key = None
+
 def main(config):
-    api_key = secret.decrypt(API_READ_KEY) or DEV_KEY
+    api_key = config.get("api_key")
     sensor_id = get_sensor_id(config)
     show_title = get_cfg_value(config, "show_title", True)
     show_temp = get_cfg_value(config, "show_temp", True)
@@ -52,8 +52,9 @@ def main(config):
 
     # Fetch the air info
     data = None
-    if api_key != None:
-        data = fetch_sensor_data(api_key, PUBLIC_SENSOR + sensor_id, {})  # [0] = data, [1] = was_cached
+    if api_key != None and sensor_id != None:
+        # [0] = data, [1] = was_cached
+        data = fetch_sensor_data(api_key, PUBLIC_SENSOR + sensor_id + FETCH_SENSOR_FIELDS, {})
 
     if data == None:
         print("No data returned for sensor %s" % sensor_id)
@@ -113,16 +114,16 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.LocationBased(
-                id = "sensor_id",
-                name = "Sensors",
-                desc = "Choose the sensor based on your location.",
-                icon = "locationDot",
-                handler = get_sensors,
+            schema.Text(
+                id = "api_key",
+                name = "PurpleAir API Key",
+                desc = "Specify the API key to use",
+                icon = "gear",
+                default = "",
             ),
             schema.Text(
                 id = "sensor_id_direct",
-                name = "Sensor ID (optional)",
+                name = "Sensor ID",
                 desc = "Specify the sensor if you know the ID",
                 icon = "satelliteDish",
                 default = "",
@@ -174,88 +175,6 @@ def get_schema():
         ],
     )
 
-def get_sensors(location):
-    default_options = [schema.Option(display = "Alcatraz Dock", value = DEFAULT_SENSOR_ID)]
-    sensors = default_options
-
-    if location == None or location == "":
-        return sensors
-
-    api_key = secret.decrypt(API_READ_KEY) or DEV_KEY
-    if api_key == None:
-        return sensors
-
-    location_data = json.decode(location)
-    if location_data == None:
-        return sensors
-
-    # Get latitude and longitude of location to use in the api call
-    #desc = location_data.get("description", None)
-    latitude = float(location_data.get("lat", 0))
-    longitude = float(location_data.get("lng", 0))
-
-    # Truncate to protect the user's privacy
-    latitude = float(humanize.float("#.##", latitude))
-    longitude = float(humanize.float("#.##", longitude))
-
-    # Get the sensor list constrained to a small area around this location
-    delta = 0.035
-    params = {
-        "nwlng": str(longitude - delta),
-        "nwlat": str(latitude + delta),
-        "selng": str(longitude + delta),
-        "selat": str(latitude - delta),
-    }
-
-    sensor_list = fetch_sensor_list(api_key, LIST_SENSORS, params)
-
-    if sensor_list == None:
-        print("No data returned for sensor list")
-        return sensors
-
-    elif len(sensor_list) != 2 or sensor_list[0] == None:
-        print("sensor_list in incorrect format or missing")
-
-    else:
-        sensor_data = sensor_list[0].get("data", [])
-        count = len(sensor_data)
-        if count > 0:
-            sensors = []
-
-        for i in range(len(sensor_data)):
-            item = sensor_data[i]
-            if len(item) != 5:
-                continue
-
-            # Calculate miles/km
-            distance = distance_between(latitude, longitude, item[3], item[4])
-            distance = int(distance * 100) / 100
-            name = "(%f) %s" % (distance, item[1])
-
-            name = name.replace("0000", "")
-            value = str(item[0]).replace(".0", "")
-            sensors.append(schema.Option(display = name, value = value))
-
-        def sort_by_name(option):
-            return option.display
-    return sorted(sensors, key = sort_by_name)
-
-# Use the haversine formula to calculate the distance between two points in miles
-# https://www.movable-type.co.uk/scripts/latlong.html
-def distance_between(lat1, lng1, lat2, lng2):
-    r = 6371e3
-    la1 = lat1 * math.pi / 180
-    la2 = lat2 * math.pi / 180
-    delta_lat = (lat2 - lat1) * math.pi / 180
-    delta_lng = (lng2 - lng1) * math.pi / 180
-
-    a = math.pow(math.sin(delta_lat / 2), 2) + math.cos(la1) * math.cos(la2) * math.pow(math.sin(delta_lng / 2), 2)
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    d = r * c  # d is in meters
-    km = d / 1000
-    miles = km / 0.621371
-    return miles
-
 # Return the sensor id to use based on configuration options
 def get_sensor_id(config):
     sensor = DEFAULT_SENSOR_ID
@@ -266,23 +185,18 @@ def get_sensor_id(config):
         sensor = str(json.decode(id_option))
         print("Sensor direct: %s" % id_option)
 
-    # If sensor not specified directly, use location to get sensor
-    if id_option == None or id_option == "":
-        local_selection = config.get("sensor_id", DEFAULT_LOCATION_BASED_SENSOR)
-        local_selection = json.decode(local_selection)
-        if "value" in local_selection:
-            sensor = str(local_selection["value"])
-
     print("Using sensor: %s" % sensor)
     return sensor
 
 # DATA
 
 # Returns a tuple: (data, was_cached)
+# Sample call:
+# https://api.purpleair.com/v1/sensors/12345?fields=name,temperature,humidity,pm2.5_cf_1_a,pm2.5_cf_1_b,confidence,confidence_auto,location_type
 def fetch_sensor_data(api_key, url, params):
     air_dict = {}
     headers = {"X-API-Key": api_key}
-    rep = http.get(url, params = params, headers = headers, ttl_seconds = 600)
+    rep = http.get(url, params = params, headers = headers, ttl_seconds = 1800)  # 30 min cache
     if rep.status_code != 200:
         print("Request failed with status %d" % rep.status_code)
         return None
@@ -317,18 +231,6 @@ def fetch_sensor_data(api_key, url, params):
             }
 
         return (air_dict, False)
-
-# Returns a tuple: (data, was_cached)
-def fetch_sensor_list(api_key, url, params):
-    # Check cache first
-
-    headers = {"X-API-Key": api_key}
-    rep = http.get(url, params = params, headers = headers, ttl_seconds = 14400)
-    if rep.status_code != 200:
-        print("Request failed with status %d" % rep.status_code)
-        return None
-    else:
-        return (rep.json(), False)
 
 # AQI & CALCULATIONS
 
@@ -429,7 +331,7 @@ def aqi_description(aqi, show_title = True):
 
     index = aqi_index(aqi)
     if index == AQI_ERROR:
-        return "Select a PurpleAir sensor"
+        return "Specify a sensor and API key"
     return AQI_TITLE[index]
 
 def aqi_color(aqi):
@@ -537,13 +439,13 @@ def render_simple_view(aqi, alternate_text = "", text_color = "#FFFFFFFF", offse
                         render.Box(child = render_aqi_text(aqi)),
                 ),
                 render.Padding(
-                    pad = (24, -1, 0, 0),
+                    pad = (24, -2, 0, 0),
                     child =
                         render.Stack(
                             children = [
                                 render.Box(
                                     width = 38,
-                                    height = 25,
+                                    height = 28,
                                     child =
                                         render.WrappedText(
                                             content = aqi_description(aqi, show_title),
@@ -556,7 +458,7 @@ def render_simple_view(aqi, alternate_text = "", text_color = "#FFFFFFFF", offse
                                     child =
                                         render.Box(
                                             width = 38,
-                                            height = 25,
+                                            height = 28,
                                             child =
                                                 render.WrappedText(
                                                     content = alternate_text,
@@ -652,12 +554,8 @@ def render_animation(aqi, temp, humidity, name, show_title = True, show_temp = T
 
 # CONSTANTS
 
-API_READ_KEY = "AV6+xWcE7hO0GOSye3S6fLtTsKex797gyaIfLQKc3t1oXawbQBTEVHciWK3ITe3um3dBzxDNau5bI3iNhYicAm3FFRWAj0hVL/nKmGrvphhvjzxbjynWIy2+g6IkGZw43GMf2wjIEnHcmuGVMicd779uABXs56OhMof9LFfiq7iuJ9e2PhN+h8x2"
-
-# unencrypted DEV key - set this to None before you PR
-DEV_KEY = None
 PUBLIC_SENSOR = "https://api.purpleair.com/v1/sensors/"
-LIST_SENSORS = "https://api.purpleair.com/v1/sensors?fields=name,location_type,latitude,longitude"
+FETCH_SENSOR_FIELDS = "?fields=name,temperature,humidity,pm2.5_cf_1_a,pm2.5_cf_1_b,confidence,confidence_auto,location_type"
 CACHE_KEY_DATA = "purpleAirData"
 BACKGROUND_COLOR = "#21024D"
 

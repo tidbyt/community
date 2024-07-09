@@ -16,7 +16,7 @@ load("time.star", "time")
 
 PREDICTIONS_URL = "https://api.actransit.org/transit/actrealtime/prediction"
 DEFAULT_STOPID = "55652"
-ENCRYPTED_API_KEY = "AV6+xWcEDY5Xci/kB/yzNYe8qYIkBe5mIA+4b1zr8VkqNbw2s3n4GXdztkwK9oZKJPGEZjmh9mOCfilqaL32hQiru6Vvm410hXK4oP7Sc0Jq7mglM7KZ3LBS26o8hCR+LqY/uafNPbJUUgiR/vSVeQASBnwtaIkQ7TkaG6pUno2bkkpfXns="
+ENCRYPTED_API_KEY = "AV6+xWcEWbfPDnnshqd2+XMVm/XeCQQoZ5B3271apLGxNAmnIlBL9M4N1RstU9I4WP0u6iEFKfmq0o/aFtoryFzlOSRBZyvLBA5E27riAuKhZyAMvVR3rzgQd29sv3GL74D/TfUaiHwYquPJ5TeOoRhJNduNv2qQT8LjGjjXEpfNiZsHIeE="
 LIST_STOPS_URL = "https://api.actransit.org/transit/stops"
 AC_TRANSIT_TIME_ZONE = "America/Los_Angeles"
 AC_TRANSIT_TIME_LAYOUT = "20060102 15:04"

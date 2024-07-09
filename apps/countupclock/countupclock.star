@@ -6,10 +6,14 @@ Author: jvivona
 borrowed Fade In and Out technique and the math calculations from @CubsAaron countdown_clock
 """
 
+# 20231107 - jvivona - change fade code to new code & cleanup for loops
+
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+
+VERSION = 23311
 
 DEFAULT_TIMEZONE = "America/New_York"
 TITLE_FONT = "5x8"
@@ -134,18 +138,23 @@ def get_hours_minutes(datediff, days, displayminutes):
         )
 
 def createfadelist(text, cycles):
+    alpha_values = ["00", "33", "66", "99", "CC", "FF"]
     cycle_list = []
 
     # this is a pure genius technique and is borrowed from @CubsAaron countdown_clock
     # need to ponder if there is a different way to do it if we want something other than grey
-    for x in range(0, 10, 2):
-        c = "#" + str(x) + str(x) + str(x) + str(x) + str(x) + str(x)
-        cycle_list.append(render.Text(text, font = HOURS_FONT, color = c))
+    # use alpha channel to fade in and out
+
+    # go from none to full color
+    for x in alpha_values:
+        cycle_list.append(render.Text(text, font = HOURS_FONT, color = HOURS_COLOR + x))
     for x in range(cycles):
         cycle_list.append(render.Text(text, font = HOURS_FONT, color = HOURS_COLOR))
-    for x in range(8, 0, -2):
-        c = "#" + str(x) + str(x) + str(x) + str(x) + str(x) + str(x)
-        cycle_list.append(render.Text(text, font = HOURS_FONT, color = c))
+
+    # go from full color back to none
+    for x in alpha_values[5:0]:
+        cycle_list.append(render.Text(text, font = HOURS_FONT, color = HOURS_COLOR + x))
+
     return cycle_list
 
 def show_minutes_option(display_hours):

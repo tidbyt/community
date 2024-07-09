@@ -15,7 +15,7 @@ load("xpath.star", "xpath")
 
 # Used to query Darwin to get live train information.
 # Allows 5000 requests per hour (~1.38 qps) for free. Can buy more if needed.
-ENCRYPTED_DARWIN_APP_KEY = "AV6+xWcEcp22TJpUDqD43p0y2aTxlhn9yaUdbwfZcN1lEjVeDIZVIYmIS5E0Gn/pB0AmjqZmXkSrsfWBRAaYMH9mS1AP7wk1/ipUhjDFmhA1Wftr/nPyfksdWZzTn8oGWlA96RRWuunIPPTfFja5fZomy9fzDtDr4LWV9dAcQGj5c2Zs0uA8FlAa"
+ENCRYPTED_DARWIN_APP_KEY = "AV6+xWcEW64SUyBE2O/65VFbdcMepQ2EeNFZd4mDkOYY7MufQWq4q9VFzsoA/BoTExvFY4FxTM+lT3zXYO63sZGqBCsyud7GqaJKcpTA9dCA5ixTnzKPddMwid0SA9E8XnA7eiKm4bRhg/tRYQQHDqgR6LPI4/ZWGhlJwPVNtFxITVSaKePPtOji"
 DARWIN_SOAP_URL = "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/ldb9.asmx"
 
 # Filters for trains that call at a given station, if selected. This is an excerpt
@@ -2751,9 +2751,21 @@ def render_times(scheduled, expected):
     )
 
 def render_destination(destination):
-    return render.Text(
-        content = destination["sixteen_char_name"].title(),
-        font = FONT,
+    return render.Column(
+        children = [
+            render.Row(
+                children = [
+                    render.Text(
+                        content = destination["name"].title(),
+                        font = FONT,
+                    ),
+                ],
+                expanded = True,
+                main_align = "start",
+            ),
+        ],
+        expanded = True,
+        cross_align = "start",
     )
 
 def render_no_departures():
@@ -2874,7 +2886,7 @@ def main(config):
         child = render.Column(
             cross_align = "center",
             children = [
-                render_title(origin_station["sixteen_char_name"].title()),
+                render_title(origin_station["name"].title()),
                 render_separator(),
             ] + rendered_trains,
         ),

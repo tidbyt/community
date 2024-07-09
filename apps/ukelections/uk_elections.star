@@ -15,10 +15,10 @@ POSTCODE_API = "https://api.electoralcommission.org.uk/api/v1/postcode/%s/"
 ADDRESS_API = "https://api.electoralcommission.org.uk/api/v1/address/%s/"
 
 def api_key():
-    return secret.decrypt("AV6+xWcETNtDggm2STvJTHtWYf3d1IBt49JLgtbCyoIun+lo/H+BPsTFIiWxEoyiOO08hHv9pmupkhXzNOs0WBkTN4t1+Rm9oM36acIyMwNHt5ac5vkOcvE/1e+7AvKYvtxFpJsLbI6AmP1hjbGkJPXMHlAYQ/vNw6qCbJj2pGsWKh21JU+lfyrA4yTzbg==") or ""
+    return secret.decrypt("AV6+xWcExZWQC6+Mex7mzNFvpOL6yjx9jpAXsULY+68u4UJRXxRd/nH3KcCbWAeN627sj7/Qzg7CUQUUMJw44baJn2bANMb/KmQxAytIkHMZ40QUpOuP1g/ppT1TDwVraV0V1RRuiVQs3YkCBuTC1EYdxXxCIzbGWUKf3IVFeEAwa50HfuyiDG50u0p9uA==") or ""
 
 FONT = "tom-thumb"
-BLUE = "#0000ff"
+PURPLE = "#373151"  # Parliamentary branding for neutrality https://www.parliament.uk/globalassets/documents/foi/181321bg.pdf
 GREEN = "#00ff00"
 ORANGE = "#ff8000"
 YELLOW = "#ffff00"
@@ -26,14 +26,17 @@ WHITE = "#ffffff"
 
 def render_header():
     return render.Box(
-        color = BLUE,
-        height = 6,
-        child = render.WrappedText(
-            "Remember to vote",
-            width = 64,
-            font = FONT,
-            color = WHITE,
-            align = "center",
+        color = PURPLE,
+        height = 7,
+        child = render.Padding(
+            pad = (0, 1, 0, 0),
+            child = render.WrappedText(
+                "Vote soon",
+                width = 64,
+                font = FONT,
+                color = WHITE,
+                align = "center",
+            ),
         ),
     )
 
@@ -63,16 +66,25 @@ def render_date(date):
 
 def render_ballot(date, ballot):
     return render.Column(
+        cross_align = "center",
         children = [
             render.Padding(
-                pad = (0, 1, 0, 0),
+                pad = (0, 2, 0, 0),
                 child = render_date(date),
             ),
-            render.WrappedText(
-                ballot["ballot_title"],
-                width = 64,
-                align = "center",
-                font = FONT,
+            render.Box(
+                width = 32,
+                height = 1,
+                color = "#ffffff",
+            ),
+            render.Padding(
+                pad = (0, 2, 0, 0),
+                child = render.WrappedText(
+                    ballot["ballot_title"],
+                    width = 64,
+                    align = "center",
+                    font = FONT,
+                ),
             ),
         ],
     )

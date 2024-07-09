@@ -12,7 +12,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-ADDS_URL = "https://www.aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=csv&stationString=%s&mostrecentforeachstation=constraint&hoursBeforeNow=2"
+ADDS_URL = "https://www.aviationweather.gov/cgi-bin/data/dataserver.php?dataSource=metars&requestType=retrieve&format=csv&stationString=%s&mostrecentforeachstation=constraint&hoursBeforeNow=2"
 DEFAULT_AIRPORT = "KJFK, KLGA, KBOS, KDCA"
 
 # encryption, schema

@@ -19,20 +19,11 @@ def main(config):
     # Get the current time in the specified timezone
     now = time.now().in_location(timezone)
 
-    # Get the current local time
-    current_time = time.now()
-
     # For creating screenshots
     # mock_time = time.time(hour = 17, minute = 1, second = 1, year = current_time.year, month = current_time.month, day = current_time.day, location = timezone)
 
-    # Create a new time object representing the start of the day
-    start_of_day = time.time(hour = 0, minute = 0, second = 0, year = current_time.year, month = current_time.month, day = current_time.day, location = timezone)
-
-    # Calculate the duration between the current time and the start of the day
-    duration = current_time - start_of_day
-
-    # Extract the total number of seconds from the duration
-    elapsed_seconds = duration.seconds
+    # Calculate the total number of seconds
+    elapsed_seconds = now.hour * 3600 + now.minute * 60 + now.second
 
     # Calculate the total number of seconds in a day
     total_seconds_in_day = 24 * 60 * 60

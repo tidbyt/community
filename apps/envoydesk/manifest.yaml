@@ -1,0 +1,8 @@
+---
+id: envoy-desk
+name: Envoy Desk
+summary: Envoy Desk information
+desc: Can be placed on an Envoy Desk to display its current status.
+author: skalum@envoy.com
+fileName: envoy_desk.star
+packageName: envoydesk

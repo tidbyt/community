@@ -9,8 +9,6 @@ load("random.star", "random")
 load("render.star", "render")
 load("time.star", "time")
 
-DEFAULT_WHO = "world"
-
 WHITE = "#ffffff"
 BLACK = "#000000"
 RED = "#ff0000"
@@ -122,11 +120,9 @@ def insertionSort(arr):
         for j in range(i - 1, -1, -1):
             if key >= arr[j]:
                 break
+            frames.append(render_frame_color(arr, i, j + 1, "insertion"))
             swap(arr, j, j + 1)
-            frames.append(render_frame_color(arr, i, j, "insertion"))
 
-        # if j % 10 == 0:
-        arr[j + 1] = key
     return frames
 
 def bubbleSort(arr):
@@ -148,9 +144,9 @@ def selectionSort(arr):
         minIndex = i
 
         for j in range(i + 1, N):
+            frames.append(render_frame_color(arr, minIndex, j + 1, "insertion"))
             if arr[j] < arr[minIndex]:
                 minIndex = j
-                frames.append(render_frame_color(arr, i, j + 1, "insertion"))
 
         swap(arr, i, minIndex)
     return frames
@@ -200,35 +196,6 @@ def radixSort(arr):
         place *= 10
     return frames
 
-def bucketSort(arr):
-    frames = []
-    bucket = []
-
-    # Create empty buckets
-    for i in range(N):
-        bucket.append([])
-
-    # Insert elements into their respective buckets
-    for i in range(N):
-        # index_b = int(10 * j)
-        index_b = arr[i]
-        bucket[index_b].append(arr[i])
-        frames.append(render_frame_color(arr, i, i, "radix"))
-
-    # Sort the elements of each bucket
-    for i in range(N):
-        frames.append(render_frame_color(arr, i, i, "bubble"))
-        bucket[i] = sorted(bucket[i])
-
-    # Get the sorted elements
-    k = 0
-    for i in range(N):
-        for j in range(len(bucket[i])):
-            arr[k] = bucket[i][j]
-            frames.append(render_frame_color(arr, i, i, "insertion"))
-            k += 1
-    return frames
-
 def shellSort(arr):
     frames = []
 
@@ -240,6 +207,7 @@ def shellSort(arr):
         if interval <= 0:
             break
         for i in range(interval, N):
+            frames.append(render_frame_color(arr, i, i, "insertion"))
             temp = arr[i]
             j = i
 
@@ -254,8 +222,276 @@ def shellSort(arr):
         interval //= 2
     return frames
 
-sorts = [bubbleSort, insertionSort, selectionSort, radixSort, bucketSort, shellSort]
-sortNames = ["Bubble", "Insertion", "Selection", "Radix", "Bucket", "Shell"]
+def render_frame_merge(arr, _i, _j, step):
+    rows = [[black_pixel for c in range(WIDTH)] for r in range(HEIGHT)]
+
+    for i in range(-1, N):
+        x = arr[i]
+        for y in range(HEIGHT):
+            # split
+            if step == 1:
+                if HEIGHT - y <= x + 1:
+                    if i <= _j:
+                        rows[y][i * 2] = red_pixel
+                        rows[y][i * 2 + 1] = red_pixel
+                    else:
+                        rows[y][i * 2] = white_pixel
+                        rows[y][i * 2 + 1] = white_pixel
+
+                # compare
+            elif step == 2:
+                if HEIGHT - y <= x + 1:
+                    if i == _i:
+                        rows[y][i * 2] = red_pixel
+                        rows[y][i * 2 + 1] = red_pixel
+                    elif i == _j:
+                        rows[y][i * 2] = red_pixel
+                        rows[y][i * 2 + 1] = red_pixel
+                    else:
+                        rows[y][i * 2] = white_pixel
+                        rows[y][i * 2 + 1] = white_pixel
+
+                # add from left stack
+            elif step == 3:
+                if HEIGHT - y <= x + 1:
+                    if i == _i:
+                        rows[y][i * 2] = green_pixel
+                        rows[y][i * 2 + 1] = green_pixel
+                    elif i == _j:
+                        rows[y][i * 2] = red_pixel
+                        rows[y][i * 2 + 1] = red_pixel
+                    else:
+                        rows[y][i * 2] = white_pixel
+                        rows[y][i * 2 + 1] = white_pixel
+
+                # add from right stack
+            elif step == 4:
+                if HEIGHT - y <= x + 1:
+                    if i == _i:
+                        rows[y][i * 2] = red_pixel
+                        rows[y][i * 2 + 1] = red_pixel
+                    elif i == _j:
+                        rows[y][i * 2] = green_pixel
+                        rows[y][i * 2 + 1] = green_pixel
+                    else:
+                        rows[y][i * 2] = white_pixel
+                        rows[y][i * 2 + 1] = white_pixel
+
+    frame = render.Column(children = [render.Row(children = row) for row in rows])
+    return frame
+
+# difficult to return rendered frames in recursive code, do merge sort in iterative/hacky way
+def mergeSort(arr):
+    frames = []
+
+    # show splitting?
+    # split - while j > 1
+    # for _ in range(999):
+    #     if j == 1:
+    #         break
+    #     frames.append(render_frame_merge(arr, i, j, 1))
+    #     j //= 2
+
+    for half in range(0, 17, 16):
+        for quarter in range(0, 9, 8):
+            #merge quarter
+            newFrames = merge(arr, half + quarter, 4)
+            for frame in newFrames:
+                frames.append(frame)
+            newFrames = merge(arr, half + quarter + 4, 4)
+            for frame in newFrames:
+                frames.append(frame)
+            newFrames = merge(arr, half + quarter, 8)
+            for frame in newFrames:
+                frames.append(frame)
+
+        #merge half
+        newFrames = merge(arr, half, 16)
+        for frame in newFrames:
+            frames.append(frame)
+
+    #merge all
+    newFrames = merge(arr, 0, 32)
+    for frame in newFrames:
+        frames.append(frame)
+
+    return frames
+
+def merge(arr, start, size):
+    frames = []
+    i = start
+    j = start + (size // 2)
+
+    # compare 2 values
+    if arr[i] > arr[i + 1]:
+        # swap if unsorted
+        swap(arr, i, i + 1)
+    frames.append(render_frame_merge(arr, i, j, 2))
+    if arr[j] > arr[j + 1]:
+        # swap if unsorted
+        swap(arr, j, j + 1)
+    frames.append(render_frame_merge(arr, i, j, 2))
+
+    newArr = []
+    for x in range(999):
+        #while i < size//2
+        if i == start + size // 2:
+            #append rest of j ->
+            for __ in range(999):
+                # while j < size
+                if j == start + size:
+                    break
+                newArr.append(arr[j])
+                frames.append(render_frame_merge(arr, i, j, 4))  #something here?
+                j += 1
+            break
+        elif j == start + size:
+            #append rest of i ->
+            for __ in range(999):
+                # while i < start+size//2
+                if i == start + size // 2:
+                    break
+                newArr.append(arr[i])
+                frames.append(render_frame_merge(arr, i, j, 3))
+                i += 1
+            break
+            #otherwise, merge
+
+        elif arr[i] < arr[j]:
+            newArr.append(arr[i])
+            frames.append(render_frame_merge(arr, i, j, 3))
+            i += 1
+        else:
+            newArr.append(arr[j])
+            frames.append(render_frame_merge(arr, i, j, 4))
+            j += 1
+
+    for x in range(start, start + size):
+        arr[x] = newArr[x - start]
+
+    return frames
+
+def heapSort(arr):
+    frames = []
+    heapN = N
+
+    for _ in range(9999):
+        # while heapN > 0
+        if heapN == 0:
+            break
+
+        # make max heap from bottom up non recursively
+        i = 0
+        for i in range(heapN // 2 - 1, -1, -1):
+            left = None
+            right = None
+            if i * 2 + 1 < heapN:
+                left = i * 2 + 1
+            if i * 2 + 2 < heapN:
+                right = i * 2 + 2
+
+            if left and right:
+                if arr[i] < arr[left] and arr[i] < arr[right]:
+                    if arr[left] > arr[right]:
+                        frames.append(render_frame_color(arr, left, i, "insertion"))
+                        swap(arr, i, left)
+                    else:
+                        frames.append(render_frame_color(arr, right, i, "insertion"))
+                        swap(arr, i, right)
+                elif arr[i] < arr[left]:
+                    frames.append(render_frame_color(arr, left, i, "insertion"))
+                    swap(arr, i, left)
+                elif arr[i] < arr[right]:
+                    frames.append(render_frame_color(arr, right, i, "insertion"))
+                    swap(arr, i, right)
+            elif left:
+                if arr[i] < arr[left]:
+                    frames.append(render_frame_color(arr, left, i, "insertion"))
+                    swap(arr, i, left)
+            elif right:
+                if arr[i] < arr[right]:
+                    frames.append(render_frame_color(arr, right, i, "insertion"))
+                    swap(arr, i, right)
+
+        # pop off remove arr[0] from 'heap' and move to end
+        frames.append(render_frame_color(arr, heapN, i, "insertion"))
+        heapN -= 1
+        swap(arr, i, heapN)
+
+    return frames
+
+def render_frame_quick(arr, _i, _j, _low, _pivot, _high):
+    rows = [[black_pixel for c in range(WIDTH)] for r in range(HEIGHT)]
+
+    for i in range(-1, N):
+        x = arr[i]
+        for y in range(HEIGHT):
+            if HEIGHT - y <= x + 1:
+                if i == _low:
+                    rows[y][i * 2] = red_pixel
+                    rows[y][i * 2 + 1] = red_pixel
+                elif i == _pivot:
+                    rows[y][i * 2] = green_pixel
+                    rows[y][i * 2 + 1] = green_pixel
+                elif i == _high:
+                    rows[y][i * 2] = red_pixel
+                    rows[y][i * 2 + 1] = red_pixel
+                    # elif i >= _low and i <= _j:
+                    #     rows[y][i * 2] = red_pixel
+                    #     rows[y][i * 2 + 1] = red_pixel
+
+                else:
+                    rows[y][i * 2] = white_pixel
+                    rows[y][i * 2 + 1] = white_pixel
+
+    frame = render.Column(children = [render.Row(children = row) for row in rows])
+    return frame
+
+def partition(arr, low, high, _pivot):
+    frames = []
+
+    pivot = low
+
+    i = low + 1
+    j = 0
+    for j in range(low + 1, high + 1):
+        frames.append(render_frame_quick(arr, i, j, low, _pivot, high))
+        if arr[j] <= arr[pivot]:
+            swap(arr, i, j)
+            i += 1
+
+    # frames.append(render_frame_quick(arr, i - 1, j, low, _pivot, high))
+    swap(arr, i - 1, low)
+    return [i - 1, frames]
+
+def partitionRand(arr, low, high):
+    frames = []
+    frames.append(render_frame_quick(arr, low, 0, low, (low + high) // 2, high))
+    pivot = (low + high) // 2  #middle
+
+    swap(arr, low, pivot)
+    vals = partition(arr, low, high, pivot)
+    for frame in vals[1]:
+        frames.append(frame)
+    vals[1] = frames
+    return vals
+
+def doQuickSort(arr, low, high):
+    frames = []
+    if low < high:
+        values = partitionRand(arr, low, high)
+        pi = values[0]
+        frames += values[1]
+        frames += doQuickSort(arr, low, pi - 1)
+        frames += doQuickSort(arr, pi + 1, high)
+
+    return frames
+
+def quickSort(arr):
+    return doQuickSort(arr, 0, N - 1)
+
+sorts = [bubbleSort, insertionSort, selectionSort, radixSort, shellSort, mergeSort, heapSort, quickSort]
+sortNames = ["Bubble", "Insertion", "Selection", "Radix", "Shell", "Merge", "Heap", "Quick"]
 
 def animate(arr, randomSortIndex):
     frames = []
@@ -276,11 +512,14 @@ def animate(arr, randomSortIndex):
 def main():
     random.seed(time.now().unix // 15)
     arr = [x for x in range(WIDTH // 2)]
+
     random_shuffle(arr)
 
     randomSortIndex = random.number(0, len(sorts)) - 1
+    # randomSortIndex = 7
 
     return render.Root(
+        show_full_animation = True,
         # delay = REFRESH_MILLISECONDS,
         child = render.Stack(
             children = [

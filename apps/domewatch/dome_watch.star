@@ -62,7 +62,7 @@ def getNonVotingChildren(floor):
                         render.WrappedText(
                             align = "center",
                             font = getFloorStatusFont(floor),
-                            color = getFloorStatusFontColor(floor),
+                            color = "#FFFFFF",
                             content = floor["now"]["text"],
                         ),
                     ],
@@ -79,15 +79,18 @@ def getNonVotingChildren(floor):
 
 def getNonVotingMarquee(floor):
     return render.Marquee(
-        child = render.Text(
+        child = render.WrappedText(
             content = getVotingMarqueeText(floor),
             font = "tom-thumb",
-            color = getFloorStatusFontColor(floor),
+            color = "#FFFFFF",
+            align = "center",
+            width = 64,
         ),
-        scroll_direction = "horizontal",
-        height = 5,
         align = "center",
+        scroll_direction = "vertical",
+        height = 5,
         width = 64,
+        delay = 5,
     )
 
 def getVotingMarqueeText(floor):
@@ -113,15 +116,6 @@ def getFloorStatusFont(floor):
         return "tom-thumb"
     else:
         return "5x8"
-
-# Returns a dulled color when House is not in session.
-def getFloorStatusFontColor(floor):
-    if floor["now"]["value"] == "adjourned":
-        return "#1e4980"
-    elif floor["now"]["value"] == "house_not_in_session":
-        return "#14355c"
-    else:
-        return "#FFFFFF"
 
 def getFloorActivityFromAPI():
     floor_cached = cache.get("floor")

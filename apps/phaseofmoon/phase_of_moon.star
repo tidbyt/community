@@ -1,5 +1,5 @@
 """
-Applet: Phase Of Moon
+Applet: Phase of Moon
 Summary: Shows the phase of the moon
 Description: Shows the current phase of the moon.
 Author: Alan Fleming
@@ -37,7 +37,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-# Defaults
+# Default location
+
 DEFAULT_LOCATION = """
 {
     "lat": 55.861111,
@@ -46,6 +47,16 @@ DEFAULT_LOCATION = """
     "timezone": "GMT"
 }
 """
+
+#
+# Time formats used in get_schema
+#
+
+TIME_FORMATS = {
+    "No clock": None,
+    "12 hour": ("3:04", "3 04", True),
+    "24 hour": ("15:04", "15 04", False),
+}
 
 # Constants
 LUNARDAYS = 29.53058770576
@@ -70,72 +81,271 @@ PHASE_IMAGES = [
 # Dates in phase changes give 2 days for key phases and lengthen others to match. Removes over-display of key phases.
 # Idea, data and calculation from https://minkukel.com/en/various/calculating-moon-phase/
 NUM_PHASES = 8
-MOON_PHASES = ["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent", "New Moon"]
+MOON_PHASES = {
+    "en": ["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent", "New Moon"],
+}
 PHASE_CHANGES = [0, 1, 6.38264692644, 8.38264692644, 13.76529385288, 15.76529385288, 21.14794077932, 23.14794077932, 28.53058770576, 29.53058770576]
+
+# Moon phases in Chinese (simplified).
+MOON_PHASES_ZH = [
+    """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""",
+]
 
 def main(config):
     # Get latitude from location
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     lat = float(location["lat"])
+    tz = location.get("timezone")
 
     # use latitude to work out which hemisphere we're in
     hemisphere = 1 if lat >= 0 else 0
 
     # Get the current time
-    now = time.now().unix
+    currtime = time.now("UTC")
+    # currtime = time.parse_time("16-Sep-2022 20:17:00", format="02-Jan-2006 15:04:05")  # pick any date to debug/unit test
 
     # Get the current fraction of the moon cycle
-    currentfrac = math.mod(now - FIRSTMOON, LUNARSECONDS) / LUNARSECONDS
+    currentfrac = math.mod(currtime.unix - FIRSTMOON, LUNARSECONDS) / LUNARSECONDS
 
     # Calculate current day of the cycle from there
     currentday = currentfrac * LUNARDAYS
 
-    moonPhase = MOON_PHASES[0]
+    displayText = config.get("display_text", "en")
+
+    moonPhase = (MOON_PHASES[displayText][0] if displayText != "zh" else MOON_PHASES_ZH[0]) if displayText != "none" else ""
     phaseImage = PHASE_IMAGES[0]
 
     for x in range(0, NUM_PHASES):
         if currentday > PHASE_CHANGES[x] and currentday <= PHASE_CHANGES[x + 1]:
-            moonPhase = MOON_PHASES[x]
+            moonPhase = (MOON_PHASES[displayText][x] if displayText != "zh" else MOON_PHASES_ZH[x]) if displayText != "none" else ""
             phaseImage = PHASE_IMAGES[x]
             if hemisphere == 0:
                 phaseImage = PHASE_IMAGES[NUM_PHASES - x]
 
+    # phaseImage = PHASE_IMAGES[4]  # pick any index from 0 to 7 to debug/unit test
+
+    time_format = TIME_FORMATS.get(config.get("time_format"))
+    blink_time = config.bool("blink_time")
+    clock_has_shadow = config.bool("has_shadow")
+
+    disp_time = time.now().in_location(tz).format(time_format[0]) if time_format else None
+    disp_time_blink = time.now().in_location(tz).format(time_format[1]) if time_format else None
+
     # Got what we need to render.
-    if config.bool("display_text"):
-        displaycomplete = render.Box(
-            render.Row(
-                expanded = True,
-                main_align = "start",
-                cross_align = "center",
-                children = [
-                    render.Image(src = base64.decode(phaseImage)),
-                    render.Padding(
-                        pad = (1, 0, 0, 0),
-                        child = render.WrappedText(
-                            font = "tom-thumb",
-                            content = moonPhase,
-                        ),
-                    ),
-                ],
-            ),
+    if displayText == "none":
+        phaseText = render.WrappedText("")
+    elif displayText == "zh":
+        phaseText = render.Image(
+            src = base64.decode(moonPhase),
+        )
+    else:
+        phaseText = render.WrappedText(
+            content = moonPhase,
+            font = "tom-thumb",
         )
 
-    else:
-        displaycomplete = render.Box(
-            render.Row(
-                expanded = True,
-                main_align = "center",
-                children = [
-                    render.Image(src = base64.decode(phaseImage)),
-                ],
-            ),
-        )
+    phaseIndex = PHASE_IMAGES.index(phaseImage)
+
+    align = "center"
+    if displayText != "none" and phaseIndex <= 4:
+        align = "start"
+    elif displayText == "none" and time_format != None and phaseIndex <= 4:
+        # align = "space_evenly"
+        align = "space_around"
+
+    displaycomplete = render.Box(
+        render.Row(
+            expanded = True,
+            main_align = align,
+            cross_align = "center",
+            children = [
+                render.Padding(
+                    pad = (0, 0, 2, 0) if align == "start" else 0,
+                    child = render.Image(src = base64.decode(phaseImage)),
+                ),
+                render.Column(
+                    expanded = True,
+                    main_align = "space_evenly" if time_format != None and displayText != "none" else "center",
+                    cross_align = "start",
+                    children = [
+                        render.Padding(
+                            pad = 0,
+                            child = phaseText,
+                        ),
+
+                        # optional clock below
+                        render.Animation(
+                            children = [
+                                # both w/ & w/out drop-shadow
+                                render.Padding(
+                                    pad = (0, 2, 0, 0),
+                                    child = render.Stack(
+                                        children = [
+                                            render.Padding(
+                                                # render extra pixels to the right to push time closer to moon
+                                                pad = (3, 0, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time,
+                                                    font = "tom-thumb",
+                                                    color = "#000",
+                                                ),
+                                            ),
+                                            render.Padding(
+                                                # faint shadow right
+                                                pad = (1, 0, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time,
+                                                    font = "tom-thumb",
+                                                    color = "#222",
+                                                ),
+                                            ),
+                                            render.Padding(
+                                                # faint shadow down
+                                                pad = (0, 1, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time,
+                                                    font = "tom-thumb",
+                                                    color = "#222",
+                                                ),
+                                            ),
+                                            render.Padding(
+                                                # medium shadow diagonal down-right
+                                                pad = (1, 1, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time,
+                                                    font = "tom-thumb",
+                                                    color = "#444",
+                                                ),
+                                            ),
+                                            render.Text(
+                                                # bright time
+                                                content = disp_time,
+                                                font = "tom-thumb",
+                                                color = "#AAA",
+                                            ),
+                                        ],
+                                    ),
+                                ) if clock_has_shadow else render.Padding(
+                                    pad = (0, 0, 0, 0),
+                                    child = render.Text(
+                                        content = disp_time,
+                                        font = "tom-thumb",
+                                        color = "#fff",
+                                    ),
+                                ),
+
+                                # optional clock blink (w/ drop-shadow)
+                                render.Padding(
+                                    pad = (0, 2, 0, 0),
+                                    child = render.Stack(
+                                        children = [
+                                            render.Padding(
+                                                pad = (3, 0, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time_blink,
+                                                    font = "tom-thumb",
+                                                    color = "#000",
+                                                ),
+                                            ),
+                                            render.Padding(
+                                                pad = (1, 0, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time_blink,
+                                                    font = "tom-thumb",
+                                                    color = "#222",
+                                                ),
+                                            ),
+                                            render.Padding(
+                                                pad = (0, 1, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time_blink,
+                                                    font = "tom-thumb",
+                                                    color = "#222",
+                                                ),
+                                            ),
+                                            render.Padding(
+                                                pad = (1, 1, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time_blink,
+                                                    font = "tom-thumb",
+                                                    color = "#444",
+                                                ),
+                                            ),
+                                            render.Text(
+                                                content = disp_time_blink,
+                                                font = "tom-thumb",
+                                                color = "#AAA",
+                                            ),
+                                        ],
+                                    ),
+                                ) if blink_time and clock_has_shadow == True else None,
+
+                                # optional clock blink
+                                render.Padding(
+                                    pad = (0, 0, 0, 0),
+                                    child = render.Text(
+                                        content = disp_time_blink,
+                                        font = "tom-thumb",
+                                        color = "#fff",
+                                    ),
+                                ) if blink_time and clock_has_shadow != True else None,
+                            ],
+                        ) if time_format else None,
+                    ],
+                ),
+            ],
+        ),
+    )
 
     return render.Root(
+        delay = 1000,
         child = displaycomplete,
     )
 
+def more_options(time_format):
+    if time_format != "No clock":
+        return [
+            schema.Toggle(
+                id = "blink_time",
+                name = "Blinking Time Separator",
+                desc = "Whether to blink the colon between hours and minutes.",
+                icon = "asterisk",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "has_shadow",
+                name = "Shadow",
+                desc = "Whether clock has drop-shadow.",
+                icon = "umbrella-beach",
+                default = False,
+            ),
+        ]
+    else:
+        return []
+
 def get_schema():
+    langs = [
+        schema.Option(
+            display = "Chinese (simplified)",
+            value = "zh",
+        ),
+        schema.Option(
+            display = "English",
+            value = "en",
+        ),
+        schema.Option(
+            display = "None",
+            value = "none",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -145,12 +355,32 @@ def get_schema():
                 desc = "Location for which to display the moon phase.",
                 icon = "locationDot",
             ),
-            schema.Toggle(
+            schema.Dropdown(
                 id = "display_text",
                 name = "Display Text",
-                desc = "Display the text description of the mooon phase.",
-                default = True,
+                desc = "Display the text description of the moon phase.",
                 icon = "font",
+                default = langs[1].value,
+                options = langs,
+            ),
+            schema.Dropdown(
+                id = "time_format",
+                name = "Time Format",
+                desc = "The format used for the time.",
+                icon = "clock",
+                default = "No clock",
+                options = [
+                    schema.Option(
+                        display = format,
+                        value = format,
+                    )
+                    for format in TIME_FORMATS
+                ],
+            ),
+            schema.Generated(
+                id = "generated",
+                source = "time_format",
+                handler = more_options,
             ),
         ],
     )

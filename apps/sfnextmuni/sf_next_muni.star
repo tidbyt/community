@@ -33,7 +33,7 @@ ROUTES_URL = "https://api.511.org/transit/lines?format=json&api_key=%s&operator_
 STOPS_URL = "https://api.511.org/transit/stops?format=json&api_key=%s&operator_id=SF"
 ALERTS_URL = "https://api.511.org/transit/servicealerts?format=json&api_key=%s&agency=SF"
 
-API_KEY_SECRET = "AV6+xWcE6z4U+vmciPBh5GdNyXKcko8fcKl17jwemkRKegnos3/IkVg0pN1OICdKLqW6y/0vEK6mqBJKo791YHZo0Y4wYzb+3YufFeh5GG8F/dNuYVkiQWT1vJKq6njp43a6BJeTIgdqTKTNriMa6GKKL/lV6Ezkr7UFaOM0HVaiSnnx/Y6EhFWN"
+API_KEY_SECRET = "AV6+xWcEae1/w/g0/fc1chDa3ueiTNg5areqHTlKBSpte2a6zWT3PaXGXlrkIHDssdZkVE5fsQTTd+a7FHQoK15rkrvmYWW7cnzmpZUsiM7Bv/XPKaQSg1HXLQig87WCwJJbvArawxI/Q4jiZYK5Up5/AMGLbBfpQSYFBI6kpq5IMNzVlvw5SGiv"
 API_KEY = secret.decrypt(API_KEY_SECRET)
 
 # Colours for Muni Metro/Street Car lines

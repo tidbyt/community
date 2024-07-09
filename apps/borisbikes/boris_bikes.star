@@ -22,7 +22,7 @@ LIGHTNING_IMAGE = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAA
 DEFAULT_DOCK_ID = "BikePoints_614"
 
 # Allows 500 queries per minute
-ENCRYPTED_APP_KEY = "AV6+xWcEJKHv8HrhH6FLyaWzsz0i+mcRr8QYac5oRBnj3Cruqdg/l/CuruDiOf4ILRyQPe5/7yoV3Wu8kdXr6WC4rK4FH/1FDuJksEGpdW9NKQj9m/mO3JH/s8B4ygGnPwstFgB/OWHTJh/92hu1hcpGVLhj4QHTY7Eai7HMqKg94x4Sk9I="
+ENCRYPTED_APP_KEY = "AV6+xWcEdUJILKBdjy5qyWT1EKpcqVUeWg8lbsXbUTDZC5Saw4fhOpZFk0fLG3dtJKG10xj/wmrOejsU8PAGcfzJya7pL2USs4BLPCotZ5v/VZEL2yntupZiUFJa+gugOr+krr2ucZub9eyufOHYFqgcCI+bi0GclQe1lcku1CGfnxvLJ2A="
 LIST_DOCKS_URL = "https://api.tfl.gov.uk/BikePoint"
 DOCK_URL = "https://api.tfl.gov.uk/BikePoint/%s"
 USER_AGENT = "Tidbyt boris_bikes"

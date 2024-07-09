@@ -14,8 +14,6 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("xpath.star", "xpath")
 
-print("Top of File - Start")
-
 # Constants for production repo
 TIDBYT_OAUTH_CALLBACK_URL = "https%3A%2F%2Fappauth.tidbyt.com%2Fyahoofantasynfl"  # registered https://appauth.tidbyt.com/yahoofantasynfl as redirect_uri at Yahoo
 YAHOO_CLIENT_ID = secret.decrypt("AV6+xWcESOzU0+vxd/pD9p6eJsSh+fkgPTLUMzJbnS00CHWXmoKWQbvmTpVIUUE3Y/J2LeplFDCPh3zEwpX0XEyHZubCkNlgu2CrTnGcGYRv4H7xOtS+BTwiEQUu40mgSarmMkxR/uo2BetzoVEctK3SkbEdVW5mZBJTPjoHZwfwPFhzXMyYKqO8EejDPYOg48beUv3MnNRx+nrtbtWf8Ip8Vj0riv9lceqgbGT5KiM5AgBNLSPHKyFwDLnj2R/3dhqyVBTR") or ""
@@ -26,17 +24,13 @@ YAHOO_CLIENT_ID_AND_SECRET_BASE_64 = base64.encode(YAHOO_CLIENT_ID + ":" + YAHOO
 YAHOO_OAUTH_AUTHORIZATION_URL = "https://api.login.yahoo.com/oauth2/request_auth"
 YAHOO_OAUTH_TOKEN_URL = "https://api.login.yahoo.com/oauth2/get_token"
 ACCESS_TOKEN_CACHE_TTL = 3000  # 50 minutes as Yahoo access tokens only last 60 minutes
+REFRESH_TOKEN_CACHE_TTL = 31536000  # Cache for 1 year
 STANDINGS_CACHE_TTL = 14400  # 4 days
 LEAGUE_NAME_CACHE_TTL = 28800  # 8 days
 GAME_KEY = "423"  #2023 Season
 FONT = "CG-pixel-3x5-mono"
 
-print("Top of File - End")
-
 def get_schema():
-    print("get_schema - Start")
-    print("get_schema - End")
-
     return schema.Schema(
         version = "1",
         fields = [
@@ -52,10 +46,72 @@ def get_schema():
                     "fspt-r",
                 ],
             ),
-            schema.Generated(
-                id = "generated_teams",
-                source = "auth",
-                handler = get_current_leagues,
+            schema.Text(
+                id = "league_id",
+                name = "League ID",
+                desc = "Type in the ID number for your league. Go to League Settings in the App to see League ID. Should be 5-6 numbers.",
+                icon = "hashtag",
+                default = "",
+            ),
+            schema.Toggle(
+                id = "show_scores",
+                name = "Show Scores",
+                desc = "Show scores instead of standings",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_projections",
+                name = "Show Projections",
+                desc = "Show scoring and win pct projections (scores only). This does not show live projections.",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_ties",
+                name = "Show Ties",
+                desc = "Show ties in team record",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Dropdown(
+                id = "rotation_speed",
+                name = "Rotation Speed",
+                desc = "Seconds per rotation",
+                icon = "gear",
+                default = rotation_options[1].value,
+                options = rotation_options,
+            ),
+            schema.Dropdown(
+                id = "teams_per_view",
+                name = "Teams Per View",
+                desc = "Number of teams to show at once (standings only)",
+                icon = "gear",
+                default = teams_per_view_options[1].value,
+                options = teams_per_view_options,
+            ),
+            schema.Color(
+                id = "heading_font_color",
+                name = "Font Color",
+                desc = "Heading font color",
+                icon = "brush",
+                default = "#FFA500",
+                palette = [
+                    "#FFF",
+                    "#FF0",
+                    "#F00",
+                    "#00F",
+                    "#0F0",
+                    "#FFA500",
+                ],
+            ),
+            schema.Dropdown(
+                id = "color_scheme",
+                name = "Color Scheme",
+                desc = "Select the color scheme",
+                icon = "gear",
+                default = color_scheme_options[0].value,
+                options = color_scheme_options,
             ),
         ],
     )
@@ -64,7 +120,6 @@ def main(config):
     print("Main - Start")
     render_category = []
     league_name = ""
-    refresh_token = config.get("auth")
     league_id = config.get("league_id", "")
     rotation_speed = config.get("rotation_speed", "5")
     teams_per_view = int(config.get("teams_per_view", "4"))
@@ -76,54 +131,77 @@ def main(config):
     show_ties = config.bool("show_ties", False)
     num_of_loops = 1
 
+    #Try to load refresh token from cache since OAuth config could contain an outdated refresh token
+    refresh_token_cached = cache.get(league_id + "_refresh_token")
+    if refresh_token_cached != None:
+        refresh_token = refresh_token_cached
+    else:
+        refresh_token = config.get("auth")
+
     if refresh_token:
-        access_token = get_access_token(refresh_token)
+        tokens_dict = get_access_token(refresh_token)
 
-        if (access_token):
-            league_name = get_league_name(access_token, GAME_KEY, league_id)
+        #Check for a 200 response from get_access_token call. If not, display the error on the screen.
+        if (tokens_dict["response_status_code"] == "200"):
+            access_token = tokens_dict["access_token"]
+            if refresh_token != tokens_dict["new_refresh_token"]:
+                cache.set(league_id + "_refresh_token", tokens_dict["new_refresh_token"], ttl_seconds = REFRESH_TOKEN_CACHE_TTL)
+                refresh_token = tokens_dict["new_refresh_token"]
 
-            if (league_name):
-                if show_scores:
-                    entries_to_display = 2
-                    current_matchup = get_current_matchup(access_token, GAME_KEY, league_id)
-                    if show_projections:
-                        # Set to two loops so it renders 2 frames for the animation
-                        num_of_loops = 2
-                    for x in range(0, num_of_loops):
-                        render_category.extend(
-                            [
-                                render.Column(
-                                    children = render_current_matchup(x, current_matchup, entries_to_display, heading_font_color, color_scheme),
-                                ),
-                            ],
-                        )
+            if (access_token):
+                league_name = get_league_name(access_token, GAME_KEY, league_id)
+
+                if (league_name):
+                    if (show_scores):
+                        entries_to_display = 2
+                        current_matchup = get_current_matchup(access_token, GAME_KEY, league_id)
+                        if show_projections:
+                            # Set to two loops so it renders 2 frames for the animation
+                            num_of_loops = 2
+                        for x in range(0, num_of_loops):
+                            render_category.extend(
+                                [
+                                    render.Column(
+                                        children = render_current_matchup(x, current_matchup, entries_to_display, heading_font_color, color_scheme),
+                                    ),
+                                ],
+                            )
+                    else:
+                        entries_to_display = teams_per_view
+                        standings = get_standings_and_records(access_token, GAME_KEY, league_id)
+
+                        for x in range(0, len(standings), entries_to_display):
+                            render_category.extend(
+                                [
+                                    render.Column(
+                                        expanded = True,
+                                        main_align = "start",
+                                        cross_align = "start",
+                                        children = [
+                                            render.Column(
+                                                children = render_standings_and_records(x, standings, entries_to_display, heading_font_color, color_scheme, league_name, show_ties),
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            )
+                    print("Main - End")
+                    return render.Root(
+                        delay = int(rotation_speed) * 1000,
+                        show_full_animation = True,
+                        child = render.Animation(children = render_category),
+                    )
                 else:
-                    entries_to_display = teams_per_view
-                    standings = get_standings_and_records(access_token, GAME_KEY, league_id)
-
-                    for x in range(0, len(standings), entries_to_display):
-                        render_category.extend(
-                            [
-                                render.Column(
-                                    expanded = True,
-                                    main_align = "start",
-                                    cross_align = "start",
-                                    children = [
-                                        render.Column(
-                                            children = render_standings_and_records(x, standings, entries_to_display, heading_font_color, color_scheme, league_name, show_ties),
-                                        ),
-                                    ],
-                                ),
-                            ],
-                        )
-                print("Main - End")
-                return render.Root(
-                    delay = int(rotation_speed) * 1000,
-                    show_full_animation = True,
-                    child = render.Animation(children = render_category),
-                )
+                    error_message = "ERROR! Please check your league ID."
+                    print("Main - End")
+                    return render.Root(
+                        child = render.Marquee(
+                            width = 64,
+                            child = render.Text(error_message),
+                        ),
+                    )
             else:
-                error_message = "    ERROR! Please check your league number."
+                error_message = "ERROR! Unable to acquire an access token from the refresh token."
                 print("Main - End")
                 return render.Root(
                     child = render.Marquee(
@@ -132,7 +210,7 @@ def main(config):
                     ),
                 )
         else:
-            error_message = "    ERROR! Unable to acquire an access token from the refresh token."
+            error_message = "ERROR! " + str(tokens_dict["response_status_code"]) + " " + tokens_dict["response_body"]
             print("Main - End")
             return render.Root(
                 child = render.Marquee(
@@ -142,7 +220,7 @@ def main(config):
             )
     else:
         entries_to_display = teams_per_view
-        league_name = "Yahoo Fantasy"
+        league_name = "Demo Data"
 
         standings = [{"Name": "Dumpster Fire", "Standings": "1", "Wins": "10", "Losses": "4", "Ties": "0"}, {"Name": "Who is Mac Jones?", "Standings": "2", "Wins": "7", "Losses": "6", "Ties": "1"}, {"Name": "Campin my style", "Standings": "3", "Wins": "12", "Losses": "2", "Ties": "0"}, {"Name": "Mixon It Up", "Standings": "4", "Wins": "8", "Losses": "5", "Ties": "1"}, {"Name": "Lamar Ja’Marr & Dally G", "Standings": "5", "Wins": "7", "Losses": "7", "Ties": "0"}, {"Name": "I BEAT STEVE IN THE MARATHON", "Standings": "6", "Wins": "8", "Losses": "6", "Ties": "0"}, {"Name": "WelcomeToTheZappeParade", "Standings": "7", "Wins": "5", "Losses": "9", "Ties": "0"}, {"Name": "Amon-Ra-Ah-Ah-Ah", "Standings": "8", "Wins": "3", "Losses": "11", "Ties": "0"}, {"Name": "Mar-a-Lago Raiders", "Standings": "9", "Wins": "7", "Losses": "7", "Ties": "0"}, {"Name": "Everyday I'm Russell'n", "Standings": "10", "Wins": "6", "Losses": "8", "Ties": "0"}, {"Name": "Jeudy's Pontiac Bandits", "Standings": "11", "Wins": "4", "Losses": "10", "Ties": "0"}, {"Name": "Poppy's Belle and Dude Perfect", "Standings": "12", "Wins": "6", "Losses": "8", "Ties": "0"}]
         for x in range(0, len(standings), entries_to_display):
@@ -381,9 +459,6 @@ def oauth_handler(params):
     # deserialize oauth2 parameters
     params = json.decode(params)
 
-    print("    Redirect URL: " + params["redirect_uri"])
-    print("    Code: " + params["code"])
-
     body = (
         "grant_type=authorization_code" +
         "&client_id=" + params["client_id"] +
@@ -410,17 +485,17 @@ def oauth_handler(params):
     return refresh_token
 
 def get_access_token(refresh_token):
-    print("get_access_token - Start")
+    return_dict = {}
 
     #Try to load access token from cache
     access_token_cached = cache.get(refresh_token + "_access_token")
 
     if access_token_cached != None:
-        print("    Cache Hit! Used cached access token")
-        print("get_access_token - End")
+        print("Cache Hit! Used cached access token")
+        access_token_cached = json.decode(access_token_cached)
         return access_token_cached
     else:
-        print("    Cache Miss! Getting new access token from Yahoo API.")
+        print("Cache Miss! Getting new access token from Yahoo API.")
 
         url = "https://api.login.yahoo.com/oauth2/get_token"
         body = (
@@ -432,118 +507,16 @@ def get_access_token(refresh_token):
             "Authorization": "Basic " + YAHOO_CLIENT_ID_AND_SECRET_BASE_64,
             "Content-Type": "application/x-www-form-urlencoded",
         }
-        print("    Making Call for access token")
-        r = http.post(url, body = body, headers = headers)
-        body = r.json()
-        access_token = body["access_token"]
-
+        response = http.post(url, body = body, headers = headers)
+        body = response.json()
+        return_dict = {"access_token": body["access_token"], "new_refresh_token": body["refresh_token"], "response_status_code": str(response.status_code), "response_body": response.body()}
         print("    Caching access token")
 
         # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(refresh_token + "_access_token", access_token, ttl_seconds = ACCESS_TOKEN_CACHE_TTL)
-        print("get_access_token - End")
-        return access_token
-
-def get_current_leagues(refresh_token):
-    print("get_current_leagues - Start")
-    access_token = get_access_token(refresh_token)
-
-    url = "https://fantasysports.yahooapis.com/fantasy/v2/users;use_login=1/games;game_keys=nfl/leagues/"
-    headers = {
-        "Authorization": "Bearer " + access_token,
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-    }
-    print("    Making Call for Leagues")
-    current_leagues_response = http.get(url, headers = headers)
-
-    # Get both ID and Name so you can show the name but set the ID as the actual value so it can be used in API requests
-    current_leagues_id = xpath.loads(current_leagues_response.body()).query_all("/fantasy_content/users/user/games/game/leagues/league/league_id")
-    current_leagues_name = xpath.loads(current_leagues_response.body()).query_all("/fantasy_content/users/user/games/game/leagues/league/name")
-
-    league_name_options = []
-
-    for count, league in enumerate(current_leagues_name):
-        league_name_options.append(
-            schema.Option(
-                display = league,
-                value = current_leagues_id[count],
-            ),
-        )
-    print("get_current_leagues - End")
-    return [
-        schema.Dropdown(
-            id = "league_id",
-            name = "League",
-            desc = "Choose the appropriate league",
-            icon = "hashtag",
-            options = league_name_options,
-            default = league_name_options[0].value,
-        ),
-        schema.Toggle(
-            id = "show_scores",
-            name = "Show Scores",
-            desc = "Show scores instead of standings",
-            icon = "gear",
-            default = False,
-        ),
-        schema.Toggle(
-            id = "show_projections",
-            name = "Show Live Projections",
-            desc = "Show live scoring and win pct projections (scores only)",
-            icon = "gear",
-            default = False,
-        ),
-        schema.Toggle(
-            id = "show_ties",
-            name = "Show Ties",
-            desc = "Show ties in team record",
-            icon = "gear",
-            default = False,
-        ),
-        schema.Dropdown(
-            id = "rotation_speed",
-            name = "Rotation Speed",
-            desc = "Seconds per rotation",
-            icon = "gear",
-            default = rotation_options[1].value,
-            options = rotation_options,
-        ),
-        schema.Dropdown(
-            id = "teams_per_view",
-            name = "Teams Per View",
-            desc = "Number of teams to show at once (standings only)",
-            icon = "gear",
-            default = teams_per_view_options[1].value,
-            options = teams_per_view_options,
-        ),
-        schema.Color(
-            id = "heading_font_color",
-            name = "Font Color",
-            desc = "Heading font color",
-            icon = "brush",
-            default = "#FFA500",
-            palette = [
-                "#FFF",
-                "#FF0",
-                "#F00",
-                "#00F",
-                "#0F0",
-                "#FFA500",
-            ],
-        ),
-        schema.Dropdown(
-            id = "color_scheme",
-            name = "Color Scheme",
-            desc = "Select the color scheme",
-            icon = "gear",
-            default = color_scheme_options[0].value,
-            options = color_scheme_options,
-        ),
-    ]
+        cache.set(refresh_token + "_access_token", json.encode(return_dict), ttl_seconds = ACCESS_TOKEN_CACHE_TTL)
+        return return_dict
 
 def get_league_name(access_token, GAME_KEY, league_id):
-    print("get_league_name - Start")
     league_name = ""
 
     #Try to load league name and id from cache
@@ -551,27 +524,21 @@ def get_league_name(access_token, GAME_KEY, league_id):
     league_name_cached = cache.get(access_token + "_league_name")
 
     if league_name_cached != None and league_id == league_id_cached:
-        print("    Cache Hit! Using cached league name!")
         league_name = league_name_cached
     else:
-        print("    Cache Miss! Getting new league name from Yahoo API.")
         url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_id
         headers = {
             "Authorization": "Bearer " + access_token,
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
-        print("    Making Call for League Name")
         league_name_response = http.get(url, headers = headers)
 
         league_name = xpath.loads(league_name_response.body()).query("/fantasy_content/league/name")
         if league_name != None:
-            print("    Caching league name")
-
             # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(access_token + "_league_name", league_name, ttl_seconds = LEAGUE_NAME_CACHE_TTL)
 
-    print("get_league_name - End")
     return league_name
 
 def get_standings_and_records(access_token, GAME_KEY, league_id):
@@ -592,7 +559,6 @@ def get_standings_and_records(access_token, GAME_KEY, league_id):
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
-        print("    Making Call for Standings")
         standings_response = http.get(url, headers = headers)
 
         total_teams = int(xpath.loads(standings_response.body()).query("/fantasy_content/league/standings/teams/@count"))
@@ -616,7 +582,6 @@ def get_standings_and_records(access_token, GAME_KEY, league_id):
     return allstandings
 
 def get_current_matchup(access_token, GAME_KEY, league_id):
-    print("get_current_matchup - Start")
     current_matchup = []
 
     url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_id + "/scoreboard"
@@ -625,7 +590,6 @@ def get_current_matchup(access_token, GAME_KEY, league_id):
         "Accept": "application/json",
         "Content-Type": "application/json",
     }
-    print("    Making Call for Matchups")
     current_matchup_response = http.get(url, headers = headers)
 
     # owners_team = xpath.loads(current_matchup_response.body()).query("/fantasy_content/league/scoreboard/matchups/matchup/teams/team/is_owned_by_current_login//preceding-sibling::name/text()")
@@ -639,12 +603,9 @@ def get_current_matchup(access_token, GAME_KEY, league_id):
     for i in range(2):
         current_matchup.append({"Name": teams_in_matchup_xml[i], "Score": scores_in_matchup_xml[i], "Projected": projected_scores_in_matchup_xml[i], "Win_Probability": str(100 * float(win_probability_in_matchup[i]))[:2] + "%"})
 
-    print("    Current Matchup: " + str(current_matchup))
-    print("get_current_matchup - End")
     return current_matchup
 
 def render_standings_and_records(x, standings, entries_to_display, heading_font_color, color_scheme, league_name, show_ties):
-    print("render_standings_and_records - Start")
     output = []
     teamTies = ""
     teamWins = ""
@@ -710,11 +671,9 @@ def render_standings_and_records(x, standings, entries_to_display, heading_font_
 
         else:
             output.extend([render.Column(children = [render.Box(width = 64, height = containerHeight, color = "#111")])])
-    print("render_standings_and_records - End")
     return output
 
 def render_current_matchup(x, current_matchup, entries_to_display, heading_font_color, color_scheme):
-    print("render_current_matchup - Start")
     output = []
     containerHeight = int(24 / entries_to_display)
     teamColor = ""
@@ -818,5 +777,4 @@ def render_current_matchup(x, current_matchup, entries_to_display, heading_font_
             output.extend([team])
             i = i + 1
 
-    print("render_current_matchup - End")
     return output

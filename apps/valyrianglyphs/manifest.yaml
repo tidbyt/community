@@ -1,0 +1,8 @@
+---
+id: valyrian-glyphs
+name: Valyrian Glyphs
+summary: Random High Valyrian glyphs
+desc: Display a random glyph and translations from the High Valyrian language, as featured in HBO's Game of Thrones and House of the Dragon.
+author: frame-shift and David J. Peterson
+fileName: valyrian_glyphs.star
+packageName: valyrianglyphs

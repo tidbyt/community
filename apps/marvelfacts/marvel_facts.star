@@ -18,8 +18,8 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-PUB_KEY = secret.decrypt("AV6+xWcE0v4YH9lODOCdmDnspLyu06WQZeQcmaZtFxVySRVeC1izFlH9+gFHQSrvNGzTg9Y012GqV7wI0v2Exo6vys6Qqxvtt6cGLUhz6WX82Oymia7zlrrr5VoSICD27SFLBOZ0YhxlmUj7nskxekYezPXMS7gHpA8pkE1MiuxWNKZOb+w=")
-PRIV_KEY = secret.decrypt("AV6+xWcEU31fHtInxsumnOP76pedrmT/hciDjVkoMogu8XxcoUmI3ATBHYmsPafR6Bhi1UzARytoR5eIEz2LKdgSLwR0LaMbYC/St+F4EF/0QXgsraPfNzzDfvMAobYEE/YEagahrdKuGuQji6zN7lo2kxd75Rc0U5Gt+cEFi9lhpcZAZ6758tA2JaQgQA==")
+PUB_KEY = secret.decrypt("AV6+xWcE8WpLyDHcfeJ+PyFpvP+S4E2BPwV7/LV8IBTXIjGVaQve1CSKDLilApzDNPPurHlcqidgXIvrPZfyOeuHV1DUYpsOhwO3s0do+znLW3SucfVmPV98aTH1lRtTzDuJRYh9k1behyzgtwagj2QQd+f7jjaSiVf01UXzer9BSCVS7e0=")
+PRIV_KEY = secret.decrypt("AV6+xWcEW40A//3n/MUZz4dsj8AfAkQHP1ca3hkhPHEnIgDM4asTmfl1t+THgG/iwg8CaUJbnXtv0wGUN08sZQLPUMmJTmkCKmJrkyqw7SoqRR5sMiRwFEbCcqwXZSeYtypmdS8BrwHL1UA2bbTwGj+l/fSdcNyBBRajUFa3p36cLdso8+K5lFhXEnWVXw==")
 BASE_URL = "https://gateway.marvel.com/v1/public/characters?"
 LIMIT = "50"
 

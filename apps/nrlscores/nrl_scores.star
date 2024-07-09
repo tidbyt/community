@@ -9,6 +9,12 @@ First release
 
 v1.1
 Updated abbreviations
+
+v1.2
+Updated method of determining the round number, as the old method wasn't working for finals
+
+v1.3
+Made draw in W-D-L records dynamic
 """
 
 load("encoding/json.star", "json")
@@ -40,8 +46,7 @@ def main(config):
     LadderData = get_cachable_data(LADDER_URL, LADDER_CACHE)
     LadderJSON = json.decode(LadderData)
 
-    RoundNumber = MatchesJSON["fixtures"][0]["roundTitle"]
-    RoundNumber = RoundNumber[6:]
+    RoundNumber = str(MatchesJSON["selectedRoundId"])
 
     LIVE_URL = MATCHES_URL + "&round=" + RoundNumber
     LiveData = get_cachable_data(LIVE_URL, LIVE_CACHE)
@@ -445,7 +450,10 @@ def getRecord(Team, JSON):
             Loss = JSON["positions"][x]["stats"]["lost"]
             break
 
-    Record = str(Win) + "-" + str(Draw) + "-" + str(Loss)
+    if Draw == 0:
+        Record = str(Win) + "-" + str(Loss)
+    else:
+        Record = str(Win) + "-" + str(Draw) + "-" + str(Loss)
 
     return Record
 

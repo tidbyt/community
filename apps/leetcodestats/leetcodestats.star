@@ -75,7 +75,7 @@ def render_Histogram(type, statsObj):
         pct = 0
         number_solved = 0
 
-    attr = get_HistogramAttributes(type, pct, statsObj.HistogramMaxLength)
+    attr = get_HistogramAttributes(type, pct, statsObj.HistogramMaxLength, number_solved)
 
     return render.Row(
         children = [
@@ -104,7 +104,7 @@ def render_Histogram(type, statsObj):
         ],
     )
 
-def get_HistogramAttributes(type, percentage, total_length):
+def get_HistogramAttributes(type, percentage, total_length, number_solved):
     label = ""
     hist_color = ""
     if type == "easy":
@@ -117,7 +117,9 @@ def get_HistogramAttributes(type, percentage, total_length):
         label = "H:"
         hist_color = HARD_COLOR
 
-    bar_width = math.ceil(float(percentage) * int(total_length))
+    number_solved_len = len(str(number_solved))
+    proposed_width = math.ceil(float(percentage) * int(total_length))
+    bar_width = proposed_width if proposed_width <= 64 - 5 * number_solved_len else 64 - 5 * number_solved_len
 
     return struct(Label = label, HistogramColor = hist_color, Width = bar_width)
 

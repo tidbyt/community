@@ -4,6 +4,8 @@
 
 See the time displayed & how much of the day has passed, as represented by a graph.
 
+https://github.com/Meandmybadself/community/assets/433643/45cfe034-2d0f-4f0b-9bae-c5d68c6ef559
+
 ## Development
 
 ### In-browser development

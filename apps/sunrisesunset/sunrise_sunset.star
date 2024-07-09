@@ -61,7 +61,7 @@ def main(config):
     lng = float(location["lng"])
 
     # Get sunset and sunrise times
-    now = time.now()
+    now = time.now().in_location(location["timezone"])
     sunriseTime = sunrise.sunrise(lat, lng, now).in_location(location["timezone"])
     sunsetTime = sunrise.sunset(lat, lng, now).in_location(location["timezone"])
 

@@ -22,7 +22,7 @@ def main(config):
             ),
         )
 
-    response = http.get("https://beta.aviationweather.gov/cgi-bin/data/metar.php?ids={}".format(station_id))
+    response = http.get("https://www.aviationweather.gov/cgi-bin/data/metar.php?ids={}".format(station_id))
     content = response.body()
 
     if not content:

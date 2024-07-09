@@ -68,7 +68,7 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAK1JREFUOE9jZKAQ
 
 ############
 #other settings
-AUTH_TOKEN = "AV6+xWcEGJw/oqAqKSFYWNt3DfB/VggWkPfqIkWgXiECZ08wjiiSLO/WxFFkycjdHXryiuLQ5BQjZHMz96AkahedwGZ/mVCWQiCYYKRxJl7oCVL5y9Rwgj+tJpBpNzHfLEzO+0VV46uU5wLyPK2NgN9bWqlj6DRc9WyoNaoDk1LITXZYdnM1s783/w7V3Q=="
+AUTH_TOKEN = "AV6+xWcEAEU0H3oXLT0e+9gx/c5ZHtoNkxudsvZ+NdRx0zwhN3awFKyVoWs1ZKRi4KyRnqFL2ExkfV/v8hjbuE2xFECYZdHN20rPpfnKdCF2vZ6arl65V1z5NPK6DJd1YYv9Y8YZoCkxYHiv2NQqhEXwi6VrKd6qfTVA3Dm2OuaxaTx6/IStNaWf7zkWoQ=="
 DEFAULT_AUTH_TOKEN = "1234"  #can get this by creating a personal token (classic) in GitHub and having the scope be public_repo
 DEFAULT_OWNER = "tidbyt"
 DEFAULT_REPO = "community"
