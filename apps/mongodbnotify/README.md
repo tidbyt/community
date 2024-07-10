@@ -8,6 +8,14 @@ Note that this is just one example of how you could use this Tidbyt app as it's 
 
 # Setup
 ## MongoDB Atlas
+Atlas: https://atlas.mongodb.com
+
+1. Sign up for a free account
+2. Create an Organization
+3. Create a Project inside the Organization
+4. Create a (M0 - Free) cluster inside the project.
+5. Create a database user/pass (this is separate from your Atlas user/pass) for your new cluster.
+
 In Atlas you'll need to sign up for an account and create an Atlas Project and then, inside the Atlas Project create an M0 cluster. The M0 cluster is free.
 
 You'll also need to create a user ID and password through the Atlas interface so that you can use mongosh to connect to your cluster.
@@ -452,3 +460,4 @@ data:
 - When you first start it there won't be any notifications so you won't see anything.
 - Config is case-sensitive. If you have a database named "homeassistant" and then you type "Homeassistant" into the config then it won't error out but it also won't be looking in your "homeassistant" database for your notifications.
 - The app is designed to give you error messages through the Tidbyt itself. If you're missing config settings or get a an error back from it trying to connect to the database then you'll see those errors on the Tidbyt.
+- When messages are sent to the database they won't show up immediately as there is caching in the Tidbyt app.
