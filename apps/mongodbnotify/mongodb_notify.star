@@ -41,7 +41,7 @@ def main(config):
                 config.str("database"),
                 config.str("collection"),
                 {"topic": config.get("topic", "homeassistant")},
-                {"priority": 1, "create_ts": 1},
+                {"priority": 1, "create_ts": -1},
             ),
         )
 
