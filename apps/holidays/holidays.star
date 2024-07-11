@@ -11,6 +11,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
+DEFAULT_TIMEZONE = "America/Los_Angeles"
+
 def main(config):
     HOLIDAYS = {
         "Jan 1": NEW_YEAR,
@@ -22,7 +24,9 @@ def main(config):
         "Dec 31": CONFETTI,
     }
 
-    now = time.now()
+    timezone = config.get("$tz") or DEFAULT_TIMEZONE
+
+    now = time.now().in_location(timezone)
     date = now.format("Jan 2")
 
     # Handle special holidays that don't fall on a specific date
