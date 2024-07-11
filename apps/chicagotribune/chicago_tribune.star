@@ -5,8 +5,6 @@ Description: Latest headlines from the Chicago Tribune. Choose from either the l
 Author: sgomez72
 """
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -175,22 +173,14 @@ def get_schema():
     )
 
 def get_cacheable_data(url):
-    key = url
-    data = cache.get(key)
     headlines = []
-    if data == None:
-        print("No Cache Found, Calling Chicago Tribune RSS at " + TRIBUNE_URL.format(url))
-        rep = http.get(TRIBUNE_URL.format(url))
-        if rep.status_code != 200:
-            fail("Could not pull stories from the Chicago Tribune. Request failed with status %d", rep.status_code)
-        data = json.encode(rep.json()["rss"]["channel"]["item"])
 
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(key, data, ttl_seconds = 1800)
+    rep = http.get(TRIBUNE_URL.format(url), ttl_seconds = 1800)
+    if rep.status_code != 200:
+        fail("Could not pull stories from the Chicago Tribune. Request failed with status %d", rep.status_code)
+    data = rep.json()["rss"]["channel"]["item"]
 
-    data_json = json.decode(data)
-
-    for eachArticle in data_json:
+    for eachArticle in data:
         title = eachArticle["title"]
         desc = eachArticle["description"]
         headlines.append([title, desc])

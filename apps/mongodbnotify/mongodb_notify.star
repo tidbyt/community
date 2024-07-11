@@ -1,5 +1,3 @@
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -77,26 +75,18 @@ def get_json_body(datasource, database, collection, filter, sort):
     }
 
 def get_cacheable_data(url, headers, json_body, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return json.decode(base64.decode(data))
-
     res = http.post(
         url = url + "/action/find",
         headers = headers,
         json_body = json_body,
+        ttl_seconds = ttl_seconds,
     )
     if res.status_code != 200:
         return {"documents": [{"page": wrap_error("API ERROR", str(res.status_code))}]}
 
     #        fail ("Atlas request failed with status %d", res.status_code)
 
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
-
-    return json.decode(res.body())
+    return res.json()
 
 def wrap_error(title = "No title", message = "No message"):
     return {
