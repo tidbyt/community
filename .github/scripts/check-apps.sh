@@ -18,6 +18,11 @@ if [ -z "${TARGETS}" ]; then
 fi
 
 for target in ${TARGETS}; do
+    if [[ ! -d "$target" ]]; then
+	# app was deleted
+	continue
+    fi
+
     if [ ${runtime_exceptions[$target]} ]; then
 	t=${runtime_exceptions[$target]}
 	echo "pixlet check --max-render-time ${t} ${target}"
