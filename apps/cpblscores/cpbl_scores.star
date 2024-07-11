@@ -114,7 +114,7 @@ def main(config):
                 if NScount > NSMax:
                     continue
             gameTime = s.get("strTimestamp")
-            convertedTime = time.parse_time(gameTime.replace(":00+00:00", "Z"), format = "2006-01-02T15:04Z").in_location(timezone)
+            convertedTime = time.parse_time(gameTime + "Z", format = "2006-01-02T15:04:05Z").in_location(timezone)
             if convertedTime.format("1/2") != now.format("1/2"):
                 gameTime = convertedTime.format("Jan 2")
             else:
