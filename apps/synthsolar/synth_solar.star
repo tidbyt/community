@@ -427,8 +427,6 @@ def get_widgets_and_animations(url):
     # * Get load data
     load_data = get_data(url, "load")
 
-    print(load_data.get("load"))
-
     if not battery_data.get("battery") and load_data.get("load", 0) <= 0.001:
         print("No battery and load data found")
         widgets = [
@@ -481,11 +479,26 @@ def get_widgets_and_animations(url):
             build_keyframe(-max_width * 3, 1.0),
         ]
 
-    # get_overall_realtime_performance(BASE_URL),
-    # get_current_load_widget(BASE_URL),
-    # get_current_battery_charge_widget(battery_data),
-    # get_savings(BASE_URL),
-    # get_todays_generation(BASE_URL),
+    else:
+        widgets = [
+            get_overall_realtime_performance(url),
+            get_current_load_widget(load_data),
+            get_current_battery_charge_widget(battery_data),
+            get_savings(url),
+            get_todays_generation(url),
+        ]
+        keyframes = [
+            build_keyframe(0, 0.0),
+            build_keyframe(0, 0.2),
+            build_keyframe(-max_width, 0.2),
+            build_keyframe(-max_width, 0.4),
+            build_keyframe(-max_width * 2, 0.4),
+            build_keyframe(-max_width * 2, 0.6),
+            build_keyframe(-max_width * 3, 0.6),
+            build_keyframe(-max_width * 3, 0.8),
+            build_keyframe(-max_width * 4, 0.8),
+            build_keyframe(-max_width * 4, 1.0),
+        ]
 
     return keyframes, widgets
 
@@ -499,7 +512,6 @@ def main(config):
     Returns:
         Root Widget
     """
-
     serial_number = config.get("serial_number")
 
     if not serial_number:
