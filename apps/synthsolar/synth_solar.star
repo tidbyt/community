@@ -188,24 +188,16 @@ def get_todays_generation(url):
         ],
     )
 
-def get_current_load(url):
+def get_current_load_widget(data):
     """
     Get current inverter load
 
     Args:
-        url: Base URL
+        data: Data from the api
 
     Returns:
         Widget
     """
-
-    # * Make the call
-    response = http.get(url + "?d=load", ttl_seconds = 10)
-
-    if response.status_code != 200:
-        fail("Request failed with status %d", response.status_code)
-
-    data = response.json()["data"]
 
     max_width = 64
     width_40 = (max_width * 40) // 100
@@ -414,8 +406,88 @@ def get_schema():
         ],
     )
 
-def get_widgets_and_animations():
-    pass
+def get_widgets_and_animations(url):
+    """
+    Get widget and animations
+
+    Args:
+        url: Base URL
+
+    Returns:
+        Widgets & Animations
+    """
+    max_width = 64
+
+    keyframes = []
+    widgets = []
+
+    # * Get battery data
+    battery_data = get_data(url, "cb_tg")
+
+    # * Get load data
+    load_data = get_data(url, "load")
+
+    print(load_data.get("load"))
+
+    if not battery_data.get("battery") and load_data.get("load", 0) <= 0.001:
+        print("No battery and load data found")
+        widgets = [
+            get_overall_realtime_performance(url),
+            get_savings(url),
+            get_todays_generation(url),
+        ]
+        keyframes = [
+            build_keyframe(0, 0.0),
+            build_keyframe(0, 0.33),
+            build_keyframe(-max_width, 0.33),
+            build_keyframe(-max_width, 0.66),
+            build_keyframe(-max_width * 2, 0.66),
+            build_keyframe(-max_width * 2, 1.0),
+        ]
+
+    elif not battery_data.get("battery"):
+        widgets = [
+            get_overall_realtime_performance(url),
+            get_current_load_widget(load_data),
+            get_savings(url),
+            get_todays_generation(url),
+        ]
+        keyframes = [
+            build_keyframe(0, 0.0),
+            build_keyframe(0, 0.25),
+            build_keyframe(-max_width, 0.25),
+            build_keyframe(-max_width, 0.5),
+            build_keyframe(-max_width * 2, 0.5),
+            build_keyframe(-max_width * 2, 0.75),
+            build_keyframe(-max_width * 3, 0.75),
+            build_keyframe(-max_width * 3, 1.0),
+        ]
+
+    elif load_data.get("load", 0) <= 0.001:
+        widgets = [
+            get_overall_realtime_performance(url),
+            get_current_battery_charge_widget(battery_data),
+            get_savings(url),
+            get_todays_generation(url),
+        ]
+        keyframes = [
+            build_keyframe(0, 0.0),
+            build_keyframe(0, 0.25),
+            build_keyframe(-max_width, 0.25),
+            build_keyframe(-max_width, 0.5),
+            build_keyframe(-max_width * 2, 0.5),
+            build_keyframe(-max_width * 2, 0.75),
+            build_keyframe(-max_width * 3, 0.75),
+            build_keyframe(-max_width * 3, 1.0),
+        ]
+
+    # get_overall_realtime_performance(BASE_URL),
+    # get_current_load_widget(BASE_URL),
+    # get_current_battery_charge_widget(battery_data),
+    # get_savings(BASE_URL),
+    # get_todays_generation(BASE_URL),
+
+    return keyframes, widgets
 
 def main(config):
     """
@@ -447,8 +519,7 @@ def main(config):
 
     max_width = 64
 
-    # * Get battery data
-    battery_data = get_data(BASE_URL, "cb_tg")
+    keyframes, widgets = get_widgets_and_animations(BASE_URL)
 
     return render.Root(
         delay = 80,
@@ -458,26 +529,9 @@ def main(config):
                 animation.Transformation(
                     duration = 1000,
                     width = max_width * 6,
-                    keyframes = [
-                        build_keyframe(0, 0.0),
-                        build_keyframe(0, 0.2),  # * Hold the first screen
-                        build_keyframe(-max_width, 0.2),  # * Transition to the second screen
-                        build_keyframe(-max_width, 0.4),  # * Hold the second screen
-                        build_keyframe(-max_width * 2, 0.4),  # * Transition to the third screen
-                        build_keyframe(-max_width * 2, 0.6),  # * Hold the third screen
-                        build_keyframe(-max_width * 3, 0.6),  # * Transition to the fourth screen
-                        build_keyframe(-max_width * 3, 0.8),  # * Hold the fourth screen
-                        build_keyframe(-max_width * 4, 0.8),  # * Transition to the fifth screen
-                        build_keyframe(-max_width * 4, 1.0),  # * Hold the fifth screen
-                    ],
+                    keyframes = keyframes,
                     child = render.Row(
-                        children = [
-                            get_overall_realtime_performance(BASE_URL),
-                            get_current_load(BASE_URL),
-                            get_current_battery_charge_widget(battery_data),
-                            get_savings(BASE_URL),
-                            get_todays_generation(BASE_URL),
-                        ],
+                        children = widgets,
                     ),
                     wait_for_child = True,
                 ),
