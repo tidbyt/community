@@ -9,6 +9,7 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("math.star", "math")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -56,7 +57,12 @@ def get_stops(location):
     data = res.json()["data"]["stops"]
     stops = [
         schema.Option(display = "%s - %s" % (stop["name"], stop["direction"]), value = stop["code"])
-        for stop in data
+        for stop in sorted(
+            data,
+            key = lambda x: math.sqrt(
+                math.pow(x["lat"] - float(loc["lat"]), 2) + math.pow(x["lon"] - float(loc["lng"]), 2),
+            ),
+        )
     ]
 
     return stops

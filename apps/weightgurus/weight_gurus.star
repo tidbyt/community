@@ -15,12 +15,14 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-#App Settings
+# App Settings
 CACHE_TTL = 60 * 60 * 24  # updates once daily
 
-#API information from https://gist.github.com/MarkWalters-pw/08ea0e8737e3e4d11f70427ef8fdc7df and https://github.com/merval/weightgurus
+# API information from:
+# https://gist.github.com/MarkWalters-pw/08ea0e8737e3e4d11f70427ef8fdc7df
+# https://github.com/merval/weightgurus
 WEIGHTGURUS_LOGIN = "https://api.weightgurus.com/v3/account/login"
-WEIGHTGURUS_HISTORY = "https://api.weightgurus.com/v3/operation/?%s"
+WEIGHTGURUS_HISTORY = "https://api.weightgurus.com/v3/operation/"
 
 #Weight Gurus Data Display
 DISPLAY_FONT = "CG-pixel-3x5-mono"
@@ -31,7 +33,7 @@ WHITE_COLOR = "#FFF"
 
 # buildifier: disable=function-docstring
 def main(config):
-    #get user settings
+    # get user settings
     email = config.get("email")
     password = config.get("password")
 
@@ -39,48 +41,54 @@ def main(config):
     system = config.get("system") or "imperial"
     secondary_display = config.get("second") or "none"
 
-    #setup our variables for holding the data we get back and display
+    # setup our variables for holding the data we get back and display
     operations = None
 
     if not email or not password:
         print("No email and password set, using example data")
         operations = json.decode(EXAMPLE_DATA)
     else:
-        #get an access token
+        # get an access token
         access_token = get_access_token(email, password)
 
-        #Now we have an access token, either from cache or using email and password
-        #so let's get data from cache, then if it's not there
-        #We'll go reload it with our access_token
-        #We need data for weight, bmi and body fat %
+        # Now we have an access token, either from cache or using email and password
+        # so let's get data from cache, then if it's not there
+        # We'll go reload it with our access_token
+        # We need data for weight, bmi and body fat %
 
         # For weight, fat % and bmi, let's get the data from cache, and if it doesn't exist, get it from weight gurus
         print("Checking cache for weight data")
-        cache_item_name = "%s_operations" % access_token
+        cache_item_name = "%s_operations_%s" % (access_token, period)
         cached_operations = cache.get(cache_item_name)
         if cached_operations == None:
             print("No weight data in cache, fetching from weight gurus")
+            operations = get_data_from_weightgurus(access_token, period)
 
-            #TODO: Filter this based on requested period to reduce data size
-            operations = get_data_from_weightgurus(access_token)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(cache_item_name, json.encode(operations), ttl_seconds = CACHE_TTL)
+            if (operations):
+                cache.set(cache_item_name, json.encode(operations), ttl_seconds = CACHE_TTL)
+            else:
+                print("Did not get a valid response from the weight gurus API")
+                return render.Root(
+                    child = render.WrappedText(
+                        content = "Got invalid data from Weight Gurus",
+                        color = "#fa0",
+                    ),
+                )
         else:
             print("Using cached weight data")
             operations = json.decode(cached_operations)
 
-    #Default Values
+    # Default Values
     current_weight = 0
     first_weight = 0
     current_fat = 0
     current_bmi = 0
     first_weight_date = None
 
-    #Process Data
+    # Process Data
     if operations != None:
         if len(operations) > 0:
-            #TODO: Skip operationType not "create"?
+            # TODO: We should make sure this most recent operation is not a "delete" and walk back to find a valid "create"
             current_weight = float(operations[-1]["weight"] / 10)
             first_weight = float(get_starting_value(operations, period, "weight") / 10)
             if first_weight < 0:
@@ -90,7 +98,7 @@ def main(config):
             current_fat = float(operations[-1]["bodyFat"] / 10)
             current_bmi = float(operations[-1]["bmi"] / 10)
 
-    #convert to imperial if need be
+    # convert to imperial if need be
     if system == "metric":
         display_units = "KGs"
         current_weight = float(current_weight) / KILOGRAMS_TO_POUNDS_MULTIPLIER
@@ -109,7 +117,7 @@ def main(config):
     fat_plot = get_plot_from_data(operations, "bodyFat", period)
     # Unless your height is changing, the weight_plot and bmi_plot is identical, and looks stupid
     # So let's just show the weight with current BMI info added, but not the second plot
-    #bmi_plot = get_plot_from_data(operations, "bmi", period)
+    # bmi_plot = get_plot_from_data(operations, "bmi", period)
 
     display_weight = "%s%s " % ((humanize.comma(int(current_weight * 100) // 100.0)), display_units)
     if secondary_display == "bodyfat" and current_fat > 0:
@@ -154,10 +162,10 @@ def main(config):
             ],
         )
 
-    #Build the display in rows
+    # Build the display in rows
     rows = [numbers_row]
 
-    #1 pixel tall horizontal separator
+    # 1 pixel tall horizontal separator
     rows.append(render.Box(height = 1))
     if secondary_display == "bmi":
         rows.append(get_plot_display_from_plot(weight_plot, WEIGHT_COLOR, 26))
@@ -248,7 +256,8 @@ def get_plot_from_data(json_data, key, period):
     if json_data != None:
         # loop through data, find the bounds needed to plot the points
         for item in json_data:
-            #TODO: What to do with operationType=="delete"?
+            # TODO: We should be finding the corresponding data point for "delete" events and remove them
+            # But I don't have a good test case right now
             if not item["operationType"] == "create":
                 continue
 
@@ -260,29 +269,29 @@ def get_plot_from_data(json_data, key, period):
             if number_of_days == 0 or days < number_of_days:
                 item_count = item_count + 1
 
-                #get starting value
+                # get starting value
                 if starting_value == None:
                     starting_value = current_value
 
-                #get the oldest date
+                # get the oldest date
                 if oldest_date == None:
                     oldest_date = current_date
                 elif current_date < oldest_date:
                     oldest_date = current_date
 
-                #get the newest date
+                # get the newest date
                 if newest_date == None:
                     newest_date = current_date
                 elif current_date > newest_date:
                     newest_date = current_date
 
-                #get smallest
+                # get smallest value
                 if smallest == None:
                     smallest = current_value
                 elif current_value < smallest:
                     smallest = current_value
 
-                #get largest
+                # get largest value
                 if largest == None:
                     largest = current_value
                 elif current_value > largest:
@@ -291,7 +300,8 @@ def get_plot_from_data(json_data, key, period):
         # initialize graph
         plot = [(0, starting_value)]
         for item in json_data:
-            #TODO: What to do with operationType=="delete"?
+            # TODO: We should be finding the corresponding data point for "delete" events and remove them
+            # But I don't have a good test case right now
             if not item["operationType"] == "create":
                 continue
 
@@ -316,9 +326,23 @@ def get_days_between(day1, day2):
     return days
 
 # buildifier: disable=function-docstring
-def get_data_from_weightgurus(access_token):
+def get_data_from_weightgurus(access_token, period):
+    start_date = time.now() - time.parse_duration("%dh" % (int(period) * 24))
+
+    # start=1970-01-01T01:00:00.504Z
+    formatted_date = (
+        zero_pad(start_date.year, 4) + "-" +
+        zero_pad(start_date.month, 2) + "-" +
+        zero_pad(start_date.day, 2) + "T" +
+        "00:" +
+        "00:" +
+        "00." +
+        "000Z"
+    )
+
+    url = WEIGHTGURUS_HISTORY + ("?start=%s" % formatted_date)
     res = http.get(
-        url = WEIGHTGURUS_HISTORY,
+        url = url,
         headers = {
             "Authorization": "Bearer %s" % access_token,
         },
@@ -342,10 +366,8 @@ def get_access_token(email, password):
 
     cache_key = "access_token_%s" % hash.sha256(email + password)
     access_token = cache.get(cache_key)
-    #print("Cached access token: %s" % access_token)
 
     if not access_token:
-        #print("No access token found in cache, logging in with %s / %s" % (email, password))
         print("No access token found in cache, logging in with email and password")
 
         login_data = dict(
@@ -365,7 +387,6 @@ def get_access_token(email, password):
         )
 
         if res.status_code != 200:
-            #print("Error Calling Weight Gurus Token: %s" % (res.body()))
             fail("token request failed with status code: %d - %s" %
                  (res.status_code, res.body()))
 
@@ -374,10 +395,14 @@ def get_access_token(email, password):
         expires = get_timestamp_from_date(token_params["expiresAt"])
         ttl = expires - time.now()
 
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, access_token, ttl_seconds = int(ttl.seconds - 30))
 
     return access_token
+
+# I'm so annoyed that I have to provide this function
+def zero_pad(number, width):
+    str_num = str(number)
+    return "0" * (width - len(str_num)) + str_num
 
 def get_schema():
     period_options = [
@@ -389,7 +414,6 @@ def get_schema():
         schema.Option(value = "360", display = "1 Year"),
         schema.Option(value = "720", display = "2 Years"),
         schema.Option(value = "1825", display = "5 Years"),
-        schema.Option(value = "0", display = "Maximum Allowed"),
     ]
 
     measurement_options = [
