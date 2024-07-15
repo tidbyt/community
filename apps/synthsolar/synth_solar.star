@@ -427,7 +427,7 @@ def get_widgets_and_animations(url):
     # * Get load data
     load_data = get_data(url, "load")
 
-    if not battery_data.get("battery") and load_data.get("load", 0) <= 0.001:
+    if not battery_data.get("battery") and load_data.get("load_kw", 0) <= 0.001:
         print("No battery and load data found")
         widgets = [
             get_overall_realtime_performance(url),
@@ -461,7 +461,7 @@ def get_widgets_and_animations(url):
             build_keyframe(-max_width * 3, 1.0),
         ]
 
-    elif load_data.get("load", 0) <= 0.001:
+    elif load_data.get("load_kw", 0) <= 0.001:
         widgets = [
             get_overall_realtime_performance(url),
             get_current_battery_charge_widget(battery_data),
