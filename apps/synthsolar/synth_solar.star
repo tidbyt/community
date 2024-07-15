@@ -420,6 +420,7 @@ def get_widgets_and_animations(url):
 
     keyframes = []
     widgets = []
+    max_animation_duration = 1000
 
     # * Get battery data
     battery_data = get_data(url, "cb_tg")
@@ -442,6 +443,8 @@ def get_widgets_and_animations(url):
             build_keyframe(-max_width * 2, 0.66),
             build_keyframe(-max_width * 2, 1.0),
         ]
+
+        max_animation_duration //= 2
 
     elif not battery_data.get("battery"):
         widgets = [
@@ -500,7 +503,7 @@ def get_widgets_and_animations(url):
             build_keyframe(-max_width * 4, 1.0),
         ]
 
-    return keyframes, widgets
+    return keyframes, widgets, max_animation_duration
 
 def main(config):
     """
@@ -531,7 +534,7 @@ def main(config):
 
     max_width = 64
 
-    keyframes, widgets = get_widgets_and_animations(BASE_URL)
+    keyframes, widgets, max_animation_duration = get_widgets_and_animations(BASE_URL)
 
     return render.Root(
         delay = 80,
@@ -539,7 +542,7 @@ def main(config):
         child = render.Row(
             children = [
                 animation.Transformation(
-                    duration = 1000,
+                    duration = max_animation_duration,
                     width = max_width * 6,
                     keyframes = keyframes,
                     child = render.Row(
