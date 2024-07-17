@@ -69,6 +69,7 @@ def get_stops(location):
 
 def main(config):
     api_key = secret.decrypt(ENCRYPTED_API_KEY) or config.get("api_key")
+    widgetMode = config.bool("$widget")
     stop_code = config.get("stop_code")
     if stop_code == None:
         stop_code = EXAMPLE_STOP_CODE
@@ -99,7 +100,7 @@ def main(config):
             child = render.Column(
                 expanded = True,
                 children = [
-                    build_row(journeys[0]),
+                    build_row(journeys[0], widgetMode),
                 ],
             ),
         )
@@ -110,18 +111,18 @@ def main(config):
             expanded = True,
             main_align = "start",
             children = [
-                build_row(journeys[0]),
+                build_row(journeys[0], widgetMode),
                 render.Box(
                     width = 64,
                     height = 1,
                     color = "#666",
                 ),
-                build_row(journeys[1]),
+                build_row(journeys[1], widgetMode),
             ],
         ),
     )
 
-def build_row(journey):
+def build_row(journey, widgetMode = False):
     # Only match names of bus lines that we know won't fit
     multi_line = re.compile("([A-Za-z]+)([0-9]+)([\\/ -])([A-Za-z0-9]+)")
     match = multi_line.match(journey["line_name"])
@@ -149,6 +150,28 @@ def build_row(journey):
     else:
         line_name = render.Text(journey["line_name"], color = "#000", font = "CG-pixel-4x5-mono")
 
+    destination = render.Text(
+        journey["destination_name"],
+        font = "Dina_r400-6",
+        offset = -2,
+        height = 7,
+    )
+    if widgetMode:
+        destination = render.Box(
+            width = 36,
+            height = 7,
+            child = render.Row(
+                expanded = True,
+                main_align = "start",
+                children = [destination],
+            ),
+        )
+    else:
+        destination = render.Marquee(
+            width = 36,
+            child = destination,
+        )
+
     return render.Row(
         expanded = True,
         main_align = "space_evenly",
@@ -169,15 +192,7 @@ def build_row(journey):
             ]),
             render.Column(
                 children = [
-                    render.Marquee(
-                        width = 36,
-                        child = render.Text(
-                            journey["destination_name"],
-                            font = "Dina_r400-6",
-                            offset = -2,
-                            height = 7,
-                        ),
-                    ),
+                    destination,
                     render.Text(journey["eta_text"], color = "#f3ab3f"),
                 ],
             ),
