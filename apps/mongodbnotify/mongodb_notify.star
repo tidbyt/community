@@ -40,6 +40,7 @@ def main(config):
                 config.str("collection"),
                 {"topic": config.get("topic", "homeassistant")},
                 {"priority": 1, "create_ts": -1},
+                {"_id": 0, "page": 1},
             ),
         )
 
@@ -65,13 +66,14 @@ def get_headers(api_key):
         "api-key": api_key,
     }
 
-def get_json_body(datasource, database, collection, filter, sort):
+def get_json_body(datasource, database, collection, filter, sort, projection):
     return {
         "dataSource": datasource,
         "database": database,
         "collection": collection,
         "filter": filter,
         "sort": sort,
+        "projection": projection,
     }
 
 def get_cacheable_data(url, headers, json_body, ttl_seconds = CACHE_TTL_SECONDS):
@@ -83,8 +85,6 @@ def get_cacheable_data(url, headers, json_body, ttl_seconds = CACHE_TTL_SECONDS)
     )
     if res.status_code != 200:
         return {"documents": [{"page": wrap_error("API ERROR", str(res.status_code))}]}
-
-    #        fail ("Atlas request failed with status %d", res.status_code)
 
     return res.json()
 
@@ -145,17 +145,17 @@ def render_child(json):
         if (type(params["pad"]) == "int"):
             pad = params["pad"]
         elif (type(params["pad"]) == "list"):
-            pad = (params["pad"][0], params["pad"][1], params["pad"][2], params["pad"][3])
+            pad = (int(params["pad"][0]), int(params["pad"][1]), int(params["pad"][2]), int(params["pad"][3]))
 
     if (params.get("data")):
         for datum in params["data"]:
             data.append((datum[0], datum[1]))
 
     if (params.get("x_lim")):
-        x_lim = (params["x_lim"][0], params["x_lim"][1])
+        x_lim = (float(params["x_lim"][0]), float(params["x_lim"][1]))
 
     if (params.get("y_lim")):
-        y_lim = (params["y_lim"][0], params["y_lim"][1])
+        y_lim = (float(params["y_lim"][0]), float(params["y_lim"][1]))
 
     if (widget == "Animation"):
         result = render.Animation(
@@ -164,15 +164,15 @@ def render_child(json):
     elif (widget == "Box"):
         result = render.Box(
             child = child,
-            width = params.setdefault("width", 0),
-            height = params.setdefault("height", 0),
-            padding = params.setdefault("padding", 0),
+            width = int(params.setdefault("width", 0)),
+            height = int(params.setdefault("height", 0)),
+            padding = int(params.setdefault("padding", 0)),
             color = params.setdefault("color", ""),
         )
     elif (widget == "Circle"):
         result = render.Circle(
             color = params.setdefault("color", "#000000"),
-            diameter = params.setdefault("diameter", 0),
+            diameter = int(params.setdefault("diameter", 0)),
             child = child,
         )
     elif (widget == "Column"):
@@ -180,22 +180,22 @@ def render_child(json):
             children = children,
             main_align = params.setdefault("main_align", ""),
             cross_align = params.setdefault("cross_align", ""),
-            expanded = params.setdefault("expanded", False),
+            expanded = bool(params.setdefault("expanded", False)),
         )
     elif (widget == "Image"):
         result = render.Image(
             src = params.setdefault("src", ""),
-            width = params.setdefault("width", 0),
-            height = params.setdefault("height", 0),
-            delay = params.setdefault("delay", 0),
+            width = int(params.setdefault("width", 0)),
+            height = int(params.setdefault("height", 0)),
+            delay = int(params.setdefault("delay", 0)),
         )
     elif (widget == "Marquee"):
         result = render.Marquee(
             child = child,
-            width = params.setdefault("width", 0),
-            height = params.setdefault("height", 0),
-            offset_start = params.setdefault("offset_start", 0),
-            offset_end = params.setdefault("offset_end", 0),
+            width = int(params.setdefault("width", 0)),
+            height = int(params.setdefault("height", 0)),
+            offset_start = int(params.setdefault("offset_start", 0)),
+            offset_end = int(params.setdefault("offset_end", 0)),
             scroll_direction = params.setdefault("scroll_direction", ""),
             align = params.setdefault("align", ""),
         )
@@ -209,19 +209,19 @@ def render_child(json):
     elif (widget == "PieChart"):
         result = render.PieChart(
             colors = params.setdefault("colors", []),
-            weights = params.setdefault("weights", []),
-            diameter = params.setdefault("diameter", 0),
+            weights = float(params.setdefault("weights", [])),
+            diameter = int(params.setdefault("diameter", 0)),
         )
     elif (widget == "Plot"):
         result = render.Plot(
             data = data,
-            width = params.setdefault("width", 0),
-            height = params.setdefault("height", 0),
+            width = int(params.setdefault("width", 0)),
+            height = int(params.setdefault("height", 0)),
             color = params.setdefault("color", ""),
             color_inverted = params.setdefault("color_inverted", ""),
             x_lim = x_lim,
             y_lim = y_lim,
-            fill = params.setdefault("fill", False),
+            fill = bool(params.setdefault("fill", False)),
             chart_type = params.setdefault("chart_type", ""),
             fill_color = params.setdefault("fill_color", ""),
             fill_color_inverted = params.setdefault("fill_color", ""),
@@ -229,16 +229,16 @@ def render_child(json):
     elif (widget == "Root"):
         result = render.Root(
             child = child,
-            delay = params.setdefault("delay", 0),
-            max_age = params.setdefault("max_age", 0),
-            show_full_animation = params.setdefault("show_full_animation", False),
+            delay = int(params.setdefault("delay", 0)),
+            max_age = int(params.setdefault("max_age", 0)),
+            show_full_animation = bool(params.setdefault("show_full_animation", False)),
         )
     elif (widget == "Row"):
         result = render.Row(
             children = children,
             main_align = params.setdefault("main_align", ""),
             cross_align = params.setdefault("cross_align", ""),
-            expanded = params.setdefault("expanded", False),
+            expanded = bool(params.setdefault("expanded", False)),
         )
     elif (widget == "Sequence"):
         result = render.Sequence(
@@ -250,19 +250,19 @@ def render_child(json):
         )
     elif (widget == "Text"):
         result = render.Text(
-            content = params.setdefault("content", "[Text] No content."),
+            content = str(params.setdefault("content", "[Text] No content.")),
             font = params.setdefault("font", ""),
-            height = params.setdefault("height", 0),
-            offset = params.setdefault("offset", 0),
+            height = int(params.setdefault("height", 0)),
+            offset = int(params.setdefault("offset", 0)),
             color = params.setdefault("color", ""),
         )
     elif (widget == "WrappedText"):
         result = render.WrappedText(
             content = params.setdefault("content", "[Text] No content."),
             font = params.setdefault("font", ""),
-            height = params.setdefault("height", 0),
-            width = params.setdefault("width", 0),
-            linespacing = params.setdefault("linespacing", 0),
+            height = int(params.setdefault("height", 0)),
+            width = int(params.setdefault("width", 0)),
+            linespacing = int(params.setdefault("linespacing", 0)),
             color = params.setdefault("color", ""),
             align = params.setdefault("align", ""),
         )
