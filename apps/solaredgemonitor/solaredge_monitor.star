@@ -11,8 +11,10 @@ load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 URL = "https://monitoringapi.solaredge.com/site/{}/currentPowerFlow"
+URL_AUT = "https://monitoringapi.solaredge.com/site/{}/energyDetails"
 
 # SolarEdge API limit is 300 requests per day, which is about
 # one per 5 minutes
@@ -39,6 +41,33 @@ DUMMY_DATA = {
             "chargeLevel": 86,
             "critical": False,
         },
+    },
+}
+
+DUMMY_DATA_AUTARKY_YEAR = {
+    "energyDetails": {
+        "timeUnit": "YEAR",
+        "unit": "Wh",
+        "meters": [
+            {
+                "type": "SelfConsumption",
+                "values": [
+                    {
+                        "date": "2024-01-01 00:00:00",
+                        "value": 5329901.0,
+                    },
+                ],
+            },
+            {
+                "type": "Consumption",
+                "values": [
+                    {
+                        "date": "2024-01-01 00:00:00",
+                        "value": 6961366.0,
+                    },
+                ],
+            },
+        ],
     },
 }
 
@@ -93,8 +122,8 @@ BATTERY_CHARGE_STATUS_75_100_10x10 = base64.decode("""
 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
 """)
 
-BATTERY_CHARGE_TEST_10x10 = base64.decode("""
-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
+AUTARKY_16x16 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAbwAAAG8B8aLcQwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAKGSURBVDiNfZJtaM1hGMZ/9/P/73TOzFvIZuMYJ8uStywjhSQhSxvLywdbJNl88V1a2VfJbKVEjVJn+TRqQlvxQfJW7GSRaENsM+Ts5f/y3L44pzPk+Xjd1+/qeu5uUVVy377+usWhyA6E9Sjrbg5OLylw7FDU2FS+obmv/MK9XL8BaKLJANT219cFIrcRiYvV6xHrrUrMoHi6GzQbw1j/hNu1oLfhhiAmEyC7Ph7Nj4bePUVfAittGFbdiF/9NKlWh8RI4Zftb0yMjMsdC5Hh5S1FilrjTHgRhUpBKsTRmr/gTqnUCX6wjIN9S1pefVl+fr4Bb37v8Q4AkzeaHhWkWyGt1tk+Ce6Rhfqd+yJ41NCekWdGdeuQl1dVlmrcIn8uMRe20GPeEWcaZ6jWU7njeKrxlrXEzP9gII6Lzw+a/7TkYbvGrSk3NR/qKydN7sucLAwQkIchTVJ66ZTSjC0WiyR/hma2MaodtYMNBdkAIQC6gKGsZjF4JPCxGelF6bnPJVHvmBGVZ+F4enXWvEFHzCY9ZqAI4e3vvh4FrKVa3+eWfb207ZJB9LERJn8DCJWdKIvUxSdKJbv1+b/WJXv7DyeU8K64UpEsvDz4WxbbwzNgivnGPnbrkwywMNV47bvvVIkQzHODBSZZcumNomc10NZsbA9rgajx2ZgLA+RH7IVQxR3xnZlWZJaoKoLInoG6TmBUXGlIXrwyDMBptbnwktTRlV/82IOYCQfGrFM8NzZemj0kQaRm4NAJQU6CtlnloROd8rTvqzcnHUYOj1mz7VvgrJgb8dvflrce2UyT283p4K9LrB04koDgACprVHTVrcEZhVNd+zHm2EdRR9telbV25/p/AZhtE/ThSw0TAAAAAElFTkSuQmCC
 """)
 
 # need 5 items because 100% is index 4
@@ -150,9 +179,70 @@ def render_fail(rep):
     content = json.decode(rep.body())
     return render.Root(render.Box(render.WrappedText(str(rep.status_code) + " : " + content["String"], color = RED)))
 
+def get_energy_details(site_id, api_key, tz, interval):
+    now = time.now().in_location(tz)
+    start_string = ""
+    now_string = humanize.time_format("yyyy-MM-dd HH:mm:ss", now)
+    if interval == "day":  # from the start of today to now, just set time to 00:00
+        start_string = humanize.time_format("yyyy-MM-dd 00:00:00", now)
+        now_string = humanize.time_format("2006-01-02 15:04:05", now)
+        time_unit = "DAY"
+    elif interval == "24h":  # the last 24hr from now, use a now-duration
+        duration = time.parse_duration("24h")
+        start_time = now - duration
+        start_string = humanize.time_format("yyyy-MM-dd HH:mm:ss", start_time)
+        time_unit = "DAY"
+    elif interval == "month":  # from the start of the month to now, just set day to 01 and time to 00:00
+        month = now.month
+        if now.month < 10:  # pad a zero if less then 10
+            month = "0" + str(month)
+        start_string = "{}-{}-01 00:00:00".format(now.year, month)
+        time_unit = "MONTH"
+    elif interval == "year":  # from the start of the year to now, set month/day to 01/01 and time to 00:00
+        start_string = "{}-01-01 00:00:00".format(now.year)
+        time_unit = "YEAR"
+    else:
+        return None
+    url = URL_AUT.format(site_id, start_string, now_string)
+    rep = http.get(
+        url,
+        params = {
+            "api_key": api_key,
+            "startTime": start_string,
+            "endTime": now_string,
+            "timeUnit": time_unit,
+        },
+        ttl_seconds = CACHE_TTL,
+    )
+
+    if rep.status_code != 200:
+        print(rep.status_code)
+        print(rep.body())
+        return None
+
+    return rep.json()["energyDetails"]
+
+def get_autarky_percent(site_id, api_key, tz, interval):
+    energy_details = get_energy_details(site_id, api_key, tz, interval)
+    if not energy_details:
+        return 0
+    self_consumption = 0
+    consumption = 0
+    for m in energy_details["meters"]:
+        if m["type"] == "SelfConsumption":
+            for v in m["values"]:
+                self_consumption += v["value"]
+        elif m["type"] == "Consumption":
+            for v in m["values"]:
+                consumption += v["value"]
+    if consumption == 0:
+        return 100
+    return int(self_consumption / consumption * 100)
+
 def main(config):
     api_key = config.str("api_key")
     site_id = humanize.url_encode(config.str("site_id", ""))
+    tz = config.get("$tz", "Europe/Zurich")
     has_battery = False  #  assume no battery until we have data
 
     if api_key and site_id:
@@ -162,9 +252,39 @@ def main(config):
             print(rep.body())
             return render_fail(rep)
         o = json.decode(rep.body())
+
+        consumption = 0
+        production = 0
+        if config.bool("show_summary", False) == True:
+            today_energy = get_energy_details(site_id, api_key, tz, "day")
+            if today_energy:
+                for m in today_energy["meters"]:
+                    if m["type"] == "Consumption":
+                        for v in m["values"]:
+                            consumption += v["value"]
+                    elif m["type"] == "Production":
+                        for v in m["values"]:
+                            production += v["value"]
+
+        if config.bool("show_autarky", False) == True:
+            autarky_day = get_autarky_percent(site_id, api_key, tz, "day")
+            autarky_24h = get_autarky_percent(site_id, api_key, tz, "24h")
+            autarky_month = get_autarky_percent(site_id, api_key, tz, "month")
+            autarky_year = get_autarky_percent(site_id, api_key, tz, "year")
+        else:
+            autarky_day = None
+            autarky_24h = None
+            autarky_month = None
+            autarky_year = None
     else:
         print("using dummy data")
         o = DUMMY_DATA
+        consumption = 3141
+        production = 6282
+        autarky_day = 99
+        autarky_24h = 97
+        autarky_month = 95
+        autarky_year = 76
     frames = []
 
     o = o["siteCurrentPowerFlow"]
@@ -305,6 +425,59 @@ def main(config):
         ],
     )
 
+    # summary page for daily accumulated generation and consumption
+    ###############################################
+    summary_frame = render.Stack(
+        children = [
+            render.Column(
+                main_align = "space_evenly",  # this controls position of children, start = top
+                expanded = True,
+                cross_align = "center",
+                children = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                            render.Text("Energy Today"),
+                        ],
+                    ),
+                    render.Row(
+                        #expanded = True,
+                        children = [
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_around",
+                                cross_align = "center",
+                                children = [
+                                    render.Image(src = SUN_SUM),
+                                    render.Image(src = PLUG_SUM),
+                                ],
+                            ),
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_around",
+                                cross_align = "end",
+                                children = [
+                                    render.Text(
+                                        content = " " + format_power(production / 1000) + " kWh",
+                                        font = "5x8",
+                                        color = GREEN,
+                                    ),
+                                    render.Text(
+                                        content = " " + format_power(consumption / 1000) + " kWh",
+                                        font = "5x8",
+                                        color = RED,
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
     # CHARGE FRAME shows charge/discharge rate and state of charge percent
     #########################################################
     if o["STORAGE"]["status"] == "Discharging":
@@ -406,6 +579,70 @@ def main(config):
         ),
     )
 
+    # AUTARKY FRAME
+    autarky_frame = render.Stack(
+        children = [
+            render.Box(
+                height = 32,
+                width = 64,
+                child = render.Image(src = AUTARKY_16x16),
+            ),
+            render.Column(
+                # column for the top
+                main_align = "start",
+                expanded = True,
+                children = [
+                    # top row
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        children = [
+                            render.Row([render.Text("24hr:", font = "tom-thumb", color = GRAY)]),
+                            render.Row([render.Text("Month:", font = "tom-thumb", color = GRAY)]),
+                        ],
+                    ),
+
+                    # second row
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        cross_align = "end",
+                        children = [
+                            render.Row([render.Text(" {}%".format(autarky_24h), color = GREEN)]),
+                            render.Row([render.Text("{}%".format(autarky_month), color = GREEN)]),
+                        ],
+                    ),
+                ],
+            ),
+            render.Column(
+                main_align = "end",
+                expanded = True,
+                children = [
+                    # third row
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        children = [
+                            render.Row([render.Text("Today:", font = "tom-thumb", color = GRAY)]),
+                            render.Row([render.Text("Year:", font = "tom-thumb", color = GRAY)]),
+                        ],
+                    ),
+
+                    # fourth row
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        cross_align = "end",
+                        children = [
+                            render.Row([render.Text(" {}%".format(autarky_day), color = GREEN)]),
+                            render.Row([render.Text("{}%".format(autarky_year), color = GREEN)]),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
     if config.bool("show_main", True):
         frames.append(main_frame)
     if config.bool("show_char", False) and has_battery:
@@ -414,6 +651,10 @@ def main(config):
         frames.append(production_frame)
     if config.bool("show_cons", False):
         frames.append(verbrauch_frame)
+    if config.bool("show_summary", False):
+        frames.append(summary_frame)
+    if config.bool("show_autarky", False):
+        frames.append(autarky_frame)
 
     if len(frames) == 1:
         return render.Root(frames[0])
@@ -474,6 +715,20 @@ def get_schema():
                 name = "Show Current Consumption",
                 desc = "Realtime energy consumption.",
                 icon = "plugCircleBolt",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_summary",
+                name = "Show Daily Summary",
+                desc = "Accumulated daily energy production and consumption.",
+                icon = "chartLine",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "show_autarky",
+                name = "Show Autarky Frame",
+                desc = "Display the 4 Autarky values for day,week,month,year",
+                icon = "compress",
                 default = False,
             ),
             schema.Dropdown(
