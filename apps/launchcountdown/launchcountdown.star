@@ -301,6 +301,8 @@ def main(config):
     row3 = ""
     row4 = ""
 
+    found_valid_launch = False
+
     if rocket_launch_data == None:
         row1 = "Failed to get data from Rocketlaunch.live feed"
     elif rocket_launch_count == 0:
@@ -309,21 +311,26 @@ def main(config):
         rocket_launch_count = int(rocket_launch_count)
         for i in range(0, rocket_launch_count):
             localtime = time.now()
-            locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
+            if rocket_launch_data["result"][i]["t0"]!=None:
 
-            if locallaunch > localtime.in_location(location["timezone"]):
-                hours_notice = int(config.get("notice_period", 0))
-                hours_until_sighting = (locallaunch - localtime.in_location(location["timezone"])).hours
+                locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
 
-                if (hours_notice == 0 or hours_notice > hours_until_sighting):
-                    row1 = rocket_launch_data["result"][i]["vehicle"]["name"]
-                    locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
-                    row2 = locallaunch.format("Jan 2 '06")
-                    row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch)
-                    row4 = replace_local_time_into_description(rocket_launch_data["result"][i]["launch_description"], locallaunch, time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")))
-                else:
-                    return []
-                break
+                if locallaunch > localtime.in_location(location["timezone"]):
+                    hours_notice = int(config.get("notice_period", 0))
+                    hours_until_sighting = (locallaunch - localtime.in_location(location["timezone"])).hours
+
+                    if (hours_notice == 0 or hours_notice > hours_until_sighting):
+                        row1 = rocket_launch_data["result"][i]["vehicle"]["name"]
+                        locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
+                        row2 = locallaunch.format("Jan 2 '06")
+                        row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch)
+                        row4 = replace_local_time_into_description(rocket_launch_data["result"][i]["launch_description"], locallaunch, time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")))
+                        found_valid_launch = True
+                    else:
+                        return []
+                    break
+        if found_valid_launch== False:
+            return []
 
     return render.Root(
         show_full_animation = True,
