@@ -143,7 +143,7 @@ def render_arrival_row(arrival, widgetMode):
         cross_align = "center",
         children = [
             stack,
-            render.Box(width=1, height = 1),
+            render.Box(width = 1, height = 1),
             column,
         ],
     )
