@@ -186,7 +186,6 @@ def get_energy_details(site_id, api_key, tz, interval):
     now_string = humanize.time_format("yyyy-MM-dd HH:mm:ss", now)
     if interval == "day":  # from the start of today to now, just set time to 00:00
         start_string = humanize.time_format("yyyy-MM-dd 00:00:00", now)
-        now_string = humanize.time_format("2006-01-02 15:04:05", now)
         time_unit = "DAY"
     elif interval == "24h":  # the last 24hr from now, use a now-duration
         duration = time.parse_duration("24h")
@@ -194,9 +193,6 @@ def get_energy_details(site_id, api_key, tz, interval):
         start_string = humanize.time_format("yyyy-MM-dd HH:mm:ss", start_time)
         time_unit = "DAY"
     elif interval == "month":  # from the start of the month to now, just set day to 01 and time to 00:00
-        month = now.month
-        if now.month < 10:  # pad a zero if less then 10
-            month = "0" + str(month)
         start_time = humanize.time_format("yyyy-MM-01 00:00:00", now)
         time_unit = "MONTH"
     elif interval == "year":  # from the start of the year to now, set month/day to 01/01 and time to 00:00
