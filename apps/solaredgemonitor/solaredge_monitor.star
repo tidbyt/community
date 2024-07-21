@@ -196,10 +196,10 @@ def get_energy_details(site_id, api_key, tz, interval):
         month = now.month
         if now.month < 10:  # pad a zero if less then 10
             month = "0" + str(month)
-        start_string = "{}-{}-01 00:00:00".format(now.year, month)
+        start_time = humanize.time_format("yyyy-MM-01 00:00:00", now)
         time_unit = "MONTH"
     elif interval == "year":  # from the start of the year to now, set month/day to 01/01 and time to 00:00
-        start_string = "{}-01-01 00:00:00".format(now.year)
+        start_string = humanize.time_format("yyyy-01-01 00:00:00", now)
         time_unit = "YEAR"
     else:
         return None
@@ -242,7 +242,7 @@ def get_autarky_percent(site_id, api_key, tz, interval):
 def main(config):
     api_key = config.str("api_key")
     site_id = humanize.url_encode(config.str("site_id", ""))
-    tz = config.get("$tz", "Europe/Zurich")
+    tz = config.get("$tz", "Etc/UTC")
     has_battery = False  #  assume no battery until we have data
 
     if api_key and site_id:
@@ -290,7 +290,7 @@ def main(config):
     o = o["siteCurrentPowerFlow"]
     unit = o["unit"]
     connections = o["connections"]
-    if o["STORAGE"]:
+    if "STORAGE" in o:
         has_battery = True
 
     if o["PV"]["status"] == "Active":
@@ -425,235 +425,237 @@ def main(config):
         ],
     )
 
-    # summary page for daily accumulated generation and consumption
-    ###############################################
-    summary_frame = render.Stack(
-        children = [
-            render.Column(
-                main_align = "space_evenly",  # this controls position of children, start = top
-                expanded = True,
-                cross_align = "center",
-                children = [
-                    render.Row(
-                        expanded = True,
-                        main_align = "space_evenly",
-                        cross_align = "center",
-                        children = [
-                            render.Text("Energy Today"),
-                        ],
-                    ),
-                    render.Row(
-                        #expanded = True,
-                        children = [
-                            render.Column(
-                                expanded = True,
-                                main_align = "space_around",
-                                cross_align = "center",
-                                children = [
-                                    render.Image(src = SUN_SUM),
-                                    render.Image(src = PLUG_SUM),
-                                ],
-                            ),
-                            render.Column(
-                                expanded = True,
-                                main_align = "space_around",
-                                cross_align = "end",
-                                children = [
-                                    render.Text(
-                                        content = " " + format_power(production / 1000) + " kWh",
-                                        font = "5x8",
-                                        color = GREEN,
-                                    ),
-                                    render.Text(
-                                        content = " " + format_power(consumption / 1000) + " kWh",
-                                        font = "5x8",
-                                        color = RED,
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-        ],
-    )
+    if config.bool("show_main", True):
+        frames.append(main_frame)
 
     # CHARGE FRAME shows charge/discharge rate and state of charge percent
     #########################################################
-    if o["STORAGE"]["status"] == "Discharging":
-        BATTERY_FLOW_ICON = BATTERY_DISCHARGE_ANIMATION_10x10
-        flow_color = RED
-    elif o["STORAGE"]["status"] == "Charging":
-        BATTERY_FLOW_ICON = BATTERY_CHARGE_ANIMATION_10x10
-        flow_color = GREEN
-    else:
-        BATTERY_FLOW_ICON = BATTERY_NOFLOW_ANIMATION_10x10
-        flow_color = GRAY
+    if config.bool("show_char", False) and has_battery:
+        charge_level = o["STORAGE"]["chargeLevel"]
+        storage_power = o["STORAGE"]["currentPower"]
+        if o["STORAGE"]["status"] == "Discharging":
+            BATTERY_FLOW_ICON = BATTERY_DISCHARGE_ANIMATION_10x10
+            flow_color = RED
+        elif o["STORAGE"]["status"] == "Charging":
+            BATTERY_FLOW_ICON = BATTERY_CHARGE_ANIMATION_10x10
+            flow_color = GREEN
+        else:
+            BATTERY_FLOW_ICON = BATTERY_NOFLOW_ANIMATION_10x10
+            flow_color = GRAY
 
-    charge_frame = render.Stack(
-        children = [
-            render.Column(
-                main_align = "space_evenly",  # this controls position of children, start = top
-                expanded = True,
-                cross_align = "center",
-                children = [
-                    render.Row(
-                        expanded = True,
-                        main_align = "space_evenly",
-                        cross_align = "center",
-                        children = [
-                            render.Text(" ", height = 1),
-                        ],
-                    ),
-                    render.Row(
-                        #expanded = True,
-                        children = [
-                            render.Column(
-                                expanded = True,
-                                main_align = "space_around",
-                                cross_align = "center",
-                                children = [
-                                    render.Image(src = battery_level_icons[int(o["STORAGE"]["chargeLevel"] / 25)]),
-                                    render.Image(src = BATTERY_FLOW_ICON),
-                                ],
-                            ),
-                            render.Column(
-                                expanded = True,
-                                main_align = "space_around",
-                                cross_align = "end",
-                                children = [
-                                    render.Text(
-                                        content = " " + str(o["STORAGE"]["chargeLevel"]) + " %",
-                                        font = "5x8",
-                                        #font = "6x13",
-                                        color = soc_color[int(o["STORAGE"]["chargeLevel"] / 25)],
-                                    ),
-                                    render.Text(
-                                        content = " " + humanize.float("#,###.##", float(abs(o["STORAGE"]["currentPower"]))) + " " + unit,
-                                        font = "5x8",
-                                        #font = "6x13",
-                                        #min = a if a < b else b
-                                        color = flow_color,
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-        ],
-    )
-
-    # CONSUMPTION FRAME
-    verbrauch_frame = render.Box(
-        render.Row(
-            expanded = True,
-            cross_align = "center",
-            main_align = "space_evenly",
+        charge_frame = render.Stack(
             children = [
-                render.Image(src = PLUG),
-                render.Text(
-                    content = humanize.float("#,###.##", float(o["LOAD"]["currentPower"])) + " " + unit,
-                    #font = "6x13",
-                    font = "5x8",
-                    color = RED,
+                render.Column(
+                    main_align = "space_evenly",  # this controls position of children, start = top
+                    expanded = True,
+                    cross_align = "center",
+                    children = [
+                        render.Row(
+                            expanded = True,
+                            main_align = "space_evenly",
+                            cross_align = "center",
+                            children = [
+                                render.Text(" ", height = 1),
+                            ],
+                        ),
+                        render.Row(
+                            #expanded = True,
+                            children = [
+                                render.Column(
+                                    expanded = True,
+                                    main_align = "space_around",
+                                    cross_align = "center",
+                                    children = [
+                                        render.Image(src = battery_level_icons[int(charge_level / 25)]),
+                                        render.Image(src = BATTERY_FLOW_ICON),
+                                    ],
+                                ),
+                                render.Column(
+                                    expanded = True,
+                                    main_align = "space_around",
+                                    cross_align = "end",
+                                    children = [
+                                        render.Text(
+                                            content = " " + str(charge_level) + " %",
+                                            font = "5x8",
+                                            #font = "6x13",
+                                            color = soc_color[int(charge_level / 25)],
+                                        ),
+                                        render.Text(
+                                            content = " " + humanize.float("#,###.##", float(abs(storage_power))) + " " + unit,
+                                            font = "5x8",
+                                            #font = "6x13",
+                                            #min = a if a < b else b
+                                            color = flow_color,
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                    ],
                 ),
             ],
-        ),
-    )
+        )
+        frames.append(charge_frame)
 
     # SOLAR PRODUCTION FRAME
-    production_frame = render.Box(
-        render.Row(
-            expanded = True,
-            cross_align = "center",
-            main_align = "space_evenly",
+    if config.bool("show_prod", False):
+        production_frame = render.Box(
+            render.Row(
+                expanded = True,
+                cross_align = "center",
+                main_align = "space_evenly",
+                children = [
+                    render.Image(src = SUN),
+                    render.Text(
+                        content = humanize.float("#,###.##", float(o["PV"]["currentPower"])) + " " + unit,
+                        font = "5x8",
+                        color = GREEN,
+                    ),
+                ],
+            ),
+        )
+        frames.append(production_frame)
+
+    # CONSUMPTION FRAME
+    if config.bool("show_cons", False):
+        consumption_frame = render.Box(
+            render.Row(
+                expanded = True,
+                cross_align = "center",
+                main_align = "space_evenly",
+                children = [
+                    render.Image(src = PLUG),
+                    render.Text(
+                        content = humanize.float("#,###.##", float(o["LOAD"]["currentPower"])) + " " + unit,
+                        #font = "6x13",
+                        font = "5x8",
+                        color = RED,
+                    ),
+                ],
+            ),
+        )
+        frames.append(consumption_frame)
+
+    if config.bool("show_summary", False):
+        # summary page for daily accumulated generation and consumption
+        ###############################################
+        summary_frame = render.Stack(
             children = [
-                render.Image(src = SUN),
-                render.Text(
-                    content = humanize.float("#,###.##", float(o["PV"]["currentPower"])) + " " + unit,
-                    font = "5x8",
-                    color = GREEN,
+                render.Column(
+                    main_align = "space_evenly",  # this controls position of children, start = top
+                    expanded = True,
+                    cross_align = "center",
+                    children = [
+                        render.Row(
+                            expanded = True,
+                            main_align = "space_evenly",
+                            cross_align = "center",
+                            children = [
+                                render.Text("Energy Today"),
+                            ],
+                        ),
+                        render.Row(
+                            #expanded = True,
+                            children = [
+                                render.Column(
+                                    expanded = True,
+                                    main_align = "space_around",
+                                    cross_align = "center",
+                                    children = [
+                                        render.Image(src = SUN_SUM),
+                                        render.Image(src = PLUG_SUM),
+                                    ],
+                                ),
+                                render.Column(
+                                    expanded = True,
+                                    main_align = "space_around",
+                                    cross_align = "end",
+                                    children = [
+                                        render.Text(
+                                            content = " " + humanize.float("#,###.##", production / 1000) + " kWh",
+                                            font = "5x8",
+                                            color = GREEN,
+                                        ),
+                                        render.Text(
+                                            content = " " + humanize.float("#,###.##", consumption / 1000) + " kWh",
+                                            font = "5x8",
+                                            color = RED,
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                    ],
                 ),
             ],
-        ),
-    )
+        )
+        frames.append(summary_frame)
 
     # AUTARKY FRAME
-    autarky_frame = render.Stack(
-        children = [
-            render.Box(
-                height = 32,
-                width = 64,
-                child = render.Image(src = AUTARKY_16x16),
-            ),
-            render.Column(
-                # column for the top
-                main_align = "start",
-                expanded = True,
-                children = [
-                    # top row
-                    render.Row(
-                        expanded = True,
-                        main_align = "space_between",
-                        children = [
-                            render.Row([render.Text("24hr:", font = "tom-thumb", color = GRAY)]),
-                            render.Row([render.Text("Month:", font = "tom-thumb", color = GRAY)]),
-                        ],
-                    ),
-
-                    # second row
-                    render.Row(
-                        expanded = True,
-                        main_align = "space_between",
-                        cross_align = "end",
-                        children = [
-                            render.Row([render.Text(" {}%".format(autarky_24h), color = GREEN)]),
-                            render.Row([render.Text("{}%".format(autarky_month), color = GREEN)]),
-                        ],
-                    ),
-                ],
-            ),
-            render.Column(
-                main_align = "end",
-                expanded = True,
-                children = [
-                    # third row
-                    render.Row(
-                        expanded = True,
-                        main_align = "space_between",
-                        children = [
-                            render.Row([render.Text("Today:", font = "tom-thumb", color = GRAY)]),
-                            render.Row([render.Text("Year:", font = "tom-thumb", color = GRAY)]),
-                        ],
-                    ),
-
-                    # fourth row
-                    render.Row(
-                        expanded = True,
-                        main_align = "space_between",
-                        cross_align = "end",
-                        children = [
-                            render.Row([render.Text(" {}%".format(autarky_day), color = GREEN)]),
-                            render.Row([render.Text("{}%".format(autarky_year), color = GREEN)]),
-                        ],
-                    ),
-                ],
-            ),
-        ],
-    )
-
-    if config.bool("show_main", True):
-        frames.append(main_frame)
-    if config.bool("show_char", False) and has_battery:
-        frames.append(charge_frame)
-    if config.bool("show_prod", False):
-        frames.append(production_frame)
-    if config.bool("show_cons", False):
-        frames.append(verbrauch_frame)
-    if config.bool("show_summary", False):
-        frames.append(summary_frame)
     if config.bool("show_autarky", False):
+        autarky_frame = render.Stack(
+            children = [
+                render.Box(
+                    height = 32,
+                    width = 64,
+                    child = render.Image(src = AUTARKY_16x16),
+                ),
+                render.Column(
+                    # column for the top
+                    main_align = "start",
+                    expanded = True,
+                    children = [
+                        # top row
+                        render.Row(
+                            expanded = True,
+                            main_align = "space_between",
+                            children = [
+                                render.Row([render.Text("24hr:", font = "tom-thumb", color = GRAY)]),
+                                render.Row([render.Text("Month:", font = "tom-thumb", color = GRAY)]),
+                            ],
+                        ),
+
+                        # second row
+                        render.Row(
+                            expanded = True,
+                            main_align = "space_between",
+                            cross_align = "end",
+                            children = [
+                                render.Row([render.Text(" {}%".format(autarky_24h), color = GREEN)]),
+                                render.Row([render.Text("{}%".format(autarky_month), color = GREEN)]),
+                            ],
+                        ),
+                    ],
+                ),
+                render.Column(
+                    main_align = "end",
+                    expanded = True,
+                    children = [
+                        # third row
+                        render.Row(
+                            expanded = True,
+                            main_align = "space_between",
+                            children = [
+                                render.Row([render.Text("Today:", font = "tom-thumb", color = GRAY)]),
+                                render.Row([render.Text("Year:", font = "tom-thumb", color = GRAY)]),
+                            ],
+                        ),
+
+                        # fourth row
+                        render.Row(
+                            expanded = True,
+                            main_align = "space_between",
+                            cross_align = "end",
+                            children = [
+                                render.Row([render.Text(" {}%".format(autarky_day), color = GREEN)]),
+                                render.Row([render.Text("{}%".format(autarky_year), color = GREEN)]),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        )
         frames.append(autarky_frame)
 
     if len(frames) == 1:
@@ -668,8 +670,10 @@ def main(config):
         )
 
 def format_power(p):
-    if p:
+    if p and p < 10:
         return humanize.float("#,###.#", p)
+    elif p:
+        return humanize.float("#,###.", p)
     else:
         return "0"
 
@@ -727,7 +731,7 @@ def get_schema():
             schema.Toggle(
                 id = "show_autarky",
                 name = "Show Autarky Frame",
-                desc = "Display the 4 Autarky values for day,week,month,year",
+                desc = "Display the autarky values for day, week, month, year.",
                 icon = "compress",
                 default = False,
             ),
