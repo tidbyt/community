@@ -15,6 +15,7 @@ load("time.star", "time")
 
 URL = "https://monitoringapi.solaredge.com/site/{}/currentPowerFlow"
 URL_AUT = "https://monitoringapi.solaredge.com/site/{}/energyDetails"
+URL_SITE = "https://monitoringapi.solaredge.com/site/{}/details"
 
 # SolarEdge API limit is 300 requests per day, which is about
 # one per 5 minutes
@@ -239,13 +240,24 @@ def get_autarky_percent(site_id, api_key, tz, interval):
         return 100
     return int(self_consumption / consumption * 100)
 
+def get_time_zone(config, site_id, api_key):
+    url = URL_SITE.format(site_id)
+    rep = http.get(url, params = {"api_key": api_key}, ttl_seconds = CACHE_TTL)
+    default_tz = "Etc/UTC"
+    if rep.status_code == 200:
+        o = json.decode(rep.body())
+        if "details" in o and "location" in o["details"] and "timeZone" in o["details"]["location"]:
+            default_tz = o["details"]["location"]["timeZone"]
+
+    return config.get("$tz", default_tz)
+
 def main(config):
     api_key = config.str("api_key")
     site_id = humanize.url_encode(config.str("site_id", ""))
-    tz = config.get("$tz", "Etc/UTC")
     has_battery = False  #  assume no battery until we have data
 
     if api_key and site_id:
+        tz = get_time_zone(config, site_id, api_key)
         url = URL.format(site_id)
         rep = http.get(url, params = {"api_key": api_key}, ttl_seconds = CACHE_TTL)
         if rep.status_code != 200:
