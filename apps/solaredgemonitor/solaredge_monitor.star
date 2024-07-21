@@ -188,7 +188,7 @@ def get_energy_details(site_id, api_key, tz, interval):
         start_string = humanize.time_format("yyyy-MM-dd 00:00:00", now)
         time_unit = "DAY"
     elif interval == "24h":  # the last 24hr from now, use a now-duration
-        duration = time.parse_duration("24h")
+        duration = 24 * time.hour
         start_time = now - duration
         start_string = humanize.time_format("yyyy-MM-dd HH:mm:ss", start_time)
         time_unit = "DAY"
