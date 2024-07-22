@@ -21,6 +21,7 @@ DEFAULT_TITLE_BG_COLOR = "#333333"
 DEFAULT_ARTICLE_COLOR = "#65d1e6"
 DEFAULT_SHOW_CONTENT = False
 DEFAULT_CONTENT_COLOR = "#ff8c00"
+DEFAULT_FONT = "tom-thumb"
 
 def main(config):
     """Main app method.
@@ -41,6 +42,7 @@ def main(config):
     article_color = config.get("article_color", DEFAULT_ARTICLE_COLOR)
     show_content = config.bool("show_content", DEFAULT_SHOW_CONTENT)
     content_color = config.get("content_color", DEFAULT_CONTENT_COLOR)
+    font = config.get("font", DEFAULT_FONT)
 
     # if feed name is empty, show as "RSS Feed"
     if feed_name.strip() == "":
@@ -71,14 +73,14 @@ def main(config):
                     offset_start = 24,
                     child = render.Column(
                         main_align = "space_between",
-                        children = render_articles(articles, show_content, article_color, content_color),
+                        children = render_articles(articles, show_content, article_color, content_color, font),
                     ),
                 ),
             ],
         ),
     )
 
-def render_articles(articles, show_content, article_color, content_color):
+def render_articles(articles, show_content, article_color, content_color, font):
     """Renders the widgets to display the articles.
 
     Args:
@@ -95,9 +97,9 @@ def render_articles(articles, show_content, article_color, content_color):
     article_text = []
 
     for article in articles:
-        article_text.append(render.WrappedText(article[0].strip(), color = article_color, font = "tom-thumb"))
+        article_text.append(render.WrappedText(article[0].strip(), color = article_color, font = font))
         if show_content:
-            article_text.append(render.WrappedText(article[1].strip(), color = content_color, font = "tom-thumb"))
+            article_text.append(render.WrappedText(article[1].strip(), color = content_color, font = font))
         article_text.append(render.Box(width = 64, height = 8, color = "#000000"))
 
     return article_text
@@ -176,6 +178,23 @@ def get_schema():
                     schema.Option(
                         display = "5",
                         value = "5",
+                    ),
+                ],
+            ),
+            schema.Dropdown(
+                id = "font",
+                name = "Text Size",
+                desc = " Font size for text.",
+                icon = "textHeight",
+                default = DEFAULT_FONT,
+                options = [
+                    schema.Option(
+                        display = "Default",
+                        value = DEFAULT_FONT,
+                    ),
+                    schema.Option(
+                        display = "Larger",
+                        value = "tb-8",
                     ),
                 ],
             ),
