@@ -219,12 +219,12 @@ def get_word_in_flag(text, position):
     children = []
 
     for i in range(0, position):
-        children.append(render.Image(width=32, height=32, src = base64.decode(flags[" "]["flag"])))
+        children.append(render.Image(width = 32, height = 32, src = base64.decode(flags[" "]["flag"])))
 
     text = text.lower()
     for i in range(0, len(text)):
         if text[i] in flags:
-            children.append(render.Image(width=32, height=32, src = base64.decode(flags[text[i]]["flag"])))
+            children.append(render.Image(width = 32, height = 32, src = base64.decode(flags[text[i]]["flag"])))
 
     return children
 
