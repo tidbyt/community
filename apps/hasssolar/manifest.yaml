@@ -1,0 +1,8 @@
+---
+id: hass-solar
+name: HASS Solar
+summary: PV system monitor
+desc: Energy production and consumption monitor using Home Assistant.
+author: Ingmar Stein
+fileName: hass_solar.star
+packageName: hasssolar
