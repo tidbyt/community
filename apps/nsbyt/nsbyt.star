@@ -244,24 +244,12 @@ def parse_time(time_string):
     return time_obj
 
 def getTrip(station_id, station_dest, skiptime):
-    # Check the cache for trip info
-    resp_cached = cache.get("ns_%s" % station_id + station_dest)
+    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/trips", params = {"fromStation": station_id, "toStation": station_dest}, headers = {"Ocp-Apim-Subscription-Key": API_KEY}, ttl_seconds = 30)
 
-    if resp_cached != None:
-        # Get the cached response
-        # print("Hit!")
-        departures = json.decode(resp_cached)
+    if resp.status_code != 200:
+        return []
     else:
-        # Fetch new schedule from API
-        # print("MISS!")
-        resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/trips", params = {"fromStation": station_id, "toStation": station_dest}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
-
-        if resp.status_code != 200:
-            cache.set("ns_%s" % station_id + station_dest, json.encode([]), ttl_seconds = 30)
-            return []
-        else:
-            departures = json.decode(resp.body())
-            cache.set("ns_%s" % station_id + station_dest, resp.body(), ttl_seconds = 30)
+        departures = json.decode(resp.body())
 
     # Create return list
     stops = []
@@ -310,25 +298,14 @@ def getTrip(station_id, station_dest, skiptime):
     return stops
 
 def getTrains(station_id, skiptime):
-    # Check the cache for travel info
-    resp_cached = cache.get("ns_%s" % station_id)
+    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params = {"station": station_id}, headers = {"Ocp-Apim-Subscription-Key": API_KEY}, ttl_seconds = 30)
 
-    if resp_cached != None:
-        # Get the cached response
-        # print("Hit!")
-        departures = json.decode(resp_cached)
-
+    if resp.status_code != 200:
+        cache.set("ns_%s" % station_id, json.encode([]), ttl_seconds = 30)
+        return []
     else:
-        # Fetch new schedule from API
-        # print("MISS!")
-        resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params = {"station": station_id}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
-
-        if resp.status_code != 200:
-            cache.set("ns_%s" % station_id, json.encode([]), ttl_seconds = 30)
-            return []
-        else:
-            departures = json.decode(resp.body())
-            cache.set("ns_%s" % station_id, resp.body(), ttl_seconds = 30)
+        departures = json.decode(resp.body())
+        cache.set("ns_%s" % station_id, resp.body(), ttl_seconds = 30)
 
     # Return the trains
     departuresTrains = departures["payload"]["departures"]
@@ -348,7 +325,7 @@ def getTrains(station_id, skiptime):
 
 def search_station(pattern):
     ns_dict = {"q": pattern}  # Provide the pattern with a dict, as this will be encoded
-    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/stations", params = ns_dict, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
+    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/stations", params = ns_dict, headers = {"Ocp-Apim-Subscription-Key": API_KEY}, ttl_seconds = 8600)
 
     if resp.status_code != 200:
         # Return an Error
