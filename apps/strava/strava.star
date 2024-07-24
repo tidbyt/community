@@ -155,7 +155,7 @@ def main(config):
 
 def progress_chart(config, refresh_token, sport, units):
     show_logo = config.bool("show_logo", True)
-    no_anim = config.bool("no_anim", False)
+    no_anim = config.bool("no_anim", False) or config.bool("$widget")
 
     distance_conv = meters_to_mi
     if units == "metric":
