@@ -6,6 +6,7 @@ Author: James Woglom
 """
 load("encoding/base64.star", "base64")
 load("http.star", "http")
+load("html.star", "html")
 load("render.star", "render")
 load("schema.star", "schema")
 load("humanize.star", "humanize")
@@ -13,25 +14,73 @@ load("animation.star", "animation")
 
 
 URL = "https://olympics.com/en/paris-2024/medals"
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 DEFAULT_TEXT_COLOR = "#fff"
 DEFAULT_BG_COLOR = "#000"
+
 DEFAULT_COUNT = "5"
 DEFAULT_DELAY = "10"
+DEFAULT_FRAMES = "250"
+
+def fetch_data(config):
+    res = http.get(URL, headers={"User-Agent": USER_AGENT}, ttl_seconds=3600)
+    if res.status_code != 200:
+        fail("GET %s failed with status %d: %s", URL, res.status_code, res.body())
+    page = html(res.body())
+    list = page.find("[data-testid='noc-row']")
+    if not list:
+        fail("could not find medal list table on %s: %s", URL, res.body())
+
+    res = []
+    for i in range(list.len()):
+        row = list.eq(i)
+        spans = row.find("span")
+
+        scraped = [
+            spans.eq(2).text(), # Country name
+            1+i, # Rank
+            spans.eq(3).text(), # Gold
+            spans.eq(4).text(), # Silver
+            spans.eq(5).text() # Bronze
+        ]
+        res.append(scraped)
+
+
+    return res
+
+def display_for(duration, child):
+    return render.Box(
+        child = animation.Transformation(
+            child = child,
+            duration = duration,
+            delay = 0,
+            origin = animation.Origin(0, 0),
+            direction = "normal",
+            fill_mode = "forwards",
+            keyframes = [
+                animation.Keyframe(
+                    percentage = 0.0,
+                    transforms = [animation.Translate(0, 0)],
+                ),
+
+                animation.Keyframe(
+                    percentage = 1.0,
+                    transforms = [animation.Translate(0, 0)],
+                ),
+            ],
+        )
+    )
 
 def main(config):
     count = int(config.str("count", DEFAULT_COUNT))
-    frames = 100
+    delay = int(config.str("delay", DEFAULT_DELAY))
+    frames = int(config.str("frames", DEFAULT_FRAMES))
 
-    data = [
-        ["United States of America", 1, 2, 3, 0],
-        ["People's Republic of China", 2, 2, 3, 0],
-        ["Canada", 3, 2, 3, 10],
-        ["Germany", 4, 12, 33, 10],
-    ]
+    data = fetch_data(config)
 
     rendered = []
     frame_counts = []
-    for i in range(min(count, len(data))):
+    for i in range(min(1+count, len(data))):
         r = render_country(*data[i])
         rendered.append(r)
         frame_counts.append(r.frame_count())
@@ -40,15 +89,11 @@ def main(config):
     max_count = max(frame_counts)
     children = []
     for i in range(len(rendered)):
-        if frame_counts[i] >= frames:
-            children.append(rendered[i])
-        else:
-            c = max(1, int(frames / frame_counts[i]))
-            children += [rendered[i]] * c
+        children.append(display_for(frames, rendered[i]))
 
     return render.Root(
         render.Sequence(children=children),
-        delay = 0,
+        delay = delay,
     )
 
 def text_or_marquee(name, text_color=DEFAULT_TEXT_COLOR):
@@ -74,35 +119,11 @@ def big_text_or_marquee(name, text_color=DEFAULT_TEXT_COLOR):
     )
 
     return render.Marquee(
-        width = 48,
+        width = 40,
         child = name_text,
         offset_start=0,
         offset_end=48,
         align = "center"
-    )
-
-def display_for(duration, child):
-    print("display_for", duration)
-    return render.Box(
-        child = animation.Transformation(
-            child = child,
-            duration = duration,
-            delay = 0,
-            origin = animation.Origin(0, 0),
-            direction = "normal",
-            fill_mode = "forwards",
-            keyframes = [
-                animation.Keyframe(
-                    percentage = 0.0,
-                    transforms = [],
-                ),
-
-                animation.Keyframe(
-                    percentage = 1.0,
-                    transforms = [],
-                ),
-            ],
-        )
     )
 
 
@@ -117,7 +138,7 @@ def render_country(country, place, gold, silver, bronze):
         height = 12,
     )
 
-    total_medals = gold + silver + bronze
+    total_medals = int(gold) + int(silver) + int(bronze)
 
     return render.Box(
         child = render.Column(
@@ -139,21 +160,21 @@ def render_country(country, place, gold, silver, bronze):
                         render.Stack(
                             children=[
                                 render.Box(width=16, height=8, color="#FFD700"),
-                                render.WrappedText("%d" % gold, width=16, height=8, color="#000", align="center")
+                                render.WrappedText(gold, width=16, height=8, color="#000", align="center")
                             ]
                         ),
 
                         render.Stack(
                             children=[
                                 render.Box(width=16, height=8, color="#C0C0C0"),
-                                render.WrappedText("%d" % silver, width=16, height=8, color="#000", align="center")
+                                render.WrappedText(silver, width=16, height=8, color="#000", align="center")
                             ]
                         ),
 
                         render.Stack(
                             children=[
                                 render.Box(width=16, height=8, color="#CD7F32"),
-                                render.WrappedText("%d" % bronze, width=16, height=8, color="#000", align="center")
+                                render.WrappedText(bronze, width=16, height=8, color="#000", align="center")
                             ]
                         )
                     ]
@@ -194,7 +215,7 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "count",
-                name = "Count",
+                name = "Country count",
                 desc = "Number of countries to display",
                 icon = "gear",
                 default = DEFAULT_COUNT
@@ -202,7 +223,14 @@ def get_schema():
             schema.Text(
                 id = "delay",
                 name = "Delay",
-                desc = "Time each country is shown",
+                desc = "Frame delay. Increase to slow down the display.",
+                icon = "gear",
+                default = DEFAULT_DELAY
+            ),
+            schema.Text(
+                id = "frames",
+                name = "Frames",
+                desc = "Frame count each country is displayed",
                 icon = "gear",
                 default = DEFAULT_DELAY
             )
@@ -296,7 +324,7 @@ FLAGS = {
   "Guyana": "UklGRgIFAABXRUJQVlA4TPYEAAAvJ0AHEI8Gt7YlR8qv6urVu2iwwdQJkAX5e3haQ5+p+j8NuLVtq6rWuc/9hThUQZt0QkQv+jXD3bmPAze2bVfNufc+A/Im0hAr8gWo/1YU4T28ew7UWgAQRB9NEN07jxWsEpmGTdjC4dy9X3Nr7m4BwBz80xI/Z7BB3gk5IHvkqDgwTlIPStaoO2QtuQAryVHqWslc6VqTodhJdhqJDCKJVCpEhHjlYJqwzdfepNn6Pri3ZShz8LkTqalX8bQ6G3ewqvs8H/2dw+/t6mVB7zv6PsD0lke38KxA4SxzPZ9A11gZWlyhNIhNt417VbhVxkN3OxXgOBPn4oY9EolKUpKSVPAGXWj+243xztmoOw9e9xbJ7fvdtjW3tn0dbEYUt+RvMJwRHOOERuFSfOiWcyaEiCAiQggVJIQQEUJEhAgpUtE4ocBzCePSqwQSKihI/wChhCYSwIHjl46dGLhyohL4FOBkTrszbIHwthNPoNXC9Sx8/MwNLuJCQXCqwP0DQf2f4YFGY6YemrFBqnaho5Vc/4ElXC0myV0ZbE5cvumqxGd2CJ+ByoPLOtDySTDphjur7mVjX0XVkm6R3ImNYDN4/1FU7jegTTBlSWVRNc9uhTWz8MksqFC6tFfI73x9Lt4b6Vre2IPycrGoPWhJ16LKw67HXU8nzIRl7xE802+wjOhh996+H/72/v7/vN7+jb+jy3jmYnPjdHDnb/7BIMG2bdOO/ott27Zt27Zt27Ztp2zbribl3/te0oRzIvrPyG3bSDaECulyGswjeAAwsbK5ur6BCGubO1vjvJt0bGeUd7y8tMjqAs6T7q4v72yPj7H3hg4PGhoh8c/zZ/jo72UOaTZmZeQuLszPke7v7iHuQj0iTk81MhD/65+EiND7xxdXUM1CxIxcWJiFGdJZKMjH6cbYOGfmq42BspyE8Nu/ZKGaCZABkI6YhpiXjwXTzX4BIX5uX9FKX01FTuzTk4trSGNROEUSjODGOBirAShKCb2+yLxmSkElGIMw0NeZsdFXA1CWFnx1wTIuikgIAKHunx2M1BFRRVr41QVteGU0xVMtvgE0AL7O38zVETXUVWSE35yzpxQl9fywCINwN8ZGTx01EFVlRN7cTqUp4oP1rb4BbCAcPb/YG2pQVZUT+fDwhJpCCWJdq68/2xEjMMbJ0UgDURMR1eXFhV7dTaEopUJNiWEkRrt8MyOmRaokKyr09um981NITvLx5yASMQrAmbFkAaANKvJSYsIC+J8f9jHKvJwZexMOAx1SBZFnk+0+/pzTGFfG0VT3OlMUf39e0dTh48+F++dvFrrXTPXkxT/eLyunwj7m7czYGnKbnoK08Id7R+VQUdnc4RPDwp1xMOEwHT1FWUnBD0/PSvkGldjc6RNDEePCWOvSE1VFeWkxwU8vH5yVlpXTVDV3esUQvJ2+kam2sryUqIDQ2yf3TktKsYyD6jZ++Hh9sTPUUlWQEhF69+TeWVEJllJGqCTUtHV5xUSBB2OtpyAp/OHpLerz4KKCBR13xlJe7OPT06JibmMfI9SSuH/9IfrubmoR3MTYkFzx4v2d6an6ukZErJ+qLC8DIMYNdnZd8fNPIzQPj4wiwnBLKwBgc1NdTRWHNbV1dEHP59/JB4dDHD+n8cGBvv6R1nbswHbSjs4ugO6+IV7CzhjvJiXP9fb3IEJv3/cJHgAA",
   "Haiti": "UklGRuoDAABXRUJQVlA4TN4DAAAvJ0AHEC8FOQAkRUpVz567GxAecRIBCbi+3HWmCkkCjmzbqqJ978Mtco0gZP4RsyB3d2nv9/+BZNtuGkmS7WJmZprVkmpYK63dMHcb9J3Ytq0224YjY+NS0J1tJeqOpI65islxDwCx8P/8ST7i2fXXV+upPr9+chh5/QwMqPnm5ttb8oTZT9tvntdeztfc/UPjt425k71p0biwl5KD2uRtX+KqkvNwyngeOk9uhTlf8cMxPa2U4B9HOK8YZKuf0BSxwh/Q5FUZp0pRfUctLIxDunaiKJoi8A4uS0AHujRSyQ1LKbQRRIQMZCBChrOKBQPZxAIILIAUBE7Bv6qRbWBJKQsWIFWWSrksuBEmiBFm0ISuAWNR7beovCHvSZ7/tF9Teud1MhWvGy9uRXEpav/+yw85GqwC2ROuW6YyTgMVWAmrgtFpFib7L/yd4pPBToYY0pySsngc0GjZVD4rhTjCZ2lBRCDeAWAZEjDCCPsvIR75gIFEDAgQCoBRRhkwiSyi/ph/RJ8iJcITnmpf/VcvENKwo1VS3Dv0OhWOxv/mfxfffzs7o6J15ai6LvU6zm3Leukmp3Xv4Lm2+/nVv34ZIEqSZNo69z7btm3btm3btm3bH/p2Z/feT5iJ6D8DtW0kJRhM9t5nKIg4NTk8NDiGODg6PD4xpWjTm/s2ZWqkv69XaE83b0f7CLvdjXjs9q79/AIH+nB6dnWdiNZwFVcW5x4fero7eVs72oiw9YyITumib3qDiBjcEJdpiRZxnl1KXUSdiETHB/vIMsuAq2AMWsBNxG3aoV2ivX08OL38D0QwkpsElt4ZhrDKTVwBhzwAucFVztHpZc+0FA0GToOA8HuIhhITV8Dx2VXPtARuWy+4I16FcGXwPEKE37ZjoDawtqPXF2YSeLofGYuQbWJR6b+jnsqQm4QTHsjmFiK/t4GOmYWljsrogK/EjINn192PS08NP9WVZaWIWFldo2v5bGNmq2sEVpHGWv+WuqpyKkNACVGxifWz0/ezlXF9Y1MzLzXW1eSkJPi7VQAEIzI1d3B0+jIzzc/LpwLMRSzElFSKZxEARvT78feG9jam+bwFDEnkFFGui/P31+fHJzDgjLQ4f1cW8bQi0DyifMqFJpAOIq4yI9JERlyoaw5Ha0NuDBCIBhNXkczYUPccOTLTAMWGueeICFdJjd8DkMUjWbUxEZii3OSkxHjQRMRkbiIZkGy/MPdEcvck8vL1RiQvP15Pik9IykoX1+w4vzCKcPf08IkJClRgKSQ4JiraN8Cf1w8R/TE0jMKjghTvmEBFm/LbRUZHIFJkVHCIgog=",
   "Honduras": "UklGRmoDAABXRUJQVlA4TF4DAAAvJ0AHEC/kOJJtVTnPcV39/JNj/R04514kCdeRbJtW7/tsfzkH5R+PbRzIsW23bR4yoLhW/yVppzayDeBdJ7ZtO83Gg8RiYShoHCPAMb4alUn03hPXXCOYpKm2Y0A88bcf/CvPu+ll7yf0ht7GD+wD3eT1Nv2wXCd8Ap2E7PXZeAEvsmT/cI7wlmd5eu7BtfCM3r9yTYbzFONpeDflXOAhBk4MnDj838CJgTEDMTEHA4Ex2eRrB1GRoZBs/ascREVkyJgbNsZb0N6C0GkUfufmZUmOtqwRqjYSV0RBEnhISsFseXgIoYnwdkqYdiz7aRwhujUthOpPwB20MTsS0hcH8u9tAs9kH5v+Ba1BtySMs1Lt1LLmSoYIDxTnxx81Dym+YsR6p53u82vRDW/6wV03uyiP4dBprqs/MYtiFoUIjo2znIZdqwgR5KhiQUIEBgmSZJu2Zdu2bdu2bdvf/gO/Z++zzn0zqBXRfwdu2ziSvLr1be+PCAAexkaGh4CX4ZHHsfsAP8Lt03PA3ejgQB/aD/TRC7D6Mups7tY97+7xZXOLoQGd1tkFWGRedW52Zmq8v2fFZH117XltdX1DVbs7twaml4AFrGayrKpFzqpM9FhhfLKabgdBoQEUa0kplJVTUVlVXWOw9KfJ1nbt9fkQpgpNnGpZZ7B0TZWba6rRwqXY3FMF6zsd5nUxOz05wSQlPSu3sNRq1lSqayx5/dSXnxIdHOhOOASHxSSlZeWVmm1aFrwlhf358eVvoJSI3NBAV4LDImNNoqwj+fP953+R0JQg4RCSQwKl/P7281+gd0KCAyEoL/xDBAGanmz98fj56kFYvBkSkwKtfISIvFAzCrZmfIiQqCDhUHMi/YDg8Nj4RNW42AjhYgRlyqNf7z6iUrIL3c8QNQU5mcnxUSGBIN2auLftk8/5JaX4rHDfdq1TraehIOctIzUJNOOtoLmldedkZcLSo0ED0KiqTdqsLbSyc7oyISk0b9t2Hax3xZrq3QQdNiZceqwlTLW08Wkt5t1k2w0+Jye6O9kG6Oyi2aPZ6vHpRrdubMH+4QHo/pHJ3s52Z1dbi2tqe8fu8SnnG1ubN493wsfp/vrx6ubw6BhOjq2cnMLZ1V3A89NtgB/BbO7y5gL08ur6IQAA",
-  "Hong-Kong, China": "UklGRjADAABXRUJQVlA4TCQDAAAvJ0AHEEfDoJEkRbN7z/4FvgTm/x4bjhtJUqSq5T0G/x28L0NPpcM2khSpZ+boIf8sj5mm3Ma2rSrrG5lGRKRSgjdCa7TgFtIAOUPq7lAAIYnh/3B6uLxcUHo4vdxeLp8eawZHdltGF4czm4vVlsXN4WR1stszm9Jas7jY3BzULX4lEJQACJB+AYASAGAEYGAEQAAgoNAQGofyM/qZ2w8K/uMT/kJXwSV/Q2I3WWsaaaDydym+xtHQ4RboCqq6qahOJd3/SbvWKXZ9ezgUccYfxfZw/KHSW8t5xXFwRz7xRbFns7dyPYS6dzFJKWdsbvSzWCoUbGu9da/CMcsrnTcPdqZ3cPfRdc6PU/zM+O/Ut6JrgGDb1vHm//LHtpPatm3bduc/g+Z739cM4d6I/jtQ20iSUgjC3Lv1CwfA0f79w90teYf754OjbaeJOd4/cw7vH29wdXMN4AqXeh6f7I87Ptz7PZnh7Q2+vz5LZbLCKvDOF1xfXug5OT8DznkKYHxi9ua7RGq6oQagTra8v71idEwMRt66MD578yVUaG0kW8k2oB3oYCdlLJprUvf43M1Xw7/NflRo5OrrX62FaCAjj1r06Ai2o0W/QqH9PyIVcVS0eiuZUhGkLU3qnWjEppBsbUPEjXriullxYunyxaI1p/yhbCyo3FwmmW0VTerTMRtZdFXIkw5F8n4F+HI2IqY2IOomVCqeSQRIKE+h0QQZi3YUfZ6Av4D8Z0L5VDjRI+msNCL2LjdViHgC4UI+HE9F0t1vjSb1T65cvBhHjbXnM8VUmoHQRw9sMLVy8WrqEFyFQCzpMimbIGPRSTKpGPDFQ374ei1HgQEdoUPoyPpU0OMtREJUb719FiKaufbPWMAfLfTkfcq1G5zaung1WNYO9LLoxgXRMKgz2hT2xT/0UROmt07/0kF7M/43KyOGJprJjKmpZhrS6ezqHRmfmBTD8WH2Gw26SVzeOp0Yxyw5v7hALmIJAOZmJid+hgcNQz/Ty1vcmOHJ797hjiNn++hgd311cQUAlpYBLK1skZvrh87Z/rFjG/vj1lY3AK6t7x85AAA=",
+  "Hong Kong, China": "UklGRjADAABXRUJQVlA4TCQDAAAvJ0AHEEfDoJEkRbN7z/4FvgTm/x4bjhtJUqSq5T0G/x28L0NPpcM2khSpZ+boIf8sj5mm3Ma2rSrrG5lGRKRSgjdCa7TgFtIAOUPq7lAAIYnh/3B6uLxcUHo4vdxeLp8eawZHdltGF4czm4vVlsXN4WR1stszm9Jas7jY3BzULX4lEJQACJB+AYASAGAEYGAEQAAgoNAQGofyM/qZ2w8K/uMT/kJXwSV/Q2I3WWsaaaDydym+xtHQ4RboCqq6qahOJd3/SbvWKXZ9ezgUccYfxfZw/KHSW8t5xXFwRz7xRbFns7dyPYS6dzFJKWdsbvSzWCoUbGu9da/CMcsrnTcPdqZ3cPfRdc6PU/zM+O/Ut6JrgGDb1vHm//LHtpPatm3bduc/g+Z739cM4d6I/jtQ20iSUgjC3Lv1CwfA0f79w90teYf754OjbaeJOd4/cw7vH29wdXMN4AqXeh6f7I87Ptz7PZnh7Q2+vz5LZbLCKvDOF1xfXug5OT8DznkKYHxi9ua7RGq6oQagTra8v71idEwMRt66MD578yVUaG0kW8k2oB3oYCdlLJprUvf43M1Xw7/NflRo5OrrX62FaCAjj1r06Ai2o0W/QqH9PyIVcVS0eiuZUhGkLU3qnWjEppBsbUPEjXriullxYunyxaI1p/yhbCyo3FwmmW0VTerTMRtZdFXIkw5F8n4F+HI2IqY2IOomVCqeSQRIKE+h0QQZi3YUfZ6Av4D8Z0L5VDjRI+msNCL2LjdViHgC4UI+HE9F0t1vjSb1T65cvBhHjbXnM8VUmoHQRw9sMLVy8WrqEFyFQCzpMimbIGPRSTKpGPDFQ374ei1HgQEdoUPoyPpU0OMtREJUb719FiKaufbPWMAfLfTkfcq1G5zaung1WNYO9LLoxgXRMKgz2hT2xT/0UROmt07/0kF7M/43KyOGJprJjKmpZhrS6ezqHRmfmBTD8WH2Gw26SVzeOp0Yxyw5v7hALmIJAOZmJid+hgcNQz/Ty1vcmOHJ797hjiNn++hgd311cQUAlpYBLK1skZvrh87Z/rFjG/vj1lY3AK6t7x85AAA=",
   "Hungary": "UklGRkgDAABXRUJQVlA4TDsDAAAvJ0AHEFfkqrZtVdn3HNxdU1OKDlTgz+HK2buG40i2VeVc+bb6WA7kQf5LknB3uOc4jCRZVfbu4e4ET0Qk813h3i7UQAAQRBfRTnKrzgIOzbZgF2YhsQjNpbm21wBA0n9lqI/Rr//788fO4OaSGb5mrKyl433wZrDHJL9G7wCPxO+T8hwIUL4/+TH4vUb/zyRfe7/X4KkwfIffo5e/P59jBb9AiSSSkEQRSUEiKUiSkBRmUmUNkijVRMAZwt7JOklZlCJdIV1FTAU+W/EGsxvwe4JpT4mHf0XluWCLIGMi08msUSsAthQ4Oy9eaQGdYbeJ3pZF4L7CBY4oBqOUvm1Y63AFlK6BfBP1EpQ0Q99sWQTY77WbgcmaPV8f1WLVQeLmcRLVpphA/Ei6EjglYExnQSPwTxgNIRJRFMokIglfWQxXagxFXV8yc2bOkZg5frJ4ZrPa4gz6vrFtrrq+cmrf5nkyxlbHl0axsc27eZ70beW6/nqcSpfNhwG2JMmmrX18rm3btm3btm0bf332Xmtd3+fuiP4zcts2kgwB6mzHeYQGYGZ2cWF+jpzH4ujEpPaZdYwOaZOLS9NT4pY5DgBLY8bnOuR7I6NjnV3vc9M859kJcEwekXtcWV0e7weAgcEhgMNdAHq636fPTwGcQCgektwHoL/ah15hfbs7W9s9OpLKOgCwBqxvkJvkFrYFFH5YSndcTLn4YgkKKJRLeEutwfK5oHj1g1Ioc3RyfXv/aOzu9ubq8IMS3b14W8bds9mkHG1PD7fXlxtbsnvX9zYPv1e76ZMz216eAODZagLgwsuJL0/C8U34/pOY3bz9AwLh4+1u+SxeEV52z+DImLh4JCSSSUiOiQoL9vf84HP0D89tDI2OJeP0EgWAFCA1Jio8NCSIRGhkTFYOihrbE2WTALmMpTEdGUAWdQt0kiQVBWXBKBSwqrE9Wffjq2nyVcnCqqb2ZMNPvaVWJzNF4adKVCSRyanpmcgWloWMdPEttUWNTZntadnMRV5JPllSXCSsEAU5kIqFRVWNTWzIzG5rLa1Q/Jwqy0vraktqqoDqKgDVaGQTm1sqtPwy+R4AqD9XX9sAsL6urFIDAAA=",
   "Iceland": "UklGRsAEAABXRUJQVlA4TLQEAAAvJ0AHEC8GO7JtVdE513CH/FPimwic8bl69k4Dbm3bqqq1D+6ETg90Q0TZZPbdXZ6/DTuybVXRPYK7hED+eRAGXzruczl7bzjaABBU/qfJL9u+QaM1u9a+dl6iqbFT1GhcoNXWZFshNLT+Yep1QdLU5KEn0lMaBdTsof6W+g7d4KafRudL/oQY4+Xve2uX/xGYrOzsq+mFyXFV3ubaf6m/0BJAKvmnsJJc/MtfRX+cfBvFmAkIICAGESEEDCBaiAABRBMRIpDQAAkhWigBRAtFQACRArqEEF4pulXiyRMNYuWSfAth6AFP8iqCriXsTtCL2r68o5EkIQVcEgWCwzk58UBQSsz99H/8+otPvr+IZtDEQil6cXdthyY/ITyXQp0wZxsCOlIAEDCA1r4nLwQdK36pWNRhKWI5Dg4PWtNEo2lttdpFuZ6fzdSzrrakN7OswZ58A3DTzCelbUHsHjULFauYXp9qJwxNNbSPtRRDXmmlqVlMzDS20ZyLMNWIV/Jy8/ehWUxo1ti88YRVzFwPZ73sLZ+Tz7XP7FMt/0TnXDzMSi2d9C3L/ZHk5nw8Gn8jQ98jpx2nLu1T7Xj/9fSLtnWf1busMlRYleJ/aARzMQMMZoABNdCEGlATHwtfeIMKWavWwqzy8jGLE6mGdOKmjYnw4RQb/ddPvW7aWN8fIgYJtm0bkpRRtm3btm3bttHuLttsV9u2PbCI+D9WD+G+iP4zcNs2jgwNRtvd2ydUANovXrg0A5hc+4Pfxzf+qf4jWS0Zqrbzs1WVQBVgeOU7fh1ZN87ONLU0t//j51o7pjOzca66qqbWrQ7u5Ka9/Zwea1hUVpSWAEBBYVFxEQpyAOTlplbX1gGMHgzCiRe84YegciplUkYhwchLrarllNhi8AbgQ+RLfv5AQCAFBSNEhuvkyaFoAKdEZS07Sp5eIi/oiXDCjzIGMYbmdlbWMnpCAcXGGyZRw+oFbw5fIrmxy1jDRSpqWBleQsZfeZQxQsaD0RWQeSqc8I1fJonsU9LGwVJfW0MAIPLqqaBn61gfSBSksIwiGuxMjc5aagpq++ury0S08ArPDtUEkJbeTStbe2c5DrYWeurC5QdHu2vzT17QSwCvALymZ4/ml9e2pcPxUd9cevTx872fz18QKTQiesPk76OH83Lw9N17fBD5/kPy6cOFxSWiOSXfEtE7AHgPSfp2X2Ru9YC7uc3Xb56p76+vLDx8yjXI7enC+p7xvR1B08DKzsmlHtqbb+iZoKWjIQDq+xtrq0uLWFnbPBSge3vqyMLB29cP0gcZpMNgFgIXBxtzA10tDQHQ0NQztT0Tl9J7utzHl32hwRzyG6UIIBINRFExsXFAvEh+OWsQSbwlCb4hiiiaNaGrT4Q3ROavYK5kNGM8JSQysB+kAsqjsgmUKFPG/yuhOpvvIME0bpQzqas/p4wTYRwKTUmWIO6D5GD3Ykdlk4DkbpFS0dDIvNxswPjqR/qhacE1ZpQTPSJ5lJ1KlJaeQdfvfvr8xehWdydSk5MS4olbltLV00+D2cic7mgdV7H59/X4zsjY5FQPgG456O3rp4GRNlVGS5bqP/KvfaJjeHRsEBgbGp5oVwEA",
   "India": "UklGRsgDAABXRUJQVlA4TLwDAAAvJ0AHEN8EubbdRJK+1MwMEXQamP+q99y9YhgwSErDdSTZqjLn3ofbP2mROhm4u8N94zq23TR6kpaZoYntaJvcz20pzCRZUAMBQBBdwp1OhuZ7sQOVEZiBSKYxgjvN3V+CANf/1Um4T+jX+SmBaTgO0s+Ejwkfk35B+CjXVTupQmKDTOK9tv8qLWb6bkD3dymEc4Zw4W/yKfH3Gb3zTOWS+9lHfm+18iP38x79PWv/10bhUbBXS3UuqM4Ah5hOBdcpYBDTGeCACwrkIA42Eghn0FeRJJE1sHVDQYB/IQlJUIDxkUBrAjeEbwAdSdxrGX0EpRKYOr7nQhdJaD6eWl/7WQmMIYAxjGGAAQYYIIAwghGAMAIIYavCVYGFBm9VToStMhsVbgosFFgTFiqcPGaTzXSSfuayrP2/J79P9fdS133rsmzMx3/b0S9Unuxf5Ty7IiPOznoSswCF5zh4z0F5Yf7hjIDXUiwiJ2QsCmmG5LFiC6vD0g07T9QtxayGljVU5e1RYuBfobXSluqMVipuFZqiWDbiM0hvYa3KY923c7HO7PVt9YYnBom2tR1vlNS2bbdxbdu2bdu2O7jaJP///Zm5gueJ6L8jt20kSYF6hNqO8wgVgLPbu+srAL+ub37fnqlsma3fe6rTm8sLnl/cA3g4PyF5fPjL+tyWfO/096+dXVxd8Pvrc4gc5ADQ//H+w4eTIwA4ONzf28fBLoAXbF98D5MCAaCP7LU898hn4OUZT29sw9P2xZdEa0Fe7EE3uoBOsoPtaEPrqwWJiiWzQ6YE2TFhCVeltpg5/7IoWFUokRKsCgqKJVHCj9mh0fGJKQCY4NhIn7nEqxL5/ef8a2LWTi0czs9Mjo8OdwqOdY9Ozi/4/XVSK43rGulmfW5umiRn59UAzHg7KuG87ubusrKoFo2trLouri17rDor4u+lyJobN7DstvLvrLqtbIBua/+O86r7yuqS53/4YGnNzcV93d4GnNSAnU9gUHAIGODjoIbbKtdc1Ep4b5rxDYtJSASSgGQgJSE2KizIV+HXISjKVBIRlwhRkalkWjoQHxsVGR5KhiM6XqPVFZVo0mQKyioygEwyixpAC51ehmRVXgKzpOqoNxSW6tITIVoVlYISRKbBhpJqLCzVZ0hNJRVLKIrLLCSnZmh0eiMAA3WaLPGqTFNJmUEDownILsgl8/KLCkkCJqNBp5WvmgpLSssqjMhpqmsQ/Dk11tdVNxUUi6aklCyvblDl1m6pbBnLczVVTRVAZVVNbbMKAA==",
