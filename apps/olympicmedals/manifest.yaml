@@ -1,7 +1,7 @@
 ---
 id: olympicmedals
 name: Olympic Medals
-summary: Displays 2024 Paris Olympic medal count
+summary: 2024 Paris Olympic medals
 desc: Displays 2024 Paris Olympic gold, silver, and bronze medal count by country.
 author: James Woglom
 fileName: olympicmedals.star
