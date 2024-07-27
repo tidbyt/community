@@ -20,6 +20,7 @@ DEFAULT_BG_COLOR = "#000"
 
 DEFAULT_SUMMARY = True
 DEFAULT_DETAIL = True
+DEFAULT_RINGS = False
 DEFAULT_COUNT = "5"
 DEFAULT_DELAY = "10"
 DEFAULT_FRAMES = "250"
@@ -76,10 +77,11 @@ def display_for(duration, child):
     )
 
 def main(config):
-    delay = int(config.str("delay", DEFAULT_DELAY))
-    frames = int(config.str("frames", DEFAULT_FRAMES))
     show_summary = config.bool("show_summary", DEFAULT_SUMMARY)
     show_detail = config.bool("show_detail", DEFAULT_DETAIL)
+    show_rings = config.bool("show_rings", DEFAULT_RINGS)
+    delay = int(config.str("delay", DEFAULT_DELAY))
+    frames = int(config.str("frames", DEFAULT_FRAMES))
 
     data = fetch_data(config)
 
@@ -87,13 +89,13 @@ def main(config):
     frame_counts = []
 
     if show_summary:
-        summary = render_summary(data)
+        summary = render_summary(data, show_rings)
         rendered.append(summary)
         frame_counts.append(summary.frame_count())
 
     if show_detail:
         for i in range(len(data)):
-            r = render_country(*data[i])
+            r = render_country(*(data[i] + [show_rings]))
             rendered.append(r)
             frame_counts.append(r.frame_count())
     
@@ -172,7 +174,7 @@ def render_medal_row(left, gold, silver, bronze):
         ]
     )
 
-def render_country(country, place, gold, silver, bronze):
+def render_country(country, place, gold, silver, bronze, show_rings):
     flag = FLAGS[country]
     country_name = SHORT_NAMES.get(country, country)
 
@@ -185,7 +187,7 @@ def render_country(country, place, gold, silver, bronze):
 
     total_medals = int(gold) + int(silver) + int(bronze)
 
-    return render.Box(
+    box = render.Box(
         child = render.Column(
             expanded = True,
             main_align = "space_evenly",
@@ -222,10 +224,17 @@ def render_country(country, place, gold, silver, bronze):
                 )
             ],
         ),
-        color = DEFAULT_BG_COLOR,
     )
 
-def olympic_circles():
+    stack = []
+    if show_rings:
+        stack.append(olympic_rings())
+
+    return render.Stack(
+        children=stack + [box]
+    )
+
+def olympic_rings():
     return render.Box(
         child=render.Padding(
             child=render.Image(
@@ -238,17 +247,29 @@ def olympic_circles():
         color="#5f5f5f"
     )
 
-def render_summary(data):
-    children = []
+def render_summary(data, show_rings):
+    children = [
+        render.Text(
+            "Paris 2024",
+            font="5x8"
+        ),
+        render.Text(
+            "Medal Count:",
+            font="5x8"
+        ),
+    ]
     for i in range(len(data)):
         children.append(render.Padding(
             child=render_summary_country(*data[i]),
             pad = (0, 2, 0, 2)
         ))
     
+    stack = []
+    if show_rings:
+        stack.append(olympic_rings())
+
     return render.Stack(
-        children=[
-            olympic_circles(),
+        children=stack + [
             render.Marquee(
                 scroll_direction="vertical",
                 height=32,
@@ -293,6 +314,13 @@ def get_schema():
                 desc = "Show a per-country detail",
                 icon = "gear",
                 default = DEFAULT_DETAIL
+            ),
+            schema.Toggle(
+                id = "show_rings",
+                name = "Show Olympic rings",
+                desc = "Show the olympic rings logo",
+                icon = "gear",
+                default = DEFAULT_RINGS
             ),
             schema.Text(
                 id = "count",
