@@ -832,7 +832,7 @@ MOUNTAIN_DATA = [
 
 def main(config):
     show_instructions = config.bool("instructions", False)
-    print(show_instructions)
+
     if show_instructions == True:
         return show_instructions_screen()
 
@@ -939,8 +939,6 @@ def get_screen_coordinates_from_actual(map, location):
     coords[0] = int((location[0] - min_long) / range_x * SCREEN_WIDTH)
     coords[1] = int((-(location[1] - max_lat)) / range_y * SCREEN_HEIGHT)
 
-    print("%s %s %s %s %s %s %s %s %s" % (location[0], max_long, min_long, max_lat, min_lat, range_x, range_y, SCREEN_HEIGHT, SCREEN_WIDTH))
-
     return coords
 
 def randomize(min, max):
@@ -989,31 +987,15 @@ def get_mountain_outline(show, mountain):
         return render.Text("")
 
 def get_positions(config, visited, mountains):
-    all_positions = []
     children = []
     current_location = ""
     color = "#ffff00"
     if visited == False:
         color = "#aaa"
 
-    #i = 0
-
     for item in mountains:
         if config.bool("_%s" % item["Name"], False) == visited:
             current_location = [item["XCoord"], item["YCoord"]]
-
-            duplicate = False
-            for x in all_positions:
-                if current_location == x:
-                    duplicate = True
-                    break
-
-            if duplicate == True:
-                print("%s %s *****Duplcate " % (current_location, item["Name"]))
-            else:
-                print("%s %s" % (current_location, item["Name"]))
-
-            all_positions.append(current_location)
 
             children.append(
                 render.Padding(
@@ -1025,7 +1007,6 @@ def get_positions(config, visited, mountains):
                         ),
                 ),
             )
-            #i = i + 1
 
     positions = render.Stack(
         children = children,
