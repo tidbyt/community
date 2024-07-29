@@ -27,9 +27,9 @@ def generate_root(temperature, datetime):
                     child = render.WrappedText(align = "center", color = "#FA0", content = datetime, width = 64),
                     width = 64,
                     height = 16,
-                )
-            ]
-        )
+                ),
+            ],
+        ),
     )
 
 def main(config):
