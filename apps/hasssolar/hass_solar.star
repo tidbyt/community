@@ -1,6 +1,6 @@
 """
-Applet: HASS Solar Monitor
-Summary: PV system monitor
+Applet: HASS Solar
+Summary: Home Assistant PV monitor
 Description: Energy production and consumption monitor using Home Assistant.
 Author: ingmarstein
 """
@@ -35,6 +35,45 @@ ENTITY_AUTARKY_DAY = "entity_autarky_day"
 ENTITY_AUTARKY_WEEK = "entity_autarky_week"
 ENTITY_AUTARKY_MONTH = "entity_autarky_month"
 ENTITY_AUTARKY_YEAR = "entity_autarky_year"
+
+LANGUAGE_LOCALES = {
+    "Energy Today": {
+        "de": "Energie heute",
+        "en": "Energy Today",
+    },
+    "Today:": {
+        "de": "Heute:",
+        "en": "Today:",
+    },
+    "Week:": {
+        "de": "Woche:",
+        "en": "Week:",
+    },
+    "Month:": {
+        "de": "Monat:",
+        "en": "Month:",
+    },
+    "Year:": {
+        "de": "Jahr:",
+        "en": "Year:",
+    },
+    "EV Energy": {
+        "de": "Auto Energie",
+        "en": "EV Energy",
+    },
+    "D": {
+        "de": "T",
+        "en": "D",
+    },
+    "W": {
+        "de": "W",
+        "en": "W",
+    },
+    "M": {
+        "de": "M",
+        "en": "M",
+    },
+}
 
 GRAY = "#777777"
 RED = "#AA0000"  # very bright at FF, dim a little to AA
@@ -184,6 +223,10 @@ CUPRA_LOGO_18x18 = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABgAAAASCAYAAABB7B6eAAAAAXNSR0IArs4c6QAAAOZlWElmTU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgExAAIAAAAhAAAAZgEyAAIAAAAUAAAAiIdpAAQAAAABAAAAnAAAAAAAAABgAAAAAQAAAGAAAAABQWRvYmUgUGhvdG9zaG9wIDIxLjIgKE1hY2ludG9zaCkAADIwMjM6MTI6MTkgMTQ6Mzk6MzAAAASQBAACAAAAFAAAANKgAQADAAAAAQABAACgAgAEAAAAAQAAABigAwAEAAAAAQAAABIAAAAAMjAyMzoxMjoxOSAxNDozOTowMAD2l2vlAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAHtmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNi4wLjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iCiAgICAgICAgICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgICAgICAgICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICAgICAgICAgIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiCiAgICAgICAgICAgIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8ZGM6Zm9ybWF0PmltYWdlL3BuZzwvZGM6Zm9ybWF0PgogICAgICAgICA8eG1wOk1vZGlmeURhdGU+MjAyMy0xMi0xOVQxNDozOTozMCswMTowMDwveG1wOk1vZGlmeURhdGU+CiAgICAgICAgIDx4bXA6Q3JlYXRvclRvb2w+QWRvYmUgUGhvdG9zaG9wIDIxLjIgKE1hY2ludG9zaCk8L3htcDpDcmVhdG9yVG9vbD4KICAgICAgICAgPHhtcDpDcmVhdGVEYXRlPjIwMjMtMTItMTlUMTQ6MzkrMDE6MDA8L3htcDpDcmVhdGVEYXRlPgogICAgICAgICA8eG1wOk1ldGFkYXRhRGF0ZT4yMDIzLTEyLTE5VDE0OjM5OjMwKzAxOjAwPC94bXA6TWV0YWRhdGFEYXRlPgogICAgICAgICA8eG1wTU06SGlzdG9yeT4KICAgICAgICAgICAgPHJkZjpTZXE+CiAgICAgICAgICAgICAgIDxyZGY6bGkgcmRmOnBhcnNlVHlwZT0iUmVzb3VyY2UiPgogICAgICAgICAgICAgICAgICA8c3RFdnQ6c29mdHdhcmVBZ2VudD5BZG9iZSBQaG90b3Nob3AgMjEuMiAoTWFjaW50b3NoKTwvc3RFdnQ6c29mdHdhcmVBZ2VudD4KICAgICAgICAgICAgICAgICAgPHN0RXZ0OndoZW4+MjAyMy0xMi0xOVQxNDozOSswMTowMDwvc3RFdnQ6d2hlbj4KICAgICAgICAgICAgICAgICAgPHN0RXZ0Omluc3RhbmNlSUQ+eG1wLmlpZDo0MjBjYTFmZS02ZmRkLTRjMGEtYTlhNS1jZjViMDAzNDU3YWE8L3N0RXZ0Omluc3RhbmNlSUQ+CiAgICAgICAgICAgICAgICAgIDxzdEV2dDphY3Rpb24+Y3JlYXRlZDwvc3RFdnQ6YWN0aW9uPgogICAgICAgICAgICAgICA8L3JkZjpsaT4KICAgICAgICAgICAgPC9yZGY6U2VxPgogICAgICAgICA8L3htcE1NOkhpc3Rvcnk+CiAgICAgICAgIDx4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ+eG1wLmRpZDo0MjBjYTFmZS02ZmRkLTRjMGEtYTlhNS1jZjViMDAzNDU3YWE8L3htcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD4KICAgICAgICAgPHhtcE1N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
 """)
 
+FIAT_LOGO_18x18 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAEYklEQVQ4jT2U229TBQCHv9NzbU+v67a26zZ2YxtgHNPJXcWADszmSDQmagzJlphoiJf/wASjRmQqooiS+ABqYsREBAXN0MgtglFuRRiBrbtA17Vdb1uvp8ewBx9/D9/39MsnDA/vwTRNRFFEUWTS6XkikbvPZzPpPqumdvnrgtWeKq8hK8q0IkvnM+n09/F4fMRqtaEoEqbJIivdk8iyvDhGR8cenwjf/jAQ8C1vaG1BstmQdR3B7kAVxYAqCD26TXvF7/ediESiLycSiTFVVRZ56Z5AEATCY5MvORy2/YOv7iA7X+T65UtEb9yklEqRWshyt5wFRaWjbQX3LevsbW5quKqpSm+hWDpts1kR9n12gJs3bvVHIlNHXhjczszVUX7c/ymV22HqiwJB7OjYiVLkb6JMuSxUagOsfHQjwzvfQnc6+n/+6cRRKTmX8kxMjB++eusapZ1vM/7HSQLA/UAT1QSpxYeGV/ezUMhxLDXCydRNRhdK/PpUP4898ODH4YnJo2JXV8+7k3cm1llFidZIAmsiRu/mbQT9HTiKDtyNDahPP0LOApW2AN1r+uluWUL0zjTv/3IMuWS4Fav1rNjTs+pLZMHeVBvAee4fWga2sXnXTiK3x/EObEbobiO//Qm0ei+pfIbA/jeoigtk/rxGuL2WGpebZZ3L7ZZiIeeWFJmO9k5spoBY7WF671dEPt9FyaqRtyksvP4J2YujiNNpwgePM/7OQZxzZbZu2URJsJBMZVZZcrn5sq47eGjNWlRZITV6i0pXO47gStK3xpm/M0OuNUDOX0WuzslCLAEemXgmzoZ1D1MuG4RCV1wW0SJi1x3UtLSiOh0UpyMU2oKYTQ0UZmPk40lm66ykaqwUxQr5+QzZ+SQZqcyK7pUsaWwgHouZFk3TZMEwSBSLuFoaKUoWFo6fIntmBMOtU/Q50Q7/Rmnft+T9HoxKidnkDPaOJvyqlXKpjFkxUxZZ0TK51BzXR0NUdbaDYYLfRwHL4qv1uiBSfS2STUWtrUH2eonlMjRuXE0CCF26jLfKc0UyDPMH0zSHvtjzAetRqa6uITYVJiVUSE5NYreYFDNp8tE4uVAIM5FghhybBno5fe4vpifDLOvsPCTpdv3N5Fx+yKsouFavJX7gEL8PH6Ne9pL86huUSgVZlDAMg2zoPHHm8XgbGHN4OHv0MEvblkY0q/a11Ny8ZOp6obBD1/S9Tz73LLFaPxcGX2SmFEcETAADFEAGdEnFvrWPU2dOYyxkaGhqfsZu1xG3bNmK2+25MDsbt126cH79qoE+6upaKBsV3LoHj6Mar8ePzVNLxRdEW78Bx/JWKokousMz6K5yHTErBsLu3R9xLwWCIPJv6NpQrpB/r6a5sUqSJByKilk0KJRKTEejJHJZLEYZn80eqq7xveZ0OUdEUaBUKvN/2CRZQpYVYrNxTyw6M1QoFvsM6JA11SqIkimLUsrjdF2ULZbvZEU6ZLVqGEYZw6ggCAL/AXM414OenkHTAAAAAElFTkSuQmCC
+""")
+
 def render_fail(rep):
     content = json.decode(rep.body())
     return render.Root(render.Box(render.WrappedText(str(rep.status_code) + " : " + content["String"], color = RED)))
@@ -288,6 +331,8 @@ def render_entity(entity, absolute_value = False, convert_to_kw = False, with_un
     return value_str
 
 def main(config):
+    lang = config.get("lang", "en")
+
     # fetch data from HA
     energy_consumption = fetch_entity(ENTITY_ENERGY_CONSUMPTION, config)
     energy_production = fetch_entity(ENTITY_ENERGY_PRODUCTION, config)
@@ -443,7 +488,7 @@ def main(config):
 
     # CHARGE FRAME shows charge/discharge rate and state of charge percent
     #########################################################
-    if power_battery and soc_battery:
+    if config.bool("show_char", False) and power_battery and soc_battery:
         if float(power_battery["state"]) < 0:
             BATTERY_FLOW_ICON = BATTERY_DISCHARGE_ANIMATION_10x10
             flow_color = RED
@@ -563,7 +608,7 @@ def main(config):
                             main_align = "space_evenly",
                             cross_align = "center",
                             children = [
-                                render.Text("Energy Today"),
+                                render.Text(LANGUAGE_LOCALES["Energy Today"][lang]),
                             ],
                         ),
                         render.Row(
@@ -622,8 +667,8 @@ def main(config):
                             expanded = True,
                             main_align = "space_between",
                             children = [
-                                render.Row([render.Text("Today:", font = "tom-thumb", color = GRAY)]),
-                                render.Row([render.Text("Month:", font = "tom-thumb", color = GRAY)]),
+                                render.Row([render.Text(LANGUAGE_LOCALES["Today:"][lang], font = "tom-thumb", color = GRAY)]),
+                                render.Row([render.Text(LANGUAGE_LOCALES["Month:"][lang], font = "tom-thumb", color = GRAY)]),
                             ],
                         ),
 
@@ -648,8 +693,8 @@ def main(config):
                             expanded = True,
                             main_align = "space_between",
                             children = [
-                                render.Row([render.Text("Week:", font = "tom-thumb", color = GRAY)]),
-                                render.Row([render.Text("Year:", font = "tom-thumb", color = GRAY)]),
+                                render.Row([render.Text(LANGUAGE_LOCALES["Week:"][lang], font = "tom-thumb", color = GRAY)]),
+                                render.Row([render.Text(LANGUAGE_LOCALES["Year:"][lang], font = "tom-thumb", color = GRAY)]),
                             ],
                         ),
 
@@ -678,8 +723,7 @@ def main(config):
                     expanded = True,
                     cross_align = "center",
                     children = [
-                        # TODO: remove or replace with current charging power
-                        render.Text(config.get("aux_sensor_label", "EV Energy"), font = "tom-thumb"),
+                        render.Text(LANGUAGE_LOCALES["EV Energy"][lang], font = "tom-thumb"),
                         render.Row(
                             expanded = True,
                             main_align = "space_between",
@@ -698,17 +742,17 @@ def main(config):
                                     cross_align = "start",
                                     children = [
                                         render.Text(
-                                            content = "D",
+                                            content = LANGUAGE_LOCALES["D"][lang],
                                             font = "5x8",
                                             color = GRAY,
                                         ),
                                         render.Text(
-                                            content = "W",
+                                            content = LANGUAGE_LOCALES["W"][lang],
                                             font = "5x8",
                                             color = GRAY,
                                         ),
                                         render.Text(
-                                            content = "M",
+                                            content = LANGUAGE_LOCALES["M"][lang],
                                             font = "5x8",
                                             color = GRAY,
                                         ),
@@ -792,7 +836,7 @@ def main(config):
                                     main_align = "space_around",
                                     cross_align = "center",
                                     children = [
-                                        render.Image(src = get_ev_logo(config.get("ev_icon"))),
+                                        render.Image(src = get_ev_logo(config.get("ev_icon", "TESLA"))),
                                         # render.Image(src = PLUG_SUM),
                                     ],
                                 ),
@@ -822,7 +866,7 @@ def main(config):
         return render.Root(main_frame)
     else:
         return render.Root(
-            #show_full_animation = True,
+            show_full_animation = True,
             delay = int(config.get("frame_delay", "3")) * 1000,
             child = render.Animation(children = frames),
         )
@@ -848,6 +892,8 @@ def get_ev_logo(name):
         return HYUNDAI_LOGO_24x12
     elif name == "CUPRA":
         return CUPRA_LOGO_18x18
+    elif name == "FIAT":
+        return FIAT_LOGO_18x18
     else:
         return BMW_LOGO_18x18
 
@@ -965,6 +1011,13 @@ def get_schema():
                 default = True,
             ),
             schema.Toggle(
+                id = "show_char",
+                name = "Show Battery",
+                desc = "State of charge of the battery and battery flow.",
+                icon = "carBattery",
+                default = False,
+            ),
+            schema.Toggle(
                 id = "show_prod",
                 name = "Show Current Production",
                 desc = "Realtime solar energy production.",
@@ -990,16 +1043,8 @@ def get_schema():
                 name = "EV Brand",
                 desc = "Logo Selection",
                 icon = "hashtag",
-                default = TESLA_LOGO_18x18,
+                default = "TESLA",
                 options = [
-                    schema.Option(
-                        display = "VW",
-                        value = "VW",
-                    ),
-                    schema.Option(
-                        display = "Tesla",
-                        value = "TESLA",
-                    ),
                     schema.Option(
                         display = "Audi",
                         value = "AUDI",
@@ -1009,12 +1054,16 @@ def get_schema():
                         value = "BMW",
                     ),
                     schema.Option(
-                        display = "Seat",
-                        value = "SEAT",
+                        display = "Cupra",
+                        value = "CUPRA",
                     ),
                     schema.Option(
-                        display = "Skoda",
-                        value = "SKODA",
+                        display = "FIAT",
+                        value = "FIAT",
+                    ),
+                    schema.Option(
+                        display = "Hyundai",
+                        value = "HYUNDAI",
                     ),
                     schema.Option(
                         display = "Opel",
@@ -1025,12 +1074,20 @@ def get_schema():
                         value = "RENAULT",
                     ),
                     schema.Option(
-                        display = "Hyundai",
-                        value = "HYUNDAI",
+                        display = "Seat",
+                        value = "SEAT",
                     ),
                     schema.Option(
-                        display = "Cupra",
-                        value = "CUPRA",
+                        display = "Skoda",
+                        value = "SKODA",
+                    ),
+                    schema.Option(
+                        display = "VW",
+                        value = "VW",
+                    ),
+                    schema.Option(
+                        display = "Tesla",
+                        value = "TESLA",
                     ),
                 ],
             ),
@@ -1061,6 +1118,17 @@ def get_schema():
                         display = "5 sec",
                         value = "5",
                     ),
+                ],
+            ),
+            schema.Dropdown(
+                id = "lang",
+                name = "Language",
+                desc = "The language to display the information",
+                icon = "language",
+                default = "en",
+                options = [
+                    schema.Option(display = "Deutsch", value = "de"),
+                    schema.Option(display = "English", value = "en"),
                 ],
             ),
         ],
