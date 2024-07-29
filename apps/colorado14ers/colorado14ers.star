@@ -6,6 +6,8 @@ Author: Robert Ison
 """
 
 load("encoding/base64.star", "base64")
+load("humanize.star", "humanize")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -14,6 +16,11 @@ DISPLAY_OPTIONS = [
     schema.Option(value = "random", display = "Display random 14er"),
     schema.Option(value = "visited", display = "Display random 14er I have visted."),
     schema.Option(value = "unvisited", display = "Display random 14er I have NOT visted"),
+]
+
+MEASUREMENT_OPTIONS = [
+    schema.Option(value = "metric", display = "Metric System"),
+    schema.Option(value = "imperial", display = "Imperial System"),
 ]
 
 COLORADO = [
@@ -29,6 +36,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Blanca Peak",
         "Range": "Sangre de Cristo Range",
+        "XCoord": 32,
+        "YCoord": 27,
         "Elevation": 4374,
         "Prominence": 1623,
         "Latitude Degrees": 37.5775,
@@ -42,6 +51,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Capitol Peak",
         "Range": "Elk Mountains",
+        "XCoord": 17,
+        "YCoord": 14,
         "Elevation": 4309,
         "Prominence": 533,
         "Latitude Degrees": 39.1503,
@@ -55,6 +66,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Castle Peak",
         "Range": "Elk Mountains",
+        "XCoord": 20,
+        "YCoord": 15,
         "Elevation": 4352.2,
         "Prominence": 721,
         "Latitude Degrees": 39.0097,
@@ -68,6 +81,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Challenger Point",
         "Range": "Sangre de Cristo Range",
+        "XCoord": 31,
+        "YCoord": 23,
         "Elevation": 4294,
         "Prominence": 92,
         "Latitude Degrees": 37.9804,
@@ -81,6 +96,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Crestone Needle",
         "Range": "Sangre de Cristo Range",
+        "XCoord": 32,
+        "YCoord": 24,
         "Elevation": 4329,
         "Prominence": 139,
         "Latitude Degrees": 37.9647,
@@ -94,6 +111,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Crestone Peak",
         "Range": "Sangre de Cristo Range",
+        "XCoord": 31,
+        "YCoord": 24,
         "Elevation": 4359,
         "Prominence": 1388,
         "Latitude Degrees": 37.9669,
@@ -107,6 +126,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Culebra Peak",
         "Range": "Culebra Range",
+        "XCoord": 35,
+        "YCoord": 31,
         "Elevation": 4283,
         "Prominence": 1471,
         "Latitude Degrees": 37.1224,
@@ -120,6 +141,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Ellingwood Point",
         "Range": "Sangre de Cristo Range",
+        "XCoord": 32,
+        "YCoord": 26,
         "Elevation": 4282,
         "Prominence": 104,
         "Latitude Degrees": 37.5826,
@@ -133,6 +156,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Grays Peak",
         "Range": "Front Range",
+        "XCoord": 29,
+        "YCoord": 10,
         "Elevation": 4352,
         "Prominence": 844,
         "Latitude Degrees": 39.6339,
@@ -146,6 +171,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Handies Peak",
         "Range": "San Juan Mountains",
+        "XCoord": 13,
+        "YCoord": 24,
         "Elevation": 4284.8,
         "Prominence": 582,
         "Latitude Degrees": 37.913,
@@ -159,6 +186,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Humboldt Peak",
         "Range": "Sangre de Cristo Range",
+        "XCoord": 32,
+        "YCoord": 23,
         "Elevation": 4289,
         "Prominence": 367,
         "Latitude Degrees": 37.9762,
@@ -172,6 +201,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Huron Peak",
         "Range": "Sawatch Range",
+        "XCoord": 23,
+        "YCoord": 16,
         "Elevation": 4270.2,
         "Prominence": 434,
         "Latitude Degrees": 38.9455,
@@ -185,6 +216,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Kit Carson Peak",
         "Range": "Sangre de Cristo Range",
+        "XCoord": 30,
+        "YCoord": 23,
         "Elevation": 4319,
         "Prominence": 312,
         "Latitude Degrees": 37.9797,
@@ -198,6 +231,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "La Plata Peak",
         "Range": "Sawatch Range",
+        "XCoord": 23,
+        "YCoord": 15,
         "Elevation": 4372,
         "Prominence": 560,
         "Latitude Degrees": 39.0294,
@@ -211,6 +246,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Little Bear Peak",
         "Range": "Sangre de Cristo Range",
+        "XCoord": 32,
+        "YCoord": 28,
         "Elevation": 4280,
         "Prominence": 115,
         "Latitude Degrees": 37.5666,
@@ -224,6 +261,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Longs Peak",
         "Range": "Front Range",
+        "XCoord": 31,
+        "YCoord": 5,
         "Elevation": 4346,
         "Prominence": 896,
         "Latitude Degrees": 40.255,
@@ -237,6 +276,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Maroon Peak",
         "Range": "Elk Mountains",
+        "XCoord": 18,
+        "YCoord": 15,
         "Elevation": 4317,
         "Prominence": 712,
         "Latitude Degrees": 39.0708,
@@ -250,6 +291,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Missouri Mountain",
         "Range": "Sawatch Range",
+        "XCoord": 24,
+        "YCoord": 16,
         "Elevation": 4289.8,
         "Prominence": 258,
         "Latitude Degrees": 38.9476,
@@ -263,6 +306,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Antero",
         "Range": "Sawatch Range",
+        "XCoord": 25,
+        "YCoord": 17,
         "Elevation": 4351.4,
         "Prominence": 763,
         "Latitude Degrees": 38.6741,
@@ -276,6 +321,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Belford",
         "Range": "Sawatch Range",
+        "XCoord": 22,
+        "YCoord": 15,
         "Elevation": 4329.1,
         "Prominence": 408,
         "Latitude Degrees": 38.9607,
@@ -289,6 +336,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Bierstadt",
         "Range": "Front Range",
+        "XCoord": 30,
+        "YCoord": 11,
         "Elevation": 4287,
         "Prominence": 219,
         "Latitude Degrees": 39.5826,
@@ -302,6 +351,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Blue Sky",
         "Range": "Front Range",
+        "XCoord": 31,
+        "YCoord": 11,
         "Elevation": 4350,
         "Prominence": 844,
         "Latitude Degrees": 39.5883,
@@ -315,6 +366,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Bross",
         "Range": "Mosquito Range",
+        "XCoord": 26,
+        "YCoord": 12,
         "Elevation": 4321.6,
         "Prominence": 95,
         "Latitude Degrees": 39.3354,
@@ -328,6 +381,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Columbia",
         "Range": "Sawatch Range",
+        "XCoord": 26,
+        "YCoord": 16,
         "Elevation": 4290.8,
         "Prominence": 272,
         "Latitude Degrees": 38.9039,
@@ -341,6 +396,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Democrat",
         "Range": "Mosquito Range",
+        "XCoord": 25,
+        "YCoord": 12,
         "Elevation": 4314.5,
         "Prominence": 234,
         "Latitude Degrees": 39.3396,
@@ -354,6 +411,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Elbert",
         "Range": "Sawatch Range",
+        "XCoord": 23,
+        "YCoord": 14,
         "Elevation": 4401.2,
         "Prominence": 2772,
         "Latitude Degrees": 39.1178,
@@ -367,6 +426,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Eolus",
         "Range": "San Juan Mountains",
+        "XCoord": 13,
+        "YCoord": 27,
         "Elevation": 4295,
         "Prominence": 312,
         "Latitude Degrees": 37.6218,
@@ -380,6 +441,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Harvard",
         "Range": "Sawatch Range",
+        "XCoord": 25,
+        "YCoord": 16,
         "Elevation": 4395.6,
         "Prominence": 719,
         "Latitude Degrees": 38.9244,
@@ -393,6 +456,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Lincoln",
         "Range": "Mosquito Range",
+        "XCoord": 26,
+        "YCoord": 13,
         "Elevation": 4356.5,
         "Prominence": 1177,
         "Latitude Degrees": 39.3515,
@@ -406,6 +471,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Lindsey",
         "Range": "Sangre de Cristo Range",
+        "XCoord": 33,
+        "YCoord": 27,
         "Elevation": 4282,
         "Prominence": 470,
         "Latitude Degrees": 37.5837,
@@ -419,6 +486,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Massive",
         "Range": "Sawatch Range",
+        "XCoord": 23,
+        "YCoord": 13,
         "Elevation": 4398,
         "Prominence": 598,
         "Latitude Degrees": 39.1875,
@@ -432,6 +501,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. of the Holy Cross",
         "Range": "Sawatch Range",
+        "XCoord": 23,
+        "YCoord": 12,
         "Elevation": 4270.5,
         "Prominence": 644,
         "Latitude Degrees": 39.4668,
@@ -445,6 +516,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Oxford",
         "Range": "Collegiate Peaks",
+        "XCoord": 25,
+        "YCoord": 15,
         "Elevation": 4315.9,
         "Prominence": 199,
         "Latitude Degrees": 38.9648,
@@ -458,6 +531,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Princeton",
         "Range": "Sawatch Range",
+        "XCoord": 26,
+        "YCoord": 18,
         "Elevation": 4329.3,
         "Prominence": 664,
         "Latitude Degrees": 38.7492,
@@ -471,6 +546,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Shavano",
         "Range": "Sawatch Range",
+        "XCoord": 25,
+        "YCoord": 19,
         "Elevation": 4337.7,
         "Prominence": 493,
         "Latitude Degrees": 38.6192,
@@ -484,6 +561,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Sherman",
         "Range": "Mosquito Range",
+        "XCoord": 26,
+        "YCoord": 14,
         "Elevation": 4280,
         "Prominence": 259,
         "Latitude Degrees": 39.225,
@@ -497,6 +576,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Sneffels",
         "Range": "Sneffels Range",
+        "XCoord": 11,
+        "YCoord": 23,
         "Elevation": 4315.4,
         "Prominence": 930,
         "Latitude Degrees": 38.0038,
@@ -510,6 +591,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Wilson",
         "Range": "San Miguel Mountains",
+        "XCoord": 9,
+        "YCoord": 25,
         "Elevation": 4344,
         "Prominence": 1227,
         "Latitude Degrees": 37.8391,
@@ -523,6 +606,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Yale",
         "Range": "Sawatch Range",
+        "XCoord": 26,
+        "YCoord": 17,
         "Elevation": 4328.2,
         "Prominence": 578,
         "Latitude Degrees": 38.8442,
@@ -536,6 +621,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Pikes Peak",
         "Range": "Front Range",
+        "XCoord": 36,
+        "YCoord": 17,
         "Elevation": 4302.31,
         "Prominence": 1686,
         "Latitude Degrees": 38.8405,
@@ -549,6 +636,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Pyramid Peak",
         "Range": "Elk Mountains",
+        "XCoord": 19,
+        "YCoord": 15,
         "Elevation": 4274.7,
         "Prominence": 499,
         "Latitude Degrees": 39.0717,
@@ -562,6 +651,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Quandary Peak",
         "Range": "Mosquito Range",
+        "XCoord": 26,
+        "YCoord": 11,
         "Elevation": 4349.9,
         "Prominence": 343,
         "Latitude Degrees": 39.3973,
@@ -575,6 +666,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Redcloud Peak",
         "Range": "San Juan Mountains",
+        "XCoord": 14,
+        "YCoord": 23,
         "Elevation": 4280,
         "Prominence": 438,
         "Latitude Degrees": 37.941,
@@ -588,6 +681,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "San Luis Peak",
         "Range": "La Garita Mountains",
+        "XCoord": 19,
+        "YCoord": 24,
         "Elevation": 4273.8,
         "Prominence": 949,
         "Latitude Degrees": 37.9868,
@@ -601,6 +696,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Snowmass Mountain",
         "Range": "Elk Mountains",
+        "XCoord": 17,
+        "YCoord": 15,
         "Elevation": 4297.3,
         "Prominence": 351,
         "Latitude Degrees": 39.1188,
@@ -614,6 +711,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Sunlight Peak",
         "Range": "San Juan Mountains",
+        "XCoord": 13,
+        "YCoord": 26,
         "Elevation": 4287,
         "Prominence": 122,
         "Latitude Degrees": 37.6274,
@@ -627,6 +726,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Sunshine Peak",
         "Range": "San Juan Mountains",
+        "XCoord": 14,
+        "YCoord": 24,
         "Elevation": 4269,
         "Prominence": 153,
         "Latitude Degrees": 37.9228,
@@ -640,6 +741,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Tabeguache Peak",
         "Range": "Sawatch Range",
+        "XCoord": 25,
+        "YCoord": 18,
         "Elevation": 4316.7,
         "Prominence": 139,
         "Latitude Degrees": 38.6255,
@@ -653,6 +756,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Torreys Peak",
         "Range": "Front Range",
+        "XCoord": 29,
+        "YCoord": 9,
         "Elevation": 4351,
         "Prominence": 171,
         "Latitude Degrees": 39.6428,
@@ -666,6 +771,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Uncompahgre Peak",
         "Range": "San Juan Mountains",
+        "XCoord": 14,
+        "YCoord": 22,
         "Elevation": 4365,
         "Prominence": 1304,
         "Latitude Degrees": 38.0717,
@@ -679,6 +786,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Wetterhorn Peak",
         "Range": "San Juan Mountains",
+        "XCoord": 13,
+        "YCoord": 23,
         "Elevation": 4274,
         "Prominence": 498,
         "Latitude Degrees": 38.0607,
@@ -692,6 +801,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Wilson Peak",
         "Range": "San Juan Mountains",
+        "XCoord": 9,
+        "YCoord": 24,
         "Elevation": 4274,
         "Prominence": 261,
         "Latitude Degrees": 37.8603,
@@ -705,6 +816,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Windom Peak",
         "Range": "Needle Mountains",
+        "XCoord": 14,
+        "YCoord": 27,
         "Elevation": 4296,
         "Prominence": 667,
         "Latitude Degrees": 37.6212,
@@ -716,6 +829,88 @@ MOUNTAIN_DATA = [
         "Description": "This popular hiking destination is in the remote subrange Needle Mountains found in the Weminuche Wilderness area. The hike to the summit will take multiple days, but there is no technical gear required.",
     },
 ]
+
+def main(config):
+    show_instructions = config.bool("instructions", False)
+    print(show_instructions)
+    if show_instructions == True:
+        return show_instructions_screen()
+
+    show_mountain_outline = config.bool("outline", True)
+    is_metric_system = config.bool("measurement", True)
+
+    display_candidates = []
+    display_type = config.get("display", DISPLAY_OPTIONS[0].value)
+
+    i = 0
+    for mountain in MOUNTAIN_DATA:
+        if (display_type == "random" or (display_type == "visited" and config.get("_%s" % mountain["Name"]) == "true") or (display_type == "unvisited" and config.get("_%s" % mountain["Name"]) != "true")):
+            display_candidates.append(i)
+        i = i + 1
+
+    random_mountain = MOUNTAIN_DATA[randomize(0, len(MOUNTAIN_DATA) - 1)]
+    if (len(display_candidates) > 0):
+        random_mountain = MOUNTAIN_DATA[display_candidates[randomize(0, len(display_candidates) - 1)]]
+
+    random_mountain_position = get_screen_coordinates_from_actual(COLORADO, [random_mountain["Longitude Degrees"], random_mountain["Latitude Degrees"]])
+
+    Denver_position = get_screen_coordinates_from_actual(COLORADO, DENVER)
+
+    hiking_distance = float(random_mountain["Hiking Distance"])
+    hiking_elevation = float(random_mountain["Hiking Elevation Gain"])
+    elevation_units = "meters"
+    distance_units = "km"
+
+    if is_metric_system == False:
+        hiking_distance = math.round((hiking_distance / 1.6))
+        hiking_elevation = math.round(3.38 * hiking_elevation)
+        elevation_units = "feet"
+        distance_units = "mile"
+
+    if randomize(0, 1) == 1:
+        mountain_description = "%s in the %s - %s Class %s mountain.             " % (random_mountain["Name"], random_mountain["Range"], random_mountain["Description"], random_mountain["Class"])
+    else:
+        mountain_description = "%s is a class %s mountain. Expect a %s %s hike that has an elevation gain of %s %s.           " % (random_mountain["Name"], random_mountain["Class"], humanize.float("#,###.", hiking_distance), distance_units, humanize.float("#,###.", hiking_elevation), elevation_units)
+
+    return render.Root(
+        #delay = int(speed),
+        render.Stack(
+            children = [
+                render.Padding(
+                    pad = (0, 24, 0, 0),
+                    child =
+                        render.Marquee(
+                            width = 64,
+                            offset_start = 15,
+                            child = render.Text(content = mountain_description, color = "#65d0e6", font = "tb-8", offset = 0),
+                        ),
+                ),
+                get_positions(config, True, MOUNTAIN_DATA),
+                get_positions(config, False, MOUNTAIN_DATA),
+                # Mountain Outline
+                get_mountain_outline(show_mountain_outline, random_mountain),
+                # Denver
+                render.Padding(
+                    pad = (Denver_position[0], Denver_position[1], 0, 0),
+                    child =
+                        render.Circle(
+                            color = "#ff0000",
+                            diameter = 1,
+                        ),
+                ),
+                # Selected Mountain
+                render.Padding(
+                    pad = (random_mountain_position[0], random_mountain_position[1], 0, 0),
+                    child =
+                        render.Circle(
+                            color = "#65d0e6",
+                            diameter = 1,
+                        ),
+                ),
+            ],
+        ),
+        show_full_animation = True,
+    )
 
 def get_screen_coordinates_from_actual(map, location):
     SCREEN_WIDTH = 64
@@ -744,6 +939,8 @@ def get_screen_coordinates_from_actual(map, location):
     coords[0] = int((location[0] - min_long) / range_x * SCREEN_WIDTH)
     coords[1] = int((-(location[1] - max_lat)) / range_y * SCREEN_HEIGHT)
 
+    print("%s %s %s %s %s %s %s %s %s" % (location[0], max_long, min_long, max_lat, min_lat, range_x, range_y, SCREEN_HEIGHT, SCREEN_WIDTH))
+
     return coords
 
 def randomize(min, max):
@@ -751,7 +948,7 @@ def randomize(min, max):
     rand = int(str(now.nanosecond)[-6:-3]) / 1000
     return int(rand * (max + 1 - min) + min)
 
-def display_instructions():
+def show_instructions_screen():
     ##############################################################################################################################################################################################################################
     header = "Colorado 14ers"
     instructions_1 = "Tidbyt screen is a map of Colorado; Denver is marked by a red dot. A random mountain is picked from one of 3 groups (visited peaks, unvisited peaks, or any peak). You decide if the selected mountain's "
@@ -785,92 +982,39 @@ def display_instructions():
         show_full_animation = True,
     )
 
-def main(config):
-    show_instructions = config.bool("instructions", False)
-    if show_instructions:
-        return display_instructions()
-
-    show_mountain_outline = config.bool("outline", True)
-
-    display_candidates = []
-    display_type = config.get("display", DISPLAY_OPTIONS[0].value)
-
-    i = 0
-    for mountain in MOUNTAIN_DATA:
-        if (display_type == "random" or (display_type == "visited" and config.get("_%s" % mountain["Name"]) == "true") or (display_type == "unvisited" and config.get("_%s" % mountain["Name"]) != "true")):  #display_type == "random" or (or (display_type == "unvisited" AND config.get("_%s" % mountain["Name"])!="true"):
-            display_candidates.append(i)
-        i = i + 1
-
-    random_mountain = MOUNTAIN_DATA[randomize(0, len(MOUNTAIN_DATA) - 1)]
-    if (len(display_candidates) > 0):
-        random_mountain = MOUNTAIN_DATA[display_candidates[randomize(0, len(display_candidates) - 1)]]
-
-    random_mountain_position = get_screen_coordinates_from_actual(COLORADO, [random_mountain["Longitude Degrees"], random_mountain["Latitude Degrees"]])
-
-    Denver_position = get_screen_coordinates_from_actual(COLORADO, DENVER)
-
-    mountain_description = "%s in the %s - %s Class %s" % (random_mountain["Name"], random_mountain["Range"], random_mountain["Description"], random_mountain["Class"])
-    print(mountain_description)
-
-    return render.Root(
-        #delay = int(speed),
-        render.Stack(
-            children = [
-                render.Padding(
-                    pad = (0, 24, 0, 0),
-                    child =
-                        render.Marquee(
-                            width = 64,
-                            offset_start = 15,
-                            child = render.Text(content = mountain_description, color = "#0000ff", font = "tb-8", offset = 0),
-                        ),
-                ),
-                get_positions(config, COLORADO, True),
-                get_positions(config, COLORADO, False),
-                # Mountain Outline
-                get_mountain_outline(show_mountain_outline, random_mountain),
-                # Denver
-                render.Padding(
-                    pad = (Denver_position[0], Denver_position[1], 0, 0),
-                    child =
-                        render.Circle(
-                            color = "#ff0000",
-                            diameter = 1,
-                        ),
-                ),
-                # Selected Mountain
-                render.Padding(
-                    pad = (random_mountain_position[0], random_mountain_position[1], 0, 0),
-                    child =
-                        render.Circle(
-                            color = "#0000ff",
-                            diameter = 1,
-                        ),
-                ),
-            ],
-        ),
-        show_full_animation = True,
-    )
-
 def get_mountain_outline(show, mountain):
     if show:
         return render.Image(width = 64, height = 32, src = base64.decode(mountain["Outline"]))
     else:
         return render.Text("")
 
-def get_positions(config, map, visited):
+def get_positions(config, visited, mountains):
+    all_positions = []
     children = []
     current_location = ""
     color = "#ffff00"
     if visited == False:
         color = "#aaa"
 
-    i = 0
-    for item in MOUNTAIN_DATA:
+    #i = 0
+
+    for item in mountains:
         if config.bool("_%s" % item["Name"], False) == visited:
-            current_location = [item["Longitude Degrees"], item["Latitude Degrees"]]
-            current_location = get_screen_coordinates_from_actual(map, current_location)
-            print(current_location)
+            current_location = [item["XCoord"], item["YCoord"]]
+
+            duplicate = False
+            for x in all_positions:
+                if current_location == x:
+                    duplicate = True
+                    break
+
+            if duplicate == True:
+                print("%s %s *****Duplcate " % (current_location, item["Name"]))
+            else:
+                print("%s %s" % (current_location, item["Name"]))
+
+            all_positions.append(current_location)
+
             children.append(
                 render.Padding(
                     pad = (current_location[0], current_location[1], 0, 0),
@@ -881,9 +1025,7 @@ def get_positions(config, map, visited):
                         ),
                 ),
             )
-            i = i + 1
-
-    print(len(children))
+            #i = i + 1
 
     positions = render.Stack(
         children = children,
@@ -906,7 +1048,7 @@ def get_schema():
                 id = "instructions",
                 name = "Display Instructions",
                 desc = "",
-                icon = "book",  #"info",
+                icon = "book",
                 default = False,
             ),
             schema.Toggle(
@@ -915,6 +1057,14 @@ def get_schema():
                 desc = "",
                 icon = "layerGroup",
                 default = False,
+            ),
+            schema.Dropdown(
+                id = "measurement",
+                name = "Measurement System",
+                desc = "Measurement System",
+                icon = "ruler",
+                options = MEASUREMENT_OPTIONS,
+                default = MEASUREMENT_OPTIONS[0].value,
             ),
             schema.Dropdown(
                 id = "display",
