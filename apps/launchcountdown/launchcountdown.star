@@ -260,7 +260,7 @@ def replace_local_time_into_description(description, locallaunch, utclaunch):
     utc_time_display = ("%s at %s (%s)") % (utclaunch.format("Thursday, January 2, 2006"), utclaunch.format("3:04 PM"), utclaunch.format("MST"))
     local_time_display = ("%s at %s %s") % (locallaunch.format("Thursday, January 2, 2006"), locallaunch.format("3:04 PM"), locallaunch.format("MST"))
 
-    #What the heck is this character being returned in the json for??
+    description = description.replace("\u202f", "")
     description = description.replace(" ", " ")
     description = description.replace(utc_time_display, local_time_display)
 
@@ -315,9 +315,13 @@ def main(config):
             if locallaunch == None:
                 month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
                 row1 = rocket_launch_data["result"][i]["vehicle"]["name"]
-                row2 = "%s %s '%s" % (month_names[int(rocket_launch_data["result"][i]["est_date"]["month"]) - 1], rocket_launch_data["result"][i]["est_date"]["day"], str(rocket_launch_data["result"][i]["est_date"]["year"])[-2:])
-                row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch)
-                row4 = rocket_launch_data["result"][i]["launch_description"]
+                if rocket_launch_data["result"][i]["est_date"]["month"] == None or rocket_launch_data["result"][i]["est_date"]["day"] == None:
+                    row2 = row2
+                else:
+                    row2 = "%s %s '%s" % (month_names[int(rocket_launch_data["result"][i]["est_date"]["month"]) - 1], rocket_launch_data["result"][i]["est_date"]["day"], str(rocket_launch_data["result"][i]["est_date"]["year"])[-2:])
+                row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch).strip()
+
+                row4 = rocket_launch_data["result"][i]["launch_description"].strip()
             elif locallaunch > localtime.in_location(location["timezone"]):
                 hours_notice = int(config.get("notice_period", 0))
                 hours_until_sighting = (locallaunch - localtime.in_location(location["timezone"])).hours
