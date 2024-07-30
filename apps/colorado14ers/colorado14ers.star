@@ -67,7 +67,7 @@ MOUNTAIN_DATA = [
         "Name": "Castle Peak",
         "Range": "Elk Mountains",
         "XCoord": 20,
-        "YCoord": 16,
+        "YCoord": 15,
         "Elevation": 4352.2,
         "Prominence": 721,
         "Latitude Degrees": 39.0097,
@@ -711,7 +711,7 @@ MOUNTAIN_DATA = [
     {
         "Name": "Sunlight Peak",
         "Range": "San Juan Mountains",
-        "XCoord": 14,
+        "XCoord": 13,
         "YCoord": 26,
         "Elevation": 4287,
         "Prominence": 122,
