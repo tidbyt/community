@@ -14,14 +14,19 @@ load("time.star", "time")
 BASE_URL = "https://nhdes.rtiamanzi.org/api"
 TTL_SECONDS = 300
 
-def generate_root(content):
+def generate_root(temperature, datetime):
     return render.Root(
-        child = render.Row(
+        child = render.Column(
             children = [
                 render.Box(
-                    child = render.Text(content = content),
+                    child = render.Text(content = temperature),
                     width = 64,
-                    height = 32,
+                    height = 16,
+                ),
+                render.Box(
+                    child = render.WrappedText(align = "center", color = "#FA0", content = datetime, width = 64),
+                    width = 64,
+                    height = 16,
                 ),
             ],
         ),
@@ -51,7 +56,7 @@ def main(config):
 
     end_unix = time.now().unix
     end_iso = time.from_timestamp(end_unix).in_location("UTC").format("2006-01-02T15:04:05")
-    start_unix = end_unix - 10800
+    start_unix = end_unix - 86400
     start_iso = time.from_timestamp(start_unix).in_location("UTC").format("2006-01-02T15:04:05")
 
     data_api_url = "{}/timeseries/{}/values?start={}&end={}".format(BASE_URL, timeseries_id, start_iso, end_iso)
@@ -72,7 +77,10 @@ def main(config):
     temperature = str(int(math.round(temperature * 1000000)))
     temperature = (temperature[0:-6] + "." + temperature[-6:]) + " °F"
 
-    return generate_root(temperature)
+    # Get the timestamp of the last update and format it for US/Eastern (New Hampshire's timezone)
+    datetime = time.parse_time(data.get("datetime")).in_location("US/Eastern").format("01/02/2006 3:04 PM")
+
+    return generate_root(temperature, datetime)
 
 def get_schema():
     return schema.Schema(
