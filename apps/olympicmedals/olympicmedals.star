@@ -23,8 +23,8 @@ DEFAULT_DETAIL = True
 DEFAULT_RINGS = True
 DEFAULT_FULL_ANIMATION = True
 DEFAULT_COUNT = "5"
-DEFAULT_DELAY = "10"
-DEFAULT_FRAMES = "250"
+DEFAULT_DELAY = "100"
+DEFAULT_FRAMES = "50"
 
 def fetch_data(config):
     count = int(config.str("count", DEFAULT_COUNT))
@@ -338,7 +338,7 @@ def get_schema():
                 name = "Frames",
                 desc = "Frame count each country is displayed",
                 icon = "gear",
-                default = DEFAULT_DELAY,
+                default = DEFAULT_FRAMES,
             ),
         ],
     )
