@@ -111,9 +111,11 @@ def renderTrain(stop_info):
     # If trains is cancelled, rewrite to message.
     if stop_info["cancelled"] == True:
         backgroundColor = CANCELED_BACKGROUND_COLOR
-        actualTime = stop_info["messages"][0]["message"]
         departureTime = "-"
         actualTime = "-"
+
+        if stop_info.get("messages"):
+            actualTime = stop_info["messages"][0]["message"]
 
     # If trains is changed due to maintenance, rewrite to message.
     if stop_info.get("alternativeTransport") == True:
