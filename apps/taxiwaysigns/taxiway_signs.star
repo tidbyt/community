@@ -26,10 +26,12 @@ def main():
 
 def get_random_combination_of_signs():
     sign_number = ["", "1", "2", "3", "4", "5"]
-    direction_indicators = ["←", "↑", "→", "➚", "➘", "↖"]
+    direction_indicators = ["←", "↑", "↖"]
+    right_direction_indicators = ["→", "➘", "➚"]
     sign_combination = sign_combinations[randomize(0, len(sign_combinations) - 1)]
     sections = len(sign_combination)
     taxiway_ids = get_set_of_taxiway_ids(sections)
+    selected_direction_indicator = randomize(0, len(direction_indicators) - 1)
     remaining_width = 64
     children = []
     i = 0
@@ -44,7 +46,10 @@ def get_random_combination_of_signs():
         if type == 1:  #Location
             sign_text = "%s%s" % (taxiway_ids[i], sign_number[randomize(0, len(sign_number) - 1)])
         elif type == 2:  #Direction
-            sign_text = "%s%s" % (taxiway_ids[i], direction_indicators[randomize(0, len(sign_number) - 1)])
+            if i == 0:
+                sign_text = "%s%s" % (taxiway_ids[i], direction_indicators[selected_direction_indicator])
+            else:
+                sign_text = "%s%s" % (taxiway_ids[i], right_direction_indicators[selected_direction_indicator])
         elif type == 3:  #Hold
             sign_text = get_random_runway_designation(width)
 
@@ -55,7 +60,7 @@ def get_random_combination_of_signs():
     return children
 
 def get_random_runway_designation(width):
-    initial_runway = randomize(0, 18)
+    initial_runway = randomize(1, 18)
     padding = ""
     if initial_runway < 10:
         padding = "0"
