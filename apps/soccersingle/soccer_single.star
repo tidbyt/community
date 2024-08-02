@@ -8,6 +8,7 @@ Author: jvivona
 #          toned down colors when display team colors - you couldn't see winner score if team color was also yellow
 # 20230829 fixed PK score - in a different place for single match results..   Not enough testing :-)
 # 20240223 fixed issue with PPD games showing before their scheduled start time
+# 20240802 added code to handle widgetMode - only show the 1st piece, no animations
 
 # Tons of thanks to @whyamihere/@rs7q5 for the API assistance - couldn't have gotten here without you
 # and thanks to @dinotash/@dinosaursrarr for making me think deep thoughts about connected schema fields
@@ -19,7 +20,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 24054
+VERSION = 24215
 
 CACHE_TTL_SECONDS = 60
 
@@ -50,6 +51,7 @@ SHORTENED_WORDS = """
 """
 
 def main(config):
+    widgetMode = config.bool("$widget")
     renderCategory = []
 
     # we already need now value in multiple places - so just go ahead and get it and use it
@@ -465,6 +467,8 @@ def main(config):
                     ),
                 ],
             ),
+        ) if not widgetMode else render.Root(
+            child = renderCategory[0],
         )
     else:
         return []
