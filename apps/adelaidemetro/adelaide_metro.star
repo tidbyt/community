@@ -36,6 +36,9 @@ Added default Bus Stop ID to prevent app freezing
 v2.3.1
 Removed lagging print comment
 Added default train station in Schema, removed in error from last update :(
+
+v2.4
+Addition of Port Dock station and route, opening 25th August
 """
 
 load("encoding/json.star", "json")
@@ -48,7 +51,7 @@ NEXTSCHED1_URL = "https://api-cloudfront.adelaidemetro.com.au/stops/next-schedul
 STOPINFO_URL = "https://api-cloudfront.adelaidemetro.com.au/stops/info?stop="
 
 CACHE_TTL_SECS = 60
-CITYBOUND_STATION_LIST = ["18683", "18680", "18678", "18719", "17533", "18934", "18104"]
+CITYBOUND_STATION_LIST = ["18683", "18680", "18678", "18719", "17533", "18934", "18104", "19081"]
 
 def main(config):
     SelectedStation = config.get("StationList", "16572")
@@ -729,6 +732,10 @@ StationOptions = [
         value = "16578",
     ),
     schema.Option(
+        display = "Port Dock",
+        value = "19081",
+    ),
+    schema.Option(
         display = "Salisbury",
         value = "16558",
     ),
@@ -1132,6 +1139,8 @@ def AwayStops(SelectedStation):
         return ("16552")
     if SelectedStation == "16494":  # Belair, as this is terminus so show same results
         return ("16494")
+    if SelectedStation == "19081":  # Port Dock, as this is terminus so show same results
+        return ("19081")
     if SelectedStation == "18104":
         return ("18583")
     if SelectedStation == "16491":
