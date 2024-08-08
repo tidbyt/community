@@ -67,7 +67,7 @@ MOUNTAIN_DATA = [
         "Name": "Castle Peak",
         "Range": "Elk Mountains",
         "XCoord": 20,
-        "YCoord": 15,
+        "YCoord": 16,
         "Elevation": 4352.2,
         "Prominence": 721,
         "Latitude Degrees": 39.0097,
@@ -81,7 +81,7 @@ MOUNTAIN_DATA = [
     {
         "Name": "Challenger Point",
         "Range": "Sangre de Cristo Range",
-        "XCoord": 31,
+        "XCoord": 30,
         "YCoord": 23,
         "Elevation": 4294,
         "Prominence": 92,
@@ -186,7 +186,7 @@ MOUNTAIN_DATA = [
     {
         "Name": "Humboldt Peak",
         "Range": "Sangre de Cristo Range",
-        "XCoord": 32,
+        "XCoord": 33,
         "YCoord": 23,
         "Elevation": 4289,
         "Prominence": 367,
@@ -216,7 +216,7 @@ MOUNTAIN_DATA = [
     {
         "Name": "Kit Carson Peak",
         "Range": "Sangre de Cristo Range",
-        "XCoord": 30,
+        "XCoord": 31,
         "YCoord": 23,
         "Elevation": 4319,
         "Prominence": 312,
@@ -246,7 +246,7 @@ MOUNTAIN_DATA = [
     {
         "Name": "Little Bear Peak",
         "Range": "Sangre de Cristo Range",
-        "XCoord": 32,
+        "XCoord": 31,
         "YCoord": 28,
         "Elevation": 4280,
         "Prominence": 115,
@@ -306,8 +306,8 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Antero",
         "Range": "Sawatch Range",
-        "XCoord": 25,
-        "YCoord": 17,
+        "XCoord": 26,
+        "YCoord": 19,
         "Elevation": 4351.4,
         "Prominence": 763,
         "Latitude Degrees": 38.6741,
@@ -321,7 +321,7 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Belford",
         "Range": "Sawatch Range",
-        "XCoord": 22,
+        "XCoord": 24,
         "YCoord": 15,
         "Elevation": 4329.1,
         "Prominence": 408,
@@ -367,7 +367,7 @@ MOUNTAIN_DATA = [
         "Name": "Mt. Bross",
         "Range": "Mosquito Range",
         "XCoord": 26,
-        "YCoord": 12,
+        "YCoord": 13,
         "Elevation": 4321.6,
         "Prominence": 95,
         "Latitude Degrees": 39.3354,
@@ -396,7 +396,7 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Democrat",
         "Range": "Mosquito Range",
-        "XCoord": 25,
+        "XCoord": 24,
         "YCoord": 12,
         "Elevation": 4314.5,
         "Prominence": 234,
@@ -457,7 +457,7 @@ MOUNTAIN_DATA = [
         "Name": "Mt. Lincoln",
         "Range": "Mosquito Range",
         "XCoord": 26,
-        "YCoord": 13,
+        "YCoord": 12,
         "Elevation": 4356.5,
         "Prominence": 1177,
         "Latitude Degrees": 39.3515,
@@ -472,7 +472,7 @@ MOUNTAIN_DATA = [
         "Name": "Mt. Lindsey",
         "Range": "Sangre de Cristo Range",
         "XCoord": 33,
-        "YCoord": 27,
+        "YCoord": 26,
         "Elevation": 4282,
         "Prominence": 470,
         "Latitude Degrees": 37.5837,
@@ -502,7 +502,7 @@ MOUNTAIN_DATA = [
         "Name": "Mt. of the Holy Cross",
         "Range": "Sawatch Range",
         "XCoord": 23,
-        "YCoord": 12,
+        "YCoord": 11,
         "Elevation": 4270.5,
         "Prominence": 644,
         "Latitude Degrees": 39.4668,
@@ -606,7 +606,7 @@ MOUNTAIN_DATA = [
     {
         "Name": "Mt. Yale",
         "Range": "Sawatch Range",
-        "XCoord": 26,
+        "XCoord": 25,
         "YCoord": 17,
         "Elevation": 4328.2,
         "Prominence": 578,
@@ -711,7 +711,7 @@ MOUNTAIN_DATA = [
     {
         "Name": "Sunlight Peak",
         "Range": "San Juan Mountains",
-        "XCoord": 13,
+        "XCoord": 14,
         "YCoord": 26,
         "Elevation": 4287,
         "Prominence": 122,
@@ -868,7 +868,7 @@ def main(config):
         distance_units = "mile"
 
     if randomize(0, 1) == 1:
-        mountain_description = "%s in the %s - %s Class %s mountain.             " % (random_mountain["Name"], random_mountain["Range"], random_mountain["Description"], random_mountain["Class"])
+        mountain_description = "%s in the %s - %s %s is a class %s mountain.             " % (random_mountain["Name"], random_mountain["Range"], random_mountain["Description"], random_mountain["Name"], random_mountain["Class"])
     else:
         mountain_description = "%s is a class %s mountain. Expect a %s %s hike that has an elevation gain of %s %s.           " % (random_mountain["Name"], random_mountain["Class"], humanize.float("#,###.", hiking_distance), distance_units, humanize.float("#,###.", hiking_elevation), elevation_units)
 
@@ -903,7 +903,7 @@ def main(config):
                     pad = (random_mountain_position[0], random_mountain_position[1], 0, 0),
                     child =
                         render.Circle(
-                            color = "#65d0e6",
+                            color = "#0000ff",
                             diameter = 1,
                         ),
                 ),
@@ -949,9 +949,9 @@ def randomize(min, max):
 def show_instructions_screen():
     ##############################################################################################################################################################################################################################
     header = "Colorado 14ers"
-    instructions_1 = "Tidbyt screen is a map of Colorado; Denver is marked by a red dot. A random mountain is picked from one of 3 groups (visited peaks, unvisited peaks, or any peak). You decide if the selected mountain's "
-    instructions_2 = "ouline appears. A description of the randomly selected mountain appears at the bottom. You check which of the peaks you've visited. All the peaks are displayed on the Tidbyt rendering of the Colorado Map."
-    instructions_3 = "Bright yellow dots represent locations that were marked as visited, grey dots are unvisited 14ers. A blue dot represents the currently highlighted peak that is being described in blue text. "
+    instructions_1 = "Screen Colorado Map; Denver is a red dot. Random mountain is picked from a group (visited peaks, unvisited peaks, or any peak). You decide if the selected mountain's ouline appears. A description of the"
+    instructions_2 = " randomly selected mountain appears. You check peaks you've visited. All peaks are displayed, Bright yellow dots represent locations that were marked as visited, grey dots are unvisited 14ers. A blue dot"
+    instructions_3 = " represents the currently highlighted peak that is being described in blue text. Class 1 is hiking, 2 difficult hiking, 3 scrambling, 4 climbing, 5 technical climbing."
     return render.Root(
         render.Column(
             children = [
@@ -993,9 +993,26 @@ def get_positions(config, visited, mountains):
     if visited == False:
         color = "#aaa"
 
+    previous_items = []
+
     for item in mountains:
         if config.bool("_%s" % item["Name"], False) == visited:
             current_location = [item["XCoord"], item["YCoord"]]
+            # Code used to check for duplicate locations on the map and for help adjusting overlaps.
+            # orig_coordinates = get_screen_coordinates_from_actual(COLORADO, [item["Longitude Degrees"], item["Latitude Degrees"]])
+            # if current_location[0] == orig_coordinates[0] and current_location[1] == orig_coordinates[1]:
+            #     print("%s %s %s" % (item["Name"],orig_coordinates[0], orig_coordinates[1]))
+            # else:
+            #     print("Old: %s %s %s" % (item["Name"],orig_coordinates[0], orig_coordinates[1]))
+            #     print("New: %s %s %s" % (item["Name"],current_location[0], current_location[1]))
+
+            #See if this location is a duplicate
+            for x in previous_items:
+                if x[0] == current_location[0]:
+                    if x[1] == current_location[1]:
+                        print("DUPLICATE %s %s %s" % (item["Name"], current_location[0], current_location[1]))
+
+            previous_items.append(current_location)
 
             children.append(
                 render.Padding(
