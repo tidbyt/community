@@ -11,6 +11,7 @@ load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 SUN_ICON = base64.decode("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")
 MOON_ICON = base64.decode("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")
@@ -112,26 +113,25 @@ def get_overall_realtime_performance(url):
 
         print("Icon scale", scale, "RTP", rtp)
 
-    return render.Row(
-        children = [
-            # * Box for Icon
-            render.Box(
-                width = max_width // 2,
-                child = icon_widget,
+    return render.Box(
+        width = max_width,
+        padding = 1,
+        child =
+            render.Column(
+                children = [
+                    render.Row(
+                        expanded = True,
+                        # main_align = "space_around",
+                        # cross_align = "start",
+                        children = [
+                            render.Padding(child = render.Text(content = "SYNTH", color = "#FFFF", font = "6x10-rounded"), pad = (0, 0, 3, 0)),
+                            render.Text(content = "NOW", color = "#FFFF", font = "6x10-rounded"),
+                        ],
+                    ),
+                    render.Text(content = "GENERATING   ", color = "#B0B0B0", font = "6x10-rounded"),
+                    render.Text(content = str(math.ceil(rtp)) + "%", color = "#FFFF", font = "6x10-rounded"),
+                ],
             ),
-            # * Box for text
-            render.Box(
-                width = max_width // 2,
-                child = render.Column(
-                    expanded = True,
-                    main_align = "space_evenly",
-                    cross_align = "center",
-                    children = [
-                        render.Text(content = str(math.ceil(rtp)) + "%", color = "#FF3F00", font = "10x20"),
-                    ],
-                ),
-            ),
-        ],
     )
 
 def get_todays_generation(url):
@@ -156,36 +156,33 @@ def get_todays_generation(url):
     max_width = 64
 
     total_energy = math.ceil(data["total_energy"])
+    power_generation_history = data["power_generation_history"]
+    power_generation_history_tuple = [tuple(lst) for lst in power_generation_history]
 
-    return render.Row(
-        children = [
-            # * Box for Icon
-            render.Box(
-                width = max_width // 2,
-                child = render.Column(
+    return render.Box(
+        width = max_width,
+        padding = 1,
+        child = render.Column(
+            children = [
+                render.Row(
                     expanded = True,
-                    main_align = "center",
-                    cross_align = "center",
+                    # main_align = "space_around",
+                    # cross_align = "start",
                     children = [
-                        render.Image(src = PANEL_ICON, width = 30),
-                        render.Box(),
+                        render.Padding(child = render.Text(content = "SYNTH", color = "#FFFF", font = "6x10-rounded"), pad = (0, 0, 3, 0)),
+                        render.Text(content = "TODAY", color = "#FFFF", font = "6x10-rounded"),
                     ],
                 ),
-            ),
-            # * Box for text
-            render.Box(
-                width = max_width // 2,
-                child = render.Column(
-                    expanded = True,
-                    main_align = "space_evenly",
-                    cross_align = "center",
-                    children = [
-                        render.Text(content = "Today", color = "#FFFF", font = "6x13"),
-                        render.Text(content = str(total_energy) + "kWh", color = "#FF3F00", font = "6x13"),
-                    ],
+                render.Text(content = str(total_energy) + " kWh", color = "#FFFF", font = "6x10-rounded"),
+                render.Plot(
+                    data = power_generation_history_tuple,
+                    width = max_width,
+                    height = 12,
+                    color = "#FFFF",
+                    fill = True,
                 ),
-            ),
-        ],
+            ],
+        ),
     )
 
 def get_current_load_widget(data):
@@ -331,12 +328,13 @@ def round_to_two_decimals_str(x):
 
     return v
 
-def get_savings(url):
+def get_savings(url, timezone):
     """
     Get savings
 
     Args:
         url: Base URL
+        timezone: User's timezone, defaults for London
 
     Returns:
         Widget
@@ -354,35 +352,37 @@ def get_savings(url):
 
     max_width = 64
 
-    return render.Row(
-        children = [
-            # * Box for Icon
-            render.Box(
-                width = max_width // 2,
-                child = render.Column(
-                    expanded = True,
-                    main_align = "center",
-                    cross_align = "center",
-                    children = [
-                        render.Image(src = SAVINGS_ICON, width = 24),
-                    ],
+    now = time.now().in_location(timezone)
+    formatted_date = now.format("Mon Jan 2").upper()
+
+    return render.Box(
+        width = max_width,
+        padding = 1,
+        child = render.Column(
+            children = [
+                render.Box(
+                    width = max_width,
+                    child = render.Column(
+                        expanded = True,
+                        main_align = "center",
+                        cross_align = "start",
+                        children = [
+                            render.Text(content = formatted_date, color = "#B0B0B0", font = "6x10-rounded"),
+                            render.Row(
+                                expanded = True,
+                                # main_align = "space_around",
+                                # cross_align = "start",
+                                children = [
+                                    render.Padding(child = render.Text(content = "SYNTH", color = "#FFFF", font = "6x10-rounded"), pad = (0, 0, 3, 0)),
+                                    render.Text(content = "SAVED", color = "#FFFF", font = "6x10-rounded"),
+                                ],
+                            ),
+                            render.Text(content = "£" + str(round_to_two_decimals_str(total_savings_today)), color = "#FFFF", font = "6x10-rounded"),
+                        ],
+                    ),
                 ),
-            ),
-            # * Box for text
-            render.Box(
-                width = max_width // 2,
-                child = render.Column(
-                    expanded = True,
-                    main_align = "space_evenly",
-                    cross_align = "center",
-                    children = [
-                        render.Text(content = "Today", color = "#FFFF", font = "6x13"),
-                        # ! Change it to round_to_two_decimals if round_to_two_decimals_str method does not work
-                        render.Text(content = "£" + str(round_to_two_decimals_str(total_savings_today)), color = "#FF3F00", font = "6x13"),
-                    ],
-                ),
-            ),
-        ],
+            ],
+        ),
     )
 
 def build_keyframe(offset, pct):
@@ -403,15 +403,23 @@ def get_schema():
                 icon = "solarPanel",
                 default = "",
             ),
+            schema.Text(
+                id = "timezone",
+                name = "Timezone",
+                desc = "User's timezone",
+                icon = "clock",
+                default = "Europe/London",
+            ),
         ],
     )
 
-def get_widgets_and_animations(url):
+def get_widgets_and_animations(url, timezone):
     """
     Get widget and animations
 
     Args:
         url: Base URL
+        timezone: User's timezone, defaults for London
 
     Returns:
         Widgets & Animations
@@ -432,7 +440,7 @@ def get_widgets_and_animations(url):
         print("No battery and load data found")
         widgets = [
             get_overall_realtime_performance(url),
-            get_savings(url),
+            get_savings(url, timezone),
             get_todays_generation(url),
         ]
         keyframes = [
@@ -448,9 +456,9 @@ def get_widgets_and_animations(url):
 
     elif not battery_data.get("battery"):
         widgets = [
+            get_savings(url, timezone),
             get_overall_realtime_performance(url),
             get_current_load_widget(load_data),
-            get_savings(url),
             get_todays_generation(url),
         ]
         keyframes = [
@@ -468,7 +476,7 @@ def get_widgets_and_animations(url):
         widgets = [
             get_overall_realtime_performance(url),
             get_current_battery_charge_widget(battery_data),
-            get_savings(url),
+            get_savings(url, timezone),
             get_todays_generation(url),
         ]
         keyframes = [
@@ -484,11 +492,11 @@ def get_widgets_and_animations(url):
 
     else:
         widgets = [
+            get_todays_generation(url),
+            get_savings(url, timezone),
             get_overall_realtime_performance(url),
             get_current_load_widget(load_data),
             get_current_battery_charge_widget(battery_data),
-            get_savings(url),
-            get_todays_generation(url),
         ]
         keyframes = [
             build_keyframe(0, 0.0),
@@ -516,6 +524,7 @@ def main(config):
         Root Widget
     """
     serial_number = config.get("serial_number")
+    timezone = config.get("timezone") or "Europe/London"
 
     if not serial_number:
         return render.Root(
@@ -534,7 +543,7 @@ def main(config):
 
     max_width = 64
 
-    keyframes, widgets, max_animation_duration = get_widgets_and_animations(BASE_URL)
+    keyframes, widgets, max_animation_duration = get_widgets_and_animations(BASE_URL, timezone)
 
     return render.Root(
         delay = 80,
