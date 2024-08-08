@@ -128,7 +128,7 @@ def get_overall_realtime_performance(url):
                             render.Text(content = "NOW", color = "#FFFF", font = "6x10-rounded"),
                         ],
                     ),
-                    render.Text(content = "GENERATING   ", color = "#B0B0B0", font = "6x10-rounded"),
+                    render.Text(content = "GENERATING", color = "#B0B0B0", font = "6x10-rounded"),
                     render.Text(content = str(math.ceil(rtp)) + "%", color = "#FFFF", font = "6x10-rounded"),
                 ],
             ),
