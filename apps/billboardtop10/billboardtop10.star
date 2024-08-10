@@ -47,7 +47,7 @@ def main(config):
     if top10_data == None:
         top10_alive_key = config.get("apiKey")
         if top10_alive_key == None:
-            top10_alive_key = secret.decrypt(BILLBOARD_SECRET_ENCRYPTED) 
+            top10_alive_key = secret.decrypt(BILLBOARD_SECRET_ENCRYPTED)
 
         if top10_alive_key == "":
             return display_instructions()
@@ -60,6 +60,7 @@ def main(config):
         else:
             # Add the fetch date to the dataset
             top10_data["DateFetched"] = time.now().format("2006-01-02T15:04:05Z07:00")
+
             # We want to make <20 calls per month to the API
             # We have two different possible list types we can pull
             # Therefore, 10 calls a month max each to keep us under the limit
