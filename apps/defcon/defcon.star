@@ -14,19 +14,33 @@ CACHE_TTL_SECONDS = 259200
 FONT = "6x13"
 DEF_CON_COLORS = ["#fff", "#e13426", "#ff0", "#21a650", "#298cc1"]
 
+display_options = [
+    schema.Option(value = "0", display = "Actual Defcon Level"),
+    schema.Option(value = "1", display = "Defcon 1"),
+    schema.Option(value = "2", display = "Defcon 2"),
+    schema.Option(value = "3", display = "Defcon 3"),
+    schema.Option(value = "4", display = "Defcon 4"),
+    schema.Option(value = "5", display = "Defcon 5"),
+]
+
 def main(config):
     show_instructions = config.bool("instructions", False)
     if show_instructions:
         return display_instructions()
 
-    res = http.get(url = DEF_CON_URL, ttl_seconds = CACHE_TTL_SECONDS)
-    if res.status_code != 200:
-        fail("request to %s failed with status code: %d - %s" % (DEF_CON_URL, res.status_code, res.body()))
+    position = config.get("list", display_options[0].value)
 
-    text_to_find = "OSINT Defcon Level: "
-    position = res.body().find(text_to_find) + len(text_to_find)
-    position = res.body()[position:position + 1]
-    if position.isdigit():
+    if position == "0":
+        res = http.get(url = DEF_CON_URL, ttl_seconds = CACHE_TTL_SECONDS)
+        if res.status_code != 200:
+            fail("request to %s failed with status code: %d - %s" % (DEF_CON_URL, res.status_code, res.body()))
+
+        text_to_find = "OSINT Defcon Level: "
+        position = res.body().find(text_to_find) + len(text_to_find)
+        position = res.body()[position:position + 1]
+        if position.isdigit():
+            position = int(position)
+    else:
         position = int(position)
 
     return render.Root(
@@ -65,7 +79,7 @@ def get_defcon_display(position):
 def display_instructions():
     ##############################################################################################################################################################################################################################
     instructions_1 = "For security reasons, the U.S. military does not release the current DEFCON level. "
-    instructions_2 = "The source for this app is defconlevel.com which uses Open Source Intelligence to estimate the DEFCON level.  "
+    instructions_2 = "The source for this app is defconlevel.com which uses Open Source Intelligence to estimate the DEFCON level.  Default is to use the actual DefCon level, but you can pick a level if you want. "
     instructions_3 = "Defcon level 5 is the lowest alert level. The highest level reached was level 2 during the Cuban Missle Crisis. This display is based on the movie War Games."
     return render.Root(
         render.Column(
@@ -103,6 +117,14 @@ def get_schema():
                 desc = "",
                 icon = "book",  #"info",
                 default = False,
+            ),
+            schema.Dropdown(
+                id = "list",
+                name = "Defcon List",
+                desc = "Defcon Level",
+                icon = "list",
+                default = display_options[0].value,
+                options = display_options,
             ),
         ],
     )
