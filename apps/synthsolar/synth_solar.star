@@ -197,8 +197,6 @@ def get_current_load_widget(data):
     """
 
     max_width = 64
-    width_40 = (max_width * 40) // 100
-    width_60 = (max_width * 60) // 100
 
     # * Calculate icon scale
     min_height = 12
@@ -219,34 +217,19 @@ def get_current_load_widget(data):
 
     print("Icon scale", scale, "Total Load", total_load, "Total load raw", data["load_kw"], round_to_one_decimal_str(data["load_kw"]) + "kW")
 
-    return render.Row(
-        children = [
-            # * Box for Icon
-            render.Box(
-                width = width_40,
-                child = render.Column(
-                    expanded = True,
-                    main_align = "center",
-                    cross_align = "center",
-                    children = [
-                        render.Image(src = CURRENT_ICON, width = scale, height = scale),
-                        #render.Box(),
-                    ],
-                ),
-            ),
-            # * Box for text
-            render.Box(
-                width = width_60,
-                child = render.Column(
-                    expanded = True,
-                    main_align = "space_evenly",
-                    cross_align = "center",
-                    children = [
-                        render.Text(content = round_to_one_decimal_str(data["load_kw"]) + "kW", color = "#FF3F00", font = "6x13"),
-                    ],
-                ),
-            ),
-        ],
+    return render.Box(
+        width = max_width,
+        padding = 1,
+        child = render.Column(
+            main_align = "space_around",
+            cross_align = "start",
+            children = [
+                synth_primary_text("USAGE", round_to_one_decimal_str(data["load_kw"]) + "kW"),
+                render.Box(width = max_width, height = 1, color = "#FFFF"),
+                synth_primary_text("GRID", round_to_one_decimal_str(data["grid_power_kw"]) + "kW", "#B0B0B0"),
+                synth_primary_text("SYNTH", round_to_one_decimal_str(data["inverter_power_kw"]) + "kW", "#B0B0B0"),
+            ],
+        ),
     )
 
 def get_current_battery_charge_widget(data):
@@ -286,33 +269,50 @@ def get_current_battery_charge_widget(data):
         icon = BAT_ICON_10
         font_colour = "#BD0000"
 
-    return render.Row(
-        children = [
-            # * Box for Icon
-            render.Box(
-                width = width_40,
-                child = render.Column(
-                    expanded = True,
-                    main_align = "center",
-                    cross_align = "center",
+    # battery_value = 4
+
+    if battery_value == 100:
+        battery_state = "CHARGED"
+    elif battery_value > 0:
+        battery_state = "CHARGING"
+    else:
+        battery_state = "POWERING"
+
+    mapped_battery_value = 0 if battery_value == 0 else int((math.ceil(battery_value) / 100) * 60)
+
+    return render.Box(
+        width = max_width,
+        padding = 1,
+        child = render.Column(
+            main_align = "space_around",
+            cross_align = "start",
+            children = [
+                synth_primary_text(str(math.ceil(battery_value)) + "%", ""),
+                render.Stack(
                     children = [
-                        render.Image(src = icon, width = 12),
+                        render.Box(
+                            width = 62,
+                            height = 9,
+                            color = "#ffff",
+                            child = render.Box(
+                                width = 60,
+                                height = 7,
+                                color = "#000",
+                            ),
+                        ),
+                        render.Padding(
+                            pad = (1, 1, 0, 0),
+                            child = render.Box(
+                                width = mapped_battery_value,
+                                height = 7,
+                                color = "#B0B0B0",
+                            ),
+                        ),
                     ],
                 ),
-            ),
-            # * Box for text
-            render.Box(
-                width = width_60,
-                child = render.Column(
-                    expanded = True,
-                    main_align = "center",
-                    cross_align = "center",
-                    children = [
-                        render.Text(content = str(math.ceil(battery_value)) + "%", color = font_colour, font = "10x20"),
-                    ],
-                ),
-            ),
-        ],
+                synth_primary_text(battery_state, ""),
+            ],
+        ),
     )
 
 def round_to_one_decimal_str(x):
@@ -393,13 +393,24 @@ def build_keyframe(offset, pct):
     )
 
 def get_schema():
+    mode_options = [
+        schema.Option(
+            display = "Sensible",
+            value = "sensible",
+        ),
+        schema.Option(
+            display = "8-bit",
+            value = "8bit",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
             schema.Text(
                 id = "serial_number",
                 name = "Serial Number",
-                desc = "Serial number of your inverter",
+                desc = "Serial number of your inverter.",
                 icon = "solarPanel",
                 default = "",
             ),
@@ -409,6 +420,14 @@ def get_schema():
                 desc = "User's timezone",
                 icon = "clock",
                 default = "Europe/London",
+            ),
+            schema.Dropdown(
+                id = "mode",
+                name = "Mode",
+                desc = "Sensible or 8-bit mode",
+                icon = "brush",
+                default = mode_options[0].value,
+                options = mode_options,
             ),
         ],
     )
@@ -492,11 +511,11 @@ def get_widgets_and_animations(url, timezone):
 
     else:
         widgets = [
+            get_current_battery_charge_widget(battery_data),
+            get_current_load_widget(load_data),
             get_todays_generation(url),
             get_savings(url, timezone),
             get_overall_realtime_performance(url),
-            get_current_load_widget(load_data),
-            get_current_battery_charge_widget(battery_data),
         ]
         keyframes = [
             build_keyframe(0, 0.0),
@@ -512,6 +531,15 @@ def get_widgets_and_animations(url, timezone):
         ]
 
     return keyframes, widgets, max_animation_duration
+
+def synth_primary_text(str1, str2, color = "#FFFF"):
+    return render.Row(
+        expanded = True,
+        children = [
+            render.Padding(child = render.Text(content = str1, color = color, font = "6x10-rounded"), pad = (0, 0, 3, 0)),
+            render.Text(content = str2, color = color, font = "6x10-rounded"),
+        ],
+    )
 
 def main(config):
     """
