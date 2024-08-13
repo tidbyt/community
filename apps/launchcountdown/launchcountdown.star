@@ -179,21 +179,10 @@ def get_launch_details(rocket_launch_data, locallaunch):
         Display info of launch details
     """
 
-    #TEST CODE to test time display
-    #locallaunch = locallaunch + time.parse_duration("%sh" % -11.5)
-    #print(locallaunch)
-
-    countdown = (locallaunch - time.now())
-    countdownDisplay = ""
-
-    if countdown.hours >= 1.5:
-        whole_hours = math.floor(countdown.hours)
-        countdownDisplay = ("In %s %s %s minutes, " % (int(whole_hours), "hours" if whole_hours > 1 else "hour", int(math.round(countdown.minutes - (whole_hours * 60)))))
-    elif countdown.minutes > 0:
-        countdownDisplay = ("%s minutes from now, " % int(math.round(countdown.minutes)))
-
     #SpaceX has a launch pad called launch pad ... looks stupid to display that.
     pad_name = None if rocket_launch_data["pad"]["name"] == "Launch Pad" else rocket_launch_data["pad"]["name"]
+
+    countdownDisplay = ""
 
     potential_display_items = [
         rocket_launch_data["provider"]["name"],
@@ -201,9 +190,18 @@ def get_launch_details(rocket_launch_data, locallaunch):
         rocket_launch_data["pad"]["location"]["name"],
         rocket_launch_data["pad"]["location"]["state"],
         rocket_launch_data["pad"]["location"]["country"],
-        locallaunch.format("Monday Jan 2 2006"),
-        locallaunch.format("3:04 PM MST"),
     ]
+
+    if locallaunch != None:
+        countdown = (locallaunch - time.now())
+        potential_display_items.append(locallaunch.format("Monday Jan 2 2006"))
+        potential_display_items.append(locallaunch.format("3:04 PM MST"))
+
+        if countdown.hours >= 1.5:
+            whole_hours = math.floor(countdown.hours)
+            countdownDisplay = ("In %s %s %s minutes, " % (int(whole_hours), "hours" if whole_hours > 1 else "hour", int(math.round(countdown.minutes - (whole_hours * 60)))))
+        elif countdown.minutes > 0:
+            countdownDisplay = ("%s minutes from now, " % int(math.round(countdown.minutes)))
 
     display_items_format = [
         "%s will launch",
@@ -262,7 +260,7 @@ def replace_local_time_into_description(description, locallaunch, utclaunch):
     utc_time_display = ("%s at %s (%s)") % (utclaunch.format("Thursday, January 2, 2006"), utclaunch.format("3:04 PM"), utclaunch.format("MST"))
     local_time_display = ("%s at %s %s") % (locallaunch.format("Thursday, January 2, 2006"), locallaunch.format("3:04 PM"), locallaunch.format("MST"))
 
-    #What the heck is this character being returned in the json for??
+    description = description.replace("\u202f", "")
     description = description.replace(" ", " ")
     description = description.replace(utc_time_display, local_time_display)
 
@@ -309,15 +307,27 @@ def main(config):
         rocket_launch_count = int(rocket_launch_count)
         for i in range(0, rocket_launch_count):
             localtime = time.now()
-            locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
+            if rocket_launch_data["result"][i]["t0"] == None:
+                locallaunch = None
+            else:
+                locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
 
-            if locallaunch > localtime.in_location(location["timezone"]):
+            if locallaunch == None:
+                month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                row1 = rocket_launch_data["result"][i]["vehicle"]["name"]
+                if rocket_launch_data["result"][i]["est_date"]["month"] == None or rocket_launch_data["result"][i]["est_date"]["day"] == None:
+                    row2 = row2
+                else:
+                    row2 = "%s %s '%s" % (month_names[int(rocket_launch_data["result"][i]["est_date"]["month"]) - 1], rocket_launch_data["result"][i]["est_date"]["day"], str(rocket_launch_data["result"][i]["est_date"]["year"])[-2:])
+                row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch).strip()
+
+                row4 = rocket_launch_data["result"][i]["launch_description"].strip()
+            elif locallaunch > localtime.in_location(location["timezone"]):
                 hours_notice = int(config.get("notice_period", 0))
                 hours_until_sighting = (locallaunch - localtime.in_location(location["timezone"])).hours
 
                 if (hours_notice == 0 or hours_notice > hours_until_sighting):
                     row1 = rocket_launch_data["result"][i]["vehicle"]["name"]
-                    locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
                     row2 = locallaunch.format("Jan 2 '06")
                     row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch)
                     row4 = replace_local_time_into_description(rocket_launch_data["result"][i]["launch_description"], locallaunch, time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")))

@@ -6,18 +6,19 @@ Author: M0ntyP
 
 v1.0 - Initial Release
 
-MLC starts 13 July
+v1.1 
+Updated for the 2024 season
+
 """
 
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-SeriesID = "1357742"
+SeriesID = "1432722"
 
 LiveGames_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/home?lang=en&seriesId=" + SeriesID
 Standings_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/standings?lang=en&seriesId=" + SeriesID
@@ -70,6 +71,7 @@ def main(config):
 
     # if nothing is found, look further down the fixtures
     if MatchID == None:
+        y = 0
         FixturesData = get_cachable_data(Fixtures_URL, STANDINGS_CACHE)
         Fixtures_JSON = json.decode(FixturesData)
         FixtureList = Fixtures_JSON["content"]["matches"]
@@ -79,8 +81,17 @@ def main(config):
                     MatchID = FixtureList[y]["objectId"]
                     break
 
+        # if no "SCHEDULED" matches found, we must be at the end of the tournament - so keep showing the final match
+        if MatchID == None:
+            MatchID = FixtureList[y]["objectId"]
+
     LastOut_Runs = 0
     LastOut_Name = ""
+    Trail = ""
+    Overs = 0
+    BallsRem = 0
+    T20_Status2 = ""
+    T20_Status3 = ""
     T20_Status4 = ""
 
     MatchID = str(MatchID)
@@ -98,16 +109,6 @@ def main(config):
         # What's the score
         Wickets = Match_JSON["scorecard"]["innings"][Innings]["wickets"]
         Runs = Match_JSON["scorecard"]["innings"][Innings]["runs"]
-
-        # In front or behind? And how much?
-        Trail = Match_JSON["scorecard"]["innings"][Innings]["lead"]
-
-        Trail = math.fabs(Trail) + 1
-        Trail = humanize.float("#.", Trail)
-        Trail = str(Trail)
-
-        # Calculate how many balls are remaining, only used in 2nd innings
-        BallsRem = str(Match_JSON["scorecard"]["innings"][Innings]["totalBalls"] - Match_JSON["scorecard"]["innings"][Innings]["balls"])
 
         # How many overs bowled
         Overs = Match_JSON["scorecard"]["innings"][Innings]["overs"]
@@ -234,28 +235,63 @@ def main(config):
         if T20_Innings == 1:
             if MatchStatus == "Live":
                 T20_Status1 = "Overs: " + Overs
+                T20_Status2 = Last12Balls
+                T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Proj Score: " + ProjScore
             elif MatchStatus == "Innings break":
                 T20_Status1 = MatchStatus
+                T20_Status2 = MatchStatus
+                T20_Status3 = MatchStatus
                 T20_Status4 = MatchStatus
             elif MatchStatus == "Match delayed by rain":
                 MatchStatus = "Rain Delay"
                 T20_Status1 = MatchStatus
-            else:
+                T20_Status2 = "Overs: " + Overs
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = MatchStatus
+            elif MatchStatus == "Strategic Timeout":
+                MatchStatus = "Timeout"
                 T20_Status1 = MatchStatus
-
-            T20_Status2 = Last12Balls
-            T20_Status3 = "Run Rate: " + CRR
+                T20_Status2 = "Overs: " + Overs
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = "Proj Score: " + ProjScore
+            else:  # For any other siutation - drinks or other delays
+                T20_Status1 = MatchStatus
+                T20_Status2 = "Overs: " + Overs
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = "Proj Score: " + ProjScore
 
             # 2nd Innings underway
         else:
-            T20_Status1 = BattingTeamAbbr + ":" + Trail + " off " + BallsRem
+            # Calculate how many balls are remaining
+            BallsRem = str(Match_JSON["scorecard"]["innings"][Innings]["totalBalls"] - Match_JSON["scorecard"]["innings"][Innings]["balls"])
+
+            # Calculate how many runs left to win
+            Target = Match_JSON["scorecard"]["innings"][Innings]["target"]
+            RunsReq = Target - Match_JSON["scorecard"]["innings"][Innings]["runs"]
+            Trail = str(RunsReq)
+
+            T20_Status1 = "REQ " + Trail + " off " + BallsRem
             T20_Status2 = Last12Balls
             T20_Status3 = "Run Rate: " + CRR
             T20_Status4 = "Req Rate: " + RRR
             if MatchStatus == "Match delayed by rain":
                 MatchStatus = "Rain Delay"
-                T20_Status3 = MatchStatus
+                T20_Status1 = MatchStatus
+                T20_Status2 = "REQ " + Trail + " off " + BallsRem
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = "Req Rate: " + RRR
+            elif MatchStatus == "Strategic Timeout":
+                MatchStatus = "Timeout"
+                T20_Status1 = MatchStatus
+                T20_Status2 = "Overs: " + Overs
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = "Req Rate: " + RRR
+            elif MatchStatus != "Live":  # For any other situation - drinks or other delays
+                T20_Status1 = MatchStatus
+                T20_Status2 = "Overs: " + Overs
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = "Req Rate: " + RRR
 
         # Wicket has fallen but not the end of the inngs
         if IsOut == True and Wickets != "10":
@@ -269,7 +305,7 @@ def main(config):
                 # Team batting second, still want to show how far behind and req RR
             else:
                 T20_Status1 = "WICKET!"
-                T20_Status2 = BattingTeamAbbr + ":" + Trail + " off " + BallsRem
+                T20_Status2 = "REQ " + Trail + " off " + BallsRem
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Req Rate: " + RRR
 
@@ -320,64 +356,84 @@ def main(config):
         # Game has completed
         # check if 2 innings were started
 
-        if len(Match_JSON["scorecardSummary"]["innings"]) == 2:
-            Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["abbreviation"]
-            Team2_Abbr = Match_JSON["scorecardSummary"]["innings"][1]["team"]["abbreviation"]
-            Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
-            Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
+        if Match_JSON["scorecardSummary"] != None:
+            if len(Match_JSON["scorecardSummary"]["innings"]) == 2:
+                Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["abbreviation"]
+                Team2_Abbr = Match_JSON["scorecardSummary"]["innings"][1]["team"]["abbreviation"]
+                Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
+                Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
 
-            Team1_Wkts = Match_JSON["scorecardSummary"]["innings"][0]["wickets"]
-            Team1_Runs = Match_JSON["scorecardSummary"]["innings"][0]["runs"]
+                Team1_Wkts = Match_JSON["scorecardSummary"]["innings"][0]["wickets"]
+                Team1_Runs = Match_JSON["scorecardSummary"]["innings"][0]["runs"]
 
-            Team2_Wkts = Match_JSON["scorecardSummary"]["innings"][1]["wickets"]
-            Team2_Runs = Match_JSON["scorecardSummary"]["innings"][1]["runs"]
+                Team2_Wkts = Match_JSON["scorecardSummary"]["innings"][1]["wickets"]
+                Team2_Runs = Match_JSON["scorecardSummary"]["innings"][1]["runs"]
 
-            Team1_Wkts_Str = str(Team1_Wkts)
-            Team1_Runs_Str = str(Team1_Runs)
-            Team2_Wkts_Str = str(Team2_Wkts)
-            Team2_Runs_Str = str(Team2_Runs)
+                Team1_Wkts_Str = str(Team1_Wkts)
+                Team1_Runs_Str = str(Team1_Runs)
+                Team2_Wkts_Str = str(Team2_Wkts)
+                Team2_Runs_Str = str(Team2_Runs)
 
-            if Team1_Wkts != 10:
-                Score1 = Team1_Wkts_Str + "/" + Team1_Runs_Str
+                if Team1_Wkts != 10:
+                    Score1 = Team1_Wkts_Str + "/" + Team1_Runs_Str
+                else:
+                    Score1 = Team1_Runs_Str
+
+                if Team2_Wkts != 10:
+                    Score2 = Team2_Wkts_Str + "/" + Team2_Runs_Str
+                else:
+                    Score2 = Team2_Runs_Str
+
+                Team1_Color = getTeamColor(Team1_ID)
+                Team2_Color = getTeamColor(Team2_ID)
+
+                WinnerID = Match_JSON["match"]["winnerTeamId"]
+
+                # else - no winner, no result
+                if WinnerID == Team1_ID:
+                    WinnerColor = Team1_Color
+                elif WinnerID == Team2_ID:
+                    WinnerColor = Team2_Color
+                else:
+                    WinnerColor = "#fff"
+
+                Result = Match_JSON["match"]["statusText"]
+
+                # only 1 innings got started, eg washout
             else:
-                Score1 = Team1_Runs_Str
+                Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["abbreviation"]
+                Team2_Abbr = Match_JSON["match"]["teams"][1]["team"]["abbreviation"]
+                Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
+                Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
 
-            if Team2_Wkts != 10:
-                Score2 = Team2_Wkts_Str + "/" + Team2_Runs_Str
-            else:
-                Score2 = Team2_Runs_Str
+                Team1_Wkts = Match_JSON["scorecardSummary"]["innings"][0]["wickets"]
+                Team1_Runs = Match_JSON["scorecardSummary"]["innings"][0]["runs"]
 
-            Team1_Color = getTeamColor(Team1_ID)
-            Team2_Color = getTeamColor(Team2_ID)
+                Score2 = ""
 
-            WinnerID = Match_JSON["match"]["winnerTeamId"]
+                Team1_Wkts_Str = str(Team1_Wkts)
+                Team1_Runs_Str = str(Team1_Runs)
 
-            if WinnerID == Team1_ID:
-                WinnerColor = Team1_Color
-            else:
-                WinnerColor = Team2_Color
+                if Team1_Wkts != 10:
+                    Score1 = Team1_Wkts_Str + "/" + Team1_Runs_Str
+                else:
+                    Score1 = Team1_Runs_Str
 
-            Result = Match_JSON["match"]["statusText"]
+                Team1_Color = getTeamColor(Team1_ID)
+                Team2_Color = getTeamColor(Team2_ID)
 
-            # only 1 innings got started, eg washout
+                Result = Match_JSON["match"]["statusText"]
+                WinnerColor = "#fff"
+
+            # No play at all
         else:
-            Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["abbreviation"]
+            Team1_Abbr = Match_JSON["match"]["teams"][0]["team"]["abbreviation"]
             Team2_Abbr = Match_JSON["match"]["teams"][1]["team"]["abbreviation"]
             Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
             Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
 
-            Team1_Wkts = Match_JSON["scorecardSummary"]["innings"][0]["wickets"]
-            Team1_Runs = Match_JSON["scorecardSummary"]["innings"][0]["runs"]
-
+            Score1 = ""
             Score2 = ""
-
-            Team1_Wkts_Str = str(Team1_Wkts)
-            Team1_Runs_Str = str(Team1_Runs)
-
-            if Team1_Wkts != 10:
-                Score1 = Team1_Wkts_Str + "/" + Team1_Runs_Str
-            else:
-                Score1 = Team1_Runs_Str
 
             Team1_Color = getTeamColor(Team1_ID)
             Team2_Color = getTeamColor(Team2_ID)

@@ -5,8 +5,6 @@ Description: Display CPBL live scores & upcoming games. (Require BetsAPI token).
 Author: yuping917
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -38,6 +36,7 @@ TEAM_LOGO = """
     "836779": "https://www.thesportsdb.com/images/media/team/badge/gx1dgl1680852780.png",
     "329121": "https://assets.b365api.com/images/wp/o/8d4b8b442ce550b84187f6a388dd08e5.png",
     "224094": "https://assets.b365api.com/images/wp/o/dec78d508fac27062963e766d6fd4323.png",
+    "229259": "https://assets.b365api.com/images/wp/o/dec78d508fac27062963e766d6fd4323.png",
     "224095": "https://assets.b365api.com/images/wp/o/5631bccbd611a4c52edac4e5ea940f1f.png"
 }
 """
@@ -49,6 +48,7 @@ TEAM_COLOR = """
     "836779": "#074539",
     "329121": "#4b1d18",
     "224094": "#002255",
+    "229259": "#002255",
     "224095": "#df6b00"
 }
 """
@@ -60,6 +60,7 @@ TEAM_FONTCOLOR = """
     "836779": "#fff",
     "329121": "#fff",
     "224094": "#fff",
+    "229259": "#fff",
     "224095": "#fff"
 }
 """
@@ -68,6 +69,7 @@ GAME_STATUS = """
 {
     "0": "Upcoming",
     "1": "Live",
+    "2": "Err",
     "3": "End",
     "4": "Postponed",
     "7": "Cancel",
@@ -82,6 +84,7 @@ TEAM_LOCATION = """
     "836779": "KHH",
     "329121": "TYN",
     "224094": "TPH",
+    "229259": "TPH",
     "224095": "TNN"
 }
 """
@@ -93,6 +96,7 @@ TEAM_SHORTNAME = """
     "836779": "HAWKS",
     "329121": "RAKUTEN",
     "224094": "FUBON",
+    "229259": "FUBON",
     "224095": "UNI-LION"
 }
 """
@@ -136,33 +140,44 @@ def main(config):
             awayScore = s["scores"]["run"]["home"]
             awayColor = get_teamcolor(awayId)
             gameTime = s["time"]
+            currentInning = 0
             if gameStatus == "Live":
                 liveinning = "Live"
-                for x in range(11):
+                for x in range(12):
                     if x == 0:
                         continue
-                    tempVal = s["scores"].get(str(x), "NO_YET")
-                    if tempVal == "NO_YET":
-                        if x == 1:
+                    tempVal = s["scores"].get(str(x), "FALSE")
+                    if tempVal != "FALSE":
+                        xhomeScore = s["scores"][str(x)]["home"]
+                        xawayScore = s["scores"][str(x)]["away"]
+                        if xhomeScore != "":
+                            if xawayScore == "":
+                                currentInning = x
+                                liveinning = "TOP " + str(currentInning) + get_inningStr(currentInning)
+                                break
+                            else:
+                                if x == 9:
+                                    TBCheck = s["scores"].get(str(10), "FALSE")
+                                    if TBCheck == "FALSE":
+                                        currentInning = x
+                                        liveinning = "BOT " + str(currentInning) + get_inningStr(currentInning)
+                                        break
+                                continue
+                        elif xhomeScore == "":
+                            if x == 1:
+                                currentInning = x
+                                liveinning = "TOP " + str(currentInning) + get_inningStr(currentInning)
+                                break
+                            else:
+                                currentInning = x - 1
+                                liveinning = "BOT " + str(currentInning) + get_inningStr(currentInning)
+                                break
+                    elif tempVal == "FALSE":
+                        if x - 1 > 9:
+                            liveinning = "TB"
                             break
-                        x = x - 1
-                        if x == 1:
-                            intStr = "st"
-                        elif x == 2:
-                            intStr = "nd"
-                        elif x == 3:
-                            intStr = "rd"
                         else:
-                            intStr = "th"
-                        tempinnAwayVal = s["scores"][str(x)].get("away", "")
-                        if tempinnAwayVal == "":
-                            liveinning = "TOP " + str(x) + intStr
                             break
-                        elif tempinnAwayVal != "":
-                            liveinning = "BOT " + str(x) + intStr
-                            break
-                    else:
-                        continue
                 gameTime = liveinning
             else:
                 convertedTime = time.from_timestamp(int(gameTime)).in_location(timezone)
@@ -395,7 +410,7 @@ teamOptions = [
     ),
     schema.Option(
         display = "Fubon Guardians",
-        value = "224094",
+        value = "229259",
     ),
     schema.Option(
         display = "TSG Hawks",
@@ -530,10 +545,6 @@ def get_schema():
     )
 
 def get_cachable_data(url):
-    key = base64.encode(url)
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
     res = http.get(url = url, ttl_seconds = CACHE_TTL_SECONDS)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
@@ -541,17 +552,17 @@ def get_cachable_data(url):
 
 def get_logo(team):
     usealtlogo = json.decode(TEAM_LOGO)
-    logo = usealtlogo.get(team, "NO")
+    logo = usealtlogo.get(team, "NOLOGO")
     return logo
 
 def get_teamcolor(team):
     usealtcolor = json.decode(TEAM_COLOR)
-    color = usealtcolor.get(team, "NO")
+    color = usealtcolor.get(team, "#fff")
     return color
 
 def get_teamfontcolor(team):
     usealtcolor = json.decode(TEAM_FONTCOLOR)
-    color = usealtcolor.get(team, "NO")
+    color = usealtcolor.get(team, "#fff")
     return color
 
 def get_teamlocation(team):
@@ -568,3 +579,14 @@ def get_gamestatus(status):
     gamestatus = json.decode(GAME_STATUS)
     sta = gamestatus.get(status, "NO")
     return sta
+
+def get_inningStr(x):
+    if x == 1:
+        intStr = "st"
+    elif x == 2:
+        intStr = "nd"
+    elif x == 3:
+        intStr = "rd"
+    else:
+        intStr = "th"
+    return intStr
