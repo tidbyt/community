@@ -146,12 +146,15 @@ def main(config):
     random.seed(time.now().unix // 10)
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
-
+    
     newyears_year = now.year + 1
     new_years = time.time(year = newyears_year, month = 1, day = 1, hour = 0, minute = 0, location = timezone)
-    time_until_new_year_in_days = math.ceil(time.parse_duration(new_years - now).seconds / 86400)
-
-    msg = ("%s Days till New Year's!" % time_until_new_year_in_days)
+    
+    if now.month == 1 and now.day == 1:
+        msg = "IT'S NEW YEAR'S DAY!"
+    else:
+        time_until_new_year_in_days = math.ceil(time.parse_duration(new_years - now).seconds / 86400)
+        msg = ("%s Days till New Year's!" % time_until_new_year_in_days)
 
     widget_message = render.Column(
         expanded = True,
