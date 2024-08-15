@@ -3,6 +3,6 @@ id: chesscom-elo
 name: Chess.com ELO
 summary: Track your Chess.com ELO
 desc: Track your ELO from Chess.com from a variety of game types.
-author: theUnBurn
+author: UnBurn
 fileName: chesscom_elo.star
 packageName: chesscomelo

@@ -1,0 +1,8 @@
+---
+id: trakt
+name: Trakt
+summary: Trakt info on your Tidbyt
+desc: Show your Trakt now watching, most recently watched, and stats, on your Tidbyt.
+author: cbattlegear
+fileName: trakt.star
+packageName: trakt

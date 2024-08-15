@@ -23,7 +23,7 @@ commandments = {
     1: {
         "commandment": "Thou shalt not take the name of the Lord thy God in vain.",
         "commands": "reverence in speaking about God and holy things; the keeping of oaths and vows.",
-        "forbids": "blasphemy; the irreverent use of God's name; speaking disrespectfully of holy things; false oaths and the breaking of vows.",
+        "forbids": "blasphemy; the irreverent use of God's name.",
     },
     2: {
         "commandment": "Remember to keep holy the Sabbath day.",
@@ -32,8 +32,8 @@ commandments = {
     },
     3: {
         "commandment": "Honor thy father and mother.",
-        "commands": "love; respect; obedience on the part of children; care on the part of parents for the spiritual and temporal welfare of their children; obedience to civil and religious superiors.",
-        "forbids": "hatred of parents and superiors; disrespect; disobedience.",
+        "commands": "love; respect; obedience of children; care for the spiritual and temporal welfare of your children.",
+        "forbids": "hatred of parents and superiors; disrespect.",
     },
     4: {
         "commandment": "Thou shalt not murder.",
@@ -47,18 +47,18 @@ commandments = {
     },
     6: {
         "commandment": "Thou shalt not steal.",
-        "commands": "respect for the property of rights and others; the paying of just debts; paying just wages to employees; integrity in public office.",
-        "forbids": "theft; damage to the property of others; not paying just debts; not returning found or borrowed articles; giving unjust measure or weight in selling; not paying just wages; bribery; graft; cheating; fraud; accepting stolen property; not giving an honest day's work for wages received; breach of contract.",
+        "commands": "respect for property of rights; paying of just debts and just wages.",
+        "forbids": "theft; damage to property; not returning found or borrowed articles.",
     },
     7: {
         "commandment": "Thou shalt not bear false witness against thy neighbor.",
         "commands": "truthfulness; respect for the good name of others; the observance of secrecy when required.",
-        "forbids": "lying; injury to the good name of others; slander; talebearing; rash judgment; contemptuous speech and the violation of secrecy.",
+        "forbids": "lying; injury to the good name of others; slander; talebearing.",
     },
     8: {
         "commandment": "Thou shalt not covet thy neighbor's wife.",
         "commands": "purity in thought.",
-        "forbids": "wilful impure thought and desires.",
+        "forbids": "willful impure thought and desires.",
     },
     9: {
         "commandment": "Thou shalt not covet thy neighbor's goods.",
@@ -121,6 +121,9 @@ def main(config):
     else:
         #default is random element
         current_commandment = commandments[random.number(0, len(commandments) - 1)]
+
+    #for testing: pick a specific commandment
+    #current_commandment = commandments[7]
 
     #Always get a random image
     current_image = random.number(0, len(images) - 1)

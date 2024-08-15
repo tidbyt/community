@@ -31,7 +31,7 @@ def main(config):
             cross_align = "center",
             children = [
                 render.Text(" ACCIDENT FREE", color = "#fff", font = "tb-8"),
-                render.Text("FOR %s" % humanize.float("#.", accident_free_days), color = "#f4a306", font = "6x13"),
+                render.Text("%s" % humanize.float("#,###.", accident_free_days), color = "#f4a306", font = "6x13"),
                 render.Text(day_or_days, color = "#fff", font = "tb-8"),
             ],
         ),

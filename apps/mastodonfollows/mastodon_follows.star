@@ -47,12 +47,12 @@ irBThl5EZKG0l5xrlQL/Lw2O4kHOCHzzH6J6eeTaYhipO9wa5uBYgNMHfs2MKyLvrjk=
 """)
 
 def main(config):
-    username = config.get("username", "donmelton")
+    username = config.get("username", "lisamelton")
 
     if username.startswith("@"):
         username = username[len("@"):]
 
-    instance = json.decode(config.get("instance", "{\"display\":\"mstdn.social\",\"value\":\"mstdn.social\"}"))
+    instance = json.decode(config.get("instance", "{\"display\":\"mastodon.social\",\"value\":\"mastodon.social\"}"))
     instance_name = instance["value"]
     message = "@%s@%s" % (username, instance_name)
     followers_count = get_followers_count(instance_name, username)
@@ -98,10 +98,9 @@ def main(config):
 
 def get_followers_count(instance, username):
     response = http.get(
-        "https://%s/users/%s/followers" % (instance, username),
+        "https://%s/api/v1/accounts/lookup/?acct=%s" % (instance, username),
         headers = {
             "Content-Type": "application/json",
-            "Accept": "application/activity+json",
         },
         ttl_seconds = 240,
     )
@@ -109,7 +108,7 @@ def get_followers_count(instance, username):
     if response.status_code == 200:
         body = response.json()
         if body != None and len(body) > 0:
-            return int(body["totalItems"])
+            return int(body["followers_count"])
     return None
 
 def search_instances(pattern):

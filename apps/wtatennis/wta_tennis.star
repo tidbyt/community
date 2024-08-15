@@ -53,6 +53,14 @@ v1.9
 Added new feature to show who won each set (for completed & in progress matches) rather than having all of the match winner's sets in yellow. Makes it easier to see the flow of the match
 Updated scheduled matches to only show if both players are listed, prevents blanks
 Updated checks for walkover matches
+
+v1.10
+Updated box sizes to show "WO" for walkovers
+Final of tournament now indicated for scheduled, completed and in progress final
+Found bug that was showing incorrect winner for matches where there was a retirement during a set
+
+v1.10.1
+Added Indian Wells to list of WTA 1000 list, removed incorrect event ID
 """
 
 load("encoding/json.star", "json")
@@ -62,8 +70,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-SLAM_LIST = ["154-2023", "188-2023", "172-2023", "189-2023"]
-WTA1000_LIST = ["718-2023", "887-2023", "382-2023", "418-2023"]
+SLAM_LIST = ["154-2024", "188-2024", "172-2024", "189-2024"]
+WTA1000_LIST = ["256-2024", "25-2024", "713-2024", "411-2024", "413-2024", "414-2024", "421-2024", "718-2024", "959-2024", "382-2024"]
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 WTA_SCORES_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard"
 
@@ -85,7 +93,7 @@ def main(config):
     diffTournStart = 0
     GroupingsID = 0
 
-    TestID = "718-2023"
+    TestID = "718-2024"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     ShowScheduled = config.get("ScheduledOn", "false")
@@ -473,6 +481,30 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                 ),
             ]
             Display.extend(Scores)
+            if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["round"]["displayName"] == "Final":
+                Final = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        cross_align = "end",
+                        children = [
+                            render.Row(
+                                main_align = "start",
+                                children = [
+                                    render.Padding(
+                                        pad = (1, 1, 0, 0),
+                                        child = render.Text(
+                                            content = "FINAL",
+                                            color = "#fff",
+                                            font = displayfont,
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ]
+                Display.extend(Final)
 
     if InProgressNum == 0:
         NoMatches = [
@@ -594,16 +626,18 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                     Player1SetWinnerList.insert(0, Player1SetWinner)
                     Player2SetWinnerList.insert(0, Player2SetWinner)
 
-                    Player1Color = "#fff"
-                    Player2Color = "#fff"
+                    Player1SetColor = "#fff"
+                    Player2SetColor = "#fff"
                     P1Score = Player1SetScoreList.pop()
                     P2Score = Player2SetScoreList.pop()
                     P1SetWinner = Player1SetWinnerList.pop()
+                    P2SetWinner = Player2SetWinnerList.pop()
 
+                    # indicate the set winner in yellow, if no set winner (in the case of retirement) then both scores are white
                     if P1SetWinner == True:
-                        Player1Color = "ff0"
-                    else:
-                        Player2Color = "ff0"
+                        Player1SetColor = "ff0"
+                    elif P2SetWinner == True:
+                        Player2SetColor = "ff0"
 
                     SetScores1 = [
                         render.Box(
@@ -611,7 +645,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                             height = 5,
                             child = render.Text(
                                 content = P1Score,
-                                color = Player1Color,
+                                color = Player1SetColor,
                                 font = displayfont,
                             ),
                         ),
@@ -623,7 +657,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                             height = 5,
                             child = render.Text(
                                 content = P2Score,
-                                color = Player2Color,
+                                color = Player2SetColor,
                                 font = displayfont,
                             ),
                         ),
@@ -637,7 +671,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                 if (Player1_Winner):
                     MasterSetScores1 = [
                         render.Box(
-                            width = 4,
+                            width = 10,
                             height = 5,
                             child = render.Text(
                                 content = "WO",
@@ -661,7 +695,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                 elif (Player2_Winner):
                     MasterSetScores2 = [
                         render.Box(
-                            width = 4,
+                            width = 10,
                             height = 5,
                             child = render.Text(
                                 content = "WO",
@@ -742,6 +776,30 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                 ),
             ]
             Display.extend(Scores)
+            if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["round"]["displayName"] == "Final":
+                Final = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        cross_align = "end",
+                        children = [
+                            render.Row(
+                                main_align = "start",
+                                children = [
+                                    render.Padding(
+                                        pad = (1, 1, 0, 0),
+                                        child = render.Text(
+                                            content = "FINAL",
+                                            color = "#fff",
+                                            font = displayfont,
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ]
+                Display.extend(Final)
 
     if Completed == 0:
         NoMatches = [
@@ -969,6 +1027,31 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
             ]
             Display.extend(Scores)
 
+            if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["round"]["displayName"] == "Final":
+                Final = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        cross_align = "end",
+                        children = [
+                            render.Row(
+                                main_align = "start",
+                                children = [
+                                    render.Padding(
+                                        pad = (1, 1, 0, 0),
+                                        child = render.Text(
+                                            content = "FINAL",
+                                            color = "#fff",
+                                            font = displayfont,
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ]
+                Display.extend(Final)
+
     if Scheduled == 0:
         NoMatches = [
             render.Row(
@@ -1099,13 +1182,13 @@ def get_schema():
     )
 
 def titleBar(SelectedTourneyID):
-    if SelectedTourneyID == "154-2023":  # AO
+    if SelectedTourneyID == "154-2024":  # AO
         titleColor = "#0091d2"
-    elif SelectedTourneyID == "188-2023":  # Wimbledon
+    elif SelectedTourneyID == "188-2024":  # Wimbledon
         titleColor = "#006633"
-    elif SelectedTourneyID == "172-2023":  # French Open
+    elif SelectedTourneyID == "172-2024":  # French Open
         titleColor = "#c84e1e"
-    elif SelectedTourneyID == "189-2023":  # US Open
+    elif SelectedTourneyID == "189-2024":  # US Open
         titleColor = "#022686"
     else:
         titleColor = "#430166"

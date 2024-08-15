@@ -1,0 +1,8 @@
+---
+id: seinfeld-quotes
+name: Seinfeld Quotes
+summary: Displays Seinfeld Quotes
+desc: Displays a random quote from the hit sitcom Seinfeld.
+author: ndlybarger
+fileName: seinfeldquotes.star
+packageName: seinfeldquotes

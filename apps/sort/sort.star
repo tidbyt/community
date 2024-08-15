@@ -515,8 +515,8 @@ def main():
 
     random_shuffle(arr)
 
-    # randomSortIndex = random.number(0, len(sorts)) - 1
-    randomSortIndex = 7
+    randomSortIndex = random.number(0, len(sorts)) - 1
+    # randomSortIndex = 7
 
     return render.Root(
         show_full_animation = True,
