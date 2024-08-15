@@ -146,10 +146,10 @@ def main(config):
     random.seed(time.now().unix // 10)
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
-    
+
     newyears_year = now.year + 1
     new_years = time.time(year = newyears_year, month = 1, day = 1, hour = 0, minute = 0, location = timezone)
-    
+
     if now.month == 1 and now.day == 1:
         msg = "IT'S NEW YEAR'S DAY!"
     else:
