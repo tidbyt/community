@@ -310,7 +310,7 @@ def render_entity(entity, absolute_value = False, convert_to_kw = False, with_un
         value = value / 1000.0
 
     if dec == None:
-        if value < 10:
+        if value < 9.95:
             value_str = humanize.float("#,###.#", value)
         else:
             value_str = humanize.float("#,###.", value)
@@ -482,6 +482,9 @@ def main(config):
             ),
         ],
     )
+
+    if config.bool("$widget"):
+        return render.Root(main_frame)
 
     if config.bool("show_main", True):
         frames.append(main_frame)
