@@ -41,8 +41,8 @@ def main(config):
                     main_align = "center",
                     cross_align = "end",
                     expanded = True,
-                    children = get_element(predictions[i], 50)
-                )
+                    children = get_element(predictions[i], 50),
+                ),
             )
         return render.Root(
             delay = 100,
@@ -88,8 +88,8 @@ def main(config):
                                 main_align = "start",
                                 cross_align = "end",
                                 expanded = True,
-                                children = left
-	                    )
+                                children = left,
+                            ),
                         ),
                         render.Box(
                             height = 8,
@@ -98,11 +98,11 @@ def main(config):
                                 main_align = "start",
                                 cross_align = "end",
                                 expanded = True,
-                                children = right
-                            )
+                                children = right,
+                            ),
                         ),
-                    ]
-                )
+                    ],
+                ),
             )
         return render.Root(
             delay = 100,
@@ -120,44 +120,46 @@ def main(config):
 
 def get_element(etd, size):
     element = []
+
     # Line colored box with first 2 letters of route abbreviation
     element.append(
         render.Box(
             width = 1,
-	    height = 7,
-	    color = etd["estimate"][0]["hexcolor"],
-        )
+            height = 7,
+            color = etd["estimate"][0]["hexcolor"],
+        ),
     )
     element.append(
         render.Box(
             width = 10,
-	    height = 7,
-	    color = etd["estimate"][0]["hexcolor"],
+            height = 7,
+            color = etd["estimate"][0]["hexcolor"],
             child = render.Text(etd["abbreviation"][:2], color = "#111", font = "CG-pixel-4x5-mono"),
-        )
+        ),
     )
     element.append(
         render.Box(
             width = 1,
-	    height = 7,
-        )
+            height = 7,
+        ),
     )
     text = ""
     for i in range(0, len(etd["estimate"])):
-	if (i > 0):
-	    text += ", "
-	string = etd["estimate"][i]["minutes"]
-	# Replace the long "Leaving" string with just a dash
-	if string == "Leaving":
-	    text += "-"
-	else:
-	    text += string
+        if (i > 0):
+            text += ", "
+        string = etd["estimate"][i]["minutes"]
+
+        # Replace the long "Leaving" string with just a dash
+        if string == "Leaving":
+            text += "-"
+        else:
+            text += string
     element.append(
         render.Marquee(
             width = size,
-	    align = "end",
+            align = "end",
             child = render.Text(text, color = "#fff"),
-        )
+        ),
     )
     return element
 
@@ -180,15 +182,15 @@ def get_stations(api_key):
     data = rep.json()
     stations = []
     if "root" not in data or "stations" not in data["root"] or "station" not in data["root"]["stations"]:
-	fail("Stations request failed")
+        fail("Stations request failed")
     stationlist = data["root"]["stations"]["station"]
     for i in range(0, len(stationlist)):
-	stations.append(
-	    schema.Option(
+        stations.append(
+            schema.Option(
                 value = stationlist[i]["abbr"],
                 display = stationlist[i]["name"],
-	    )
-	)
+            ),
+        )
 
     return stations
 
