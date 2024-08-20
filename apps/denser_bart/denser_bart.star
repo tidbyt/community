@@ -20,10 +20,10 @@ def main(config):
     abbr = config.get("abbr")
     if abbr == None:
         abbr = DEFAULT_ABBR
-    
+
     predictions = get_times(abbr, DEFAULT_KEY)
     num_routes = len(predictions)
-    
+
     if num_routes == 0:
         return render.Root(
             child = render.Box(
@@ -34,8 +34,8 @@ def main(config):
         # Show a single column
         train_rows = []
         for i in range(0, num_routes):
-	    if len(predictions[i]["estimate"]) == 0:
-		continue
+            if len(predictions[i]["estimate"]) == 0:
+                continue
             train_rows.append(
                 render.Row(
                     main_align = "center",
@@ -59,22 +59,22 @@ def main(config):
         )
 
     else:
-	# Show dual columns
-	train_rows = []
-	num_rows = (num_routes + 1) // 2
-	i = 0
+        # Show dual columns
+        train_rows = []
+        num_rows = (num_routes + 1) // 2
+        i = 0
         for j in range(0, num_rows):
-	    if len(predictions[i]["estimate"]) == 0:
-		i += 1
-		continue
-	    left = []
-	    if i < num_routes:
-		left = get_element(predictions[i], 18)
-	    i += 1
-	    right = []
-	    if i < num_routes:
-		right = get_element(predictions[i], 18)
-	    i += 1
+            if len(predictions[i]["estimate"]) == 0:
+                i += 1
+                continue
+            left = []
+            if i < num_routes:
+                left = get_element(predictions[i], 18)
+            i += 1
+            right = []
+            if i < num_routes:
+                right = get_element(predictions[i], 18)
+            i += 1
             train_rows.append(
                 render.Row(
                     main_align = "space_around",
@@ -84,22 +84,22 @@ def main(config):
                         render.Box(
                             height = 8,
                             width = 30,
-			    child = render.Row(
-				main_align = "start",
-                    		cross_align = "end",
-                    		expanded = True,
-                    		children = left
-			    )
+                            child = render.Row(
+                                main_align = "start",
+                                cross_align = "end",
+                                expanded = True,
+                                children = left
+	                    )
                         ),
-			render.Box(
+                        render.Box(
                             height = 8,
                             width = 30,
-			    child = render.Row(
-				main_align = "start",
-                    		cross_align = "end",
-                    		expanded = True,
-                    		children = right
-			    )
+                            child = render.Row(
+                                main_align = "start",
+                                cross_align = "end",
+                                expanded = True,
+                                children = right
+                            )
                         ),
                     ]
                 )
@@ -185,8 +185,8 @@ def get_stations(api_key):
     for i in range(0, len(stationlist)):
 	stations.append(
 	    schema.Option(
-		value = stationlist[i]["abbr"],
-		display = stationlist[i]["name"],
+                value = stationlist[i]["abbr"],
+                display = stationlist[i]["name"],
 	    )
 	)
 
