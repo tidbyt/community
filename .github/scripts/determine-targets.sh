@@ -10,7 +10,7 @@ echo "NEW_COMMIT=${NEW_COMMIT}"
 
 # Determine targets.
 # Get a list of changed files, extract the unique directory names under 'apps/'
-TARGETS=$(git diff --name-only $OLD_COMMIT $NEW_COMMIT | grep '^apps/' | grep -v "apps/cnnnews" | cut -d'/' -f1-2 | sort -u)
+TARGETS=$(git diff --name-only $OLD_COMMIT $NEW_COMMIT | grep '^apps/' | cut -d'/' -f1-2 | sort -u)
 echo "Modified targets: ${TARGETS}"
 
 # Format TARGETS as a space-separated list
