@@ -8,18 +8,24 @@ Author: scoobmx
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 PREDICTIONS_URL = "https://api.bart.gov/api/etd.aspx"
 STATIONS_URL = "https://api.bart.gov/api/stn.aspx"
 DEFAULT_ABBR = "WOAK"
 DEFAULT_KEY = "MW9S-E7SL-26DU-VV8V"
+DECRYPT_KEY = "AV6+xWcEvAmJupxlFpNntfXPgT8ZeyIa0i/IID7UjyanaDbzrSwtt/aaPlx4/Rq4ElmV2e1VpXNjlFqk3szZYsznTluhr23AalHk3DxTgsC1M4BObGZOvKnu5r2a+j/Fps1XzTFwIZ5Zcu3jXREe/SRwhAZo1IazKg=="
 
 def main(config):
+    api_key = config.get("api_key") or secret.decrypt(DECRYPT_KEY)
+    if api_key == None:
+        api_key = DEFAULT_KEY
+
     abbr = config.get("abbr")
     if abbr == None:
         abbr = DEFAULT_ABBR
 
-    predictions = get_times(abbr, DEFAULT_KEY)
+    predictions = get_times(abbr, api_key)
     num_routes = len(predictions)
 
     if num_routes == 0:
@@ -156,13 +162,14 @@ def get_element(etd, size):
         render.Marquee(
             width = size,
             align = "end",
+            offset_start = 10,
             child = render.Text(text, color = "#fff"),
         ),
     )
     return element
 
 def get_times(station, api_key):
-    rep = http.get(PREDICTIONS_URL, params = {"cmd": "etd", "json": "y", "orig": station, "key": api_key})
+    rep = http.get(PREDICTIONS_URL, params = {"cmd": "etd", "json": "y", "orig": station, "key": api_key}, ttl_seconds = 10)
     if rep.status_code != 200:
         fail("Predictions request failed with status ", rep.status_code)
     data = rep.json()
@@ -174,7 +181,7 @@ def get_times(station, api_key):
     return predictions
 
 def get_stations(api_key):
-    rep = http.get(STATIONS_URL, params = {"cmd": "stns", "json": "y", "key": api_key})
+    rep = http.get(STATIONS_URL, params = {"cmd": "stns", "json": "y", "key": api_key}, ttl_seconds = 30)
     if rep.status_code != 200:
         fail("Stations request failed with status ", rep.status_code)
     data = rep.json()
@@ -193,16 +200,26 @@ def get_stations(api_key):
     return stations
 
 def get_schema():
+    api_key = secret.decrypt(DECRYPT_KEY)
+    if api_key == None:
+        api_key = DEFAULT_KEY
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Text(
+                id = "api_key",
+                name = "API key",
+                desc = "Optional BART legacy API key",
+                icon = "key",
+                default = DEFAULT_KEY,
+            ),
             schema.Dropdown(
                 id = "abbr",
                 name = "Station",
-                desc = "Station Abbreviation",
-                icon = "clock",
+                desc = "Station to show times for",
+                icon = "trainSubway",
                 default = DEFAULT_ABBR,
-                options = get_stations(DEFAULT_KEY),
+                options = get_stations(api_key),
             ),
         ],
     )
