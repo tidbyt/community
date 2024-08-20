@@ -19,7 +19,7 @@ DEFAULT_KEY = "MW9S-E7SL-26DU-VV8V"
 def main(config):
     abbr = config.get("abbr")
     if abbr == None:
-	abbr = DEFAULT_ABBR
+        abbr = DEFAULT_ABBR
     
     predictions = get_times(abbr, DEFAULT_KEY)
     num_routes = len(predictions)
