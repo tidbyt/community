@@ -5,11 +5,9 @@ Description: Like the official BART applet but shows up to 8 routes for a statio
 Author: scoobmx
 """
 
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 
 PREDICTIONS_URL = "https://api.bart.gov/api/etd.aspx"
 STATIONS_URL = "https://api.bart.gov/api/stn.aspx"
@@ -63,7 +61,7 @@ def main(config):
         train_rows = []
         num_rows = (num_routes + 1) // 2
         i = 0
-        for j in range(0, num_rows):
+        for _ in range(0, num_rows):
             if len(predictions[i]["estimate"]) == 0:
                 i += 1
                 continue
