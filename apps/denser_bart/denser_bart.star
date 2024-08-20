@@ -32,7 +32,7 @@ def main(config):
         )
     elif num_routes < 5:
         # Show a single column
-	train_rows = []
+        train_rows = []
         for i in range(0, num_routes):
 	    if len(predictions[i]["estimate"]) == 0:
 		continue
