@@ -10,12 +10,13 @@ load("html.star", "html")
 load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
+load("schema.star", "schema")
 
 VIDIOTS_URL = "https://vidiotsfoundation.org/coming-soon/"
 ANIMATION_DELAY = 50
 DATE_RANGE_DURATION = "168h"  # 1 week
 
-def main():
+def main(config):
     response = http.get(VIDIOTS_URL, ttl_seconds = 240)
 
     if response.status_code != 200:
@@ -23,7 +24,7 @@ def main():
 
     movies = parse_movie_html(response.body())
 
-    return render_animation_for_movies(movies)
+    return render_animation_for_movies(movies, config.bool("full_animation"))
 
 def parse_movie_html(htmlBody):
     showList = html(htmlBody).find("#upcoming-films").children_filtered(".show-list").children_filtered(".show-details")
@@ -65,7 +66,7 @@ def parse_movie_html(htmlBody):
 
     return movies
 
-def render_animation_for_movies(movies):
+def render_animation_for_movies(movies, full_animation):
     children = []
 
     for current_movie in movies:
@@ -78,6 +79,8 @@ def render_animation_for_movies(movies):
             first_time = showtimes[0]
             additional_count = len(showtimes) - 1
 
+            print(first_time.extra)
+
             time_string = first_time.date
             if additional_count > 0:
                 time_string = time_string + " + " + str(additional_count) + " more"
@@ -85,12 +88,26 @@ def render_animation_for_movies(movies):
             if n < (dates_count - 1):
                 time_string = time_string + " • "
 
+            showtime_extra_text = ""
+            if len(first_time.extra) > 0:
+                showtime_extra_text = " (" + first_time.extra + ")"
+
             times.append(
-                render.Column(
+                render.Row(
                     children = [
-                        render.Text(time_string),
-                    ],
-                ),
+                        render.Column(
+                            children = [
+                                render.Text(time_string)
+                            ]
+                        ),
+                        render.Column(
+                            children = [
+                                render.Text(showtime_extra_text, color="#ed1c24")
+                            ]
+                        )
+                    ]
+                )
+
             )
 
         children.append(
@@ -115,7 +132,7 @@ def render_animation_for_movies(movies):
 
     return render.Root(
         delay = ANIMATION_DELAY,
-        show_full_animation = True,
+        show_full_animation=full_animation,
         child = render.Padding(
             pad = (0, 0, 0, 2),
             child = render.Column(
@@ -145,6 +162,20 @@ def render_animation_for_movies(movies):
                 ],
             ),
         ),
+    )
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Toggle(
+                id = "full_animation",
+                name = "Show Full List",
+                desc = "Request that Tidbyt show the full movie list rather than being limited to the normal app cycle time.",
+                icon = "clock",
+                default = False,
+            ),
+        ],
     )
 
 VIDIOTS_LOGO = base64.decode("""
