@@ -79,8 +79,6 @@ def render_animation_for_movies(movies, full_animation):
             first_time = showtimes[0]
             additional_count = len(showtimes) - 1
 
-            print(first_time.extra)
-
             time_string = first_time.date
             if additional_count > 0:
                 time_string = time_string + " + " + str(additional_count) + " more"
