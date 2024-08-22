@@ -24,7 +24,7 @@ def main(config):
 
     movies = parse_movie_html(response.body())
 
-    return render_animation_for_movies(movies, config.bool("full_animation"))
+    return render_animation_for_movies(movies, config.bool("full_animation", False))
 
 def parse_movie_html(htmlBody):
     showList = html(htmlBody).find("#upcoming-films").children_filtered(".show-list").children_filtered(".show-details")
