@@ -9,8 +9,8 @@ load("encoding/base64.star", "base64")
 load("html.star", "html")
 load("http.star", "http")
 load("render.star", "render")
-load("time.star", "time")
 load("schema.star", "schema")
+load("time.star", "time")
 
 VIDIOTS_URL = "https://vidiotsfoundation.org/coming-soon/"
 ANIMATION_DELAY = 50
@@ -95,17 +95,16 @@ def render_animation_for_movies(movies, full_animation):
                     children = [
                         render.Column(
                             children = [
-                                render.Text(time_string)
-                            ]
+                                render.Text(time_string),
+                            ],
                         ),
                         render.Column(
                             children = [
-                                render.Text(showtime_extra_text, color="#ed1c24")
-                            ]
-                        )
-                    ]
-                )
-
+                                render.Text(showtime_extra_text, color = "#ed1c24"),
+                            ],
+                        ),
+                    ],
+                ),
             )
 
         children.append(
@@ -130,7 +129,7 @@ def render_animation_for_movies(movies, full_animation):
 
     return render.Root(
         delay = ANIMATION_DELAY,
-        show_full_animation=full_animation,
+        show_full_animation = full_animation,
         child = render.Padding(
             pad = (0, 0, 0, 2),
             child = render.Column(
