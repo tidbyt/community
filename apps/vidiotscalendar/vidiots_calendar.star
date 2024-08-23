@@ -74,7 +74,7 @@ def render_animation_for_movies(movies, full_animation):
 
         dates_count = len(current_movie.dates)
         for n in range(len(current_movie.dates)):
-            current_date = current_movie.dates.items()[0]
+            current_date = current_movie.dates.items()[n]
             showtimes = current_date[1]
             first_time = showtimes[0]
             additional_count = len(showtimes) - 1
