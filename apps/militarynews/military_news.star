@@ -59,7 +59,7 @@ BRANCH_COLOR_PALETTE = [
 ]
 
 def main(config):
-    selected_branch = config.get("branch", BRANCH_OPTIONS[6])
+    selected_branch = config.get("branch", BRANCH_OPTIONS[6].value)
     branch_index = BRANCHES.index(selected_branch)
 
     if branch_index == (len(BRANCHES) - 1):
