@@ -1,8 +1,0 @@
----
-id: cnn-news
-name: CNN News
-summary: CNN News Headlines
-desc: Display CNN News headslines for selected section.
-author: jvivona
-fileName: cnn_news.star
-packageName: cnnnews

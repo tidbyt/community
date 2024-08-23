@@ -1376,6 +1376,10 @@ PakenhamStopOptions = [
         value = "1049,Dandenong Station",
     ),
     schema.Option(
+        display = "East Pakenham Station",
+        value = "1230,East Pakenham Station",
+    ),
+    schema.Option(
         display = "Flagstaff Station",
         value = "1068,Flagstaff Station",
     ),

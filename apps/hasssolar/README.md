@@ -209,6 +209,24 @@ You can further customize the screen with the following options:
   - Tesla
   - VW
 
+If your SOC sensor can become unavailable (for example, when the car is sleeping), but you want to show the last known state, you can use a trigger-based template sensor like this:
+
+```
+template:
+  - trigger:
+      - platform: state
+        entity_id: sensor.ev_battery
+        not_to:
+          - unknown
+          - unavailable
+    sensor:
+      - name: EV SOC
+        state: '{{ trigger.to_state.state }}'
+        state_class: measurement
+        device_class: battery
+        unit_of_measurement: '%'
+```
+
 If you want to display multiple car screens, you need to add an additional Tidbyt instance for the additional car. Make sure you also always enter your token at the very top of the app details page.
 
 ## Important information about selecting multiple screens to be displayed
