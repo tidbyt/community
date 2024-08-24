@@ -55,12 +55,12 @@ BRANCH_COLOR_PALETTE = [
     ["#f2531b", "#223c70", "#bb5949", "#ffffff", "#ffffff"],
     ["#a77c29", "#004481", "#cc101f", "#ffd500", "#757575"],
     ["#022a3a", "#e8b00f", "#c6ccd0", "#0076a9", "#0076a9"],
-    ["#0f263a", "#014b8b", "#9ca09f", "#792330", "#792330"],
+    ["#014b8b", "#9ca09f", "#792330", "#0f263a", "#792330"],
 ]
 
 def main(config):
-    selected_branch = config.get("branch", BRANCH_OPTIONS[6])
-    branch_index = BRANCHES.index(selected_branch.value)
+    selected_branch = config.get("branch", BRANCH_OPTIONS[6].value)
+    branch_index = BRANCHES.index(selected_branch)
 
     if branch_index == (len(BRANCHES) - 1):
         #Pick a random branch
