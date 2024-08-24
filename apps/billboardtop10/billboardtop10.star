@@ -54,7 +54,7 @@ def main(config):
         if top10_alive_key == None or top10_alive_key == "":
             top10_alive_key = secret.decrypt(BILLBOARD_SECRET_ENCRYPTED)
 
-        if top10_alive_key == None  or top10_alive_key == "":
+        if top10_alive_key == None or top10_alive_key == "":
             return display_instructions()
 
         top10_data = get_top10_information(top10_alive_key, selected_list)
@@ -87,7 +87,7 @@ def main(config):
         row4 = getDisplayInfoMulti(top10_data["content"], 6, 10)
     else:
         row4 = "%s -- %s" % (getDisplayInfoMulti(top10_data["content"], 6, 10), fetched_time.format("Mon Jan 2 2006 15:04"))
-    
+
     #print(row1)
     #print(row2)
     #print(row3)
