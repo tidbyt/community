@@ -14,6 +14,7 @@ Shoutouts to the following developers below for code examples in their apps:
 
 Changelog:
 - v1.0 - First release to Tidbyt
+- v1.1 - Add support for East Pakenham Station
 """
 
 load("hmac.star", "hmac")
@@ -2420,7 +2421,7 @@ def get_schema():
             schema.Dropdown(
                 id = "train-line",
                 name = "Train Line",
-                desc = "Chose your train line",
+                desc = "Choose your train line",
                 icon = "train",
                 default = TrainLineOptions[0].value,
                 options = TrainLineOptions,
