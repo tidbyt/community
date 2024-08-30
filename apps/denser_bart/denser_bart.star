@@ -17,13 +17,17 @@ DEFAULT_KEY = "MW9S-E7SL-26DU-VV8V"
 DECRYPT_KEY = "AV6+xWcEvAmJupxlFpNntfXPgT8ZeyIa0i/IID7UjyanaDbzrSwtt/aaPlx4/Rq4ElmV2e1VpXNjlFqk3szZYsznTluhr23AalHk3DxTgsC1M4BObGZOvKnu5r2a+j/Fps1XzTFwIZ5Zcu3jXREe/SRwhAZo1IazKg=="
 
 def main(config):
-    api_key = config.get("api_key") or secret.decrypt(DECRYPT_KEY)
+    api_key = config.get("api_key")
+    if api_key == "":
+        api_key = secret.decrypt(DECRYPT_KEY)
     if api_key == None:
         api_key = DEFAULT_KEY
 
     abbr = config.get("abbr")
     if abbr == None:
         abbr = DEFAULT_ABBR
+
+    viz = config.bool("long_abbr")
 
     predictions = get_times(abbr, api_key)
     num_routes = len(predictions)
@@ -45,7 +49,7 @@ def main(config):
                     main_align = "center",
                     cross_align = "end",
                     expanded = True,
-                    children = get_element(predictions[i], 50),
+                    children = get_element_viz(predictions[i]) if viz else get_element(predictions[i], 50),
                 ),
             )
         return render.Root(
@@ -73,11 +77,11 @@ def main(config):
                 continue
             left = []
             if i < num_routes:
-                left = get_element(predictions[i], 18)
+                left = get_element_viz(predictions[i]) if viz else get_element(predictions[i], 18)
             i += 1
             right = []
             if i < num_routes:
-                right = get_element(predictions[i], 18)
+                right = get_element_viz(predictions[i]) if viz else get_element(predictions[i], 18)
             i += 1
             train_rows.append(
                 render.Row(
@@ -168,10 +172,56 @@ def get_element(etd, size):
     )
     return element
 
+def get_element_viz(etd):
+    element = []
+
+    # Line colored box with 4 letters of route abbreviation
+    element.append(
+        render.Box(
+            width = 1,
+            height = 7,
+            color = etd["estimate"][0]["hexcolor"],
+        ),
+    )
+    element.append(
+        render.Box(
+            width = 15,
+            height = 7,
+            color = etd["estimate"][0]["hexcolor"],
+            child = render.Text(etd["abbreviation"][:3], color = "#111", font = "CG-pixel-4x5-mono"),
+        ),
+    )
+    colors = ["#fff", "#aaa", "#666", "#333"]
+    j = 0
+    for i in range(0, len(etd["estimate"])):
+        string = etd["estimate"][i]["minutes"]
+        if string == "Leaving":
+            continue
+        minutes = int(string)
+        if minutes // 7:
+            element.append(
+                render.Box(
+                    width = minutes // 7,
+                    height = 7,
+                    color = colors[j],
+                ),
+            )
+        if minutes % 7:
+            element.append(
+                render.Box(
+                    width = 1,
+                    height = minutes % 7,
+                    color = colors[j],
+                ),
+            )
+        j += 1
+
+    return element
+
 def get_times(station, api_key):
     rep = http.get(PREDICTIONS_URL, params = {"cmd": "etd", "json": "y", "orig": station, "key": api_key}, ttl_seconds = 10)
     if rep.status_code != 200:
-        fail("Predictions request failed with status ", rep.status_code)
+        return []
     data = rep.json()
     if "root" not in data or "station" not in data["root"] or len(data["root"]["station"]) == 0 or data["root"]["station"][0]["abbr"] != station or "etd" not in data["root"]["station"][0]:
         predictions = []
@@ -183,12 +233,12 @@ def get_times(station, api_key):
 def get_stations(api_key):
     rep = http.get(STATIONS_URL, params = {"cmd": "stns", "json": "y", "key": api_key}, ttl_seconds = 30)
     if rep.status_code != 200:
-        fail("Stations request failed with status ", rep.status_code)
+        return []
     data = rep.json()
-    stations = []
     if "root" not in data or "stations" not in data["root"] or "station" not in data["root"]["stations"]:
-        fail("Stations request failed")
+        return []
     stationlist = data["root"]["stations"]["station"]
+    stations = []
     for i in range(0, len(stationlist)):
         stations.append(
             schema.Option(
@@ -199,10 +249,23 @@ def get_stations(api_key):
 
     return stations
 
-def get_schema():
-    api_key = secret.decrypt(DECRYPT_KEY)
+def generate_stations(api_key):
+    if api_key == "":
+        api_key = secret.decrypt(DECRYPT_KEY)
     if api_key == None:
         api_key = DEFAULT_KEY
+    return [
+        schema.Dropdown(
+            id = "abbr",
+            name = "Station",
+            desc = "Station to show times for",
+            icon = "trainSubway",
+            default = DEFAULT_ABBR,
+            options = get_stations(api_key),
+        ),
+    ]
+
+def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
@@ -211,15 +274,19 @@ def get_schema():
                 name = "API key",
                 desc = "Optional BART legacy API key",
                 icon = "key",
-                default = DEFAULT_KEY,
+                default = "",
             ),
-            schema.Dropdown(
-                id = "abbr",
-                name = "Station",
-                desc = "Station to show times for",
-                icon = "trainSubway",
-                default = DEFAULT_ABBR,
-                options = get_stations(api_key),
+            schema.Generated(
+                id = "generated",
+                source = "api_key",
+                handler = generate_stations,
+            ),
+            schema.Toggle(
+                id = "long_abbr",
+                name = "Visual timers",
+                desc = "Show longer station abbreviations and visualize times",
+                icon = "gear",
+                default = False,
             ),
         ],
     )
