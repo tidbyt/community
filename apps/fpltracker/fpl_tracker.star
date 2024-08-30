@@ -38,11 +38,11 @@ def main(config):
     rank_change_dir = 0
 
     if gw > 1:
-        prev_rank = [gw_h["overall_rank"] for gw_h in h_data["current"] if gw_h["event"] == gw - 1]
+        prev_rank = int([gw_h["overall_rank"] for gw_h in h_data["current"] if gw_h["event"] == gw - 1][0])
         if prev_rank < rank:
-            rank_change_dir = 1
-        elif prev_rank > rank:
             rank_change_dir = -1
+        elif prev_rank > rank:
+            rank_change_dir = 1
 
     return render_stats(team_name, gw, gw_points, rank, rank_change_dir)
 
