@@ -182,6 +182,7 @@ def build_header_row(stop):
 # Render Function - Departure Row
 def build_departure_row(departure, stop):
     route_number = render.Text(stop["stop_routes"][departure["route_id"]]["route_number"], color = COLOR_CODE_WHITE, font = "5x8")
+    eta_time_text = departure["eta_time_text"] if len(departure["eta_time_text"]) > 7 else departure["eta_time_text"] + " "
 
     return render.Row(
         expanded = True,
@@ -200,7 +201,7 @@ def build_departure_row(departure, stop):
             render.Column(
                 children = [
                     # Render - Departure Time Remaining
-                    render.Text(departure["eta_time_text"] + " ", color = COLOR_CODE_ORANGE_TIME),
+                    render.Text(eta_time_text, color = COLOR_CODE_ORANGE_TIME),
                 ],
             ),
         ],
@@ -252,7 +253,7 @@ def get_departures(latitude, longitude):
     departures = response.json()["departures"]
     departures_data = []
 
-    for item in enumerate(departures):
+    for i, item in enumerate(departures):
         route_id = str(int(item["route_id"]))
         estimated_time = item["estimated_departure_utc"]
         scheduled_time = item["scheduled_departure_utc"]
@@ -262,6 +263,7 @@ def get_departures(latitude, longitude):
         color = get_color_code(remaining_time_minutes)
 
         departure = {
+            "processed_id": i,
             "route_id": route_id,
             "departure_time": departure_time,
             "remaining_time_minutes": remaining_time_minutes,
@@ -307,7 +309,8 @@ def get_bus_stop(api_id, api_key, latitude, longitude):
     stop_name = stop["stop_name"]
     stop_routes = {}
 
-    for route in enumerate(stop["routes"]):
+    for i, route in enumerate(stop["routes"]):
+        print(route)
         route_id = int(route["route_id"])
         route_name = route["route_name"]
 
@@ -319,6 +322,7 @@ def get_bus_stop(api_id, api_key, latitude, longitude):
             route_number = route["route_number"]
 
         stop_routes[str(route_id)] = {
+            "processed_id": i,
             "route_name": route_name,
             "route_number": route_number,
         }
