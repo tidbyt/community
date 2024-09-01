@@ -45,7 +45,7 @@ DEFAULT_LOCATION = """
 """
 
 def main(location):
-    # Get Location    
+    # Get Location
     if type(location) == "string":
         location = json.decode(location)
     else:
@@ -302,10 +302,10 @@ def get_bus_stop(api_id, api_key, latitude, longitude):
         print("[ERROR]: No stops found for the given location")
         return -2
 
-    stop = stops[0]  
+    stop = stops[0]
     stop_id = str(int(stop["stop_id"]))
-    stop_name = stop["stop_name"]   
-    stop_routes = {}    
+    stop_name = stop["stop_name"]
+    stop_routes = {}
 
     for i, route in enumerate(stop["routes"]):
         route_id = int(route["route_id"])
