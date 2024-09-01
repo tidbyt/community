@@ -49,7 +49,7 @@ def main(config):
                     main_align = "center",
                     cross_align = "end",
                     expanded = True,
-                    children = get_element_viz(predictions[i]) if viz else get_element(predictions[i], 50),
+                    children = get_element_viz(predictions[i], 45) if viz else get_element(predictions[i], 50),
                 ),
             )
         return render.Root(
@@ -77,11 +77,11 @@ def main(config):
                 continue
             left = []
             if i < num_routes:
-                left = get_element_viz(predictions[i]) if viz else get_element(predictions[i], 18)
+                left = get_element_viz(predictions[i], 13) if viz else get_element(predictions[i], 18)
             i += 1
             right = []
             if i < num_routes:
-                right = get_element_viz(predictions[i]) if viz else get_element(predictions[i], 18)
+                right = get_element_viz(predictions[i], 13) if viz else get_element(predictions[i], 18)
             i += 1
             train_rows.append(
                 render.Row(
@@ -172,7 +172,7 @@ def get_element(etd, size):
     )
     return element
 
-def get_element_viz(etd):
+def get_element_viz(etd, size):
     element = []
 
     # Line colored box with 4 letters of route abbreviation
@@ -191,15 +191,23 @@ def get_element_viz(etd):
             child = render.Text(etd["abbreviation"][:3], color = "#111", font = "CG-pixel-4x5-mono"),
         ),
     )
-    colors = ["#fff", "#aaa", "#666", "#333"]
+    element.append(
+        render.Box(
+            width = 1,
+            height = 8,
+        ),
+    )
+    stack = []
+    colors = [etd["estimate"][0]["hexcolor"], "#bbb", "#777", "#444"]
     j = 0
     for i in range(0, len(etd["estimate"])):
         string = etd["estimate"][i]["minutes"]
         if string == "Leaving":
             continue
         minutes = int(string)
+        container = []
         if minutes // 7:
-            element.append(
+            container.append(
                 render.Box(
                     width = minutes // 7,
                     height = 7,
@@ -207,7 +215,7 @@ def get_element_viz(etd):
                 ),
             )
         if minutes % 7:
-            element.append(
+            container.append(
                 render.Box(
                     width = 1,
                     height = minutes % 7,
@@ -215,6 +223,13 @@ def get_element_viz(etd):
                 ),
             )
         j += 1
+        stack.insert(0, render.Row(children = container, main_align = "start", cross_align = "start"))
+    stack.insert(0, render.Box(width = size, height = 7))
+    element.append(
+        render.Stack(
+            children = stack,
+        ),
+    )
 
     return element
 
