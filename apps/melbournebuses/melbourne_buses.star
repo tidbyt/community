@@ -310,7 +310,6 @@ def get_bus_stop(api_id, api_key, latitude, longitude):
     stop_routes = {}
 
     for i, route in enumerate(stop["routes"]):
-        print(route)
         route_id = int(route["route_id"])
         route_name = route["route_name"]
 
