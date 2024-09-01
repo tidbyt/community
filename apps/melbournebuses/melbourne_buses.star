@@ -252,7 +252,7 @@ def get_departures(latitude, longitude):
     departures = response.json()["departures"]
     departures_data = []
 
-    for i, item in enumerate(departures):
+    for item in enumerate(departures):
         route_id = str(int(item["route_id"]))
         estimated_time = item["estimated_departure_utc"]
         scheduled_time = item["scheduled_departure_utc"]
@@ -307,7 +307,7 @@ def get_bus_stop(api_id, api_key, latitude, longitude):
     stop_name = stop["stop_name"]
     stop_routes = {}
 
-    for i, route in enumerate(stop["routes"]):
+    for route in enumerate(stop["routes"]):
         route_id = int(route["route_id"])
         route_name = route["route_name"]
 
