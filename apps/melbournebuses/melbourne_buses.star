@@ -107,6 +107,7 @@ def main(location):
                     main_align = "start",
                     children = [
                         build_header_row(stop),
+                        build_divider_invisible_row(),
                         build_divider_visible_row(),
                         build_departure_row(departures[0], stop),
                         build_divider_visible_row(),
