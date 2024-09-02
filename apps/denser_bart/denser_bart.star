@@ -49,11 +49,11 @@ def main(config):
                     main_align = "center",
                     cross_align = "end",
                     expanded = True,
-                    children = get_element_viz(predictions[i], 45) if viz else get_element(predictions[i], 50),
+                    children = get_element_viz(predictions[i], True) if viz else get_element(predictions[i], True),
                 ),
             )
         return render.Root(
-            delay = 100,
+            delay = 250 if viz else 100,
             child = render.Box(
                 height = 32,
                 width = 64,
@@ -77,11 +77,11 @@ def main(config):
                 continue
             left = []
             if i < num_routes:
-                left = get_element_viz(predictions[i], 13) if viz else get_element(predictions[i], 18)
+                left = get_element_viz(predictions[i], False) if viz else get_element(predictions[i], False)
             i += 1
             right = []
             if i < num_routes:
-                right = get_element_viz(predictions[i], 13) if viz else get_element(predictions[i], 18)
+                right = get_element_viz(predictions[i], False) if viz else get_element(predictions[i], False)
             i += 1
             train_rows.append(
                 render.Row(
@@ -113,7 +113,7 @@ def main(config):
                 ),
             )
         return render.Root(
-            delay = 100,
+            delay = 250 if viz else 100,
             child = render.Box(
                 height = 32,
                 width = 64,
@@ -126,7 +126,7 @@ def main(config):
             ),
         )
 
-def get_element(etd, size):
+def get_element(etd, wide):
     element = []
 
     # Line colored box with first 2 letters of route abbreviation
@@ -139,10 +139,10 @@ def get_element(etd, size):
     )
     element.append(
         render.Box(
-            width = 10,
+            width = 15 if wide else 10,
             height = 7,
             color = etd["estimate"][0]["hexcolor"],
-            child = render.Text(etd["abbreviation"][:2], color = "#111", font = "CG-pixel-4x5-mono"),
+            child = render.Text(etd["abbreviation"][:3] if wide else etd["abbreviation"][:2], color = "#111", font = "CG-pixel-4x5-mono"),
         ),
     )
     element.append(
@@ -164,7 +164,7 @@ def get_element(etd, size):
             text += string
     element.append(
         render.Marquee(
-            width = size,
+            width = 45 if wide else 18,
             align = "end",
             offset_start = 10,
             child = render.Text(text, color = "#fff"),
@@ -172,7 +172,7 @@ def get_element(etd, size):
     )
     return element
 
-def get_element_viz(etd, size):
+def get_element_viz(etd, wide):
     element = []
 
     # Line colored box with 4 letters of route abbreviation
@@ -185,10 +185,10 @@ def get_element_viz(etd, size):
     )
     element.append(
         render.Box(
-            width = 15,
+            width = 20 if wide else 15,
             height = 7,
             color = etd["estimate"][0]["hexcolor"],
-            child = render.Text(etd["abbreviation"][:3], color = "#111", font = "CG-pixel-4x5-mono"),
+            child = render.Text(etd["abbreviation"] if wide else etd["abbreviation"][:3], color = "#111", font = "CG-pixel-4x5-mono"),
         ),
     )
     element.append(
@@ -198,6 +198,7 @@ def get_element_viz(etd, size):
         ),
     )
     stack = []
+    stack2 = []
     colors = [etd["estimate"][0]["hexcolor"], "#bbb", "#777", "#444"]
     j = 0
     for i in range(0, len(etd["estimate"])):
@@ -206,6 +207,7 @@ def get_element_viz(etd, size):
             continue
         minutes = int(string)
         container = []
+        layer = []
         if minutes // 7:
             container.append(
                 render.Box(
@@ -222,15 +224,59 @@ def get_element_viz(etd, size):
                     color = colors[j],
                 ),
             )
+        if (minutes - 1) // 7:
+            layer.append(
+                render.Box(
+                    width = (minutes - 1) // 7,
+                    height = 7,
+                ),
+            )
+        if (minutes - 1) % 7:
+            layer.append(
+                render.Column(
+                    main_align = "start",
+                    children = [
+                        render.Box(
+                            width = 1,
+                            height = (minutes - 1) % 7,
+                        ),
+                        render.Box(
+                            width = 1,
+                            height = 1,
+                            color = "#fff",
+                        ),
+                    ],
+                ),
+            )
+        else:
+            layer.append(
+                render.Column(
+                    main_align = "start",
+                    children = [
+                        render.Box(
+                            width = 1,
+                            height = 1,
+                            color = "#fff",
+                        ),
+                    ],
+                ),
+            )
         j += 1
         stack.insert(0, render.Row(children = container, main_align = "start", cross_align = "start"))
-    stack.insert(0, render.Box(width = size, height = 7))
+        stack2.insert(0, render.Row(children = layer, main_align = "start", cross_align = "start"))
+    stack.insert(0, render.Box(width = 40 if wide else 13, height = 7))
     element.append(
-        render.Stack(
-            children = stack,
+        render.Animation(
+            children = [
+                render.Stack(
+                    children = stack,
+                ),
+                render.Stack(
+                    children = stack + stack2,
+                ),
+            ],
         ),
     )
-
     return element
 
 def get_times(station, api_key):
