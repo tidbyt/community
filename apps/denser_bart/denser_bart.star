@@ -17,13 +17,17 @@ DEFAULT_KEY = "MW9S-E7SL-26DU-VV8V"
 DECRYPT_KEY = "AV6+xWcEvAmJupxlFpNntfXPgT8ZeyIa0i/IID7UjyanaDbzrSwtt/aaPlx4/Rq4ElmV2e1VpXNjlFqk3szZYsznTluhr23AalHk3DxTgsC1M4BObGZOvKnu5r2a+j/Fps1XzTFwIZ5Zcu3jXREe/SRwhAZo1IazKg=="
 
 def main(config):
-    api_key = config.get("api_key") or secret.decrypt(DECRYPT_KEY)
+    api_key = config.get("api_key")
+    if api_key == "":
+        api_key = secret.decrypt(DECRYPT_KEY)
     if api_key == None:
         api_key = DEFAULT_KEY
 
     abbr = config.get("abbr")
     if abbr == None:
         abbr = DEFAULT_ABBR
+
+    viz = config.bool("long_abbr")
 
     predictions = get_times(abbr, api_key)
     num_routes = len(predictions)
@@ -45,11 +49,11 @@ def main(config):
                     main_align = "center",
                     cross_align = "end",
                     expanded = True,
-                    children = get_element(predictions[i], 50),
+                    children = get_element_viz(predictions[i], True) if viz else get_element(predictions[i], True),
                 ),
             )
         return render.Root(
-            delay = 100,
+            delay = 250 if viz else 100,
             child = render.Box(
                 height = 32,
                 width = 64,
@@ -73,11 +77,11 @@ def main(config):
                 continue
             left = []
             if i < num_routes:
-                left = get_element(predictions[i], 18)
+                left = get_element_viz(predictions[i], False) if viz else get_element(predictions[i], False)
             i += 1
             right = []
             if i < num_routes:
-                right = get_element(predictions[i], 18)
+                right = get_element_viz(predictions[i], False) if viz else get_element(predictions[i], False)
             i += 1
             train_rows.append(
                 render.Row(
@@ -109,7 +113,7 @@ def main(config):
                 ),
             )
         return render.Root(
-            delay = 100,
+            delay = 250 if viz else 100,
             child = render.Box(
                 height = 32,
                 width = 64,
@@ -122,7 +126,7 @@ def main(config):
             ),
         )
 
-def get_element(etd, size):
+def get_element(etd, wide):
     element = []
 
     # Line colored box with first 2 letters of route abbreviation
@@ -135,10 +139,10 @@ def get_element(etd, size):
     )
     element.append(
         render.Box(
-            width = 10,
+            width = 15 if wide else 10,
             height = 7,
             color = etd["estimate"][0]["hexcolor"],
-            child = render.Text(etd["abbreviation"][:2], color = "#111", font = "CG-pixel-4x5-mono"),
+            child = render.Text(etd["abbreviation"][:3] if wide else etd["abbreviation"][:2], color = "#111", font = "CG-pixel-4x5-mono"),
         ),
     )
     element.append(
@@ -160,7 +164,7 @@ def get_element(etd, size):
             text += string
     element.append(
         render.Marquee(
-            width = size,
+            width = 45 if wide else 18,
             align = "end",
             offset_start = 10,
             child = render.Text(text, color = "#fff"),
@@ -168,10 +172,117 @@ def get_element(etd, size):
     )
     return element
 
+def get_element_viz(etd, wide):
+    element = []
+
+    # Line colored box with 4 letters of route abbreviation
+    element.append(
+        render.Box(
+            width = 1,
+            height = 7,
+            color = etd["estimate"][0]["hexcolor"],
+        ),
+    )
+    element.append(
+        render.Box(
+            width = 20 if wide else 15,
+            height = 7,
+            color = etd["estimate"][0]["hexcolor"],
+            child = render.Text(etd["abbreviation"] if wide else etd["abbreviation"][:3], color = "#111", font = "CG-pixel-4x5-mono"),
+        ),
+    )
+    element.append(
+        render.Box(
+            width = 1,
+            height = 8,
+        ),
+    )
+    stack = []
+    stack2 = []
+    colors = [etd["estimate"][0]["hexcolor"], "#bbb", "#777", "#444"]
+    j = 0
+    for i in range(0, len(etd["estimate"])):
+        string = etd["estimate"][i]["minutes"]
+        if string == "Leaving":
+            continue
+        minutes = int(string)
+        container = []
+        layer = []
+        if minutes // 7:
+            container.append(
+                render.Box(
+                    width = minutes // 7,
+                    height = 7,
+                    color = colors[j],
+                ),
+            )
+        if minutes % 7:
+            container.append(
+                render.Box(
+                    width = 1,
+                    height = minutes % 7,
+                    color = colors[j],
+                ),
+            )
+        if (minutes - 1) // 7:
+            layer.append(
+                render.Box(
+                    width = (minutes - 1) // 7,
+                    height = 7,
+                ),
+            )
+        if (minutes - 1) % 7:
+            layer.append(
+                render.Column(
+                    main_align = "start",
+                    children = [
+                        render.Box(
+                            width = 1,
+                            height = (minutes - 1) % 7,
+                        ),
+                        render.Box(
+                            width = 1,
+                            height = 1,
+                            color = "#fff",
+                        ),
+                    ],
+                ),
+            )
+        else:
+            layer.append(
+                render.Column(
+                    main_align = "start",
+                    children = [
+                        render.Box(
+                            width = 1,
+                            height = 1,
+                            color = "#fff",
+                        ),
+                    ],
+                ),
+            )
+        j += 1
+        stack.insert(0, render.Row(children = container, main_align = "start", cross_align = "start"))
+        stack2.insert(0, render.Row(children = layer, main_align = "start", cross_align = "start"))
+    stack.insert(0, render.Box(width = 40 if wide else 13, height = 7))
+    element.append(
+        render.Animation(
+            children = [
+                render.Stack(
+                    children = stack,
+                ),
+                render.Stack(
+                    children = stack + stack2,
+                ),
+            ],
+        ),
+    )
+    return element
+
 def get_times(station, api_key):
     rep = http.get(PREDICTIONS_URL, params = {"cmd": "etd", "json": "y", "orig": station, "key": api_key}, ttl_seconds = 10)
     if rep.status_code != 200:
-        fail("Predictions request failed with status ", rep.status_code)
+        return []
     data = rep.json()
     if "root" not in data or "station" not in data["root"] or len(data["root"]["station"]) == 0 or data["root"]["station"][0]["abbr"] != station or "etd" not in data["root"]["station"][0]:
         predictions = []
@@ -183,12 +294,12 @@ def get_times(station, api_key):
 def get_stations(api_key):
     rep = http.get(STATIONS_URL, params = {"cmd": "stns", "json": "y", "key": api_key}, ttl_seconds = 30)
     if rep.status_code != 200:
-        fail("Stations request failed with status ", rep.status_code)
+        return []
     data = rep.json()
-    stations = []
     if "root" not in data or "stations" not in data["root"] or "station" not in data["root"]["stations"]:
-        fail("Stations request failed")
+        return []
     stationlist = data["root"]["stations"]["station"]
+    stations = []
     for i in range(0, len(stationlist)):
         stations.append(
             schema.Option(
@@ -199,10 +310,23 @@ def get_stations(api_key):
 
     return stations
 
-def get_schema():
-    api_key = secret.decrypt(DECRYPT_KEY)
+def generate_stations(api_key):
+    if api_key == "":
+        api_key = secret.decrypt(DECRYPT_KEY)
     if api_key == None:
         api_key = DEFAULT_KEY
+    return [
+        schema.Dropdown(
+            id = "abbr",
+            name = "Station",
+            desc = "Station to show times for",
+            icon = "trainSubway",
+            default = DEFAULT_ABBR,
+            options = get_stations(api_key),
+        ),
+    ]
+
+def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
@@ -211,15 +335,19 @@ def get_schema():
                 name = "API key",
                 desc = "Optional BART legacy API key",
                 icon = "key",
-                default = DEFAULT_KEY,
+                default = "",
             ),
-            schema.Dropdown(
-                id = "abbr",
-                name = "Station",
-                desc = "Station to show times for",
-                icon = "trainSubway",
-                default = DEFAULT_ABBR,
-                options = get_stations(api_key),
+            schema.Generated(
+                id = "generated",
+                source = "api_key",
+                handler = generate_stations,
+            ),
+            schema.Toggle(
+                id = "long_abbr",
+                name = "Visual timers",
+                desc = "Show longer station abbreviations and visualize times",
+                icon = "gear",
+                default = False,
             ),
         ],
     )
