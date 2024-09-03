@@ -267,6 +267,8 @@ def main(config):
     color_clock = COLOR_ORANGE
     color_id_border = id_border_color
 
+    lg_clock_row = []
+    sm_clock_row = []
     if (reading_mins_ago > 5):
         # The information is stale (i.e. over 5 minutes old) - overrides everything.
         color_reading = COLOR_GREY
