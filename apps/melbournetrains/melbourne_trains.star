@@ -2447,5 +2447,4 @@ def get_schema():
                 handler = more_options,
             ),
         ],
-        
     )
