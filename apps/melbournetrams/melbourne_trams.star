@@ -54,7 +54,7 @@ COLOR_CODE_TRAM_ROUTE_109 = "#E06E2B"
 COLOR_CODE_GREEN_HEADER = "#78BE20"
 COLOR_CODE_TIME = "#F3AB3F"
 COLOR_CODE_WHITE = "#FFFFFF"
-COLOR_CODE_DEFAULT = "#000000"
+COLOR_CODE_BLACK = "#000000"
 
 DEFAULT_ROUTE_ID = "1002"
 DEFAULT_ROUTE_NUMBER = "82"
@@ -183,7 +183,7 @@ def main(config):
 
 # Render Function - Departure Row
 def build_departure_row(departure):
-    route_number = render.Text(departure["route_number"], color = COLOR_CODE_WHITE, font = "5x8")
+    route_number = render.Text(departure["route_number"], color = COLOR_CODE_BLACK, font = "5x8")
     stop_number = departure["stop_name"].split(":")[0]
 
     return render.Row(
@@ -370,7 +370,7 @@ def get_tram_route_color_code(route_number):
     elif route_number == "109":
         return COLOR_CODE_TRAM_ROUTE_109
     else:
-        return COLOR_CODE_DEFAULT
+        return COLOR_CODE_WHITE
 
 # Schema Options - Tram Route Options (value = route_id,route_number)
 TramRouteOptions = [
@@ -432,7 +432,7 @@ TramRouteOptions = [
     ),
     schema.Option(
         display = "64: Melbourne University - East Brighton",
-        value = "909",
+        value = "909,64",
     ),
     schema.Option(
         display = "67: Melbourne University - Carnegie",
@@ -473,6 +473,26 @@ TramRouteOptions = [
 ]
 
 # Schema Options - Stop Options Per Tram Route (value = stop_id,stop_name)
+Route1StopOptions = []
+Route3StopOptions = []
+Route5StopOptions = []
+Route6StopOptions = []
+Route11StopOptions = []
+Route12StopOptions = []
+Route16StopOptions = []
+Route19StopOptions = []
+Route30StopOptions = []
+Route35StopOptions = []
+Route48StopOptions = []
+Route57StopOptions = []
+Route58StopOptions = []
+Route59StopOptions = []
+Route64StopOptions = []
+Route67StopOptions = []
+Route70StopOptions = []
+Route72StopOptions = []
+Route75StopOptions = []
+Route78StopOptions = []
 Route82StopOptions = [
     schema.Option(
         display = "32: Moonee Ponds Jct/Pascoe Vale Rd",
@@ -483,8 +503,283 @@ Route82StopOptions = [
         value = "12312,33: Test",
     ),
 ]
+Route86StopOptions = []
+Route96StopOptions = []
+Route109StopOptions = []
 
 # Schema Options - Direction Options Per Tram Route (value = direction_id,direction_name)
+Route1DirectionOptions = [
+    schema.Option(
+        display = "East Coburg",
+        value = "0,East Coburg",
+    ),
+    schema.Option(
+        display = "South Melbourne Beach",
+        value = "1,South Melbourne Beach",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,0,East Coburg,1,South Melbourne Beach",
+    ),
+]
+Route3DirectionOptions = [
+    schema.Option(
+        display = "East Malvern",
+        value = "12,East Malvern",
+    ),
+    schema.Option(
+        display = "Melbourne University",
+        value = "13,Melbourne University",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,12,East Malvern,13,Melbourne University",
+    ),
+]
+Route5DirectionOptions = [
+    schema.Option(
+        display = "Malvern (Burke Road)",
+        value = "18,Malvern (Burke Road)",
+    ),
+    schema.Option(
+        display = "Melbourne University",
+        value = "13,Melbourne University",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,18,Malvern (Burke Road),13,Melbourne University",
+    ),
+]
+Route6DirectionOptions = [
+    schema.Option(
+        display = "Glen Iris",
+        value = "23,Glen Iris",
+    ),
+    schema.Option(
+        display = "Moreland",
+        value = "24,Moreland",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,23,Glen Iris,24,Moreland",
+    ),
+]
+Route11DirectionOptions = [
+    schema.Option(
+        display = "Victoria Harbour Docklands",
+        value = "5,Victoria Harbour Docklands",
+    ),
+    schema.Option(
+        display = "West Preston",
+        value = "4,West Preston",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,5,Victoria Harbour Docklands,4,West Preston",
+    ),
+]
+Route12DirectionOptions = [
+    schema.Option(
+        display = "St Kilda (Fitzroy St)",
+        value = "7,St Kilda (Fitzroy St)",
+    ),
+    schema.Option(
+        display = "Victoria Gardens",
+        value = "6,Victoria Gardens",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,7,St Kilda (Fitzroy St),6,Victoria Gardens",
+    ),
+]
+Route16DirectionOptions = [
+    schema.Option(
+        display = "Kew via St Kilda Beach",
+        value = "8,Kew via St Kilda Beach",
+    ),
+    schema.Option(
+        display = "Melbourne University via St Kilda Beach",
+        value = "9,Melbourne University via St Kilda Beach",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,8,Kew via St Kilda Beach,9,Melbourne University via St Kilda Beach",
+    ),
+]
+Route19DirectionOptions = [
+    schema.Option(
+        display = "Flinders Street Station (City)",
+        value = "11,Flinders Street Station (City)",
+    ),
+    schema.Option(
+        display = "North Coburg",
+        value = "10,North Coburg",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,11,Flinders Street Station (City),10,North Coburg",
+    ),
+]
+Route30DirectionOptions = [
+    schema.Option(
+        display = "Central Pier Docklands",
+        value = "15,Central Pier Docklands",
+    ),
+    schema.Option(
+        display = "St Vincents Plaza",
+        value = "14,St Vincents Plaza",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,15,Central Pier Docklands,14,St Vincents Plaza",
+    ),
+]
+Route35DirectionOptions = [
+    schema.Option(
+        display = "Clockwise",
+        value = "16,Clockwise",
+    ),
+]
+Route48DirectionOptions = [
+    schema.Option(
+        display = "North Balwyn",
+        value = "17,North Balwyn",
+    ),
+    schema.Option(
+        display = "Victoria Harbour Docklands",
+        value = "5,Victoria Harbour Docklands",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,17,North Balwyn,5,Victoria Harbour Docklands",
+    ),
+]
+Route57DirectionOptions = [
+    schema.Option(
+        display = "Flinders Street Station (City)",
+        value = "11,Flinders Street Station (City)",
+    ),
+    schema.Option(
+        display = "West Maribyrnong",
+        value = "19,West Maribyrnong",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,11,Flinders Street Station (City),19,West Maribyrnong",
+    ),
+]
+Route58DirectionOptions = [
+    schema.Option(
+        display = "Toorak",
+        value = "21,Toorak",
+    ),
+    schema.Option(
+        display = "West Coburg",
+        value = "20,West Coburg",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,21,Toorak,20,West Coburg",
+    ),
+]
+Route59DirectionOptions = [
+    schema.Option(
+        display = "Airport West",
+        value = "22,Airport West",
+    ),
+    schema.Option(
+        display = "Flinders Street Station (City)",
+        value = "11,Flinders Street Station (City)",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,22,Airport West,11,Flinders Street Station (City)",
+    ),
+]
+Route64DirectionOptions = [
+    schema.Option(
+        display = "East Brighton",
+        value = "25,East Brighton",
+    ),
+    schema.Option(
+        display = "Melbourne University",
+        value = "13,Melbourne University",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,25,East Brighton,13,Melbourne University",
+    ),
+]
+Route67DirectionOptions = [
+    schema.Option(
+        display = "Carnegie",
+        value = "26,Carnegie",
+    ),
+    schema.Option(
+        display = "Melbourne University",
+        value = "13,Melbourne University",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,26,Carnegie,13,Melbourne University",
+    ),
+]
+Route70DirectionOptions = [
+    schema.Option(
+        display = "Waterfront City Docklands",
+        value = "28,Waterfront City Docklands",
+    ),
+    schema.Option(
+        display = "Wattle Park",
+        value = "27,Wattle Park",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,28,Waterfront City Docklands,27,Wattle Park",
+    ),
+]
+Route72DirectionOptions = [
+    schema.Option(
+        display = "Camberwell",
+        value = "29,Camberwell",
+    ),
+    schema.Option(
+        display = "Melbourne University",
+        value = "13,Melbourne University",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,29,Camberwell,13,Melbourne University",
+    ),
+]
+Route75DirectionOptions = [
+    schema.Option(
+        display = "Central Pier Docklands",
+        value = "15,Central Pier Docklands",
+    ),
+    schema.Option(
+        display = "Vermont South",
+        value = "30,Vermont South",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,15,Central Pier Docklands,30,Vermont South",
+    ),
+]
+Route78DirectionOptions = [
+    schema.Option(
+        display = "Balaclava via Prahran",
+        value = "32,Balaclava via Prahran",
+    ),
+    schema.Option(
+        display = "North Richmond",
+        value = "31,North Richmond",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,32,Balaclava via Prahran,31,North Richmond",
+    ),
+]
 Route82DirectionOptions = [
     schema.Option(
         display = "Footscray",
@@ -497,6 +792,48 @@ Route82DirectionOptions = [
     schema.Option(
         display = "All",
         value = "All,33,Footscray,34,Moonee Ponds",
+    ),
+]
+Route86DirectionOptions = [
+    schema.Option(
+        display = "Bundoora RMIT",
+        value = "35,Bundoora RMIT",
+    ),
+    schema.Option(
+        display = "Waterfront City Docklands",
+        value = "28,Waterfront City Docklands",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,35,Bundoora RMIT,28,Waterfront City Docklands",
+    ),
+]
+Route96DirectionOptions = [
+    schema.Option(
+        display = "East Brunswick",
+        value = "36,East Brunswick",
+    ),
+    schema.Option(
+        display = "St Kilda Beach",
+        value = "37,St Kilda Beach",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,36,East Brunswick,37,St Kilda Beach",
+    ),
+]
+Route109DirectionOptions = [
+    schema.Option(
+        display = "Box Hill",
+        value = "2,Box Hill",
+    ),
+    schema.Option(
+        display = "Port Melbourne",
+        value = "3,Port Melbourne",
+    ),
+    schema.Option(
+        display = "All",
+        value = "All,2,Box Hill,3,Port Melbourne",
     ),
 ]
 
