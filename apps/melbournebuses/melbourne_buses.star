@@ -28,6 +28,7 @@ CACHE_TTL_SECS = 60
 ENCRYPTED_API_ID = "AV6+xWcEUFsKJsqPRm2NWEco08PVmBJ0/xLKFPb97mPipfV2hGzYDlDX8Dto1M0DadIGw2zXS4VsQdl+dRVPKJPr9ia2JhJuQ1dxqTVe9C17SZNl7NFtlWDHbOvx/Ht9oNaCg1QBuhaeiIsP6A=="
 ENCRYPTED_API_KEY = "AV6+xWcE/JHThbqzYMoWyDLVy1u238TC4dqKalBth5ycLUKFCf7BmUnF5vYB8sAE5S8NgXbD26KZ26b3cF69+mVqLWD3iCjKMPr18SxS5Yjnv/qcCM1nciJKLvr2De2asUtU0VqDirS9Vu6dGNqJHuslI4cRkLDikRMN3DvHqF6bYjFJBwP608eL"
 
+COLOR_CODE_BLACK = "#000000"
 COLOR_CODE_BLUE = "#31AAD5"
 COLOR_CODE_ORANGE_HEADER = "#FF8200"
 COLOR_CODE_ORANGE_TIME = "#F3AB3F"
@@ -182,7 +183,7 @@ def build_header_row(stop):
 
 # Render Function - Departure Row
 def build_departure_row(departure, stop):
-    route_number = render.Text(stop["stop_routes"][departure["route_id"]]["route_number"], color = COLOR_CODE_WHITE, font = "5x8")
+    route_number = render.Text(stop["stop_routes"][departure["route_id"]]["route_number"], color = COLOR_CODE_BLACK, font = "5x8")
     eta_time_text = departure["eta_time_text"] if len(departure["eta_time_text"]) > 7 else departure["eta_time_text"] + " "
 
     return render.Row(
