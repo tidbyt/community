@@ -3,7 +3,7 @@ Applet: Nightscout
 Summary: Displays Nightscout CGM Data
 Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data (BG, Trend, Delta, IOB, COB) from Nightscout. Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock.
 For support, join the Nightscout for Tidbyt Facebook group.
-(v2.5.2)
+(v2.5.3)
 Authors: Paul Murphy, Jason Hanson, Jeremy Tavener
 """
 
@@ -238,7 +238,7 @@ def main(config):
     print("oldest_reading_target:", OLDEST_READING_TARGET)
     print("reading_mins_ago:", reading_mins_ago)
 
-    #reading_mins_ago = 590
+    #reading_mins_ago = 7
     if (reading_mins_ago < 1):
         human_reading_ago = "<1 min ago"
     elif (reading_mins_ago == 1):
@@ -572,12 +572,16 @@ def main(config):
                     main_align = "start",
                     expanded = True,
                     children = [
+                        render.Box(
+                            width = 4,
+                            height = 18,
+                        ),
                         render.WrappedText(
                             content = str_current,
                             font = "6x13",
                             color = color_reading,
-                            width = 31,
-                            align = "right",
+                            width = 18,
+                            align = "center",
                             height = 18,
                         ),
                         render.Box(
@@ -589,9 +593,9 @@ def main(config):
                             font = "tom-thumb",
                             color = color_delta,
                             align = "center",
-                            width = 24,
+                            width = 36,
                             linespacing = 0,
-                            height = 18,
+                            height = 12,
                         ),
                     ],
                 ),
