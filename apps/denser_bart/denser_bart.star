@@ -292,6 +292,10 @@ def get_times(station, api_key):
     return predictions
 
 def get_stations(api_key):
+    if api_key == "":
+        api_key = secret.decrypt(DECRYPT_KEY)
+    if api_key == None:
+        api_key = DEFAULT_KEY
     rep = http.get(STATIONS_URL, params = {"cmd": "stns", "json": "y", "key": api_key}, ttl_seconds = 30)
     if rep.status_code != 200:
         return []
@@ -310,22 +314,6 @@ def get_stations(api_key):
 
     return stations
 
-def generate_stations(api_key):
-    if api_key == "":
-        api_key = secret.decrypt(DECRYPT_KEY)
-    if api_key == None:
-        api_key = DEFAULT_KEY
-    return [
-        schema.Dropdown(
-            id = "abbr",
-            name = "Station",
-            desc = "Station to show times for",
-            icon = "trainSubway",
-            default = DEFAULT_ABBR,
-            options = get_stations(api_key),
-        ),
-    ]
-
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -337,10 +325,13 @@ def get_schema():
                 icon = "key",
                 default = "",
             ),
-            schema.Generated(
-                id = "generated",
-                source = "api_key",
-                handler = generate_stations,
+            schema.Dropdown(
+                id = "abbr",
+                name = "Station",
+                desc = "Station to show times for",
+                icon = "trainSubway",
+                default = DEFAULT_ABBR,
+                options = get_stations(""),
             ),
             schema.Toggle(
                 id = "long_abbr",
