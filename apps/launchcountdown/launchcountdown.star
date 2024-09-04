@@ -257,11 +257,10 @@ def display_instructions(config):
     )
 
 def replace_local_time_into_description(description, locallaunch, utclaunch):
-    utc_time_display = ("%s at %s (%s)") % (utclaunch.format("Thursday, January 2, 2006"), utclaunch.format("3:04 PM"), utclaunch.format("MST"))
-    local_time_display = ("%s at %s %s") % (locallaunch.format("Thursday, January 2, 2006"), locallaunch.format("3:04 PM"), locallaunch.format("MST"))
+    utc_time_display = ("%s at %s (%s)") % (utclaunch.format("January 2, 2006"), utclaunch.format("3:04 PM"), utclaunch.format("MST"))
+    local_time_display = ("%s at %s %s") % (locallaunch.format("January 2, 2006"), locallaunch.format("3:04 PM"), locallaunch.format("MST"))
 
-    description = description.replace("\u202f", "")
-    description = description.replace(" ", " ")
+    description = description.replace("\u202f", " ")
     description = description.replace(utc_time_display, local_time_display)
 
     return description
