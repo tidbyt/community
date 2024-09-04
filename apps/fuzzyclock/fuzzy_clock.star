@@ -315,6 +315,7 @@ def main(config):
     texts = [render.Text(" " * i + s) for i, s in enumerate(fuzzed)]
 
     return render.Root(
+        max_age = 60*10,
         child = render.Padding(
             pad = 3,
             child = render.Column(
