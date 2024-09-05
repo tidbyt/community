@@ -1,0 +1,8 @@
+---
+id: live-on-twitch
+name: Live on Twitch
+summary: See who's live on Twitch
+desc: This app fetches and displays the streamers you follow who are live.
+author: daltonclaybrook
+fileName: live_on_twitch.star
+packageName: liveontwitch

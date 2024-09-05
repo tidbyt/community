@@ -213,6 +213,7 @@ def getTodaysCount(latLng, dev_key, timezone):
     pollenData = data["data"]["timelines"][0]["intervals"][0]["values"]
 
     # save in cache for 12 hours
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(dev_key, json.encode(pollenData), 3600 * 12)
 
     return pollenData

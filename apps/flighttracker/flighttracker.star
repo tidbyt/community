@@ -116,6 +116,8 @@ def main(config):
             if rep.status_code != 200:
                 fail("FA API failed with status %d", rep.status_code)
             flightawareData = rep.json()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cacheName, json.encode(flightawareData), ttl_seconds = 120)
 
         # Determine how to read data based upon above selection.
@@ -271,6 +273,7 @@ def main(config):
             logoBase64Encoded = base64.encode(logo, encoding = "standard")
             logoBase64 = base64.decode(logoBase64Encoded, encoding = "standard")
 
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(logo_cacheName, json.encode(logoBase64Encoded), ttl_seconds = 86400)
 
         #logo = http.get("https://flightaware.com/images/airline_logos/90p/" + operator + ".png").body()  # Get logo to display

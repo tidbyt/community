@@ -156,6 +156,7 @@ def get_upcoming_launch(config):
         return json.decode(launch)
     else:
         # Invalidate image cache
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(UPCOMING_LAUNCH_IMAGE_CACHE_KEY, "", ttl_seconds = 0)
 
     # Determine which API to hit, the real API has a 15 req/hr rate limit.
@@ -191,6 +192,8 @@ def get_upcoming_launch(config):
         return None
 
     launch = results[0]
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(UPCOMING_LAUNCH_CACHE_KEY, json.encode(launch), ttl_seconds = CACHE_TTL_SECONDS)
 
     return launch
@@ -220,6 +223,7 @@ def get_launch_image(launch):
 
     image = response.body()
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(UPCOMING_LAUNCH_IMAGE_CACHE_KEY, image, ttl_seconds = CACHE_TTL_SECONDS)
 
     return image

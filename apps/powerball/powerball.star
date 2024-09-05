@@ -30,6 +30,8 @@ def main():
     Jackpot = http.get(Next_Draw_URL).json()[0]["field_prize_amount"]
 
     pb_data = dict(PB_NUMS = PB_NUMS, Draw_Date = Draw_Date, Next_Draw_Date = Next_Draw_Date, Winner = Winner, Jackpot = Jackpot)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("pb_rate", json.encode(pb_data), ttl_seconds = 600)
 
     if pb_data["Winner"] == "None":

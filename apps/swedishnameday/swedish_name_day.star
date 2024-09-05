@@ -33,6 +33,8 @@ def main(config):
         if rep.status_code != 200:
             fail("Todays name request failed with status:", rep.status_code)
         rep = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("todaysnames", json.encode(rep), ttl_seconds = 120)
         namelist = rep["dagar"][0]["namnsdag"]
         names = getlistasstring(namelist)

@@ -5,9 +5,8 @@ Description: Displays the standings (in terms of games behind) for the MLB wild 
 Author: Jake Manske
 """
 
-load("cache.star", "cache")
+load("animation.star", "animation")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -15,246 +14,322 @@ load("time.star", "time")
 
 MLB_STANDINGS_URL = "https://statsapi.mlb.com/api/v1/standings"
 GAMES_BACK_FONT = "tb-8"
-NL_MODE = "NL"
-AL_MODE = "AL"
-BOTH_MODE = "BOTH"
 
 NL_LEAGUE_ID = "104"
 AL_LEAGUE_ID = "103"
 
-BOTH_MODE_LIST = [NL_LEAGUE_ID, AL_LEAGUE_ID]
+HIGHLIGHT_COLOR = "#65FE08"
 
-# limited to 4 teams, in a future version we can have more scrolling
-DISPLAY_LIMIT = 4
+# get top 9 teams (almost everyone)
+DISPLAY_LIMIT = 9
 
 CACHE_TIMEOUT = 300  # five minutes
 
 HTTP_SUCCESS_CODE = 200
 
-ERROR_FONT = "CG-pixel-3x5-mono"
-ERROR_FONT_COLOR = "#FFA700"
+SMALL_FONT = "CG-pixel-3x5-mono"
+SMALL_FONT_COLOR = "#FFA700"
 
 def main(config):
-    mode = config.get("standingsMode") or BOTH_MODE
+    league_id = config.get("league") or NL_LEAGUE_ID
     year = str(time.now().year)  #use current year
 
-    widgets = []
-
-    # if we are displaying both leagues, then split the animation into two
-    if mode == BOTH_MODE:
-        delay = 7500
-        for league in BOTH_MODE_LIST:
-            standings = get_Standings(league, year)
-
-            # we are supposed to get exactly the number of teams we are expecting
-            # if we didn't, something went wrong, so do not call into method to render standings
-            if len(standings) == DISPLAY_LIMIT:
-                widgets.append(render_WildCardStandings(standings))
-    else:
-        delay = 15000
-
-        # write this as if-else so we are always getting some league (NL default)
-        if mode == AL_MODE:
-            league_id = AL_LEAGUE_ID
-        else:
-            league_id = NL_LEAGUE_ID
-        standings = get_Standings(league_id, year)
-
-        # we are supposed to get exactly the number of teams we are expecting
-        # if we didn't, something went wrong, so do not call into method to render standings
-        if len(standings) == DISPLAY_LIMIT:
-            widgets.append(render_WildCardStandings(standings))
+    standings = get_Standings(league_id, year)
 
     # if we have some widgets, we can display them now
-    if len(widgets) > 0:
+    if len(standings) > 0:
         return render.Root(
-            delay = delay,
-            child = render.Animation(
-                children = widgets,
+            delay = 80,
+            show_full_animation = True,
+            child = render.Stack(
+                children = [
+                    animation.Transformation(
+                        duration = 200,
+                        height = 81,
+                        keyframes = [
+                            build_keyframe(5, 0.0),
+                            build_keyframe(5, 0.25),
+                            build_keyframe(-22, 0.40),
+                            build_keyframe(-22, 0.60),
+                            build_keyframe(-49, 0.70),
+                            build_keyframe(-49, 1.0),
+                        ],
+                        child = render_WildCardStandings(standings),
+                        wait_for_child = True,
+                    ),
+                    render_header(league_id),
+                ],
+            ),
+        )
+    else:
+        # otherwise it means something went wrong or we are not yet in wild card standings time
+        # display zero-state image
+        return render.Root(
+            child = render.Stack(
+                children = [
+                    render.Image(
+                        src = MLB_LEAGUE_IMAGE,
+                    ),
+                    render.Marquee(
+                        width = 64,
+                        child = render.Text(
+                            content = "No wild card race to display for league year " + year,
+                            color = SMALL_FONT_COLOR,
+                            font = SMALL_FONT,
+                        ),
+                    ),
+                ],
             ),
         )
 
-    # otherwise it means something went wrong
-    # display zero-state image
-    return render.Root(
-        child = render.Stack(
-            children = [
-                render.Image(
-                    src = MLB_LEAGUE_IMAGE,
-                ),
-                render.Marquee(
-                    width = 64,
-                    child = render.Text(
-                        content = "No wild card race to display for league year " + year,
-                        color = ERROR_FONT_COLOR,
-                        font = ERROR_FONT,
-                    ),
-                ),
-            ],
-        ),
+def build_keyframe(offset, pct):
+    return animation.Keyframe(
+        percentage = pct,
+        transforms = [animation.Translate(0, offset)],
+        curve = "ease_in_out",
     )
 
 def get_schema():
     options = [
         schema.Option(
             display = "National League",
-            value = NL_MODE,
+            value = NL_LEAGUE_ID,
         ),
         schema.Option(
             display = "American League",
-            value = AL_MODE,
-        ),
-        schema.Option(
-            display = "Both",
-            value = BOTH_MODE,
+            value = AL_LEAGUE_ID,
         ),
     ]
     return schema.Schema(
         version = "1",
         fields = [
             schema.Dropdown(
-                id = "standingsMode",
+                id = "league",
                 name = "League",
                 desc = "Which league to display the wild card race for.",
                 icon = "baseballBatBall",
-                default = BOTH_MODE,
+                default = NL_LEAGUE_ID,
                 options = options,
             ),
         ],
     )
 
+def render_header(league_id):
+    text = "NL" if league_id == NL_LEAGUE_ID else "AL"
+    text += " WILD CARD"
+    return render.Box(
+        height = 5,
+        width = 64,
+        color = "#000000",
+        child = render_rainbow_word(text, "CG-pixel-4x5-mono"),
+    )
+
 def get_Standings(league_id, year):
-    # try the cache first
-    standings = get_StandingsCache(league_id)
-
-    # get from API if not in cache
-    if standings == None:
-        standings = get_StandingsHttp(league_id, year)
-    return standings
-
-def get_StandingsCache(league_id):
-    standings = cache.get(league_id)
-    if standings == None:
-        return None
-
-    # return standings as json object from cache instead of string
-    return json.decode(standings)
-
-def get_StandingsHttp(league_id, year):
-    query_params = {"standingsTypes": "wildCard", "leagueId": league_id, "season": year}
-    standings_data = http.get(MLB_STANDINGS_URL, params = query_params)
+    query_params = {
+        "fields": "records,teamRecords,team,id,wildCardGamesBack,clinched,clinchIndicator,wildCardEliminationNumber",
+        "standingsTypes": "wildCard",
+        "leagueId": league_id,
+        "season": year,
+    }
+    standings_data = http.get(MLB_STANDINGS_URL, params = query_params, ttl_seconds = CACHE_TIMEOUT)
 
     standings = []
 
     # if the http request failed above, return empty standings object
     if standings_data.status_code != HTTP_SUCCESS_CODE:
-        # cache empty standings so we do not spam http endpoint
-        cache.set(league_id, json.encode(standings), ttl_seconds = CACHE_TIMEOUT)
         return standings
 
-    records = standings_data.json()["records"]
+    records = standings_data.json().get("records")
 
     # if we did not get anything back because there is no data
     # could be too early in the year for data to be displayed
     # either way we need to not fail, return empty standings list
     # we will consume this later and render a different screen
     if len(records) == 0:
-        # cache empty standings so we do not spam http endpoint
-        cache.set(league_id, json.encode(standings), ttl_seconds = CACHE_TIMEOUT)
         return standings
 
     limiter = 0
 
-    for team in standings_data.json()["records"][0]["teamRecords"]:
+    for team in records[0].get("teamRecords"):
         if limiter >= DISPLAY_LIMIT:
             break
 
         # get the team and how many games back they are
-        team_id = int(team["team"]["id"])
-        games_back = team["wildCardGamesBack"]
+        # and whether they have clinched
+        team_id = int(team.get("team").get("id"))
+        games_back = team.get("wildCardGamesBack")
+        clinched = team.get("clinched") or False
+        elim_number = team.get("wildCardEliminationNumber")
+        if elim_number != None and elim_number == "E":
+            eliminated = True
+        else:
+            eliminated = False
 
         # add to list
-        standings.append({"TeamId": team_id, "GamesBack": games_back})
+        standings.append(
+            {
+                "TeamId": team_id,
+                "GamesBack": games_back,
+                "Clinched": clinched,
+                "Eliminated": eliminated,
+            },
+        )
         limiter += 1
-
-    # cache standings by league id
-    cache.set(league_id, json.encode(standings), ttl_seconds = CACHE_TIMEOUT)
 
     return standings
 
 def render_WildCardStandings(standings):
-    widgets = []
+    team_widgets = []
     games_back_widgets = []
+    pos = 1
     max_games_back_length = 0
 
     for info in standings:
         team_id = info.get("TeamId")
-        games_back = info.get("GamesBack")
+        clinched = info.get("Clinched")
+        eliminated = info.get("Eliminated")
+
+        # strip ".0", we don't need it
+        games_back = info.get("GamesBack").removesuffix(".0")
+
+        # keep track of games_back length so we can align everything
         if len(games_back) > max_games_back_length:
             max_games_back_length = len(games_back)
-        widgets.append(render_Team(team_id))
-        games_back_widgets.append(render_GamesBack(team_id, games_back))
+        team_widgets.append(render_Team(team_id, pos, clinched, eliminated))
+        games_back_widgets.append(render_GamesBack(team_id, games_back, clinched))
+        pos += 1
 
-    box_width = get_BoxWidth(max_games_back_length)
     return render.Stack(
         children = [
             render.Column(
-                children = widgets,
+                children = team_widgets,
             ),
-            render.Row(
-                children = [
-                    render.Box(
-                        height = 1,
-                        width = box_width,
-                    ),
-                    render.Column(
-                        cross_align = "end",
-                        children = games_back_widgets,
-                    ),
-                ],
+            render.Column(
+                cross_align = "end",
+                children = games_back_widgets,
             ),
         ],
     )
 
-def render_Team(team_id):
+def render_rainbow_word(word, font):
+    colors = ["#e81416", "#ffa500", "#faeb36", "#79c314", "#487de7", "#4b369d", "#70369d"]
+    widgets = []
+    for j in range(7):
+        rainbow_word = []
+        for i in range(len(word)):
+            letter = render.Text(
+                content = word[i],
+                font = font,
+                color = colors[(j + i) % 7],
+            )
+            rainbow_word.append(letter)
+        widgets.append(
+            render.Row(
+                children = rainbow_word,
+            ),
+        )
+    return render.Animation(
+        children = widgets,
+    )
+
+def render_Team(team_id, pos, clinched, eliminated):
     team = TEAM_INFO[team_id]
+    logo_width = 20
+    if clinched:
+        abbrev = render_rainbow_word(TEAM_INFO[team_id].Abbreviation, GAMES_BACK_FONT)
+        pos_widget = render_rainbow_word(str(pos), SMALL_FONT)
+    else:
+        abbrev = render.Text(
+            content = team.Abbreviation,
+            font = GAMES_BACK_FONT,
+            color = team.ForegroundColor,
+        )
+        if eliminated:
+            pos_widget = render_drop_shadow("E", SMALL_FONT, "#FF3131")
+        else:
+            pos_widget = render.Text(
+                content = str(pos),
+                font = SMALL_FONT,
+                color = HIGHLIGHT_COLOR,
+            )
     return render.Box(
-        height = 8,
+        height = 9,
         width = 64,
         color = team.BackgroundColor,
         child = render.Row(
             main_align = "start",
             expanded = True,
             children = [
+                pos_widget,
                 render.Padding(
-                    pad = (0, -2, 0, 0),
+                    pad = (0, team.Offset, 0, 0),
                     child = render.Image(
                         src = team.Logo,
-                        width = 15,
+                        width = logo_width,
                     ),
                 ),
-                render.Text(
-                    content = team.Abbreviation,
-                    font = GAMES_BACK_FONT,
-                    color = team.ForegroundColor,
+                render.Box(
+                    height = 1,
+                    width = 1,
+                ),
+                render.Padding(
+                    pad = (0, 1, 0, 0),
+                    child = abbrev,
                 ),
             ],
         ),
     )
 
-def render_GamesBack(team_id, games_back):
-    team = TEAM_INFO[team_id]
-    return render.Text(
-        content = games_back,
-        font = GAMES_BACK_FONT,
-        color = team.ForegroundColor,
+def render_drop_shadow(text, font, foreground_color, background_color = "#000000"):
+    return render.Stack(
+        children = [
+            render.Padding(
+                pad = (0, 1, 0, 0),
+                child = render.Text(
+                    content = text,
+                    font = font,
+                    color = background_color,
+                ),
+            ),
+            render.Text(
+                content = text,
+                font = font,
+                color = foreground_color,
+            ),
+        ],
+    )
+
+def render_GamesBack(team_id, games_back, clinched):
+    # "+1" is weird and has an extra space we should contend with
+    offset = 64 - 4 * len(games_back) - (2 if games_back.startswith("+1") else 1)
+    if clinched:
+        gb_widget = render_rainbow_word(games_back, GAMES_BACK_FONT)
+    else:
+        gb_widget = render.Text(
+            content = games_back,
+            font = GAMES_BACK_FONT,
+            color = TEAM_INFO[team_id].ForegroundColor,
+        )
+    return render.Row(
+        children = [
+            render.Box(
+                height = 1,
+                width = offset,
+            ),
+            render.Padding(
+                pad = (0, 1, 0, 0),
+                child = gb_widget,
+            ),
+        ],
     )
 
 def get_BoxWidth(max_games_back_length):
+    width = 0
     if max_games_back_length == 5:
-        return 64 - 4 * max_games_back_length - 1
+        width = 64 - 4 * max_games_back_length - 1
     else:
-        return 64 - 4 * max_games_back_length
+        width = 64 - 4 * max_games_back_length
+    return width
 
 #################
 ## TEAM CONFIG ##
@@ -445,35 +520,35 @@ MIL_LOGO = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAFzUlEQVRYCZVXy28bRRj/zezDjp2kiZ02SWNIi6jECSHxEKiHXpAQ4syhoqC2aZqqF/4bFNqUFEEB9Y9A9NCqSKjqAcGhL2jakLh2WjcPe3dnd/lm17s7411DO5Z2Zr75XvM9x6z2xichXmK0L21AOAKmHRPVzzSiRXvlkcYlgWvAgo1ZACsERQJMH/WT89q5KlgVKuHqXiNSNi+kQPPiAyKxMHZqDv2LRyyEL2IhPgeMQGErlwKRchUO12GwfVK+by0VkQ1zQcW0sLZMgu1RjB/fB8tiKl26DhCCo/jM4TsoB2UY3MTa5U3YDkd9cX9KKxeken5McDsWTkejS1WQLgiYn0ckyNOVx4VwCSwFo6SeCUHGmf1iOhLeXmlq+HkF+D+4d+F+hDS1MAfDtbBFQlqrf6NibmnEjMwclHsxTOStsPnjmoYfb1y0r8b85V5ToAoPm8ss8tXkwkGEjKET+Z9cLGy0/QMaQ3k78JgFI9zBYe7mYVOn5xF2snjRFHi4uofpszMRH876R8H4IF9tz/fUsNSOCjee4cA3RHqWKvB4mfLY304P0kW4my3DgpJR8tLzF1mYoQnPHUlRUwXK5ghqi4fSg3RhltLloJlZYABsuAK+KA5cw6ao7o9UAaALI8x8kyDAHy4g5CSADS8ljBVYLGUcLzIFmIOAfoNjdmF+EBTtZf47bheuEaJ9oUNZ8jCCR1bpU3Ars14hEwKm6ougOJhcmf/uK1SQ4pQqoYz1lbtEShFOFvB2bMqdDly/hA1KV4tRgIU2ZdIszdVhchH4+8CNTqaASWkU1e9Th2TOaYT183TLFSosXQuPrkjhNrrGLuqnjlCx6YKzzKeS8MmlB4S/BuGVNT7JJqRgNgyDbKjUgahOU1CJoJPgabMPF08v36VLW2DHj6Bx8jBGQpETHpBlamfp9jSbpkDzu9+oTWSZJJnajOT43Yh/FgNySyY1rSpFQj54DLr1czJ//ewB1CqZkmFoaPicaA2/jMkzc5EbuNXAox+2YfYLlk8yJP9Kv5+nMRCpQ5+Ny03MnNQrnjyzz72OCqWVQR6XQzJxqUnsLv8V7eVnZmkeHnU9OZIGxXZE1EHdoEqwbVh8C75jwQnjS2gWkG6wQifVNuLU/4yJXiqckTvuXFnD9vJ9ON4T4OhteN4O1i/ei+JIjaDaYo06s4H1738hBcg+W+OwS1lwagpIWU7wjOIgn46qMi3qaBPdEey9fwulY3E3NI/dxfMPfocjBDrK64iFFdTPzVJcz8BlLlpXSeGgnbLLKVAKJ/Hwwl6KMLgQXgkea0Ic/RWjN98hR8TxInvRxPW3YB77mbKI3KQ8UGRtMMl9pb0xSvxAe5jkFJBuqJKfdneKrdD59h5C36ZwjMdgeTZA8UPuan+9nuouKK05ObB55Q6lpt7ccgokVL2fMgYJTM5u2YXNJ1RQbi049QhlGKFsy1KUgelFnbZQAWkFX+RTUfK0e1Qx+fASK8PHdBP7SAp6TVLRkXnjU+Mao1kdhQpMsgCC9V86Kjatxz97k4qIS3nQGjiJt12+SRIZKp/H7woJdX1KXnrAHlh4lRJRF6nv+iyfhhwlYwStr/7oQ7LJqj6GOerDvvYxepR+6vDeu4bqzQ/RKXOMJH8cCEGmrVlSkzOjKlRAHk8v1MBs3V8SzoSFqRN0O9MDu3EUoMiXw7n+Nvitd9ELXBz+9DUtC2SPYaLYbUOf5RFX+rS+uYHa6Y/IcAWvJTqP3v59ZPtEA2OK++WjtbWyga7w0Dh3OGGpzblSrJ3ShgWv0tP7T+xfOkItNG4gKk7UxPoAVbgEBT5ZUDzD3JczsnkXjqEuSLATAZvLt9ENhr+OEnx1bq4+oCo4BeYMv+f/uiBhGJm65KBL1ayxFDcr+WeFR92QkYuoJvbGwcrP0V6lPx/uOOpLij8SRgPzCyuQ0Kk+T2DpLPPdd2hr4uD5Bj3Z0pOhi5dWQOVUpEziMhXvv9b/AparAWFoF74ZAAAAAElFTkSuQmCC
 """)
 
-def struct_TeamDefinition(name, abbrev, logo, foreground_color, background_color):
-    return struct(Name = name, Abbreviation = abbrev, Logo = logo, ForegroundColor = foreground_color, BackgroundColor = background_color)
+def struct_TeamDefinition(name, abbrev, logo, foreground_color, background_color, vertical_offset = -3):
+    return struct(Name = name, Abbreviation = abbrev, Logo = logo, ForegroundColor = foreground_color, BackgroundColor = background_color, Offset = vertical_offset)
 
 TEAM_INFO = {
     ARI_TEAM_ID: struct_TeamDefinition("Arizona DiamondBacks", "ARI", ARI_LOGO, "#E3D4AD", "#A71930"),
-    ATL_TEAM_ID: struct_TeamDefinition("Atlanta Braves", "ATL", ATL_LOGO, "#FFFFFF", "#13274F"),
-    BOS_TEAM_ID: struct_TeamDefinition("Boston Red Sox", "BOS", BOS_LOGO, "#FFFFFF", "#0C2340"),
+    ATL_TEAM_ID: struct_TeamDefinition("Atlanta Braves", "ATL", ATL_LOGO, "#FFFFFF", "#13274F", -6),
+    BOS_TEAM_ID: struct_TeamDefinition("Boston Red Sox", "BOS", BOS_LOGO, "#FFFFFF", "#0C2340", -5),
     BAL_TEAM_ID: struct_TeamDefinition("Baltimore Orioles", "BAL", BAL_LOGO, "#DF4701", "#000000"),
-    CHC_TEAM_ID: struct_TeamDefinition("Chicago Cubs", "CHC", CHC_LOGO, "#CC3433", "#0E3386"),
+    CHC_TEAM_ID: struct_TeamDefinition("Chicago Cubs", "CHC", CHC_LOGO, "#CC3433", "#0E3386", -5),
     CWS_TEAM_ID: struct_TeamDefinition("Chicago White Sox", "CWS", CWS_LOGO, "#C4CED4", "#27251F"),
-    CIN_TEAM_ID: struct_TeamDefinition("Cincinnati Reds", "CIN", CIN_LOGO, "#FFFFFF", "#C6011F"),
-    CLE_TEAM_ID: struct_TeamDefinition("Cleveland Guardians", "CLE", CLE_LOGO, "#FFFFFF", "#00385D"),
-    COL_TEAM_ID: struct_TeamDefinition("Colorado Rockies", "COL", COL_LOGO, "#C4CED4", "#333366"),
+    CIN_TEAM_ID: struct_TeamDefinition("Cincinnati Reds", "CIN", CIN_LOGO, "#FFFFFF", "#C6011F", -5),
+    CLE_TEAM_ID: struct_TeamDefinition("Cleveland Guardians", "CLE", CLE_LOGO, "#FFFFFF", "#00385D", -6),
+    COL_TEAM_ID: struct_TeamDefinition("Colorado Rockies", "COL", COL_LOGO, "#C4CED4", "#333366", -6),
     DET_TEAM_ID: struct_TeamDefinition("Detroit Tigers", "DET", DET_LOGO, "#FFFFFF", "#0C2340"),
-    HOU_TEAM_ID: struct_TeamDefinition("Houston Astros", "HOU", HOU_LOGO, "#EB6E1F", "#002D62"),
-    KC_TEAM_ID: struct_TeamDefinition("Kansas City Royals", "KC", KC_LOGO, "#BD9B60", "#004687"),
-    LAA_TEAM_ID: struct_TeamDefinition("Los Angeles Angels", "LAA", LAA_LOGO, "#FFFFFF", "#BA0021"),
-    LAD_TEAM_ID: struct_TeamDefinition("Los Angeles Dodgers", "LAD", LAD_LOGO, "#FFFFFF", "#005A9C"),
+    HOU_TEAM_ID: struct_TeamDefinition("Houston Astros", "HOU", HOU_LOGO, "#EB6E1F", "#002D62", -6),
+    KC_TEAM_ID: struct_TeamDefinition("Kansas City Royals", "KC", KC_LOGO, "#BD9B60", "#004687", -6),
+    LAA_TEAM_ID: struct_TeamDefinition("Los Angeles Angels", "LAA", LAA_LOGO, "#FFFFFF", "#BA0021", -10),
+    LAD_TEAM_ID: struct_TeamDefinition("Los Angeles Dodgers", "LAD", LAD_LOGO, "#FFFFFF", "#005A9C", -8),
     MIA_TEAM_ID: struct_TeamDefinition("Miami Marlins", "MIA", MIA_LOGO, "#EF3340", "#000000"),
-    MIL_TEAM_ID: struct_TeamDefinition("Milwaukee Brewers", "MIL", MIL_LOGO, "#FFC52F", "#12284B"),
+    MIL_TEAM_ID: struct_TeamDefinition("Milwaukee Brewers", "MIL", MIL_LOGO, "#FFC52F", "#12284B", -6),
     MIN_TEAM_ID: struct_TeamDefinition("Minnesota Twins", "MIN", MIN_LOGO, "#FFFFFF", "#002B5C"),
     NYM_TEAM_ID: struct_TeamDefinition("New York Mets", "NYM", NYM_LOGO, "#FF5910", "#002D72"),
     NYY_TEAM_ID: struct_TeamDefinition("New York Yankees", "NYY", NYY_LOGO, "#C4CED3", "#0C2340"),
-    OAK_TEAM_ID: struct_TeamDefinition("Oakland Athletics", "OAK", OAK_LOGO, "#EFB21E", "#003831"),
+    OAK_TEAM_ID: struct_TeamDefinition("Oakland Athletics", "OAK", OAK_LOGO, "#EFB21E", "#003831", -6),
     PHI_TEAM_ID: struct_TeamDefinition("Philadelphia Phillies", "PHI", PHI_LOGO, "#FFFFFF", "#E81828"),
-    PIT_TEAM_ID: struct_TeamDefinition("Pittsburgh Pirates", "PIT", PIT_LOGO, "#FDB827", "#27251F"),
-    SEA_TEAM_ID: struct_TeamDefinition("Seattle Mariners", "SEA", SEA_LOGO, "#C4CED4", "#0C2C56"),
+    PIT_TEAM_ID: struct_TeamDefinition("Pittsburgh Pirates", "PIT", PIT_LOGO, "#FDB827", "#27251F", -6),
+    SEA_TEAM_ID: struct_TeamDefinition("Seattle Mariners", "SEA", SEA_LOGO, "#C4CED4", "#0C2C56", -5),
     SD_TEAM_ID: struct_TeamDefinition("San Diego Padres", "SD", SD_LOGO, "#FFC425", "#2F241D"),
-    STL_TEAM_ID: struct_TeamDefinition("St. Louis Cardinals", "STL", STL_LOGO, "#FFFFFF", "#C41E3A"),
+    STL_TEAM_ID: struct_TeamDefinition("St. Louis Cardinals", "STL", STL_LOGO, "#FFFFFF", "#C41E3A", -6),
     SF_TEAM_ID: struct_TeamDefinition("San Francisco Giants", "SF", SF_LOGO, "#FD5A1E", "#27251F"),
     TB_TEAM_ID: struct_TeamDefinition("Tampa Bay Rays", "TB", TB_LOGO, "#8FBCE6", "#092C5C"),
     TEX_TEAM_ID: struct_TeamDefinition("Texas Rangers", "TEX", TEX_LOGO, "#FFFFFF", "#003278"),

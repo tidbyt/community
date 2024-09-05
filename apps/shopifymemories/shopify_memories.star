@@ -214,6 +214,8 @@ def api_fetch(counter_id, request_config):
             print("Counter API request failed with status {}".format(rep.status_code))
             return None
         api_response = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, json.encode(api_response), ttl_seconds = CACHE_TTL)
         return api_response
 

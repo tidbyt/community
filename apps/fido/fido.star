@@ -258,6 +258,7 @@ def get_cached(url, ttl_seconds = TTL):
     data = res.body()
 
     # Set cache and dont try again until the next day
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(url, data, ttl_seconds = ttl_seconds)
 
     # Return the data we got from the web

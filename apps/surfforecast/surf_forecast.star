@@ -471,6 +471,8 @@ def get_response(url, cache_key, ttl_seconds):
         return json.decode(response_cached)
 
     response = get(url)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, json.encode(response), ttl_seconds = ttl_seconds)
     return response
 

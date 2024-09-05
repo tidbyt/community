@@ -138,11 +138,22 @@ def main(config):
         dgb_price_usd = dgbquery.json()["digibyte"]["usd"]
 
         # Store prices in cache
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("dgb_price_aud", str(dgb_price_aud), ttl_seconds = 600)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("dgb_price_cad", str(dgb_price_cad), ttl_seconds = 600)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("dgb_price_eur", str(dgb_price_eur), ttl_seconds = 600)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("dgb_price_gbp", str(dgb_price_gbp), ttl_seconds = 600)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("dgb_price_sats", str(dgb_price_sats), ttl_seconds = 600)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("dgb_price_usd", str(dgb_price_usd), ttl_seconds = 600)
 
     # Format SATS price

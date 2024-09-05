@@ -187,6 +187,8 @@ def fetch_prayer_times(latitude, longitude, month, year, prayer_calc_option):
         api_url = "http://api.aladhan.com/v1/calendar?latitude={}&longitude={}&month={}&year={}&method={}".format(latitude, longitude, month, year, prayer_calc_option)
         prayer_month_raw = http.get(api_url)
         prayer_month_body = prayer_month_raw.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, prayer_month_body, ttl_seconds = ONE_MONTH)
         cached_data = prayer_month_body
 

@@ -1,0 +1,8 @@
+---
+id: big-brother-news
+name: Big Brother News
+summary: Ticker for bbspy
+desc: Shows the top story from bbspy.co.uk.
+author: meejle
+fileName: big_brother_news.star
+packageName: bigbrothernews

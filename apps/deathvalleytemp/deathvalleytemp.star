@@ -6,7 +6,6 @@ Author: Kyle Stark @kaisle51
 Thanks: Dubhouze-Tāvis/tavdog for general help and FtoC, Chad Milburn for dark mode logic, wshue0 for API stuff
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("math.star", "math")
@@ -210,19 +209,12 @@ def main(config):
     )
 
 def get_cachable_data(url, timeout):
-    key = url
-
-    data = cache.get(key)
-    if data != None:
-        return data
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = timeout)
     if res.status_code != 200:
         return "Err"
 
     temp_data = res.json()
     temp_f = str(temp_data["properties"]["periods"][0]["temperature"])
-    cache.set(key, temp_f, ttl_seconds = timeout)
 
     return temp_f
 

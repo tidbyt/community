@@ -27,6 +27,8 @@ def main():
             fail("Gym Request failed with status %d", req.status_code)
 
         currocc = req.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("curocc", currocc, ttl_seconds = 60)
 
     # Cache Logo Image
@@ -37,6 +39,8 @@ def main():
     else:
         print("Miss! Grabbing logo image from LOGO_URL")
         logo = http.get(LOGO_URL).body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("logo", logo, ttl_seconds = 3600)
 
     color = "#cd0800"  # red

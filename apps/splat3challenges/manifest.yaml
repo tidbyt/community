@@ -1,0 +1,8 @@
+---
+id: splat3-challenges
+name: Splat3 Challenges
+summary: Splatoon 3 Challenges
+desc: Shows upcoming Challenges in Splatoon 3, their descriptions and modifiers, and the times they start at. Data provided by splatoon3.ink.
+author: MarkGamed7794
+fileName: splat3_challenges.star
+packageName: splat3challenges

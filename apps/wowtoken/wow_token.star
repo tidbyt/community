@@ -60,6 +60,8 @@ def main(config):
             token_price = float(query.json()[region]["current_price"])
             print("Got price " + str(token_price))
             data_available = True
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_id, str(token_price), ttl_seconds = 600)
 
     display = []

@@ -41,6 +41,8 @@ def getEmojiList(vendor):
         fail("couldn't get list of emojis with status %d" % rep.status_code)
     rep_body_raw = rep.body()
     rep_body = str(gzip.decompress(rep_body_raw))  # the emoji list emoji is gzipped, despite url
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("emoji_base64_list", rep_body, ttl_seconds = 86400)  # caching 24 hours
     return csv.read_all(rep_body, skip = 1)
 
@@ -57,6 +59,8 @@ def getEmojiNames(locale):
         fail("couldn't get list of emoji names with status %d" % rep_names.status_code)
     rep_names_body_raw = rep_names.body()
     rep_names_body = str(gzip.decompress(rep_names_body_raw))  # the names csv is gzipped, despite url
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("emoji_names_%s" % locale, rep_names_body, ttl_seconds = 86400)  # caching 24 hours
     return csv.read_all(rep_names_body, skip = 1)
 
@@ -135,6 +139,8 @@ def main(config):
         if rep_base64.status_code != 200:
             fail("couldn't get emoji text file with status %d" % rep_base64.status_code)
         random_emoji_base64 = rep_base64.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             "random_emoji-%s" % vendor,
             "%s,%s" % (name_item[0], random_emoji_base64),  # as a one-line CSV...

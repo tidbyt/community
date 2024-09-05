@@ -244,6 +244,7 @@ def fetch_earthquakes(lat, lng, radius, magnitude):
         print("missing features: %s" & resp.body())
         return None
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, json.encode(features), CACHE_TTL)
     return features
 

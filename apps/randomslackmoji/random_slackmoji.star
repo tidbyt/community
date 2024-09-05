@@ -77,6 +77,7 @@ def get_slackmoji_url(query):
 
     # set cached url
     if USE_CACHE and url != None:
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_name, url, ttl_seconds = CACHE_SECONDS_URL)
 
     return url
@@ -98,6 +99,7 @@ def get_image(url):
             file = response.body()
             if file:
                 if USE_CACHE:
+                    # TODO: Determine if this cache call can be converted to the new HTTP cache.
                     cache.set(cache_name, base64.encode(file), ttl_seconds = CACHE_SECONDS_IMAGE)
                 return file
 

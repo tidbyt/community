@@ -118,6 +118,7 @@ def get_regions():
     table = load_countries_table()
     regions = {row["country_iso2"]: row["country_name"] for row in table}
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("regions", json.encode(regions), ttl_seconds = 60 * 60)
     return regions
 
@@ -175,6 +176,8 @@ def load_url_cached(url):
         return None
 
     val = resp.body()
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, val, ttl_seconds = 60 * 60)
     return val
 

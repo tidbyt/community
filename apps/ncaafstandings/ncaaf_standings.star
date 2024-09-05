@@ -5,8 +5,6 @@ Description: Displays live and upcoming NCAAF standings from a data feed.
 Author: LunchBox8484
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -51,7 +49,9 @@ ALT_COLOR = """
     "UNC" : "#13294B",
     "COLO" : "#000000",
     "IOWA" : "#000000",
-    "RICE" : "#00205B"
+    "RICE" : "#00205B",
+    "HP": "#330072",
+    "MIZ": "#000000"
 }
 """
 ALT_LOGO = """
@@ -114,7 +114,10 @@ ALT_LOGO = """
     "NORF" : "https://b.fssta.com/uploads/application/college/team-logos/NorfolkState.vresize.50.50.medium.0.png",
     "UNC" : "https://b.fssta.com/uploads/application/college/team-logos/NorthCarolina.vresize.50.50.medium.0.png",
     "BAY" : "https://b.fssta.com/uploads/application/college/team-logos/Baylor-alternate.vresize.50.50.medium.0.png",
-    "ALA" : "https://b.fssta.com/uploads/application/college/team-logos/Alabama-alternate.vresize.50.50.medium.0.png"
+    "ALA" : "https://b.fssta.com/uploads/application/college/team-logos/Alabama-alternate.vresize.50.50.medium.0.png",
+    "TLSA": "https://b.fssta.com/uploads/application/college/team-logos/Tulsa-alternate.vresize.50.50.medium.0.png",
+    "HP": "https://b.fssta.com/uploads/application/college/team-logos/HighPoint.vresize.50.50.medium.0.png",
+    "OSU": "https://b.fssta.com/uploads/application/college/team-logos/OhioState.vresize.50.50.medium.0.png"
 }
 """
 
@@ -146,10 +149,12 @@ def main(config):
         entries = standings["children"][int(conferenceTypeArray[1])]["standings"]["entries"]
         divisionName = displayTop == "gameinfo" and standings["children"][int(conferenceTypeArray[1])]["shortName"] or standings["children"][int(conferenceTypeArray[1])]["abbreviation"]
         displayType = "standings"
+        entries = sorted(entries, get_games_behind)
     else:
         entries = standings["standings"]["entries"]
         divisionName = displayTop == "gameinfo" and standings["shortName"] or standings["abbreviation"]
         displayType = "standings"
+        entries = sorted(entries, get_games_behind)
     if entries:
         entriesToDisplay = teamsToShow
 
@@ -162,7 +167,7 @@ def main(config):
                         cross_align = "start",
                         children = [
                             render.Column(
-                                children = get_team(x, entries, entriesToDisplay, displayType),
+                                children = get_team(x, entries, entriesToDisplay, displayType, conferenceType),
                             ),
                         ],
                     ),
@@ -179,18 +184,32 @@ def main(config):
     else:
         return []
 
+def get_games_behind(entry):
+    for stat in entry.get("stats"):
+        if stat.get("name") == "playoffSeed":
+            return stat.get("value")
+    return 0
+
+def get_conf_record(entry):
+    for stat in entry.get("stats"):
+        if stat.get("name") == "vs. Conf.":
+            return stat.get("displayValue")
+    return 0
+
+def get_conf_gb(entry):
+    for stat in entry.get("stats"):
+        if stat.get("type") == "vsconf_gamesbehind":
+            return stat.get("displayValue")
+    return 0
+
 conferenceOptions = [
     schema.Option(
         display = "Top 25",
         value = "top25",
     ),
     schema.Option(
-        display = "ACC - Atlantic",
-        value = "1&0",
-    ),
-    schema.Option(
-        display = "ACC - Costal",
-        value = "1&1",
+        display = "ACC",
+        value = "1",
     ),
     schema.Option(
         display = "American",
@@ -213,10 +232,6 @@ conferenceOptions = [
         value = "12",
     ),
     schema.Option(
-        display = "FBS Indep.",
-        value = "18",
-    ),
-    schema.Option(
         display = "MAC - East",
         value = "15&0",
     ),
@@ -225,12 +240,8 @@ conferenceOptions = [
         value = "15&1",
     ),
     schema.Option(
-        display = "Mountain West - Mountain",
-        value = "17&0",
-    ),
-    schema.Option(
-        display = "Mountain West - West",
-        value = "17&1",
+        display = "Mountain West",
+        value = "17",
     ),
     schema.Option(
         display = "Pac-12",
@@ -427,7 +438,7 @@ def get_team_color(teamid):
     teamcolor = get_background_color(team["abbreviation"], team["color"])
     return teamcolor
 
-def get_team(x, s, entriesToDisplay, displayType):
+def get_team(x, s, entriesToDisplay, displayType, conferenceType):
     output = []
     containerHeight = int(24 / entriesToDisplay)
     for i in range(0, entriesToDisplay):
@@ -438,16 +449,20 @@ def get_team(x, s, entriesToDisplay, displayType):
                 teamName = s[i + x]["team"]["abbreviation"]
                 teamColor = get_team_color(teamID)
                 teamLogo = get_logoType(teamName, s[i + x]["team"]["logos"][0]["href"])
-                teamRecord = s[i + x]["stats"][11]["displayValue"]
-                teamGB = s[i + x]["stats"][2]["displayValue"]
+                if conferenceType == "top25":
+                    teamRecord = s[i + x]["stats"][11]["displayValue"]
+                    teamGB = s[i + x]["stats"][12]["displayValue"]
+                else:
+                    teamRecord = get_conf_record(s[i + x])
+                    teamGB = get_conf_gb(s[i + x])
 
                 team = render.Column(
                     children = [
                         render.Box(width = 64, height = containerHeight, color = teamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                             render.Box(width = 8, height = containerHeight, child = render.Image(teamLogo, width = 10, height = 10)),
                             render.Box(width = 18, height = containerHeight, child = render.Text(content = teamName[:4], color = "#fff", font = mainFont)),
-                            render.Box(width = 24, height = containerHeight, child = render.Text(content = teamRecord, color = "#fff", font = mainFont)),
-                            render.Box(width = 14, height = containerHeight, child = render.Text(content = teamGB, color = "#fff", font = mainFont)),
+                            render.Box(width = 24, height = containerHeight, child = render.Text(content = str(teamRecord), color = "#fff", font = mainFont)),
+                            render.Box(width = 14, height = containerHeight, child = render.Text(content = str(teamGB), color = "#fff", font = mainFont)),
                         ])),
                     ],
                 )
@@ -491,9 +506,8 @@ def get_logoType(team, logo):
     if usealt != "NO":
         logo = get_cachable_data(usealt, 36000)
     else:
-        logo = logo.replace("500/scoreboard", "500-dark/scoreboard")
-        logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=", 36000)
-        logo = get_cachable_data(logo + "&h=50&w=50")
+        logo = logo.replace("500", "500-dark")
+        logo = get_cachable_data(logo + "?h=50&w=50")
     return logo
 
 def get_top_column(displayTop, now, timeColor, divisionName, renderCategory):
@@ -544,16 +558,8 @@ def get_top_column(displayTop, now, timeColor, divisionName, renderCategory):
     return topColumn
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = ttl_seconds)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

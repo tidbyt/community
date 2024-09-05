@@ -194,6 +194,8 @@ def get_latest_celebration(store_name, api_token):
 
         # Store the new value in cache
         print("Cache 💾: Storing value for key %s" % cache_key)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, response.body(), ttl_seconds = CACHE_TTL)
         metafields = response.json()
 
@@ -285,6 +287,8 @@ def get_order_count(store_name, api_token):
 
         # Store the new value in cache
         print("Cache 💾: Storing value for key %s" % cache_key)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, response.body(), ttl_seconds = CACHE_TTL)
         order_count = response.json()
 

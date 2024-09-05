@@ -7,9 +7,7 @@ Author: andymcrae
 
 #some code borrowed or inspired by nhlnextgame by AKKanman
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
@@ -18,7 +16,7 @@ load("time.star", "time")
 
 #URLs for AFL API data
 AFL_STANDINGS_URL = "https://api.squiggle.com.au/?q=standings"
-AFL_GAMES_URL = "https://api.squiggle.com.au/?q=games;year="
+AFL_GAMES_URL = "https://api.squiggle.com.au/?q=games;year={0};team={1};complete=!100"
 
 #set default team to the Sydney Swans
 DEFAULT_TEAM = "16"
@@ -105,66 +103,52 @@ def getTeamAbbFromID(team_id):
 
 def main(config):
     team_id = config.get("main_team") or DEFAULT_TEAM
+    show_standings = config.bool("show_standings")
 
     todays_date = time.now()
     todays_date_formatted = humanize.time_format("yyyy-MM-dd", todays_date)
 
     message = " "
 
-    standings_cached = cache.get("afl_standings")
-
-    #only make the request from the API if we need to
-    if standings_cached != None:
-        stand_data = json.decode(standings_cached)
-    else:
-        rep = http.get(AFL_STANDINGS_URL)
-        if rep.status_code != 200:
-            fail("Squiggle request failed with status %d", rep.status_code)
-        stand_data = rep.json()
-        cache.set("afl_standings", json.encode(stand_data), ttl_seconds = 3600)
-
+    # get standings if we should
     standings = []
+    if show_standings:
+        resp = http.get(AFL_STANDINGS_URL, ttl_seconds = 3600)
+        if resp.status_code != 200:
+            fail("Squiggle request failed with status", resp.status_code)
+        stand_data = resp.json().get("standings")
 
-    #get the team identifier in standings order
-    for i in range(len(stand_data["standings"])):
-        standings.append(stand_data["standings"][i]["id"])
+        # get the team identifier in standings order
+        for i in range(len(stand_data)):
+            standings.append(stand_data[i]["id"])
 
-    #build the output message
-    message = " "
-    for i, _ in enumerate(standings):
-        message = message + str(i + 1) + ": " + getTeamAbbFromID(standings[i]) + "  "
+        # build the standings message
+        for i, _ in enumerate(standings):
+            message = message + str(i + 1) + ": " + getTeamAbbFromID(standings[i]) + "  "
 
-    games_cached = cache.get("afl_games")
-
-    #call the Squiggle API and retreive list of unfinished games for the year
-    if games_cached != None:
-        game_data = json.decode(games_cached)
-    else:
-        rep2 = http.get(AFL_GAMES_URL + todays_date_formatted[0:4] + ";complete=!100")
-        if rep2.status_code != 200:
-            fail("Squiggle request failed with status %d", rep2.status_code)
-        game_data = rep2.json()
-        cache.set("afl_games", json.encode(game_data), ttl_seconds = 3600)
+    # call the Squiggle API and retreive list of unfinished games for the year
+    games_url = AFL_GAMES_URL.format(todays_date_formatted[0:4], str(team_id))
+    resp = http.get(games_url, ttl_seconds = 3600)
+    if resp.status_code != 200:
+        fail("Squiggle request failed with status", resp.status_code)
+    game_data = resp.json().get("games")
 
     hgames = []
     hometeam = 0
-
-    #find the home games for this team - finals data is null until populated at end of primary rounds
-    for i in range(len(game_data["games"])):
-        if game_data["games"][i]["hteamid"]:
-            hometeam = int(game_data["games"][i]["hteamid"])  #convert to int as this field is decimal
-        if str(hometeam) == str(team_id):  #compare the two as strings
-            hgames.append(game_data["games"][i]["id"])  #add this game to the list of games
-
     agames = []
     awayteam = 0
 
-    #find the away games for this team
-    for i in range(len(game_data["games"])):
-        if game_data["games"][i]["ateamid"]:
-            awayteam = int(game_data["games"][i]["ateamid"])
+    #find the games for this team - finals data is null until populated at end of primary rounds
+    for i in range(len(game_data)):
+        hometeam = int(game_data[i].get("hteamid"))  #convert to int as this field is decimal
+        if str(hometeam) == str(team_id):  #compare the two as strings
+            hgames.append(game_data[i]["id"])  #add this game to the list of games
+            continue  # found what we need, go on to the next
+
+        # otherwise see if we are the away team
+        awayteam = int(game_data[i].get("ateamid"))
         if str(awayteam) == str(team_id):
-            agames.append(game_data["games"][i]["id"])
+            agames.append(game_data[i]["id"])
 
     #make sure we have the first game either home or away
     if agames[0] > hgames[0]:
@@ -178,12 +162,12 @@ def main(config):
     round_number = ""
 
     #get the data for the next game
-    for i in range(len(game_data["games"])):
-        if game_data["games"][i]["id"] == nextgame_id:
-            hometeam_id = game_data["games"][i]["hteamid"]
-            awayteam_id = game_data["games"][i]["ateamid"]
-            nextgamedate = game_data["games"][i]["date"]
-            round_number = int(game_data["games"][i]["round"])
+    for i in range(len(game_data)):
+        if game_data[i]["id"] == nextgame_id:
+            hometeam_id = game_data[i]["hteamid"]
+            awayteam_id = game_data[i]["ateamid"]
+            nextgamedate = game_data[i]["date"]
+            round_number = int(game_data[i]["round"])
 
     display_date = ""
     date_key = nextgamedate[0:10]
@@ -249,7 +233,7 @@ def main(config):
                     child = render.Text(message, font = "tom-thumb"),
                     offset_start = 5,
                     offset_end = 32,
-                ),
+                ) if show_standings else None,
             ],
         ),
     )
@@ -286,6 +270,13 @@ def get_schema():
                 icon = "peopleGroup",
                 default = TEAM_LIST[0].value,
                 options = TEAM_LIST,
+            ),
+            schema.Toggle(
+                id = "show_standings",
+                name = "Show Standings",
+                desc = "Whether the standings should be shown.",
+                icon = "gear",
+                default = True,
             ),
         ],
     )

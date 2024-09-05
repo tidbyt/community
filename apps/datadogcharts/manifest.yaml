@@ -1,0 +1,8 @@
+---
+id: datadog-charts
+name: Datadog Charts
+summary: Shows a dashboard chart
+desc: Shows the first chart of a Datadog dashboard!
+author: Gabe Ochoa
+fileName: datadog_charts.star
+packageName: datadogcharts

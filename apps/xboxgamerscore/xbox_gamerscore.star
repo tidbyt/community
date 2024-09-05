@@ -25,9 +25,9 @@ DEFAULT_USE_ANIMATED_VERSION = False
 XBOX_LIVE_CLIENT_ID = "12f593c5-93bb-4801-80c3-1968300d2cae"
 XBOX_LIVE_CLIENT_SCOPES = ["XboxLive.signin", "XboxLive.offline_access"]
 XBOX_LIVE_CLIENT_SECRET = secret.decrypt("""
-AV6+xWcE0EMWDnotDEY+N0sgA3+oh4zBFjCKjY41F3TvM/gFRfrl5a514/UoL2wfAJWP5XxZ9Hz9rrH
-TCnqFFdPPTu4GT58QOmCTlGG88nTXrT4y3faO4lEN7ke1/Ns7fUl+u27044ulsBo3lL2fYgK1VYb51So
-hzhdFrYp8KSYuTj4WQqpEa/hnbQ==
+AV6+xWcEaylC45kmQ1uz7XVrdPuZEQu7BdRk9Cv2MF5KpI00yb+VSlg+TMU48FM9vFkeDVml6kTSJ0Z
+rzAvL7Oj8MBgjq7Dj0x9I7wqV9KNhzoqCMlKjqyTXo+r/ZU+ugm3ju8zW53V7HZV7moOxoK9WwlFncm
+mbLEbzkZDUewu1vt47coBFQs2tEA=="
 """)
 
 PREVIEW_PROFILE = dict(
@@ -173,6 +173,7 @@ def get_access_token(refresh_token):
     access_token = token_params["access_token"]
     ttl = int(token_params["expires_in"]) - 30
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl_seconds = ttl)
     return access_token
 
@@ -209,6 +210,7 @@ def get_profile(config):
     profile = get_xbox_live_profile(xsts)
 
     if profile:
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("%s|profile" % access_token, json.encode(profile), ttl_seconds = 300)
 
     return profile
@@ -336,6 +338,7 @@ def oauth_handler(params):
 
     # Caching this here to use in the refresh token request
     if params["redirect_uri"]:
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("redirect_uri", params["redirect_uri"])
 
     if res.status_code != 200:
@@ -347,6 +350,7 @@ def oauth_handler(params):
     refresh_token = token_params["refresh_token"]
     ttl = int(token_params["expires_in"]) - 30
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl)
     return refresh_token
 

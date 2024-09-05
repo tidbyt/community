@@ -55,6 +55,8 @@ def get_data():
             return []
 
         nes_quotes = request.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("nes_quotes", nes_quotes, ttl_seconds = CACHE_TTL)
 
     # Return our quotes, except for the header line

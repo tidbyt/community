@@ -184,6 +184,8 @@ def get_cacheable_data(url):
         if rep.status_code != 200:
             fail("Could not pull stories from the Chicago Tribune. Request failed with status %d", rep.status_code)
         data = json.encode(rep.json()["rss"]["channel"]["item"])
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(key, data, ttl_seconds = 1800)
 
     data_json = json.decode(data)

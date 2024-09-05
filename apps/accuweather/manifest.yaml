@@ -1,0 +1,8 @@
+---
+id: accuweather
+name: AccuWeather
+summary: AccuWeather forecast
+desc: Display AccuWeather three day forecast based on AccuWeather location key. To request an AccuWeather API key, see https://developer.accuweather.com/getting-started. To determine AccuWeather location key, search https://www.accuweather.com for a location and extract trailing number, e.g. 2191987 for https://www.accuweather.com/en/us/lavallette/08735/weather-forecast/2191987.
+author: sudeepban
+fileName: accuweather.star
+packageName: accuweather

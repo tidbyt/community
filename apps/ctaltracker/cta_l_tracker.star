@@ -19,8 +19,8 @@ CTA_ARRIVALS_URL = "https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx"
 L_STOPS_CACHE_KEY = "lstops"
 ARRIVALS_CACHE_KEY_PREFIX = "arrivals"
 
-ENCRYPTED_L_STOPS_APP_TOKEN = "AV6+xWcElqoWzINC+4lBzeZuL6rIz1WGOqo0vKlZLAmNZ58lOUCXnBWaXKxD7thBgCYJ36jW5LTnRMkgavzgjYcaLzI1T4545Q54RkwzjCz+FTEgK5p6zVoMaEY10385T1Sycp9ZKer0b34Vig8XeDXUY+z1EKJ5mggHGoiQhQ=="
-ENCRYPTED_ARRIVALS_API_KEY = "AV6+xWcER6HjcvANXDhGJqhXg09FtzGZjmyft97YTwLYSLwd+gBAYSfDiTqjB2qhD14cjg9qpzRaYksr2S+0ectDcdVEUq2AyfdaVKzqn4sYoeGmtmsSHbweibhglsfdgKC1yN8OqrYZjv7k0Y15NPoDj78kFm/iV/g1IaeOYTx1p5QbKqE="
+ENCRYPTED_L_STOPS_APP_TOKEN = "AV6+xWcEmO9I1P6uDXnYYpksV4eHIgte6OXTlBRgkCDRhIWI7v6BSCouVAAEh/nNkr3MxruQhgglhmBauXmJ8c/kyBWRMtq4JTiac6pRtDzA2Wu2rSDFTIiyenRfE8T8Y5KULWjdLUbxOzP7PdUtcLpsniRrp3IkrjAWSbhmqQ=="
+ENCRYPTED_ARRIVALS_API_KEY = "AV6+xWcEhAzrJFZmB5FlsB4E4pyYkKIPUE4vQpQtTPI7v6AS1NCuh2T/w1KoBWjGuZx+cx/4abjDo4sDdnFgBBxl+m8ETPNR2oZNM/QpQUNXI5lbtnaMcR/ydkkOj+/V7+96OW9F2tHn2ztHDBa2sHC6oEKEqrWPP9wqDyxpHzqA6EJ82ZQ="
 
 # Gets Hex color code for a given train line
 COLOR_MAP = {
@@ -56,11 +56,12 @@ def get_schema():
     )
 
 def main(config):
+    widgetMode = config.bool("$widget")
     selected_station = config.get("station", DEFAULT_STATION)
 
     arrivals = get_journeys(selected_station)
 
-    rendered_rows = render_arrival_list(arrivals)
+    rendered_rows = render_arrival_list(arrivals, widgetMode)
 
     return render.Root(
         delay = 75,
@@ -68,7 +69,7 @@ def main(config):
         child = rendered_rows,
     )
 
-def render_arrival_list(arrivals):
+def render_arrival_list(arrivals, widgetMode):
     """
     Renders a given lists of arrivals
     """
@@ -76,7 +77,7 @@ def render_arrival_list(arrivals):
 
     if arrivals:
         for a in arrivals:
-            rendered.append(render_arrival_row(a))
+            rendered.append(render_arrival_row(a, widgetMode))
 
     if rendered == None or len(rendered) == 0 or arrivals == None:
         return render.Column(
@@ -86,7 +87,7 @@ def render_arrival_list(arrivals):
                 render.Marquee(
                     width = 64,
                     child = render.Text("No trains found"),
-                ),
+                ) if not widgetMode else render.Text("No trains"),
             ],
         )
 
@@ -112,16 +113,13 @@ def render_arrival_list(arrivals):
         ],
     )
 
-def render_arrival_row(arrival):
+def render_arrival_row(arrival, widgetMode):
     """
     Creates a Row and adds needed children objects
     for a single arrival
     """
     background_color = render.Box(width = 22, height = 11, color = arrival["color_hex"])
-    destination_text = render.Marquee(
-        width = 36,
-        child = render.Text(arrival["destination_name"], font = "CG-pixel-4x5-mono", height = 7),
-    )
+    destination_text = render.Text(arrival["destination_name"], font = "CG-pixel-4x5-mono", height = 7)
     arrival_in_text = render.Text(arrival["eta_text"], color = "#f3ab3f")
 
     stack = render.Stack(children = [
@@ -129,18 +127,23 @@ def render_arrival_row(arrival):
     ])
 
     column = render.Column(
+        cross_align = "start",
         children = [
-            destination_text,
+            render.Marquee(
+                width = 36,
+                child = destination_text,
+            ) if not widgetMode else destination_text,
             arrival_in_text,
         ],
     )
 
     return render.Row(
         expanded = True,
-        main_align = "space_evenly",
+        main_align = "start",
         cross_align = "center",
         children = [
             stack,
+            render.Box(width = 1, height = 1),
             column,
         ],
     )
@@ -175,6 +178,8 @@ def get_stations():
 
     stations = [build_station(station) for station in data]
     deduped_stations = [i for n, i in enumerate(stations) if i not in stations[n + 1:]]
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(L_STOPS_CACHE_KEY, json.encode(deduped_stations), ttl_seconds = 3600)
     return deduped_stations
 
@@ -245,6 +250,8 @@ def get_journeys(station_code):
         journeys = []
 
     next_arrivals = [build_journey(prediction) for prediction in journeys[:2]]
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(station_cache_key, json.encode(next_arrivals), ttl_seconds = 60)
     return next_arrivals
 

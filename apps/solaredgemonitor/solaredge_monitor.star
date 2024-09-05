@@ -81,6 +81,8 @@ def main(config):
             if rep.status_code != 200:
                 fail("SolarEdge API request failed with status {}".format(rep.status_code))
             data = rep.body()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(url, data, ttl_seconds = CACHE_TTL)
         o = json.decode(data)
     else:

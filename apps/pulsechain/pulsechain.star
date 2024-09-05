@@ -110,8 +110,13 @@ def main(config):
         else:
             eth_hex = NO_PRICE
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("pls_price", mainnet_pls, ttl_seconds = 30)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("plsx_price", mainnet_plsx, ttl_seconds = 30)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("eth_hex_price", eth_hex, ttl_seconds = 30)
 
         PLS_TESTNET = testnetResponse.json()["data"]["pls"]["derivedUSD"]
@@ -119,7 +124,10 @@ def main(config):
         testnet_pls = str("$%f" % float(PLS_TESTNET))
         testnet_plsx = str("$%f" % float(PLSX_TESTNET))
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("pls_testnet_price", testnet_pls, ttl_seconds = 30)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("plsx_testnet_price", testnet_plsx, ttl_seconds = 30)
 
         if config.bool("testnet"):

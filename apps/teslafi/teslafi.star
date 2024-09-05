@@ -135,6 +135,8 @@ def main(config):
             if rep.status_code != 200:
                 fail("TeslaFi request failed with status:", rep.status_code)
             rep = rep.json()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("teslafi-" + api, json.encode(rep), ttl_seconds = 60)
 
         name = rep["display_name"]

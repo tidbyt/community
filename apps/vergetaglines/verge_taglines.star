@@ -85,7 +85,11 @@ def main():
                 display = "* " + tagline_backup
         else:
             display = tagline
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(CACHE_KEY_TAGLINE, tagline, ttl_seconds = 900)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(CACHE_KEY_TAGLINE_BACKUP, tagline, ttl_seconds = 1200)
     else:
         display = tagline

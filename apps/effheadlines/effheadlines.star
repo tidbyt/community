@@ -28,6 +28,8 @@ def main():
         if rep.status_code != 200:
             fail("EFF XML request failed with status %d", rep.status_code)
         body = rep.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("body", body, ttl_seconds = 3600)
 
         dirty_titles = re.findall("<title>.+</title>", body)
@@ -39,8 +41,12 @@ def main():
             clean_guids.append(guid.replace("<guid isPermaLink=\"false\">", "").replace(" at https://www.eff.org</guid>", ""))
 
         json_titles = json.encode(clean_titles)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("titles", json_titles, ttl_seconds = 3600)
         json_guids = json.encode(clean_guids)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("guids", json_guids, ttl_seconds = 3600)
     else:
         clean_titles = json.decode(json_titles)
@@ -59,6 +65,8 @@ def main():
             color = "#fff",
             background = "#000",
         )
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, base64.encode(code), ttl_seconds = 3600)
     else:
         code = base64.decode(data)

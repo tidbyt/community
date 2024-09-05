@@ -5,8 +5,6 @@ Description: Displays live and upcoming NBA standings from a data feed.
 Author: LunchBox8484
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -87,17 +85,8 @@ def main(config):
             if entries:
                 entriesToDisplay = teamsToShow
                 divisionName = s["name"].replace(" Division", "").replace(" Conference", "")
-                stats = entries[0]["stats"]
 
-                statNumber = 0
-                statNumber2 = 0
-                for j, k in enumerate(stats):
-                    if k["name"] == "gamesBehind":
-                        statNumber = j
-                    if k["name"] == "winPercent":
-                        statNumber2 = j
-
-                entries = sorted(entries, key = lambda e: (e["stats"][statNumber]["value"], float(e["stats"][statNumber2]["value"])), reverse = False)
+                entries = sorted(entries, get_games_behind)
 
                 for x in range(0, len(entries), entriesToDisplay):
                     renderCategory.extend(
@@ -122,6 +111,12 @@ def main(config):
         )
     else:
         return []
+
+def get_games_behind(entry):
+    for stat in entry.get("stats"):
+        if stat.get("name") == "gamesBehind":
+            return stat.get("value")
+    return 0  # will never get here, but need a return value
 
 divisionOptions = [
     schema.Option(
@@ -417,16 +412,8 @@ def get_logoType(team, logo):
     return logo
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = ttl_seconds)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

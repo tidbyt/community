@@ -19,7 +19,7 @@ RED_RGB = "#FF0000"
 GREEN_RGB = "#00FF00"
 WHITE_RGB = "#FFFFFF"
 
-PIN = """AV6+xWcEOd0lGviFmw+gUtFJ2kA3cYVXGBwOoi903QlfeNHQiMtnYEDpI4qB6SzMwHcuMxrBP08GK/5R3835Tmuzq+Hg8y6pIExIp/G5xLeAVBnpyYnjwdDhz1nw6+BAgnUEXIO9xW0q+99cZSeRPBw86W8s9w=="""
+PIN = """AV6+xWcEusHpmsVuv3T3x5sZCIs7M7pe4JOOypcu+Xo53jo5IBtjbh2OD9vDODM8GJtHVnquRu3J24R2BogCRRqEFy3O1ZzOwcT5NKRzuPESxZMKULP5gD7kcuqXu8xhmhTNbFC47t+oI1Vxntc7NbC7mJJRvQ=="""
 
 def display_symbol(crypto_symbol):
     "returns crypto symbol render"
@@ -154,6 +154,7 @@ def main(config):
             r = json.decode(cached_data)
             print("Alphavantage API request failed with error message %d, using cached data", r["Error Message"])
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_name, json.encode(r), ttl_seconds = 60 * 15)
 
     timeseries = r["Time Series Crypto (15min)"]

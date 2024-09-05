@@ -1,0 +1,8 @@
+---
+id: circleci
+name: CircleCI
+summary: CircleCI Build Statuses
+desc: Status of latest execution of pipeline in CircleCI.
+author: barbosa
+fileName: circleci.star
+packageName: circleci

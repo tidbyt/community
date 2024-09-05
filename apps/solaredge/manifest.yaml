@@ -1,0 +1,8 @@
+---
+id: solaredge
+name: SolarEdge
+summary: SolarEdge system monitor
+desc: Energy production and consumption monitor for your SolarEdge solar panels.
+author: Ingmar Stein
+fileName: solaredge.star
+packageName: solaredge

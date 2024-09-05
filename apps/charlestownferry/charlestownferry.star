@@ -25,6 +25,8 @@ def main():
         if rep.status_code != 200:
             fail("MBTA API request failed with status %d", rep.status_code)
         response_data = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("response_data", json.encode(response_data), ttl_seconds = 240)
 
     ferry_schedule = response_data["data"]

@@ -152,6 +152,8 @@ def oauth_handler(params):
 
     token_params = res.json()
     refresh_token = token_params["refresh_token"]
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, token_params["access_token"], ttl_seconds = int(token_params["expires_in"] - 30))
 
     return refresh_token
@@ -177,6 +179,8 @@ def get_access_token(refresh_token):
     token_params = res.json()
     refresh_token = token_params["refresh_token"]
     access_token = token_params["access_token"]
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
 
     return access_token

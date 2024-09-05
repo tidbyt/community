@@ -1,0 +1,8 @@
+---
+id: chrono24
+name: Chrono24
+summary: Watch market performance
+desc: Ability to view watch market performance over multiple time durations. Additionally, you can see watch brand performance.
+author: Chase Roossin
+fileName: chrono24.star
+packageName: chrono24

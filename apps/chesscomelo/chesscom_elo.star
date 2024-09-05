@@ -2,7 +2,7 @@
 Applet: Chess.com ELO
 Summary: Track your Chess.com ELO
 Description: Track your ELO from Chess.com from a variety of game types.
-Author: theUnBurn
+Author: UnBurn
 """
 
 load("cache.star", "cache")
@@ -100,6 +100,8 @@ def get_stats(username):
     cached_values = cache.get(cache_key)
     if cached_values == None:
         resp = http.get(endpoint).json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, json.encode(resp), ttl_seconds = ONE_HOUR_IN_SECONDS)
         return resp["stats"]
     else:
@@ -116,6 +118,8 @@ def get_profile_image(username):
             img = http.get(resp["avatar"]).body()
         else:
             img = NO_PROFILE_ICON
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, img, ttl_seconds = ONE_HOUR_IN_SECONDS)
 
     return img
@@ -137,7 +141,7 @@ def main(config):
     diff = dict()
 
     for rating in resp:
-        if "rating" not in rating["stats"].keys():
+        if "rating" not in rating["stats"].keys() or rating["stats"]["rating"] == "Unrated":
             continue
         stats[rating["key"]] = int(rating["stats"]["rating"])
         if "rating_time_change_value" in rating["stats"].keys():

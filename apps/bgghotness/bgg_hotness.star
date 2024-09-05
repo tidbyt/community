@@ -80,6 +80,7 @@ def main():
                         c["image"] = image
             data = content
 
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(KEY, json.encode(data), TTL)
             #print(json.encode(data))
 

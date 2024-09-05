@@ -198,6 +198,8 @@ def get_oncall_shifts(config, profile_id = None, offset = 0, limit = 100, shifts
         return get_oncall_shifts(config, profile_id, offset + limit, limit, shifts)
 
     shifts = sorted(shifts, key = sort_by_level)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("%s|shifts" % access_token, json.encode(shifts), DEFAULT_CACHE_TTL)
     return shifts
 

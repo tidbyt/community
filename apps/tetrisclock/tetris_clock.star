@@ -650,6 +650,7 @@ def main(config):
     else:
         return render.Root(
             delay = DELAY,
+            max_age = 120,
             child = render.Stack(
                 children = [
                     render.Box(

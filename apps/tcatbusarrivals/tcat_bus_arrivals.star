@@ -155,6 +155,8 @@ def main(config):
                         )
                         time_list.append(active_buses[x][3])
                         cache_string = (cache_string + "$COLOR" + routeColor + "$ROUTE" + active_buses[x][0] + "$MINUTES" + active_buses[x][3] + "&")
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(stopCode, cache_string, ttl_seconds = 60)
 
     return render.Root(
