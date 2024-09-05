@@ -138,79 +138,79 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.LocationBased(
-                id = "stop_code",
-                name = "Bus Stop",
-                desc = "A list of bus stops based on a location.",
-                icon = "bus",
-                handler = get_stops,
-            ),
-            schema.Dropdown(
-                id = "route_filter",
-                name = "Route Filter",
-                desc = "Filter to only display one route",
-                icon = "route",
-                default = "all-routes",
-                options = get_route_list(),
-            ),
-            schema.Toggle(
-                id = "show_title",
-                name = "Show stop title",
-                desc = "A toggle to show the stop title.",
-                icon = "signHanging",
-                default = False,
-            ),
-            schema.Dropdown(
-                id = "prediction_format",
-                name = "Prediction format",
-                desc = "Select the format of the prediction text.",
-                icon = "borderAll",
-                default = "long",
-                options = formats,
-            ),
-            schema.Dropdown(
-                id = "speed",
-                name = "Scroll Speed",
-                desc = "Change the speed that text scrolls.",
-                icon = "gear",
-                default = "50",
-                options = scroll_speeds,
-            ),
-            schema.Toggle(
-                id = "agency_alerts",
-                name = "Show agency-wide service alerts",
-                desc = "Show service alerts targeted to all of SF Muni.",
-                icon = "exclamation",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "route_alerts",
-                name = "Show route-specific service alerts",
-                desc = "Show service alerts targeted to the routes at the selected stop.",
-                icon = "exclamation",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "stop_alerts",
-                name = "Show stop-specific service alerts",
-                desc = "Show service alerts targeted to the selected stop.",
-                icon = "exclamation",
-                default = False,
-            ),
-            schema.Text(
-                id = "alert_languages",
-                name = "Service alert langauges",
-                desc = "Languages to show service alerts in, separated by commas.",
-                icon = "flag",
-                default = "en",
-            ),
-            schema.Text(
-                id = "minimum_time",
-                name = "Minimum time to show",
-                desc = "Don't show predictions nearer than this minimum.",
-                icon = "clock",
-                default = "0",
-            ),
+#            schema.LocationBased(
+#                id = "stop_code",
+#                name = "Bus Stop",
+#                desc = "A list of bus stops based on a location.",
+#                icon = "bus",
+#                handler = get_stops,
+#            ),
+#            schema.Dropdown(
+#                id = "route_filter",
+#                name = "Route Filter",
+#                desc = "Filter to only display one route",
+#                icon = "route",
+#                default = "all-routes",
+#                options = get_route_list(),
+#            ),
+#            schema.Toggle(
+#                id = "show_title",
+#                name = "Show stop title",
+#                desc = "A toggle to show the stop title.",
+#                icon = "signHanging",
+#                default = False,
+#            ),
+#            schema.Dropdown(
+#                id = "prediction_format",
+#                name = "Prediction format",
+#                desc = "Select the format of the prediction text.",
+#                icon = "borderAll",
+#                default = "long",
+#                options = formats,
+#            ),
+#            schema.Dropdown(
+#                id = "speed",
+#                name = "Scroll Speed",
+#                desc = "Change the speed that text scrolls.",
+#                icon = "gear",
+#                default = "50",
+#                options = scroll_speeds,
+#            ),
+#            schema.Toggle(
+#                id = "agency_alerts",
+#                name = "Show agency-wide service alerts",
+#                desc = "Show service alerts targeted to all of SF Muni.",
+#                icon = "exclamation",
+#                default = False,
+#            ),
+#            schema.Toggle(
+#                id = "route_alerts",
+#                name = "Show route-specific service alerts",
+#                desc = "Show service alerts targeted to the routes at the selected stop.",
+#                icon = "exclamation",
+#                default = False,
+#            ),
+#            schema.Toggle(
+#                id = "stop_alerts",
+#                name = "Show stop-specific service alerts",
+#                desc = "Show service alerts targeted to the selected stop.",
+#                icon = "exclamation",
+#                default = False,
+#            ),
+#            schema.Text(
+#                id = "alert_languages",
+#                name = "Service alert langauges",
+#                desc = "Languages to show service alerts in, separated by commas.",
+#                icon = "flag",
+#                default = "en",
+#            ),
+#            schema.Text(
+#                id = "minimum_time",
+#                name = "Minimum time to show",
+#                desc = "Don't show predictions nearer than this minimum.",
+#                icon = "clock",
+#                default = "0",
+#            ),
         ],
     )
 
@@ -282,7 +282,7 @@ def fetch_cached(url, ttl):
     else:
         res = http.get(url)
         if res.status_code != 200:
-            print("511.org request to %s failed with status %d", (url, res.status_code))
+            print("511.org request to %s failed with status %d", (sanitize(url), res.status_code))
             return (time.now().unix, res.body().lstrip("\ufeff"))
 
         # Trim off the UTF-8 byte-order mark
@@ -441,7 +441,7 @@ def getMessages(api_key, config, routes, stopId):
     return messages
 
 def sanitize(txt):
-  return txt.replace(API_KEY, "API_KEY")
+  return txt.replace(API_KEY, "API_KEY") if API_KEY else txt
 
 def renderOutput(stopTitle, output, messages, config):
     lines = 4
@@ -506,7 +506,7 @@ def renderOutput(stopTitle, output, messages, config):
                     ),
                     render.Marquee(
                         width = 64,
-                        child = render.Text(sanitize("      ".join(messages), font = "tom-thumb")),
+                        child = render.Text(sanitize("      ".join(messages)), font = "tom-thumb"),
                     ),
                 ],
                 main_align = "end",
