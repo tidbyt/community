@@ -6710,43 +6710,366 @@ def more_options(tram_route):
             ),
         ]
     elif tram_route == "15833,3":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-15833",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route3StopOptions[0].value,
+                options = Route3StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-15833",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route3DirectionOptions[2].value,
+                options = Route3DirectionOptions,
+            ),
+        ]
     elif tram_route == "1083,5":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-1083",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route5StopOptions[0].value,
+                options = Route5StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-1083",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route5DirectionOptions[2].value,
+                options = Route5DirectionOptions,
+            ),
+        ]
     elif tram_route == "11544,6":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-11544",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route6StopOptions[0].value,
+                options = Route6StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-11544",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route6DirectionOptions[2].value,
+                options = Route6DirectionOptions,
+            ),
+        ]
     elif tram_route == "3343,11":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-3343",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route11StopOptions[0].value,
+                options = Route11StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-3343",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route11DirectionOptions[2].value,
+                options = Route11DirectionOptions,
+            ),
+        ]
     elif tram_route == "8314,12":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-8314",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route12StopOptions[0].value,
+                options = Route12StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-8314",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route12DirectionOptions[2].value,
+                options = Route12DirectionOptions,
+            ),
+        ]
     elif tram_route == "724,16":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-724",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route16StopOptions[0].value,
+                options = Route16StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-724",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route16DirectionOptions[2].value,
+                options = Route16DirectionOptions,
+            ),
+        ]
     elif tram_route == "725,19":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-725",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route19StopOptions[0].value,
+                options = Route19StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-725",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route19DirectionOptions[2].value,
+                options = Route19DirectionOptions,
+            ),
+        ]
     elif tram_route == "1880,30":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-1880",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route30StopOptions[0].value,
+                options = Route30StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-1880",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route30DirectionOptions[2].value,
+                options = Route30DirectionOptions,
+            ),
+        ]
     elif tram_route == "15834,35":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-15834",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route35StopOptions[0].value,
+                options = Route35StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-15834",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route35DirectionOptions[0].value,
+                options = Route35DirectionOptions,
+            ),
+        ]
     elif tram_route == "2903,48":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-2903",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route48StopOptions[0].value,
+                options = Route48StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-2903",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route48DirectionOptions[2].value,
+                options = Route48DirectionOptions,
+            ),
+        ]
     elif tram_route == "887,57":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-887",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route57StopOptions[0].value,
+                options = Route57StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-887",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route57DirectionOptions[2].value,
+                options = Route57DirectionOptions,
+            ),
+        ]
     elif tram_route == "11529,58":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-11529",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route58StopOptions[0].value,
+                options = Route58StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-11529",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route58DirectionOptions[2].value,
+                options = Route58DirectionOptions,
+            ),
+        ]
     elif tram_route == "897,59":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-897",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route59StopOptions[0].value,
+                options = Route59StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-897",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route59DirectionOptions[2].value,
+                options = Route59DirectionOptions,
+            ),
+        ]
     elif tram_route == "909,64":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-909",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route64StopOptions[0].value,
+                options = Route64StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-909",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route64DirectionOptions[2].value,
+                options = Route64DirectionOptions,
+            ),
+        ]
     elif tram_route == "913,67":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-913",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route67StopOptions[0].value,
+                options = Route67StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-913",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route67DirectionOptions[2].value,
+                options = Route67DirectionOptions,
+            ),
+        ]
     elif tram_route == "940,70":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-940",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route70StopOptions[0].value,
+                options = Route70StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-940",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route70DirectionOptions[2].value,
+                options = Route70DirectionOptions,
+            ),
+        ]
     elif tram_route == "947,72":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-947",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route72StopOptions[0].value,
+                options = Route72StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-947",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route72DirectionOptions[2].value,
+                options = Route72DirectionOptions,
+            ),
+        ]
     elif tram_route == "958,75":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-958",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route75StopOptions[0].value,
+                options = Route75StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-958",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route75DirectionOptions[2].value,
+                options = Route75DirectionOptions,
+            ),
+        ]
     elif tram_route == "976,78":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-976",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route78StopOptions[0].value,
+                options = Route78StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-976",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route78DirectionOptions[2].value,
+                options = Route78DirectionOptions,
+            ),
+        ]
     elif tram_route == "1002,82":
         return [
             schema.Dropdown(
@@ -6767,11 +7090,62 @@ def more_options(tram_route):
             ),
         ]
     elif tram_route == "1881,86":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-1881",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route86StopOptions[0].value,
+                options = Route86StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-1881",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route86DirectionOptions[2].value,
+                options = Route86DirectionOptions,
+            ),
+        ]
     elif tram_route == "1041,96":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-1041",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route96StopOptions[0].value,
+                options = Route96StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-1041",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route96DirectionOptions[2].value,
+                options = Route96DirectionOptions,
+            ),
+        ]
     elif tram_route == "722,109":
-        return []
+        return [
+            schema.Dropdown(
+                id = "stop-list-722",
+                name = "Tram Stop",
+                desc = "Choose your stop",
+                icon = "tram",
+                default = Route109StopOptions[0].value,
+                options = Route109StopOptions,
+            ),
+            schema.Dropdown(
+                id = "direction-list-722",
+                name = "Direction",
+                desc = "Choose your direction",
+                icon = "arrow-right",
+                default = Route109DirectionOptions[2].value,
+                options = Route109DirectionOptions,
+            ),
+        ]
     else:
         return []
 
