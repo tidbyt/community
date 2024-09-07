@@ -265,7 +265,7 @@ def get_departures(stop):
     api_key = LOCAL_API_KEY if LOCAL_MODE else secret.decrypt(ENCRYPTED_API_KEY)
     if api_id == None or api_key == None:
         print("[ERROR]: Failed to retrieve API credentials")
-        return -1, None
+        return -1
 
     # Retrieve Data - Departures
     request_path = "/v3/departures/route_type/2/stop/" + stop["stop_id"]
@@ -277,7 +277,7 @@ def get_departures(stop):
     response = http.get(url, ttl_seconds = CACHE_TTL_SECS)
     if response.status_code != 200:
         print("[ERROR]: Request failed with status code: %d - %s and request url: %s" % (response.status_code, response.body(), url))
-        return -2, None
+        return -2
 
     # Transform Data - Departures
     departures = response.json()["departures"]
