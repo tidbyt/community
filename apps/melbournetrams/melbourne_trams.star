@@ -61,7 +61,7 @@ DEFAULT_ROUTE_NUMBER = "59"
 DEFAULT_STOP_ID = "2685"
 DEFAULT_STOP_NAME = "32: Moonee Ponds Jct/Pascoe Vale Rd"
 DEFAULT_DIRECTION_ID = "11"
-DEFAULT_DIRECTION_DATA = ["11", "Flinders Street Station (City)"]
+DEFAULT_DIRECTION_DATA = ["11", "Flinders St Stn (City)"]
 
 def main(config):
     schema_tram_route = config.get("tram-route")
@@ -403,7 +403,7 @@ TramRouteOptions = [
         value = "724,16",
     ),
     schema.Option(
-        display = "19: North Coburg - Flinders Street Station & City",
+        display = "19: North Coburg - Flinders St Stn & City",
         value = "725,19",
     ),
     schema.Option(
@@ -419,7 +419,7 @@ TramRouteOptions = [
         value = "2903,48",
     ),
     schema.Option(
-        display = "57: West Maribyrnong - Flinders Street Station & City",
+        display = "57: West Maribyrnong - Flinders St Stn & City",
         value = "887,57",
     ),
     schema.Option(
@@ -427,7 +427,7 @@ TramRouteOptions = [
         value = "11529,58",
     ),
     schema.Option(
-        display = "59: Airport West - Flinders Street Station & City",
+        display = "59: Airport West - Flinders St Stn & City",
         value = "897,59",
     ),
     schema.Option(
@@ -491,8 +491,8 @@ Route1StopOptions = [
         value = "2209,7: RMIT University/Swanston St",
     ),
     schema.Option(
-        display = "8: Melbourne Central Station/Swanston St",
-        value = "2208,8: Melbourne Central Station/Swanston St",
+        display = "8: Melbourne Central Stn/Swanston St",
+        value = "2208,8: Melbourne Central Stn/Swanston St",
     ),
     schema.Option(
         display = "10: Bourke St Mall/Swanston St",
@@ -697,8 +697,8 @@ Route3StopOptions = [
         value = "2209,7: RMIT University/Swanston St",
     ),
     schema.Option(
-        display = "8: Melbourne Central Station/Swanston St",
-        value = "2208,8: Melbourne Central Station/Swanston St",
+        display = "8: Melbourne Central Stn/Swanston St",
+        value = "2208,8: Melbourne Central Stn/Swanston St",
     ),
     schema.Option(
         display = "10: Bourke St Mall/Swanston St",
@@ -725,8 +725,8 @@ Route3StopOptions = [
         value = "2198,19: Shrine of Remembrance/St Kilda Rd",
     ),
     schema.Option(
-        display = "20: ANZAC Station/St Kilda Rd",
-        value = "3062,20: ANZAC Station/St Kilda Rd",
+        display = "20: ANZAC Stn/St Kilda Rd",
+        value = "3062,20: ANZAC Stn/St Kilda Rd",
     ),
     schema.Option(
         display = "22: Toorak Rd/St Kilda Rd",
@@ -813,8 +813,8 @@ Route3StopOptions = [
         value = "2737,37: Chapel St/Carlisle St",
     ),
     schema.Option(
-        display = "38: Balaclava Station/Carlisle St",
-        value = "2736,38: Balaclava Station/Carlisle St",
+        display = "38: Balaclava Stn/Carlisle St",
+        value = "2736,38: Balaclava Stn/Carlisle St",
     ),
     schema.Option(
         display = "39: Carlisle Ave/Carlisle St",
@@ -917,8 +917,8 @@ Route3StopOptions = [
         value = "2312,56: Caulfield Racecourse/Normanby Rd",
     ),
     schema.Option(
-        display = "57: Caulfield Railway Station/Derby Rd",
-        value = "2299,57: Caulfield Railway Station/Derby Rd",
+        display = "57: Caulfield Stn/Derby Rd",
+        value = "2299,57: Caulfield Stn/Derby Rd",
     ),
     schema.Option(
         display = "58: Dandenong Rd/Derby Rd",
@@ -979,8 +979,8 @@ Route5StopOptions = [
         value = "2209,7: RMIT University/Swanston St",
     ),
     schema.Option(
-        display = "8: Melbourne Central Station/Swanston St",
-        value = "2208,8: Melbourne Central Station/Swanston St",
+        display = "8: Melbourne Central Stn/Swanston St",
+        value = "2208,8: Melbourne Central Stn/Swanston St",
     ),
     schema.Option(
         display = "10: Bourke St Mall/Swanston St",
@@ -1007,8 +1007,8 @@ Route5StopOptions = [
         value = "2198,19: Shrine of Remembrance/St Kilda Rd",
     ),
     schema.Option(
-        display = "20: ANZAC Station/St Kilda Rd",
-        value = "3062,20: ANZAC Station/St Kilda Rd",
+        display = "20: ANZAC Stn/St Kilda Rd",
+        value = "3062,20: ANZAC Stn/St Kilda Rd",
     ),
     schema.Option(
         display = "22: Toorak Rd/St Kilda Rd",
@@ -1193,8 +1193,8 @@ Route6StopOptions = [
         value = "2209,7: RMIT University/Swanston St",
     ),
     schema.Option(
-        display = "8: Melbourne Central Station/Swanston St",
-        value = "2208,8: Melbourne Central Station/Swanston St",
+        display = "8: Melbourne Central Stn/Swanston St",
+        value = "2208,8: Melbourne Central Stn/Swanston St",
     ),
     schema.Option(
         display = "10: Bourke St Mall/Swanston St",
@@ -1217,8 +1217,8 @@ Route6StopOptions = [
         value = "2198,19: Shrine of Remembrance/St Kilda Rd",
     ),
     schema.Option(
-        display = "20: ANZAC Station/St Kilda Rd",
-        value = "3062,20: ANZAC Station/St Kilda Rd",
+        display = "20: ANZAC Stn/St Kilda Rd",
+        value = "3062,20: ANZAC Stn/St Kilda Rd",
     ),
     schema.Option(
         display = "22: Toorak Rd/St Kilda Rd",
@@ -1277,12 +1277,12 @@ Route6StopOptions = [
         value = "2977,29: Perth St/High St",
     ),
     schema.Option(
-        display = "30: Prahran Station/High St",
-        value = "2646,30: Prahran Station/High St",
+        display = "30: Prahran Stn/High St",
+        value = "2646,30: Prahran Stn/High St",
     ),
     schema.Option(
-        display = "30: Prahran Station/High St",
-        value = "2645,30: Prahran Station/High St",
+        display = "30: Prahran Stn/High St",
+        value = "2645,30: Prahran Stn/High St",
     ),
     schema.Option(
         display = "31: Chapel St/High St",
@@ -1325,8 +1325,8 @@ Route6StopOptions = [
         value = "2633,39: Auburn Gr/High St",
     ),
     schema.Option(
-        display = "40: Armadale Station/High St",
-        value = "2631,40: Armadale Station/High St",
+        display = "40: Armadale Stn/High St",
+        value = "2631,40: Armadale Stn/High St",
     ),
     schema.Option(
         display = "41: Kooyong Rd/High St",
@@ -1469,12 +1469,12 @@ Route6StopOptions = [
         value = "2236,132: Sydney Rd/Moreland Rd",
     ),
     schema.Option(
-        display = "133: Moreland Station/Cameron St",
-        value = "2781,133: Moreland Station/Cameron St",
+        display = "133: Moreland Stn/Cameron St",
+        value = "2781,133: Moreland Stn/Cameron St",
     ),
     schema.Option(
-        display = "133: Moreland Station/Moreland Rd",
-        value = "2237,133: Moreland Station/Moreland Rd",
+        display = "133: Moreland Stn/Moreland Rd",
+        value = "2237,133: Moreland Stn/Moreland Rd",
     ),
 ]
 Route11StopOptions = [
@@ -1503,8 +1503,8 @@ Route11StopOptions = [
         value = "2488,8: Spring St/Collins St",
     ),
     schema.Option(
-        display = "10: Parliament Railway Station/Macarthur St",
-        value = "2487,10: Parliament Railway Station/Macarthur St",
+        display = "10: Parliament Stn/Macarthur St",
+        value = "2487,10: Parliament Stn/Macarthur St",
     ),
     schema.Option(
         display = "11: Albert St/Gisborne St",
@@ -1709,8 +1709,8 @@ Route12StopOptions = [
         value = "2488,8: Spring St/Collins St",
     ),
     schema.Option(
-        display = "10: Parliament Railway Station/Macarthur St",
-        value = "2487,10: Parliament Railway Station/Macarthur St",
+        display = "10: Parliament Stn/Macarthur St",
+        value = "2487,10: Parliament Stn/Macarthur St",
     ),
     schema.Option(
         display = "11: Albert St/Gisborne St",
@@ -1753,12 +1753,12 @@ Route12StopOptions = [
         value = "2471,18: Hoddle St/Victoria Pde",
     ),
     schema.Option(
-        display = "19: North Richmond Railway Station/Victoria St",
-        value = "2470,19: North Richmond Railway Station/Victoria St",
+        display = "19: North Richmond Stn/Victoria St",
+        value = "2470,19: North Richmond Stn/Victoria St",
     ),
     schema.Option(
-        display = "19: North Richmond Railway Station/Victoria St",
-        value = "2468,19: North Richmond Railway Station/Victoria St",
+        display = "19: North Richmond Stn/Victoria St",
+        value = "2468,19: North Richmond Stn/Victoria St",
     ),
     schema.Option(
         display = "20: Lennox St/Victoria St",
@@ -1801,8 +1801,8 @@ Route12StopOptions = [
         value = "2053,120: Lonsdale St/Spencer St",
     ),
     schema.Option(
-        display = "122: Southern Cross Railway Station/Spencer St",
-        value = "2497,122: Southern Cross Railway Station/Spencer St",
+        display = "122: Southern Cross Stn/Spencer St",
+        value = "2497,122: Southern Cross Stn/Spencer St",
     ),
     schema.Option(
         display = "124: Batman Park/Spencer St",
@@ -1927,8 +1927,8 @@ Route16StopOptions = [
         value = "2209,7: RMIT University/Swanston St",
     ),
     schema.Option(
-        display = "8: Melbourne Central Station/Swanston St",
-        value = "2208,8: Melbourne Central Station/Swanston St",
+        display = "8: Melbourne Central Stn/Swanston St",
+        value = "2208,8: Melbourne Central Stn/Swanston St",
     ),
     schema.Option(
         display = "10: Bourke St Mall/Swanston St",
@@ -1955,8 +1955,8 @@ Route16StopOptions = [
         value = "2198,19: Shrine of Remembrance/St Kilda Rd",
     ),
     schema.Option(
-        display = "20: ANZAC Station/St Kilda Rd",
-        value = "3062,20: ANZAC Station/St Kilda Rd",
+        display = "20: ANZAC Stn/St Kilda Rd",
+        value = "3062,20: ANZAC Stn/St Kilda Rd",
     ),
     schema.Option(
         display = "22: Toorak Rd/St Kilda Rd",
@@ -2043,8 +2043,8 @@ Route16StopOptions = [
         value = "2974,37: Chapel St/Carlisle St",
     ),
     schema.Option(
-        display = "38: Balaclava Station/Carlisle St",
-        value = "2736,38: Balaclava Station/Carlisle St",
+        display = "38: Balaclava Stn/Carlisle St",
+        value = "2736,38: Balaclava Stn/Carlisle St",
     ),
     schema.Option(
         display = "39: Carlisle Ave/Carlisle St",
@@ -2143,8 +2143,8 @@ Route16StopOptions = [
         value = "2892,52: Dandenong Rd/Glenferrie Rd",
     ),
     schema.Option(
-        display = "53: Malvern Railway Station/Glenferrie Rd",
-        value = "2893,53: Malvern Railway Station/Glenferrie Rd",
+        display = "53: Malvern Stn/Glenferrie Rd",
+        value = "2893,53: Malvern Stn/Glenferrie Rd",
     ),
     schema.Option(
         display = "54: Wattletree Rd/Glenferrie Rd",
@@ -2207,8 +2207,8 @@ Route16StopOptions = [
         value = "2909,64: Power St/Glenferrie Rd",
     ),
     schema.Option(
-        display = "65: Kooyong Railway Station/Glenferrie Rd",
-        value = "2911,65: Kooyong Railway Station/Glenferrie Rd",
+        display = "65: Kooyong Stn/Glenferrie Rd",
+        value = "2911,65: Kooyong Stn/Glenferrie Rd",
     ),
     schema.Option(
         display = "65: Warra St/Glenferrie Rd",
@@ -2251,12 +2251,12 @@ Route16StopOptions = [
         value = "2922,73: Burwood Rd/Glenferrie Rd",
     ),
     schema.Option(
-        display = "74: Glenferrie Railway Station/Glenferrie Rd",
-        value = "2923,74: Glenferrie Railway Station/Glenferrie Rd",
+        display = "74: Glenferrie Stn/Glenferrie Rd",
+        value = "2923,74: Glenferrie Stn/Glenferrie Rd",
     ),
     schema.Option(
-        display = "74: Glenferrie Station/Glenferrie Rd",
-        value = "2924,74: Glenferrie Station/Glenferrie Rd",
+        display = "74: Glenferrie Stn/Glenferrie Rd",
+        value = "2924,74: Glenferrie Stn/Glenferrie Rd",
     ),
     schema.Option(
         display = "75: Chrystobel Cres/Glenferrie Rd",
@@ -2321,8 +2321,8 @@ Route16StopOptions = [
 ]
 Route19StopOptions = [
     schema.Option(
-        display = "1: Flinders St Railway Station/Elizabeth St",
-        value = "2722,1: Flinders St Railway Station/Elizabeth St",
+        display = "1: Flinders St Stn/Elizabeth St",
+        value = "2722,1: Flinders St Stn/Elizabeth St",
     ),
     schema.Option(
         display = "2: Collins St/Elizabeth St",
@@ -2333,8 +2333,8 @@ Route19StopOptions = [
         value = "2720,3: Bourke St Mall/Elizabeth St",
     ),
     schema.Option(
-        display = "5: Melbourne Central Station/Elizabeth St",
-        value = "2718,5: Melbourne Central Station/Elizabeth St",
+        display = "5: Melbourne Central Stn/Elizabeth St",
+        value = "2718,5: Melbourne Central Stn/Elizabeth St",
     ),
     schema.Option(
         display = "7: Queen Victoria Market/Elizabeth St",
@@ -2345,12 +2345,12 @@ Route19StopOptions = [
         value = "2714,9: Pelham St/Elizabeth St",
     ),
     schema.Option(
-        display = "10: Royal Melbourne Hospital-Parkville Station/Royal Pde",
-        value = "2986,10: Royal Melbourne Hospital-Parkville Station/Royal Pde",
+        display = "10: Royal Melbourne Hospital-Parkville Stn/Royal Pde",
+        value = "2986,10: Royal Melbourne Hospital-Parkville Stn/Royal Pde",
     ),
     schema.Option(
-        display = "10: Royal Melbourne Hospital-Parkville Station/Royal Pde",
-        value = "2822,10: Royal Melbourne Hospital-Parkville Station/Royal Pde",
+        display = "10: Royal Melbourne Hospital-Parkville Stn/Royal Pde",
+        value = "2822,10: Royal Melbourne Hospital-Parkville Stn/Royal Pde",
     ),
     schema.Option(
         display = "12: Morrah St/Royal Pde",
@@ -2511,16 +2511,16 @@ Route30StopOptions = [
         value = "3271,1: Spencer St/La Trobe St",
     ),
     schema.Option(
-        display = "3: Flagstaff Station/La Trobe St",
-        value = "3325,3: Flagstaff Station/La Trobe St",
+        display = "3: Flagstaff Stn/La Trobe St",
+        value = "3325,3: Flagstaff Stn/La Trobe St",
     ),
     schema.Option(
-        display = "5: Melbourne Central Station/La Trobe St",
-        value = "3114,5: Melbourne Central Station/La Trobe St",
+        display = "5: Melbourne Central Stn/La Trobe St",
+        value = "3114,5: Melbourne Central Stn/La Trobe St",
     ),
     schema.Option(
-        display = "6: Melbourne Central & State Library stations/La Trobe St",
-        value = "2863,6: Melbourne Central & State Library stations/La Trobe St",
+        display = "6: Melbourne Central & State Library Stns/La Trobe St",
+        value = "2863,6: Melbourne Central & State Library Stns/La Trobe St",
     ),
     schema.Option(
         display = "8: Exhibition St/La Trobe St",
@@ -2569,8 +2569,8 @@ Route35StopOptions = [
         value = "3317,2: Melbourne Aquarium/Flinders St",
     ),
     schema.Option(
-        display = "3: Flagstaff Station/La Trobe St",
-        value = "3325,3: Flagstaff Station/La Trobe St",
+        display = "3: Flagstaff Stn/La Trobe St",
+        value = "3325,3: Flagstaff Stn/La Trobe St",
     ),
     schema.Option(
         display = "3: Market St/Flinders St",
@@ -2581,16 +2581,16 @@ Route35StopOptions = [
         value = "2095,4: Elizabeth St/Flinders St",
     ),
     schema.Option(
-        display = "5: Melbourne Central Station/La Trobe St",
-        value = "3114,5: Melbourne Central Station/La Trobe St",
+        display = "5: Melbourne Central Stn/La Trobe St",
+        value = "3114,5: Melbourne Central Stn/La Trobe St",
     ),
     schema.Option(
         display = "5: Swanston St/Flinders St",
         value = "2096,5: Swanston St/Flinders St",
     ),
     schema.Option(
-        display = "6: Melbourne Central & State Library stations/La Trobe St",
-        value = "2863,6: Melbourne Central & State Library stations/La Trobe St",
+        display = "6: Melbourne Central & State Library Stns/La Trobe St",
+        value = "2863,6: Melbourne Central & State Library Stns/La Trobe St",
     ),
     schema.Option(
         display = "6: Russell St/Flinders St",
@@ -2655,8 +2655,8 @@ Route48StopOptions = [
         value = "2823,10: Jolimont Rd/Wellington Pde",
     ),
     schema.Option(
-        display = "11: Jolimont Station-MCG/Wellington Pde",
-        value = "2825,11: Jolimont Station-MCG/Wellington Pde",
+        display = "11: Jolimont Stn-MCG/Wellington Pde",
+        value = "2825,11: Jolimont Stn-MCG/Wellington Pde",
     ),
     schema.Option(
         display = "13: Simpson St/Wellington Pde",
@@ -2853,8 +2853,8 @@ Route48StopOptions = [
 ]
 Route57StopOptions = [
     schema.Option(
-        display = "1: Flinders St Railway Station/Elizabeth St",
-        value = "2722,1: Flinders St Railway Station/Elizabeth St",
+        display = "1: Flinders St Stn/Elizabeth St",
+        value = "2722,1: Flinders St Stn/Elizabeth St",
     ),
     schema.Option(
         display = "2: Collins St/Elizabeth St",
@@ -2865,8 +2865,8 @@ Route57StopOptions = [
         value = "2720,3: Bourke St Mall/Elizabeth St",
     ),
     schema.Option(
-        display = "5: Melbourne Central Station/Elizabeth St",
-        value = "2718,5: Melbourne Central Station/Elizabeth St",
+        display = "5: Melbourne Central Stn/Elizabeth St",
+        value = "2718,5: Melbourne Central Stn/Elizabeth St",
     ),
     schema.Option(
         display = "7: Queen Victoria Market/Elizabeth St",
@@ -3115,8 +3115,8 @@ Route58StopOptions = [
         value = "3106,5: Bourke St/William St",
     ),
     schema.Option(
-        display = "7: Flagstaff Railway Station/William St",
-        value = "3104,7: Flagstaff Railway Station/William St",
+        display = "7: Flagstaff Stn/William St",
+        value = "3104,7: Flagstaff Stn/William St",
     ),
     schema.Option(
         display = "9: Queen Victoria Market/39 Peel St",
@@ -3155,8 +3155,8 @@ Route58StopOptions = [
         value = "2707,19: Royal Childrens Hospital/Flemington Rd",
     ),
     schema.Option(
-        display = "20: ANZAC Station/St Kilda Rd",
-        value = "3062,20: ANZAC Station/St Kilda Rd",
+        display = "20: ANZAC Stn/St Kilda Rd",
+        value = "3062,20: ANZAC Stn/St Kilda Rd",
     ),
     schema.Option(
         display = "22: Toorak Rd/St Kilda Rd",
@@ -3175,8 +3175,8 @@ Route58StopOptions = [
         value = "2697,26: Melbourne Zoo/Royal Park",
     ),
     schema.Option(
-        display = "27: Royal Park Station/Royal Park",
-        value = "2146,27: Royal Park Station/Royal Park",
+        display = "27: Royal Park Stn/Royal Park",
+        value = "2146,27: Royal Park Stn/Royal Park",
     ),
     schema.Option(
         display = "28: Park St/Royal Park",
@@ -3291,8 +3291,8 @@ Route58StopOptions = [
         value = "2191,125: Punt Rd/Toorak Rd",
     ),
     schema.Option(
-        display = "127: South Yarra Railway Station/Toorak Rd",
-        value = "2189,127: South Yarra Railway Station/Toorak Rd",
+        display = "127: South Yarra Stn/Toorak Rd",
+        value = "2189,127: South Yarra Stn/Toorak Rd",
     ),
     schema.Option(
         display = "128: Chapel St/Toorak Rd",
@@ -3357,16 +3357,16 @@ Route58StopOptions = [
 ]
 Route59StopOptions = [
     schema.Option(
-        display = "1: Flinders St Railway Station/Elizabeth St",
-        value = "2722,1: Flinders St Railway Station/Elizabeth St",
+        display = "1: Flinders St Stn/Elizabeth St",
+        value = "2722,1: Flinders St Stn/Elizabeth St",
     ),
     schema.Option(
         display = "2: Collins St/Elizabeth St",
         value = "2721,2: Collins St/Elizabeth St",
     ),
     schema.Option(
-        display = "5: Melbourne Central Station/Elizabeth St",
-        value = "2718,5: Melbourne Central Station/Elizabeth St",
+        display = "5: Melbourne Central Stn/Elizabeth St",
+        value = "2718,5: Melbourne Central Stn/Elizabeth St",
     ),
     schema.Option(
         display = "7: Queen Victoria Market/Elizabeth St",
@@ -3397,8 +3397,8 @@ Route59StopOptions = [
         value = "2706,20: Melrose St/Flemington Rd",
     ),
     schema.Option(
-        display = "22: Flemington Bridge Station/Flemington Rd",
-        value = "2281,22: Flemington Bridge Station/Flemington Rd",
+        display = "22: Flemington Bridge Stn/Flemington Rd",
+        value = "2281,22: Flemington Bridge Stn/Flemington Rd",
     ),
     schema.Option(
         display = "23: Flemington Community Centre/Mt Alexander Rd",
@@ -3619,8 +3619,8 @@ Route64StopOptions = [
         value = "2209,7: RMIT University/Swanston St",
     ),
     schema.Option(
-        display = "8: Melbourne Central Station/Swanston St",
-        value = "2208,8: Melbourne Central Station/Swanston St",
+        display = "8: Melbourne Central Stn/Swanston St",
+        value = "2208,8: Melbourne Central Stn/Swanston St",
     ),
     schema.Option(
         display = "10: Bourke St Mall/Swanston St",
@@ -3647,8 +3647,8 @@ Route64StopOptions = [
         value = "2198,19: Shrine of Remembrance/St Kilda Rd",
     ),
     schema.Option(
-        display = "20: ANZAC Station/St Kilda Rd",
-        value = "3062,20: ANZAC Station/St Kilda Rd",
+        display = "20: ANZAC Stn/St Kilda Rd",
+        value = "3062,20: ANZAC Stn/St Kilda Rd",
     ),
     schema.Option(
         display = "22: Toorak Rd/St Kilda Rd",
@@ -3909,16 +3909,16 @@ Route67StopOptions = [
         value = "3106,5: Bourke St/William St",
     ),
     schema.Option(
-        display = "7: Flagstaff Railway Station/William St",
-        value = "3104,7: Flagstaff Railway Station/William St",
+        display = "7: Flagstaff Stn/William St",
+        value = "3104,7: Flagstaff Stn/William St",
     ),
     schema.Option(
         display = "7: RMIT University/Swanston St",
         value = "2209,7: RMIT University/Swanston St",
     ),
     schema.Option(
-        display = "8: Melbourne Central Station/Swanston St",
-        value = "2208,8: Melbourne Central Station/Swanston St",
+        display = "8: Melbourne Central Stn/Swanston St",
+        value = "2208,8: Melbourne Central Stn/Swanston St",
     ),
     schema.Option(
         display = "10: Bourke St Mall/Swanston St",
@@ -3945,8 +3945,8 @@ Route67StopOptions = [
         value = "2198,19: Shrine of Remembrance/St Kilda Rd",
     ),
     schema.Option(
-        display = "20: ANZAC Station/St Kilda Rd",
-        value = "3062,20: ANZAC Station/St Kilda Rd",
+        display = "20: ANZAC Stn/St Kilda Rd",
+        value = "3062,20: ANZAC Stn/St Kilda Rd",
     ),
     schema.Option(
         display = "22: Toorak Rd/St Kilda Rd",
@@ -4077,8 +4077,8 @@ Route67StopOptions = [
         value = "3178,43: Brighton Rd/Glenhuntly Rd",
     ),
     schema.Option(
-        display = "44: Elsternwick Railway Station/Glenhuntly Rd",
-        value = "3179,44: Elsternwick Railway Station/Glenhuntly Rd",
+        display = "44: Elsternwick Stn/Glenhuntly Rd",
+        value = "3179,44: Elsternwick Stn/Glenhuntly Rd",
     ),
     schema.Option(
         display = "45: Elsternwick Shopping Centre/Glenhuntly Rd",
@@ -4157,12 +4157,12 @@ Route67StopOptions = [
         value = "3200,60: Glenhuntly Shops/Glenhuntly Rd",
     ),
     schema.Option(
-        display = "61: Glen Huntly Railway Station/Glen Huntly Rd",
-        value = "3203,61: Glen Huntly Railway Station/Glen Huntly Rd",
+        display = "61: Glen Huntly Stn/Glen Huntly Rd",
+        value = "3203,61: Glen Huntly Stn/Glen Huntly Rd",
     ),
     schema.Option(
-        display = "61: Glen Huntly Railway Station/Glen Huntly Rd",
-        value = "3202,61: Glen Huntly Railway Station/Glen Huntly Rd",
+        display = "61: Glen Huntly Stn/Glen Huntly Rd",
+        value = "3202,61: Glen Huntly Stn/Glen Huntly Rd",
     ),
     schema.Option(
         display = "62: Grange Rd/Glenhuntly Rd",
@@ -4247,12 +4247,12 @@ Route70StopOptions = [
         value = "2097,6: Russell St/Flinders St",
     ),
     schema.Option(
-        display = "8: Richmond Station/Swan St",
-        value = "2115,8: Richmond Station/Swan St",
+        display = "8: Richmond Stn/Swan St",
+        value = "2115,8: Richmond Stn/Swan St",
     ),
     schema.Option(
-        display = "8: Richmond Station/Swan St",
-        value = "3381,8: Richmond Station/Swan St",
+        display = "8: Richmond Stn/Swan St",
+        value = "3381,8: Richmond Stn/Swan St",
     ),
     schema.Option(
         display = "9: Lennox St/Swan St",
@@ -4485,8 +4485,8 @@ Route72StopOptions = [
         value = "2209,7: RMIT University/Swanston St",
     ),
     schema.Option(
-        display = "8: Melbourne Central Station/Swanston St",
-        value = "2208,8: Melbourne Central Station/Swanston St",
+        display = "8: Melbourne Central Stn/Swanston St",
+        value = "2208,8: Melbourne Central Stn/Swanston St",
     ),
     schema.Option(
         display = "10: Bourke St Mall/Swanston St",
@@ -4513,8 +4513,8 @@ Route72StopOptions = [
         value = "2198,19: Shrine of Remembrance/St Kilda Rd",
     ),
     schema.Option(
-        display = "20: ANZAC Station/St Kilda Rd",
-        value = "3062,20: ANZAC Station/St Kilda Rd",
+        display = "20: ANZAC Stn/St Kilda Rd",
+        value = "3062,20: ANZAC Stn/St Kilda Rd",
     ),
     schema.Option(
         display = "22: Toorak Rd/St Kilda Rd",
@@ -4721,12 +4721,12 @@ Route72StopOptions = [
         value = "3251,50: Glenarm Rd/Malvern Rd",
     ),
     schema.Option(
-        display = "51: Gardiner Railway Station/Burke Rd",
-        value = "3253,51: Gardiner Railway Station/Burke Rd",
+        display = "51: Gardiner Stn/Burke Rd",
+        value = "3253,51: Gardiner Stn/Burke Rd",
     ),
     schema.Option(
-        display = "51: Gardiner Station/Burke Rd",
-        value = "3252,51: Gardiner Station/Burke Rd",
+        display = "51: Gardiner Stn/Burke Rd",
+        value = "3252,51: Gardiner Stn/Burke Rd",
     ),
     schema.Option(
         display = "52: Bickleigh St/Burke Rd",
@@ -4805,12 +4805,12 @@ Route72StopOptions = [
         value = "3274,63: Prospect Hill Rd/Burke Rd",
     ),
     schema.Option(
-        display = "64: Camberwell Station/Burke Rd",
-        value = "3277,64: Camberwell Station/Burke Rd",
+        display = "64: Camberwell Stn/Burke Rd",
+        value = "3277,64: Camberwell Stn/Burke Rd",
     ),
     schema.Option(
-        display = "64: Camberwell Station/Burke Rd",
-        value = "3276,64: Camberwell Station/Burke Rd",
+        display = "64: Camberwell Stn/Burke Rd",
+        value = "3276,64: Camberwell Stn/Burke Rd",
     ),
     schema.Option(
         display = "65: Victoria Rd/Burke Rd",
@@ -4899,8 +4899,8 @@ Route75StopOptions = [
         value = "2823,10: Jolimont Rd/Wellington Pde",
     ),
     schema.Option(
-        display = "11: Jolimont Station-MCG/Wellington Pde",
-        value = "2825,11: Jolimont Station-MCG/Wellington Pde",
+        display = "11: Jolimont Stn-MCG/Wellington Pde",
+        value = "2825,11: Jolimont Stn-MCG/Wellington Pde",
     ),
     schema.Option(
         display = "13: Simpson St/Wellington Pde",
@@ -4955,8 +4955,8 @@ Route75StopOptions = [
         value = "2166,25: St James Park/Burwood Rd",
     ),
     schema.Option(
-        display = "26: Hawthorn Railway Station/Burwood Rd",
-        value = "3008,26: Hawthorn Railway Station/Burwood Rd",
+        display = "26: Hawthorn Stn/Burwood Rd",
+        value = "3008,26: Hawthorn Stn/Burwood Rd",
     ),
     schema.Option(
         display = "27: Burwood Rd/Power St",
@@ -5261,12 +5261,12 @@ Route78StopOptions = [
         value = "2345,42: Dandenong Rd/Chapel St",
     ),
     schema.Option(
-        display = "43: Windsor Railway Station/Chapel St",
-        value = "2456,43: Windsor Railway Station/Chapel St",
+        display = "43: Windsor Stn/Chapel St",
+        value = "2456,43: Windsor Stn/Chapel St",
     ),
     schema.Option(
-        display = "43: Windsor Railway Station/Chapel St",
-        value = "2344,43: Windsor Railway Station/Chapel St",
+        display = "43: Windsor Stn/Chapel St",
+        value = "2344,43: Windsor Stn/Chapel St",
     ),
     schema.Option(
         display = "44: Duke St/Chapel St",
@@ -5337,8 +5337,8 @@ Route78StopOptions = [
         value = "2326,55: Gibbons St/Church St",
     ),
     schema.Option(
-        display = "56: East Richmond Railway Station/Church St",
-        value = "3347,56: East Richmond Railway Station/Church St",
+        display = "56: East Richmond Stn/Church St",
+        value = "3347,56: East Richmond Stn/Church St",
     ),
     schema.Option(
         display = "57: Swan St/Church St",
@@ -5543,8 +5543,8 @@ Route82StopOptions = [
         value = "2355,63: Leeds St/Hopkins St",
     ),
     schema.Option(
-        display = "64: Footscray Station/Leeds St",
-        value = "2353,64: Footscray Station/Leeds St",
+        display = "64: Footscray Stn/Leeds St",
+        value = "2353,64: Footscray Stn/Leeds St",
     ),
 ]
 Route86StopOptions = [
@@ -5999,8 +5999,8 @@ Route96StopOptions = [
         value = "2934,23: Blyth St/Nicholson St",
     ),
     schema.Option(
-        display = "122: Southern Cross Railway Station/Spencer St",
-        value = "2497,122: Southern Cross Railway Station/Spencer St",
+        display = "122: Southern Cross Stn/Spencer St",
+        value = "2497,122: Southern Cross Stn/Spencer St",
     ),
     schema.Option(
         display = "124: Batman Park/Spencer St",
@@ -6019,28 +6019,28 @@ Route96StopOptions = [
         value = "2959,126: City Rd/Light Rail",
     ),
     schema.Option(
-        display = "127: South Melbourne Station/Light Rail",
-        value = "2960,127: South Melbourne Station/Light Rail",
+        display = "127: South Melbourne Stn/Light Rail",
+        value = "2960,127: South Melbourne Stn/Light Rail",
     ),
     schema.Option(
-        display = "128: Albert Park Station/Light Rail",
-        value = "2961,128: Albert Park Station/Light Rail",
+        display = "128: Albert Park Stn/Light Rail",
+        value = "2961,128: Albert Park Stn/Light Rail",
     ),
     schema.Option(
         display = "129: Melbourne Sports and Aquatic Centre/Light Rail",
         value = "2800,129: Melbourne Sports and Aquatic Centre/Light Rail",
     ),
     schema.Option(
-        display = "130: Middle Park Station/Light Rail",
-        value = "2963,130: Middle Park Station/Light Rail",
+        display = "130: Middle Park Stn/Light Rail",
+        value = "2963,130: Middle Park Stn/Light Rail",
     ),
     schema.Option(
         display = "131: Fraser St/Light Rail",
         value = "2964,131: Fraser St/Light Rail",
     ),
     schema.Option(
-        display = "132: St Kilda Station/Fitzroy St",
-        value = "2883,132: St Kilda Station/Fitzroy St",
+        display = "132: St Kilda Stn/Fitzroy St",
+        value = "2883,132: St Kilda Stn/Fitzroy St",
     ),
     schema.Option(
         display = "133: Canterbury Rd/Fitzroy St",
@@ -6097,8 +6097,8 @@ Route109StopOptions = [
         value = "2488,8: Spring St/Collins St",
     ),
     schema.Option(
-        display = "10: Parliament Railway Station/Macarthur St",
-        value = "2487,10: Parliament Railway Station/Macarthur St",
+        display = "10: Parliament Stn/Macarthur St",
+        value = "2487,10: Parliament Stn/Macarthur St",
     ),
     schema.Option(
         display = "11: Albert St/Gisborne St",
@@ -6141,12 +6141,12 @@ Route109StopOptions = [
         value = "2471,18: Hoddle St/Victoria Pde",
     ),
     schema.Option(
-        display = "19: North Richmond Railway Station/Victoria St",
-        value = "2468,19: North Richmond Railway Station/Victoria St",
+        display = "19: North Richmond Stn/Victoria St",
+        value = "2468,19: North Richmond Stn/Victoria St",
     ),
     schema.Option(
-        display = "19: North Richmond Railway Station/Victoria St",
-        value = "2470,19: North Richmond Railway Station/Victoria St",
+        display = "19: North Richmond Stn/Victoria St",
+        value = "2470,19: North Richmond Stn/Victoria St",
     ),
     schema.Option(
         display = "20: Lennox St/Victoria St",
@@ -6345,8 +6345,8 @@ Route109StopOptions = [
         value = "2507,126: Montague St/Light Rail",
     ),
     schema.Option(
-        display = "127: North Port Station/Light Rail",
-        value = "2508,127: North Port Station/Light Rail",
+        display = "127: North Port Stn/Light Rail",
+        value = "2508,127: North Port Stn/Light Rail",
     ),
     schema.Option(
         display = "128: Graham St/Light Rail",
@@ -6459,8 +6459,8 @@ Route16DirectionOptions = [
 ]
 Route19DirectionOptions = [
     schema.Option(
-        display = "Flinders Street Station (City)",
-        value = "11,Flinders Street Station (City)",
+        display = "Flinders St Stn (City)",
+        value = "11,Flinders St Stn (City)",
     ),
     schema.Option(
         display = "North Coburg",
@@ -6468,7 +6468,7 @@ Route19DirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,11,Flinders Street Station (City),10,North Coburg",
+        value = "All,11,Flinders St Stn (City),10,North Coburg",
     ),
 ]
 Route30DirectionOptions = [
@@ -6507,8 +6507,8 @@ Route48DirectionOptions = [
 ]
 Route57DirectionOptions = [
     schema.Option(
-        display = "Flinders Street Station (City)",
-        value = "11,Flinders Street Station (City)",
+        display = "Flinders St Stn (City)",
+        value = "11,Flinders St Stn (City)",
     ),
     schema.Option(
         display = "West Maribyrnong",
@@ -6516,7 +6516,7 @@ Route57DirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,11,Flinders Street Station (City),19,West Maribyrnong",
+        value = "All,11,Flinders St Stn (City),19,West Maribyrnong",
     ),
 ]
 Route58DirectionOptions = [
@@ -6539,12 +6539,12 @@ Route59DirectionOptions = [
         value = "22,Airport West",
     ),
     schema.Option(
-        display = "Flinders Street Station (City)",
-        value = "11,Flinders Street Station (City)",
+        display = "Flinders St Stn (City)",
+        value = "11,Flinders St Stn (City)",
     ),
     schema.Option(
         display = "All",
-        value = "All,22,Airport West,11,Flinders Street Station (City)",
+        value = "All,22,Airport West,11,Flinders St Stn (City)",
     ),
 ]
 Route64DirectionOptions = [
