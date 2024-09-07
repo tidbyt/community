@@ -175,24 +175,29 @@ def get_time_period(input_str):
     return time_period
 
 def render_app(config, current_value, points, stats, unit):
-    return render.Root(
-        child = animation.Transformation(
-            child = render.Row(
-                children = [
-                    render_graph_column(config, current_value, points, unit),
-                    render_stats_column(stats, unit),
+    if config.bool("show_history"):
+        return render.Root(
+            child = animation.Transformation(
+                child = render.Row(
+                    children = [
+                        render_graph_column(config, current_value, points, unit),
+                        render_stats_column(stats, unit),
+                    ],
+                ),
+                width = 107,
+                duration = 100,
+                delay = 100,
+                keyframes = [
+                    animation.Keyframe(percentage = 0.0, transforms = [animation.Translate(0, 0)]),
+                    animation.Keyframe(curve = "ease_in", percentage = 0.2, transforms = [animation.Translate(-43, 0)]),
+                    animation.Keyframe(curve = "ease_in", percentage = 1.0, transforms = [animation.Translate(-43, 0)]),
                 ],
             ),
-            width = 107,
-            duration = 100,
-            delay = 100,
-            keyframes = [
-                animation.Keyframe(percentage = 0.0, transforms = [animation.Translate(0, 0)]),
-                animation.Keyframe(curve = "ease_in", percentage = 0.2, transforms = [animation.Translate(-43, 0)]),
-                animation.Keyframe(curve = "ease_in", percentage = 1.0, transforms = [animation.Translate(-43, 0)]),
-            ],
-        ),
-    )
+        )
+    else:
+        return render.Root(
+            child = render_graph_column(config, current_value, points, unit),
+        )
 
 def render_graph_column(config, current_value, points, unit):
     return render.Column(
@@ -318,6 +323,13 @@ def get_schema():
                 desc = "In hours, how far back to look for data. Enter a number from 2 to %s." % str(MAX_TIME_PERIOD),
                 icon = "timeline",
                 name = "Time period",
+            ),
+            schema.Toggle(
+                id = "show_history",
+                name = "Display historical values",
+                desc = "Would you like to show the highest, lowest and average values?",
+                icon = "list",
+                default = True,
             ),
             schema.Dropdown(
                 id = "icon",
