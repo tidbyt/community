@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-BBC_URL = "https://www.bbc.co.uk/polltracker"
+BBC_URL = "https://www.bbc.co.uk/news/articles/cyxx9vxwjk9o"
 TABLE_DIV_ID = "responsive-embed-newsspec-38103-poll-tracker-2024-table"
 DATE_SPAN = "table-header__date"
 POLLSTER_SPAN = "table-header__firm"
