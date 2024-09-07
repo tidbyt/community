@@ -56,12 +56,12 @@ COLOR_CODE_TIME = "#F3AB3F"
 COLOR_CODE_WHITE = "#FFFFFF"
 COLOR_CODE_BLACK = "#000000"
 
-DEFAULT_ROUTE_ID = "1002"
-DEFAULT_ROUTE_NUMBER = "82"
+DEFAULT_ROUTE_ID = "897"
+DEFAULT_ROUTE_NUMBER = "59"
 DEFAULT_STOP_ID = "2685"
 DEFAULT_STOP_NAME = "32: Moonee Ponds Jct/Pascoe Vale Rd"
-DEFAULT_DIRECTION_ID = "33"
-DEFAULT_DIRECTION_DATA = ["33", "Footscray"]
+DEFAULT_DIRECTION_ID = "11"
+DEFAULT_DIRECTION_DATA = ["11", "Flinders Street Station (City)"]
 
 def main(config):
     schema_tram_route = config.get("tram-route")
@@ -495,8 +495,8 @@ Route1StopOptions = [
         value = "2208,8: Melbourne Central Station/Swanston St",
     ),
     schema.Option(
-        display = "10: Bourke Street Mall/Swanston St",
-        value = "2206,10: Bourke Street Mall/Swanston St",
+        display = "10: Bourke St Mall/Swanston St",
+        value = "2206,10: Bourke St Mall/Swanston St",
     ),
     schema.Option(
         display = "11: City Square/Swanston St",
@@ -701,8 +701,8 @@ Route3StopOptions = [
         value = "2208,8: Melbourne Central Station/Swanston St",
     ),
     schema.Option(
-        display = "10: Bourke Street Mall/Swanston St",
-        value = "2206,10: Bourke Street Mall/Swanston St",
+        display = "10: Bourke St Mall/Swanston St",
+        value = "2206,10: Bourke St Mall/Swanston St",
     ),
     schema.Option(
         display = "11: City Square/Swanston St",
@@ -773,8 +773,8 @@ Route3StopOptions = [
         value = "2403,29: Union St/St Kilda Rd",
     ),
     schema.Option(
-        display = "30: St Kilda Junction/St Kilda Rd",
-        value = "2401,30: St Kilda Junction/St Kilda Rd",
+        display = "30: St Kilda Jct/St Kilda Rd",
+        value = "2401,30: St Kilda Jct/St Kilda Rd",
     ),
     schema.Option(
         display = "31: Barkly St/St Kilda Rd",
@@ -983,8 +983,8 @@ Route5StopOptions = [
         value = "2208,8: Melbourne Central Station/Swanston St",
     ),
     schema.Option(
-        display = "10: Bourke Street Mall/Swanston St",
-        value = "2206,10: Bourke Street Mall/Swanston St",
+        display = "10: Bourke St Mall/Swanston St",
+        value = "2206,10: Bourke St Mall/Swanston St",
     ),
     schema.Option(
         display = "11: City Square/Swanston St",
@@ -1055,8 +1055,8 @@ Route5StopOptions = [
         value = "2403,29: Union St/St Kilda Rd",
     ),
     schema.Option(
-        display = "30: St Kilda Junction/St Kilda Rd",
-        value = "2401,30: St Kilda Junction/St Kilda Rd",
+        display = "30: St Kilda Jct/St Kilda Rd",
+        value = "2401,30: St Kilda Jct/St Kilda Rd",
     ),
     schema.Option(
         display = "31: Queens Way/Queens Way",
@@ -1197,8 +1197,8 @@ Route6StopOptions = [
         value = "2208,8: Melbourne Central Station/Swanston St",
     ),
     schema.Option(
-        display = "10: Bourke Street Mall/Swanston St",
-        value = "2206,10: Bourke Street Mall/Swanston St",
+        display = "10: Bourke St Mall/Swanston St",
+        value = "2206,10: Bourke St Mall/Swanston St",
     ),
     schema.Option(
         display = "13: Federation Square/Swanston St",
@@ -1813,8 +1813,8 @@ Route12StopOptions = [
         value = "2503,125: Clarendon St/Whiteman St",
     ),
     schema.Option(
-        display = "125: Port Junction/79 Whiteman St",
-        value = "2504,125: Port Junction/79 Whiteman St",
+        display = "125: Port Jct/79 Whiteman St",
+        value = "2504,125: Port Jct/79 Whiteman St",
     ),
     schema.Option(
         display = "126: City Rd/Clarendon St",
@@ -1931,8 +1931,8 @@ Route16StopOptions = [
         value = "2208,8: Melbourne Central Station/Swanston St",
     ),
     schema.Option(
-        display = "10: Bourke Street Mall/Swanston St",
-        value = "2206,10: Bourke Street Mall/Swanston St",
+        display = "10: Bourke St Mall/Swanston St",
+        value = "2206,10: Bourke St Mall/Swanston St",
     ),
     schema.Option(
         display = "11: City Square/Swanston St",
@@ -2003,8 +2003,8 @@ Route16StopOptions = [
         value = "2403,29: Union St/St Kilda Rd",
     ),
     schema.Option(
-        display = "30: St Kilda Junction/St Kilda Rd",
-        value = "2401,30: St Kilda Junction/St Kilda Rd",
+        display = "30: St Kilda Jct/St Kilda Rd",
+        value = "2401,30: St Kilda Jct/St Kilda Rd",
     ),
     schema.Option(
         display = "32: Havelock St/Carlisle St",
@@ -2321,16 +2321,16 @@ Route16StopOptions = [
 ]
 Route19StopOptions = [
     schema.Option(
-        display = "1: Flinders Street Railway Station/Elizabeth St",
-        value = "2722,1: Flinders Street Railway Station/Elizabeth St",
+        display = "1: Flinders St Railway Station/Elizabeth St",
+        value = "2722,1: Flinders St Railway Station/Elizabeth St",
     ),
     schema.Option(
         display = "2: Collins St/Elizabeth St",
         value = "2721,2: Collins St/Elizabeth St",
     ),
     schema.Option(
-        display = "3: Bourke Street Mall/Elizabeth St",
-        value = "2720,3: Bourke Street Mall/Elizabeth St",
+        display = "3: Bourke St Mall/Elizabeth St",
+        value = "2720,3: Bourke St Mall/Elizabeth St",
     ),
     schema.Option(
         display = "5: Melbourne Central Station/Elizabeth St",
@@ -2361,8 +2361,8 @@ Route19StopOptions = [
         value = "2819,13: Gatehouse St/Royal Pde",
     ),
     schema.Option(
-        display = "14: Cemetery Road West/Royal Pde",
-        value = "2817,14: Cemetery Road West/Royal Pde",
+        display = "14: Cemetery Rd West/Royal Pde",
+        value = "2817,14: Cemetery Rd West/Royal Pde",
     ),
     schema.Option(
         display = "14: Macarthur Rd/Royal Pde",
@@ -2731,8 +2731,8 @@ Route48StopOptions = [
         value = "2447,31: Stevenson St/High St",
     ),
     schema.Option(
-        display = "32: Kew Junction/High St",
-        value = "2444,32: Kew Junction/High St",
+        display = "32: Kew Jct/High St",
+        value = "2444,32: Kew Jct/High St",
     ),
     schema.Option(
         display = "33: Kew Shopping Centre/High St",
@@ -2853,16 +2853,16 @@ Route48StopOptions = [
 ]
 Route57StopOptions = [
     schema.Option(
-        display = "1: Flinders Street Railway Station/Elizabeth St",
-        value = "2722,1: Flinders Street Railway Station/Elizabeth St",
+        display = "1: Flinders St Railway Station/Elizabeth St",
+        value = "2722,1: Flinders St Railway Station/Elizabeth St",
     ),
     schema.Option(
         display = "2: Collins St/Elizabeth St",
         value = "2721,2: Collins St/Elizabeth St",
     ),
     schema.Option(
-        display = "3: Bourke Street Mall/Elizabeth St",
-        value = "2720,3: Bourke Street Mall/Elizabeth St",
+        display = "3: Bourke St Mall/Elizabeth St",
+        value = "2720,3: Bourke St Mall/Elizabeth St",
     ),
     schema.Option(
         display = "5: Melbourne Central Station/Elizabeth St",
@@ -3357,8 +3357,8 @@ Route58StopOptions = [
 ]
 Route59StopOptions = [
     schema.Option(
-        display = "1: Flinders Street Railway Station/Elizabeth St",
-        value = "2722,1: Flinders Street Railway Station/Elizabeth St",
+        display = "1: Flinders St Railway Station/Elizabeth St",
+        value = "2722,1: Flinders St Railway Station/Elizabeth St",
     ),
     schema.Option(
         display = "2: Collins St/Elizabeth St",
@@ -3445,8 +3445,8 @@ Route59StopOptions = [
         value = "2688,31: Montgomery St/Mt Alexander Rd",
     ),
     schema.Option(
-        display = "32: Moonee Ponds Junction/Pascoe Vale Rd",
-        value = "2685,32: Moonee Ponds Junction/Pascoe Vale Rd",
+        display = "32: Moonee Ponds Jct/Pascoe Vale Rd",
+        value = "2685,32: Moonee Ponds Jct/Pascoe Vale Rd",
     ),
     schema.Option(
         display = "34: Moonee Valley Civic Centre/Pascoe Vale Rd",
@@ -3485,8 +3485,8 @@ Route59StopOptions = [
         value = "2676,39: Hoddle St/Fletcher St",
     ),
     schema.Option(
-        display = "3: Bourke Street Mall/Elizabeth St",
-        value = "2720,3: Bourke Street Mall/Elizabeth St",
+        display = "3: Bourke St Mall/Elizabeth St",
+        value = "2720,3: Bourke St Mall/Elizabeth St",
     ),
     schema.Option(
         display = "40: Nicholson St/Fletcher St",
@@ -3623,8 +3623,8 @@ Route64StopOptions = [
         value = "2208,8: Melbourne Central Station/Swanston St",
     ),
     schema.Option(
-        display = "10: Bourke Street Mall/Swanston St",
-        value = "2206,10: Bourke Street Mall/Swanston St",
+        display = "10: Bourke St Mall/Swanston St",
+        value = "2206,10: Bourke St Mall/Swanston St",
     ),
     schema.Option(
         display = "11: City Square/Swanston St",
@@ -3695,8 +3695,8 @@ Route64StopOptions = [
         value = "2403,29: Union St/St Kilda Rd",
     ),
     schema.Option(
-        display = "30: St Kilda Junction/St Kilda Rd",
-        value = "2401,30: St Kilda Junction/St Kilda Rd",
+        display = "30: St Kilda Jct/St Kilda Rd",
+        value = "2401,30: St Kilda Jct/St Kilda Rd",
     ),
     schema.Option(
         display = "31: Queens Way/Queens Way",
@@ -3921,8 +3921,8 @@ Route67StopOptions = [
         value = "2208,8: Melbourne Central Station/Swanston St",
     ),
     schema.Option(
-        display = "10: Bourke Street Mall/Swanston St",
-        value = "2206,10: Bourke Street Mall/Swanston St",
+        display = "10: Bourke St Mall/Swanston St",
+        value = "2206,10: Bourke St Mall/Swanston St",
     ),
     schema.Option(
         display = "11: City Square/Swanston St",
@@ -3993,8 +3993,8 @@ Route67StopOptions = [
         value = "2403,29: Union St/St Kilda Rd",
     ),
     schema.Option(
-        display = "30: St Kilda Junction/St Kilda Rd",
-        value = "2401,30: St Kilda Junction/St Kilda Rd",
+        display = "30: St Kilda Jct/St Kilda Rd",
+        value = "2401,30: St Kilda Jct/St Kilda Rd",
     ),
     schema.Option(
         display = "31: Barkly St/St Kilda Rd",
@@ -4259,8 +4259,8 @@ Route70StopOptions = [
         value = "2138,9: Lennox St/Swan St",
     ),
     schema.Option(
-        display = "10: Swan Street Shopping Centre/Swan St",
-        value = "2111,10: Swan Street Shopping Centre/Swan St",
+        display = "10: Swan St Shopping Centre/Swan St",
+        value = "2111,10: Swan St Shopping Centre/Swan St",
     ),
     schema.Option(
         display = "11: Church St/Swan St",
@@ -4351,12 +4351,12 @@ Route70StopOptions = [
         value = "2150,39: Camberwell Tram Depot/Riversdale Rd",
     ),
     schema.Option(
-        display = "40: Camberwell Junction/Riversdale Rd",
-        value = "2106,40: Camberwell Junction/Riversdale Rd",
+        display = "40: Camberwell Jct/Riversdale Rd",
+        value = "2106,40: Camberwell Jct/Riversdale Rd",
     ),
     schema.Option(
-        display = "40: Camberwell Junction/Riversdale Rd",
-        value = "2105,40: Camberwell Junction/Riversdale Rd",
+        display = "40: Camberwell Jct/Riversdale Rd",
+        value = "2105,40: Camberwell Jct/Riversdale Rd",
     ),
     schema.Option(
         display = "41: Camberwell Market/517 Riversdale Rd",
@@ -4489,8 +4489,8 @@ Route72StopOptions = [
         value = "2208,8: Melbourne Central Station/Swanston St",
     ),
     schema.Option(
-        display = "10: Bourke Street Mall/Swanston St",
-        value = "2206,10: Bourke Street Mall/Swanston St",
+        display = "10: Bourke St Mall/Swanston St",
+        value = "2206,10: Bourke St Mall/Swanston St",
     ),
     schema.Option(
         display = "11: City Square/Swanston St",
@@ -4785,8 +4785,8 @@ Route72StopOptions = [
         value = "3267,59: Seymour Gr/Burke Rd",
     ),
     schema.Option(
-        display = "61: Camberwell Junction/Burke Rd",
-        value = "3270,61: Camberwell Junction/Burke Rd",
+        display = "61: Camberwell Jct/Burke Rd",
+        value = "3270,61: Camberwell Jct/Burke Rd",
     ),
     schema.Option(
         display = "61: Riversdale Rd/Burke Rd",
@@ -5015,12 +5015,12 @@ Route75StopOptions = [
         value = "2150,39: Camberwell Tram Depot/Riversdale Rd",
     ),
     schema.Option(
-        display = "40: Camberwell Junction/Camberwell Rd",
-        value = "3340,40: Camberwell Junction/Camberwell Rd",
+        display = "40: Camberwell Jct/Camberwell Rd",
+        value = "3340,40: Camberwell Jct/Camberwell Rd",
     ),
     schema.Option(
-        display = "40: Camberwell Junction/Riversdale Rd",
-        value = "2106,40: Camberwell Junction/Riversdale Rd",
+        display = "40: Camberwell Jct/Riversdale Rd",
+        value = "2106,40: Camberwell Jct/Riversdale Rd",
     ),
     schema.Option(
         display = "41: Burke Rd/Camberwell Rd",
@@ -5387,8 +5387,8 @@ Route78StopOptions = [
 ]
 Route82StopOptions = [
     schema.Option(
-        display = "32: Moonee Ponds Junction/Pascoe Vale Rd",
-        value = "2685,32: Moonee Ponds Junction/Pascoe Vale Rd",
+        display = "32: Moonee Ponds Jct/Pascoe Vale Rd",
+        value = "2685,32: Moonee Ponds Jct/Pascoe Vale Rd",
     ),
     schema.Option(
         display = "33: Chaucer St/Ascot Vale Rd",
@@ -6011,8 +6011,8 @@ Route96StopOptions = [
         value = "2503,125: Clarendon St/Whiteman St",
     ),
     schema.Option(
-        display = "125: Port Junction/79 Whiteman St",
-        value = "2504,125: Port Junction/79 Whiteman St",
+        display = "125: Port Jct/79 Whiteman St",
+        value = "2504,125: Port Jct/79 Whiteman St",
     ),
     schema.Option(
         display = "126: City Rd/Light Rail",
@@ -6205,8 +6205,8 @@ Route109StopOptions = [
         value = "2447,31: Stevenson St/High St",
     ),
     schema.Option(
-        display = "32: Kew Junction/High St",
-        value = "2444,32: Kew Junction/High St",
+        display = "32: Kew Jct/High St",
+        value = "2444,32: Kew Jct/High St",
     ),
     schema.Option(
         display = "33: Kew Shopping Centre/High St",
@@ -6337,8 +6337,8 @@ Route109StopOptions = [
         value = "2503,125: Clarendon St/Whiteman St",
     ),
     schema.Option(
-        display = "125: Port Junction/79 Whiteman St",
-        value = "2504,125: Port Junction/79 Whiteman St",
+        display = "125: Port Jct/79 Whiteman St",
+        value = "2504,125: Port Jct/79 Whiteman St",
     ),
     schema.Option(
         display = "126: Montague St/Light Rail",
