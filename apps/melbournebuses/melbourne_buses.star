@@ -351,24 +351,24 @@ def get_bus_stop(location):
         stop_id = str(int(stop["stop_id"]))
         stop_name = stop["stop_name"]
         stop_routes = {}
-    
+
         for i, route in enumerate(stop["routes"]):
             route_id = int(route["route_id"])
             route_name = route["route_name"]
-    
+
             if "combined" in route["route_number"].lower():
                 route_number = route["route_number"][:3] + "C"
             elif len(route["route_number"]) > 3:
                 route_number = route["route_number"][:3] + "*"
             else:
                 route_number = route["route_number"]
-    
+
             stop_routes[str(route_id)] = {
                 "processed_id": i,
                 "route_name": route_name,
                 "route_number": route_number,
             }
-    
+
         stop_data = {
             "stop_id": stop_id,
             "stop_name": stop_name,
