@@ -92,7 +92,7 @@ TEAMS_LIST = {
     29: {"name": "Columbus Blue Jackets", "abbreviation": "CBJ"},
     30: {"name": "Minnesota Wild", "abbreviation": "MIN"},
     52: {"name": "Winnipeg Jets", "abbreviation": "WPG"},
-    53: {"name": "Arizona Coyotes", "abbreviation": "ARI"},
+    # 53: {"name": "Arizona Coyotes", "abbreviation": "ARI"}, LOL
     54: {"name": "Vegas Golden Knights", "abbreviation": "VGK"},
     55: {"name": "Seattle Kraken", "abbreviation": "SEA"},
     59: {"name": "Utah Hockey Club", "abbreviation": "UTA", "abbr_fix": "UTAH"},
