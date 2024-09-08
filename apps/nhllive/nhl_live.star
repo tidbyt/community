@@ -139,7 +139,7 @@ def main(config):
         }
 
         # Get game info (current game, opponent, basic stats, or next game scheduled)
-        game_info = get_games(teamId, currDate, game_info, config)
+        game_info = get_games(teamId, currDate, game_info)
 
         print("  - CACHE: Setting Game for teamid %s" % str(teamId))
         cache.set("teamid_" + str(teamId) + "_game", json.encode(game_info), ttl_seconds = CACHE_GAME_SECONDS)
@@ -289,7 +289,7 @@ def main(config):
 
 # Check if there is a game, if it's live or over or scheduled.
 # If live or over, grab game info. If scheduled, grab next game info.
-def get_games(teamId, currDate, game_info, config):
+def get_games(teamId, currDate, game_info):
     print("  - Get Games for week")
 
     # Get team schedule for a team week
@@ -308,7 +308,7 @@ def get_games(teamId, currDate, game_info, config):
         game_info["teamId_away"] = int(games["games"][0]["awayTeam"]["id"])
         game_info["teamId_home"] = int(games["games"][0]["homeTeam"]["id"])
 
-        game_info = get_game_status(game_info, games, currDate, config)
+        game_info = get_game_status(game_info, games, currDate)
 
         # If no games this week, get schedule for the season
     else:
