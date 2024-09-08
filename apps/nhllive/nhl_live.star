@@ -29,7 +29,6 @@ DEFAULT_LOCATION = """
 }
 """
 
-
 FONT_STYLE = "CG-pixel-3x5-mono"
 FONT_COLOR_EVEN = "#FFFFFF"
 FONT_COLOR_POWERPLAY = "#59e9ff"
@@ -156,7 +155,8 @@ def main(config):
         game_info["game_update"] = get_live_game_update(game_info, config)
     elif game_info["game_state"] in ["LIVE", "CRIT"] and not config.bool("liveupdates", True):
         game_info["game_update"] = ""
-    # If game is FUT/PRE scheduled, override game_update with local start_time 
+        # If game is FUT/PRE scheduled, override game_update with local start_time
+
     elif game_info["game_state"] in ["FUT", "PRE"]:
         print("  - INFO: Overriding game_update with start_time")
         game_info["game_update"] = get_local_start_time(game_info["start_time"], config)
@@ -327,7 +327,7 @@ def get_games(teamId, currDate, game_info, config):
 
     return game_info
 
-def get_game_status(game_info, games, currDate, config):
+def get_game_status(game_info, games, currDate):
     if game_info["game_date"] == str(currDate):
         game_info["is_game_today"] = True
 
