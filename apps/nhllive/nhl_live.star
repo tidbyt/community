@@ -15,7 +15,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-APP_VERSION = "2.0.0"
+APP_VERSION = "2.1.0"
 
 # Constants
 DEFAULT_LOCATION = """
