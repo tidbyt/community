@@ -111,7 +111,6 @@ def main(config):
                 if r["route_id"] == trip["route_id"] and r["destination_stop"] == trip["destination_stop"]:
                     matching_route = r
                     break
-
             if matching_route:
                 if len(matching_route["times"]) < 3:
                     matching_route["times"].append(trip["estimated_current_stop_arrival_time"])
@@ -139,6 +138,14 @@ def main(config):
                         blocks.append(render.Box(width = 64, height = 1, color = "#333"))
 
                 selected_route = routes_req.json()["routes"][r["route_id"]]
+
+                include_lines_str = config.str("include_lines", "").lower()
+                include_lines = include_lines_str.split(',')
+                route_name = selected_route["name"].lower()
+
+                if include_lines_str and len(include_lines) and route_name not in include_lines:
+                    continue
+
                 route_color = selected_route["color"]
                 text_color = selected_route["text_color"] if selected_route["text_color"] else "#fff"
                 destination = None
@@ -372,6 +379,13 @@ def get_schema():
                         value = DISPLAY_ORDER_ALPHABETICAL,
                     ),
                 ],
+            ),
+            schema.Text(
+              id = "include_lines",
+              name = "Filter Lines",
+              desc = "Only show certain lines (comma separated)",
+              icon = "route",
+              default = "",
             ),
         ],
     )
