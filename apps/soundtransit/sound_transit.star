@@ -80,7 +80,7 @@ def get_stop_data(stop_id):
 
     return result_data
 
-def show_stops(stop_id1, stop_id2, scroll_names):
+def show_stops(stop_id1, stop_id2, scroll_names, widgetMode):
     stop1_data = get_stop_data(stop_id1) if stop_id1 != None else []
     stop2_data = get_stop_data(stop_id2) if stop_id2 != None else []
 
@@ -111,6 +111,11 @@ def show_stops(stop_id1, stop_id2, scroll_names):
             for _ in range(len(stop.headsign) - max_length):
                 stop_headsign = stop_headsign.removesuffix(stop_headsign[-1])
 
+            if not widgetMode:
+                headsign = render.Marquee(width = 64 - 16, child = render.Text(stop_headsign, font = "CG-pixel-4x5-mono"))
+            else:
+                headsign = render.Text(stop_headsign, font = "CG-pixel-4x5-mono")
+
             stop_row.append(render.Row(
                 expanded = True,
                 main_align = "space_evenly",
@@ -126,7 +131,7 @@ def show_stops(stop_id1, stop_id2, scroll_names):
                     render.Padding(
                         child = render.Column(
                             children = [
-                                render.Marquee(width = 64 - 16, child = render.Text(stop_headsign, font = "CG-pixel-4x5-mono")),
+                                headsign,
                                 render.Text(stop.times, color = "#B84"),
                             ],
                         ),
@@ -150,9 +155,10 @@ def main(config):
     scroll_names = config.bool("scroll_names", SHOULD_SCROLL_DEFAULT)
     station1 = none_str_to_none_val(config.get("station1", STATION1_DEFAULT))
     station2 = none_str_to_none_val(config.get("station2", STATION2_DEFAULT))
+    widgetMode = config.bool("$widget")
 
     return render.Root(
-        child = show_stops(station1, station2, scroll_names),
+        child = show_stops(station1, station2, scroll_names, widgetMode),
         delay = 0 if scroll_names else 5 * 1000,
     )
 
