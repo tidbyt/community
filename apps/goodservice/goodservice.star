@@ -140,7 +140,7 @@ def main(config):
                 selected_route = routes_req.json()["routes"][r["route_id"]]
 
                 include_lines_str = config.str("include_lines", "").lower()
-                include_lines = include_lines_str.split(',')
+                include_lines = include_lines_str.split(",")
                 route_name = selected_route["name"].lower()
 
                 if include_lines_str and len(include_lines) and route_name not in include_lines:
@@ -381,11 +381,11 @@ def get_schema():
                 ],
             ),
             schema.Text(
-              id = "include_lines",
-              name = "Filter Lines",
-              desc = "Only show certain lines (comma separated)",
-              icon = "route",
-              default = "",
+                id = "include_lines",
+                name = "Filter Lines",
+                desc = "Only show certain lines (comma separated)",
+                icon = "route",
+                default = "",
             ),
         ],
     )
