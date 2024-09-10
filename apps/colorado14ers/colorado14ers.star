@@ -949,9 +949,9 @@ def randomize(min, max):
 def show_instructions_screen():
     ##############################################################################################################################################################################################################################
     header = "Colorado 14ers"
-    instructions_1 = "Screen Colorado Map; Denver is a red dot. Random mountain is picked from a group (visited peaks, unvisited peaks, or any peak). You decide if the selected mountain's ouline appears. A description of the"
-    instructions_2 = " randomly selected mountain appears. You check peaks you've visited. All peaks are displayed, Bright yellow dots represent locations that were marked as visited, grey dots are unvisited 14ers. A blue dot"
-    instructions_3 = " represents the currently highlighted peak that is being described in blue text. Class 1 is hiking, 2 difficult hiking, 3 scrambling, 4 climbing, 5 technical climbing."
+    instructions_1 = "Screen represents State of Colorado. Denver is the red dot. Random mountain is picked from a group (visited, unvisited, or all peaks). You decide if the selected mountain's ouline appears."
+    instructions_2 = " You check peaks you've visited. All peaks are displayed, Bright yellow dots represent locations that were marked as visited, grey dots are unvisited 14ers. A blue dot"
+    instructions_3 = " represents the currently highlighted peak that is being described in blue text. Class Levels: 1 is hiking, 2 difficult hiking, 3 scrambling, 4 climbing, 5 technical climbing."
     return render.Root(
         render.Column(
             children = [
@@ -1034,7 +1034,7 @@ def get_positions(config, visited, mountains):
 def get_visited(type):
     print(type)
     return [
-        schema.Toggle(id = "_%s" % (mountain["Name"]), name = mountain["Name"], desc = "%s" % mountain["Name"], icon = "mountain")
+        schema.Toggle(id = "_%s" % (mountain["Name"]), name = mountain["Name"], desc = "%s" % mountain["Range"], icon = "mountain")
         for mountain in MOUNTAIN_DATA
     ]
 
