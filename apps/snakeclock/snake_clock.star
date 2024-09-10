@@ -9,6 +9,7 @@ load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("random.star", "random")
 load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 def hex_to_rgb(hex_color):
@@ -106,11 +107,25 @@ def default_snake():
         snake.append({"x": i, "y": 16, "color": "#ff0"})
     return snake
 
+DEFAULT_LOCATION = {
+    "lat": 37.541290,
+    "lng": -77.434769,
+    "locality": "Richmond, VA",
+}
+DEFAULT_TIMEZONE = "US/Eastern"
+
 def main(config):
-    timezone = config.get("timezone") or "America/New_York"
+    location = config.get("location")
+    loc = json.decode(location) if location else DEFAULT_LOCATION
+    timezone = loc.get("timezone", config.get("$tz", DEFAULT_TIMEZONE))  # Utilize special timezone variable
     now = time.now().in_location(timezone)
 
-    random.seed(time.now().second)  # makes sure things are random every second
+    use_24hour = config.bool("24hour", False)
+    time_format_colon = "3:04 PM"
+    if (use_24hour):
+        time_format_colon = "15:04"
+
+    random.seed(now.second)  # makes sure things are random every second
 
     snake_str = cache.get("snake")
     direction = random.number(0, 3)
@@ -142,9 +157,6 @@ def main(config):
 
     cache.set("snake", json.encode(snake), 300)
 
-    timezone = config.get("timezone") or "America/New_York"
-    now = time.now().in_location(timezone)
-
     return render.Root(
         delay = 250,  # tests show we refresh every 15 seconds
         child = render.Stack(
@@ -159,7 +171,7 @@ def main(config):
                                    color = "#181918",  # BG Color for time padding
                                    pad = (1, 1, 1, 0),
                                    child = render.Text(
-                                       content = now.format("15:04"),
+                                       content = now.format(time_format_colon),
                                        font = "tom-thumb",
                                        color = "#fff",
                                    ),
@@ -167,4 +179,24 @@ def main(config):
                            ),
                        ],
         ),
+    )
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Location(
+                id = "location",
+                name = "Location",
+                icon = "locationDot",
+                desc = "Determines timezone for clock.",
+            ),
+            schema.Toggle(
+                id = "24hour",
+                name = "24 Hour Time",
+                icon = "clock",
+                desc = "Choose whether to display 12-hour time (off) or 24-hour time (on).",
+                default = False,
+            ),
+        ],
     )
