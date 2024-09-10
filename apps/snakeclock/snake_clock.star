@@ -12,7 +12,7 @@ load("cache.star", "cache")
 load("encoding/json.star", "json")
 
 def hex_to_rgb(hex_color):
-    hex_color = hex_color.lstrip('#')
+    hex_color = hex_color.lstrip("#")
     return (int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16))
 
 def int_to_hex(value):
@@ -28,23 +28,22 @@ def interpolate_color(color1, color2, factor):
     interpolated_rgb = (
         int(rgb1[0] + (rgb2[0] - rgb1[0]) * factor),
         int(rgb1[1] + (rgb2[1] - rgb1[1]) * factor),
-        int(rgb1[2] + (rgb2[2] - rgb1[2]) * factor)
+        int(rgb1[2] + (rgb2[2] - rgb1[2]) * factor),
     )
     return rgb_to_hex(interpolated_rgb)
-
 
 def color_snake(snake):
     head_color = "#ff0000"
     tail_color = "#000000"
-    
+
     length = len(snake)
     for i, segment in enumerate(snake):
         factor = i / (length - 1) if length > 1 else 0
         segment["color"] = interpolate_color(head_color, tail_color, factor)
-    
+
     return snake
 
-def valid_location(x,y,snake):
+def valid_location(x, y, snake):
     if x < 0 or x >= 64 or y < 0 or y >= 32:
         return False
 
@@ -94,8 +93,8 @@ def move(snake, direction, moves_left):
 def snake_to_elements(snake):
     snake_elements = [
         render.Padding(
-            pad=(segment["x"], segment["y"], 0, 0),  # x, y
-            child=render.Box(width=1, height=1, color=(segment["color"])),
+            pad = (segment["x"], segment["y"], 0, 0),  # x, y
+            child = render.Box(width = 1, height = 1, color = (segment["color"])),
         )
         for i, segment in enumerate(snake)
     ]
@@ -111,7 +110,7 @@ def main(config):
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
 
-    random.seed(time.now().second) # makes sure things are random every second
+    random.seed(time.now().second)  # makes sure things are random every second
 
     snake_str = cache.get("snake")
     direction = random.number(0, 3)
@@ -123,11 +122,11 @@ def main(config):
 
     snake_render_elements = []
 
-    for i in range(60): # how many frames to render
-        should_change_direction = random.number(0, 100) < 10 # bias to change direction
+    for i in range(60):  # how many frames to render
+        should_change_direction = random.number(0, 100) < 10  # bias to change direction
         if should_change_direction:
             direction = random.number(0, 3)
-        
+
         remaining_moves = [0, 1, 2, 3]
         remaining_moves.remove(direction)
 
@@ -137,35 +136,35 @@ def main(config):
         snake = color_snake(snake)
         snake_render_elements.append(
             render.Stack(
-                children = snake_to_elements(snake)
-            )
+                children = snake_to_elements(snake),
+            ),
         )
 
-    cache.set("snake", json.encode(snake), 300) 
+    cache.set("snake", json.encode(snake), 300)
 
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
 
     return render.Root(
-        delay = 250, # tests show we refresh every 15 seconds, so we do 30 frames
+        delay = 250,  # tests show we refresh every 15 seconds, so we do 30 frames
         child = render.Stack(
             children = [
-                render.Animation(
-                    children=snake_render_elements
-                )
-            ]
-             + [
-                render.Box(
-                    child = render.Padding(
-                        color = "#181918", # BG Color for time padding
-                        pad = (1, 1, 1, 0),
-                        child = render.Text(
-                            content = now.format("15:04"),
-                            font = "tom-thumb",
-                            color = "#fff",
-                        ),
-                    ),
-                )
-            ]
-        )
+                           render.Animation(
+                               children = snake_render_elements,
+                           ),
+                       ] +
+                       [
+                           render.Box(
+                               child = render.Padding(
+                                   color = "#181918",  # BG Color for time padding
+                                   pad = (1, 1, 1, 0),
+                                   child = render.Text(
+                                       content = now.format("15:04"),
+                                       font = "tom-thumb",
+                                       color = "#fff",
+                                   ),
+                               ),
+                           ),
+                       ],
+        ),
     )
