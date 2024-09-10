@@ -146,7 +146,7 @@ def main(config):
     now = time.now().in_location(timezone)
 
     return render.Root(
-        delay = 250,  # tests show we refresh every 15 seconds, so we do 30 frames
+        delay = 250,  # tests show we refresh every 15 seconds
         child = render.Stack(
             children = [
                            render.Animation(
