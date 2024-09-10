@@ -5,11 +5,11 @@ Description: Shows the time with a snake slithering around in the background. Ev
 Author: paxos
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("random.star", "random")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("random.star", "random")
+load("render.star", "render")
+load("time.star", "time")
 
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip("#")
@@ -122,7 +122,7 @@ def main(config):
 
     snake_render_elements = []
 
-    for i in range(60):  # how many frames to render
+    for _ in range(60):  # how many frames to render
         should_change_direction = random.number(0, 100) < 10  # bias to change direction
         if should_change_direction:
             direction = random.number(0, 3)
