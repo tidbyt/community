@@ -6,10 +6,10 @@ Author: Seth Cottle
 """
 
 load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
 load("time.star", "time")
 
 STRIPE_API_BASE = "https://api.stripe.com/v1"
@@ -31,11 +31,11 @@ def main(config):
     start_date, end_date = get_date_range(relative_date)
 
     sales_data = fetch_stripe_data(api_key, start_date, end_date)
-    
+
     store_name = config.get("store_name", "").strip()
     if not store_name:
         store_name = DEFAULT_STORE_NAME
-    
+
     return render_sales(sales_data, relative_date, store_name)
 
 def fetch_stripe_data(api_key, start_date, end_date):
@@ -58,8 +58,8 @@ def fetch_stripe_data(api_key, start_date, end_date):
         params["created[lte]"] = end_date
 
     url = STRIPE_API_BASE + "/charges"
-    
-    response = http.get(url, params=params, headers=headers)
+
+    response = http.get(url, params = params, headers = headers)
 
     if response.status_code != 200:
         error_msg = response.body()[:500]
@@ -77,7 +77,7 @@ def fetch_stripe_data(api_key, start_date, end_date):
         "endDate": end_date,
     }
 
-    cache.set(cache_key, json.encode(sales_data), ttl_seconds=CACHE_TTL)
+    cache.set(cache_key, json.encode(sales_data), ttl_seconds = CACHE_TTL)
     return sales_data
 
 def format_currency(amount):
@@ -90,7 +90,7 @@ def format_currency(amount):
 def get_date_range(relative_date):
     now = time.now().in_location("UTC")
     if relative_date == "today":
-        start = time.time(year=now.year, month=now.month, day=now.day, location="UTC")
+        start = time.time(year = now.year, month = now.month, day = now.day, location = "UTC")
         end = now
     elif relative_date == "last_7_days":
         start = now - time.hour * 24 * 7
@@ -105,14 +105,14 @@ def get_date_range(relative_date):
         start = now - time.hour * 24 * 365
         end = now
     elif relative_date == "month_to_date":
-        start = time.time(year=now.year, month=now.month, day=1, location="UTC")
+        start = time.time(year = now.year, month = now.month, day = 1, location = "UTC")
         end = now
     elif relative_date == "quarter_to_date":
         quarter_start_month = ((now.month - 1) // 3) * 3 + 1
-        start = time.time(year=now.year, month=quarter_start_month, day=1, location="UTC")
+        start = time.time(year = now.year, month = quarter_start_month, day = 1, location = "UTC")
         end = now
     elif relative_date == "year_to_date":
-        start = time.time(year=now.year, month=1, day=1, location="UTC")
+        start = time.time(year = now.year, month = 1, day = 1, location = "UTC")
         end = now
     elif relative_date == "all_time":
         return "all_time", "all_time"
@@ -145,20 +145,20 @@ def render_sales(sales_data, relative_date, store_name):
         child = render.Box(
             padding = 1,
             child = render.Column(
-                expanded=True,
-                main_align="space_around",
-                cross_align="center",
+                expanded = True,
+                main_align = "space_around",
+                cross_align = "center",
                 children = [
-                    render.Text(truncated_store_name, color=COLOR_STRIPE_BRAND, font="tb-8"),
+                    render.Text(truncated_store_name, color = COLOR_STRIPE_BRAND, font = "tb-8"),
                     render.Text(
-                        content=sales_data["sales"],
-                        color=COLOR_ALOE if sales_data["sales"] != "No Sales" else COLOR_ORANGE,
-                        font="6x13",
+                        content = sales_data["sales"],
+                        color = COLOR_ALOE if sales_data["sales"] != "No Sales" else COLOR_ORANGE,
+                        font = "6x13",
                     ),
                     render.Text(
-                        content=label,
-                        font=FONT_TOM_THUMB,
-                        color="#FFF",
+                        content = label,
+                        font = FONT_TOM_THUMB,
+                        color = "#FFF",
                     ),
                 ],
             ),
