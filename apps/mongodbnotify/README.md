@@ -1,4 +1,10 @@
 # mongodb-notify
+# NOTICE
+
+MongoDB announced the end of the Data API interface. It will be September 30, 2025. That gives this a year of working and, hopefully, coming up with some other alternative to get notifications on to Tidbyt.
+
+# Description
+
 Tidbyt MongoDB integration for notifications.
 
 # Goal
