@@ -1,7 +1,7 @@
 """
 Applet: Snake Clock
 Summary: Shows the time and a snake
-Description: Shows the time with a snake slithering around in the background.
+Description: Shows the time with a snake slithering around in the background. Every user will see the same snake.
 Author: paxos
 """
 
