@@ -1,5 +1,5 @@
 ---
-id: 62b55d8d-2741-4854-ae29-0cdcd6660bc8
+id: snakeclock
 name: Snake Clock
 summary: Shows the time and a snake
 desc: Shows the time with a snake slithering around in the background. Every user will see the same snake.
