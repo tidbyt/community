@@ -92,6 +92,9 @@ def main(config):
     blocks = []
     min_estimated_arrival_time = ts + (travel_time_min * 60)
 
+    include_lines_str = config.str("include_lines", "").upper()
+    include_lines = include_lines_str.split(",")
+
     for dir in directions:
         upcoming_routes = {
             "north": [],
@@ -139,9 +142,7 @@ def main(config):
 
                 selected_route = routes_req.json()["routes"][r["route_id"]]
 
-                include_lines_str = config.str("include_lines", "").lower()
-                include_lines = include_lines_str.split(",")
-                route_name = selected_route["name"].lower()
+                route_name = selected_route["name"].upper()
 
                 if include_lines_str and len(include_lines) and route_name not in include_lines:
                     continue
