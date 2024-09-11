@@ -10,6 +10,7 @@ load("encoding/base64.star", "base64")  #Used to read encoded image
 load("encoding/json.star", "json")  #Used to figure out timezone
 load("http.star", "http")  #HTTP Client
 load("math.star", "math")  #Used to calculate duration between timestamps
+load("re.star", "re")  #Used for Regular Expressions
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")  #Used to display time and calcuate lenght of TTL cache
@@ -141,6 +142,10 @@ def main(config):
         The display inforamtion for the Tidbyt
     """
 
+    show_instructions = config.bool("instructions", True)
+    if show_instructions:
+        return display_instructions()
+
     #Defaults
     current_local_time = get_local_time(config)
     found_sighting_to_display = False
@@ -154,7 +159,7 @@ def main(config):
     row3 = ""
 
     #Get Station Selected By User
-    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml" or "https://spotthestation.nasa.gov/sightings/xml_files/China_None_Xian.xml"
+    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
 
     #cache is saved to the tidbyt server, not locally, so we need a unique key per location which is equivelent to the Flyby XML URL
     iss_xml_body = cache.get(ISS_FLYBY_XML_URL)
@@ -190,7 +195,23 @@ def main(config):
             timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
             current_item_time = time.parse_time(current_time_stamp).in_location(timezone) + get_local_offset(config)
 
-            if current_item_time > current_local_time:
+            # We should add the duration of the sighting to the cutoff so the current sighting displays on the tidbyt
+            # Sound strange? I looked at the app when the ISS was overhead and it was on to the next sighting! Doh!
+
+            duration_pattern = "Duration: (.+?) minute"
+            duration_match = re.match(duration_pattern, current_description)
+            duration = 0
+            if duration_match:
+                duration_string = duration_match[0][1]
+                if duration_string.isdigit():
+                    duration = int(duration_string)
+
+            duration = time.parse_duration("%sm" % duration)
+
+            print(current_item_time)
+            print(current_local_time)
+
+            if current_item_time + duration > current_local_time:
                 item_number_to_display = i
                 time_of_next_sighting = current_time_stamp
 
@@ -222,12 +243,10 @@ def main(config):
             current_time_stamp = get_timestamp_from_item(current_description)
             time_of_furthest_known_sighting = current_time_stamp
             date_diff = time.parse_time(time_of_furthest_known_sighting) - get_local_time(config)
+        elif (time_of_next_sighting == None):
+            date_diff = time.now() - time.now()
         else:
-            #No future Sightings so we can cache at least until the next sighting
-            if (time_of_next_sighting == None):
-                date_diff = time.now() - time.now()
-            else:
-                date_diff = get_local_time(config) - get_local_time(config)  # time.parse_time(time_of_next_sighting) - get_local_time(config)
+            date_diff = get_local_time(config) - get_local_time(config)  # time.parse_time(time_of_next_sighting) - get_local_time(config)
 
         days = math.floor(date_diff.hours // 24)
         hours = math.floor(date_diff.hours - days * 24)
@@ -240,7 +259,6 @@ def main(config):
         elif seconds_xml_valid_for > MAXIMUM_CACHE_TIME_IN_SECONDS:
             seconds_xml_valid_for = MAXIMUM_CACHE_TIME_IN_SECONDS
 
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(ISS_FLYBY_XML_URL, iss_xml_body, ttl_seconds = seconds_xml_valid_for)
 
     if description == None:
@@ -264,6 +282,37 @@ def main(config):
     else:
         return []
 
+def display_instructions():
+    ##############################################################################################################################################################################################################################
+    instructions_1 = "Go to SpotTheStation.NASA.gov, zoom in on the map to find your location. Click on the blue map marker closest to your location, then click 'View sighting opportunities'."
+    instructions_2 = "Next, click the RSS icon listed under the location name. This will give you a page full of XML. No need to look at any of that, just copy the URL."
+    instructions_3 = "Enter that URL in the 'Spot the Station RSS' setting for this application. You're all set to be made aware of ISS passings! "
+    return render.Root(
+        render.Column(
+            children = [
+                render.Marquee(
+                    width = 64,
+                    child = render.Text("Spot the Station", color = "#65d0e6", font = "5x8"),
+                ),
+                render.Marquee(
+                    width = 64,
+                    child = render.Text(instructions_1, color = "#f4a306"),
+                ),
+                render.Marquee(
+                    offset_start = len(instructions_1) * 5,
+                    width = 64,
+                    child = render.Text(instructions_2, color = "#f4a306"),
+                ),
+                render.Marquee(
+                    offset_start = (len(instructions_2) + len(instructions_1)) * 5,
+                    width = 64,
+                    child = render.Text(instructions_3, color = "#f4a306"),
+                ),
+            ],
+        ),
+        show_full_animation = True,
+    )
+
 def get_display(location, row1, row2, row3, config):
     return render.Root(
         show_full_animation = True,
@@ -285,6 +334,14 @@ def get_display(location, row1, row2, row3, config):
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON5),
                                         render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON5),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON5),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON5),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON5),
+                                        render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON4),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON3),
@@ -292,13 +349,12 @@ def get_display(location, row1, row2, row3, config):
                                         render.Image(src = ISS_ICON2),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
-                                        render.Image(src = ISS_ICON2),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
-                                        render.Image(src = ISS_ICON2),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
-                                        render.Image(src = ISS_ICON2),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
@@ -392,6 +448,13 @@ def get_schema():
                 icon = "stopwatch",
                 options = scroll_speed_options,
                 default = scroll_speed_options[0].value,
+            ),
+            schema.Toggle(
+                id = "instructions",
+                name = "Display Instructions",
+                desc = "",
+                icon = "book",  #"info",
+                default = False,
             ),
         ],
     )

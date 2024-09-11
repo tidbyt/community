@@ -5,9 +5,7 @@ Description: See items currently featured in the Fortnite store.
 Author: naomi-nori
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
@@ -36,17 +34,10 @@ iVBORw0KGgoAAAANSUhEUgAABAAAAAQACAYAAAB/HSuDAAUeNElEQVR42uy9e5hbd3nv+5HWLHnJy6NI
 
 def main(config):
     api_key = secret.decrypt("AV6+xWcEuaKV5wZdc1Ga54t9PMb53Whf4JhhnUBnhFBqczkewlzfLHNQlBpYnkOOv26zJJXx2Wdk5b0UpVqR2PLXOLmKmd+ORAhKfY6wP+yS8DS/HgrlQ+lqaX1TCr/N0F8OlkTVtf1ROsvjoOinPJb5T2zg3jdv+458QFeu7hmDYhsunyqcTK8Y") or config.get("dev_api_key")
-    items = cache.get("items")
     if api_key:
-        if items == None:
-            store_api = "https://api.fortnitetracker.com/v1/store"
-            items_resp = http.get(store_api, headers = {"TRN-Api-Key": api_key})
-            items = items_resp.json()
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("items", str(items), ttl_seconds = 120)
-        else:
-            items = json.decode(items)
+        store_api = "https://api.fortnitetracker.com/v1/store"
+        items_resp = http.get(store_api, headers = {"TRN-Api-Key": api_key}, ttl_seconds = 120)
+        items = items_resp.json()
 
         picked = random.number(0, len(items) - 1)
         picked_item = items[picked]
@@ -104,18 +95,9 @@ def main(config):
     )
 
 def get_cachable_data(url, ttl_seconds = 3600):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = ttl_seconds)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()
 

@@ -1,0 +1,8 @@
+---
+id: btcdifficulty
+name: BtcDifficulty
+summary: BTC difficulty adjustment
+desc: Displays Bitcoin's difficulty adjustment progress.
+author: PMK (@pmk)
+fileName: btcdifficulty.star
+packageName: btcdifficulty

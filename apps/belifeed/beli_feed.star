@@ -65,7 +65,7 @@ orderings = [
     ),
 ]
 
-API = "https://beli.cleverapps.io/api/"
+API = "https://backoffice-service-t57o3dxfca-nn.a.run.app/api/"
 
 def get(path, ttl):
     data = cache.get(path)
@@ -143,7 +143,7 @@ def getFriendsActivity(id, cutoff, index):
 
 def getMyActivity(id, cutoff, index):
     profile = get("user/member/?id=" + id, 10000000)["results"][0]
-    data = get("rank-list/" + id, 600)
+    data = get("rank-list/" + id, 600)["results"]
     data = sorted(data, key = lambda x: x["created_dt"], reverse = True)
 
     name = profile["first_name"] + " " + profile["last_name"]

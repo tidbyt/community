@@ -1,0 +1,6 @@
+---
+id: stripe-spotlight
+name: Stripe Spotlight
+summary: Showcase Stripe Sales
+desc: Showcase the total sum of sales. You can show data from today, the last 24 hours, 7 days, 30 days, month to date, or all time. Requires a Stripe API key.
+author: Seth Cottle
