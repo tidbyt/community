@@ -3,7 +3,7 @@ Applet: Nightscout
 Summary: Displays Nightscout CGM Data
 Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data (BG, Trend, Delta, IOB, COB) from Nightscout. Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock.
 For support, join the Nightscout for Tidbyt Facebook group.
-(v2.6.0)
+(v2.6.1)
 Authors: Paul Murphy, Jason Hanson, Jeremy Tavener
 """
 
@@ -136,9 +136,9 @@ def main(config):
     else:
         nightscout_data, status_code = {
             "api_version": "n/a",
-            "sgv_current": "85",
-            "sgv_delta": "-2" if display_unit == "mgdl" else float("-0.1"),
-            "latest_reading_date_string": (time.now() - time.parse_duration("3m")),
+            "sgv_current": "92",
+            "sgv_delta": "+5" if display_unit == "mgdl" else float("+0.3"),
+            "latest_reading_date_string": (time.now() - time.parse_duration("3m10s")),
             "direction": "Flat",
             "iob": "0.00u",
             "cob": "0.0g",
@@ -155,19 +155,19 @@ def main(config):
                 ((time.now() - time.parse_duration("168m")).unix, 160),
                 ((time.now() - time.parse_duration("163m")).unix, 172),
                 ((time.now() - time.parse_duration("158m")).unix, 184),
-                ((time.now() - time.parse_duration("153m")).unix, 175),
-                ((time.now() - time.parse_duration("148m")).unix, 170),
-                ((time.now() - time.parse_duration("143m")).unix, 167),
-                ((time.now() - time.parse_duration("138m")).unix, 156),
-                ((time.now() - time.parse_duration("133m")).unix, 152),
-                ((time.now() - time.parse_duration("128m")).unix, 140),
-                ((time.now() - time.parse_duration("123m")).unix, 137),
-                ((time.now() - time.parse_duration("118m")).unix, 129),
-                ((time.now() - time.parse_duration("113m")).unix, 121),
-                ((time.now() - time.parse_duration("108m")).unix, 118),
-                ((time.now() - time.parse_duration("103m")).unix, 113),
-                ((time.now() - time.parse_duration("98m")).unix, 108),
-                ((time.now() - time.parse_duration("93m")).unix, 106),
+                ((time.now() - time.parse_duration("153m")).unix, 187),
+                ((time.now() - time.parse_duration("148m")).unix, 190),
+                ((time.now() - time.parse_duration("143m")).unix, 186),
+                ((time.now() - time.parse_duration("138m")).unix, 183),
+                ((time.now() - time.parse_duration("133m")).unix, 175),
+                ((time.now() - time.parse_duration("128m")).unix, 165),
+                ((time.now() - time.parse_duration("123m")).unix, 160),
+                ((time.now() - time.parse_duration("118m")).unix, 155),
+                ((time.now() - time.parse_duration("113m")).unix, 145),
+                ((time.now() - time.parse_duration("108m")).unix, 140),
+                ((time.now() - time.parse_duration("103m")).unix, 135),
+                ((time.now() - time.parse_duration("98m")).unix, 125),
+                ((time.now() - time.parse_duration("93m")).unix, 110),
                 ((time.now() - time.parse_duration("88m")).unix, 104),
                 ((time.now() - time.parse_duration("83m")).unix, 101),
                 ((time.now() - time.parse_duration("78m")).unix, 97),
@@ -185,7 +185,7 @@ def main(config):
                 ((time.now() - time.parse_duration("18m")).unix, 90),
                 ((time.now() - time.parse_duration("13m")).unix, 88),
                 ((time.now() - time.parse_duration("8m")).unix, 87),
-                ((time.now() - time.parse_duration("3m")).unix, 85),
+                ((time.now() - time.parse_duration("3m")).unix, 92),
             ],
         }, 0
         sample_data = True
@@ -855,16 +855,16 @@ def main(config):
 
             graph_point_color = color_graph_normal
 
-            if this_point > normal_high:
+            if this_point >= normal_high:
                 graph_point_color = color_graph_high
 
-            if this_point > urgent_high:
+            if this_point >= urgent_high:
                 graph_point_color = color_graph_urgent_high
 
-            if this_point < normal_low:
+            if this_point <= normal_low:
                 graph_point_color = color_graph_low
 
-            if this_point < urgent_low:
+            if this_point <= urgent_low:
                 graph_point_color = color_graph_urgent_low
 
             if show_graph_hour_bars:
