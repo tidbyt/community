@@ -407,7 +407,7 @@ def get_schema():
         fields = [
             schema.LocationBased(
                 id = "stop_data",
-                name = "Bus Location",
+                name = "Bus Stop Location",
                 desc = "Find the nearest bus stops by location",
                 icon = "locationDot",
                 handler = get_bus_stop,
