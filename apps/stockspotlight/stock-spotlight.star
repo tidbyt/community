@@ -5,12 +5,11 @@ Description: Showcase up to 3 of your favorite stocks using your own Finnhub API
 Author: Seth Cottle
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("schema.star", "schema")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
-load("time.star", "time")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 CACHE_TTL = 60  # Cache for 1 minute
 DISPLAY_TIME = 5  # Display each stock for 5 seconds
@@ -26,7 +25,7 @@ def main(config):
         return render_config_screen("Please enter at least one stock symbol")
 
     stock_data = get_stock_data(api_key, stocks)
-    
+
     if not stock_data:
         return render_config_screen("Unable to fetch stock data. Please check your API key and internet connection.")
 
@@ -75,7 +74,7 @@ def get_stock_data(api_key, stocks):
             print("Fetching fresh data for " + symbol)
             stock_data = fetch_stock_data(api_key, symbol)
             if stock_data[4] == None:  # Only cache and use valid data
-                cache.set("stock_data_" + symbol, json.encode(stock_data), ttl_seconds=CACHE_TTL)
+                cache.set("stock_data_" + symbol, json.encode(stock_data), ttl_seconds = CACHE_TTL)
                 all_stock_data.append(stock_data)
     return all_stock_data
 
@@ -86,7 +85,7 @@ def fetch_stock_data(api_key, symbol):
         "token": api_key,
     }
     res = http.get(url = base_url, params = params)
-    
+
     if res.status_code == 403:
         print("Error: Access forbidden. Please check your API key and permissions.")
         return (symbol, 0, 0, 0, "API Error: Check key")
@@ -95,7 +94,7 @@ def fetch_stock_data(api_key, symbol):
         return (symbol, 0, 0, 0, "Error: HTTP {}".format(res.status_code))
 
     data = json.decode(res.body())
-    
+
     if "c" not in data or not data["c"]:
         print("No data available for symbol:", symbol)
         return (symbol, 0, 0, 0, "No data")
@@ -112,18 +111,18 @@ def fetch_stock_data(api_key, symbol):
         float(current_price),
         float(change),
         float(change_percent),
-        None
+        None,
     )
 
 def create_stock_display(stock_data):
     symbol, current_price, change, change_percent, error = stock_data
-    
+
     if error:
         return render_config_screen(error)
 
     color = "#00ff00" if change >= 0 else "#ff0000"
     arrow = "▲" if change >= 0 else "▼"
-    
+
     percent_text = ("-" if change < 0 else "") + format_number(abs(change_percent)) + "%"
 
     return render.Box(
@@ -153,7 +152,7 @@ def create_stock_display(stock_data):
                     ],
                 ),
             ],
-        )
+        ),
     )
 
 def format_number(num):
