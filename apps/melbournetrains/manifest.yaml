@@ -1,0 +1,8 @@
+---
+id: melbourne-trains
+name: Melbourne Trains
+summary: Melbourne Train Departures
+desc: Real time train departures for your preferred station in Melbourne, Australia.
+author: bendiep
+fileName: melbourne_trains.star
+packageName: melbournetrains

@@ -1,0 +1,6 @@
+---
+id: steam-top-sellers
+name: Steam Top Sellers
+summary: Display Steam Top Sellers
+desc: A simple app intended to render a random selection from Steam's Top Seller list.
+author: John Kalbac (@johnkalbac)

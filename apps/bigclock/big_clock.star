@@ -9,6 +9,7 @@ Author: Joey Hoer
 
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("sunrise.star", "sunrise")
@@ -26,6 +27,7 @@ DEFAULT_HAS_LEADING_ZERO = False
 DEFAULT_HAS_FLASHING_SEPERATOR = True
 DEFAULT_COLOR_DAYTIME = "#FFFFFF"
 DEFAULT_COLOR_NIGHTTIME = "#FFFFFF"
+DEFAULT_SUNRISE_ELEVATION = "-1"  # -1 appears to be the default elevation for sunrise/sunset
 
 # Constants
 TTL = 21600  # 6 hours
@@ -76,6 +78,74 @@ SEP = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAQAAAAOAQAAAAAgEYC1AAAAAnRSTlMAAQGU/a4AAAAPSURBVHgBY0g
 AQzQAEQUAH5wCQbfIiwYAAAAASUVORK5CYII=
 """)
+
+# Convert hex color to RGB tuple
+def hex_to_rgb(color):
+    # Expand 4 digit hex to 7 digit hex
+    if len(color) == 4:
+        x = "([A-Fa-f0-9])"
+        matches = re.match("#%s%s%s" % (x, x, x), color)
+        rgb_hex_list = list(matches[0])
+        rgb_hex_list.pop(0)
+        for i in range(len(rgb_hex_list)):
+            rgb_hex_list[i] = rgb_hex_list[i] + rgb_hex_list[i]
+        color = "#" + "".join(rgb_hex_list)
+
+    # Split hex into RGB
+    x = "([A-Fa-f0-9]{2})"
+    matches = re.match("#%s%s%s" % (x, x, x), color)
+    rgb_hex_list = list(matches[0])
+    rgb_hex_list.pop(0)
+    for i in range(len(rgb_hex_list)):
+        rgb_hex_list[i] = int(rgb_hex_list[i], 16)
+    rgb = tuple(rgb_hex_list)
+
+    return rgb
+
+# Convert RGB tuple to hex color
+def rgb_to_hex(r, g, b):
+    return "#" + str("%x" % ((1 << 24) + (r << 16) + (g << 8) + b))[1:]
+
+# Mixes two colors by a given percentage.
+#
+# Args:
+# color1 (tuple): RGB representation of the first color as a tuple of three integers (0-255).
+# color2 (tuple): RGB representation of the second color as a tuple of three integers (0-255).
+# percentage (float): Percentage of the first color in the mix (0.0 - 1.0).
+#
+# Returns:
+# tuple: RGB representation of the mixed color as a tuple of three integers (0-255).
+def mix_colors(color1, color2, percentage):
+    r1, g1, b1 = hex_to_rgb(color1)
+    r2, g2, b2 = hex_to_rgb(color2)
+
+    # Calculate the mixed color components
+    r = int(r1 * percentage + r2 * (1 - percentage))
+    g = int(g1 * percentage + g2 * (1 - percentage))
+    b = int(b1 * percentage + b2 * (1 - percentage))
+
+    return rgb_to_hex(r, g, b)
+
+# Calculate the proportion of x within the range defined by min_value and max_value,
+# clamping the value between 0 and 1.
+#
+# Args:
+# min_value: The minimum value of the range.
+# max_value: The maximum value of the range.
+# x: The value to calculate the proportion for.
+#
+# Returns:
+# The proportion of x within the range, between 0 and 1.
+def proportion_within_range(min_value, max_value, x):
+    # Check if min_value and max_value are the same to avoid division by zero
+    if min_value == max_value:
+        return float(x >= min_value)
+
+    # Calculate the proportion position of x within the range
+    proportion = (x - min_value) / (max_value - min_value)
+
+    # Clamp the result to be within 0 and 1
+    return max(0, min(1, proportion))
 
 # It would be easier to use a custom font, but we can use images instead.
 # The images have a black background and transparent foreground. This
@@ -132,10 +202,8 @@ def main(config):
     timezone = loc.get("timezone", config.get("$tz", DEFAULT_TIMEZONE))  # Utilize special timezone variable
     now = time.now()
 
-    # Fetch sunrise/sunset times
+    # Fetch latitude and longitude
     lat, lng = float(loc.get("lat")), float(loc.get("lng"))
-    rise = sunrise.sunrise(lat, lng, now)
-    set = sunrise.sunset(lat, lng, now)
 
     # Because the times returned by this API do not include the date, we need to
     # strip the date from "now" to get the current time in order to perform
@@ -148,6 +216,7 @@ def main(config):
     is_24_hour_format = config.bool("is_24_hour_format", DEFAULT_IS_24_HOUR_FORMAT)
     has_leading_zero = config.bool("has_leading_zero", DEFAULT_HAS_LEADING_ZERO)
     has_flashing_seperator = config.bool("has_flashing_seperator", DEFAULT_HAS_FLASHING_SEPERATOR)
+    min_fade_elevation = int(config.get("min_fade_elevation", DEFAULT_SUNRISE_ELEVATION))
 
     # Set daytime color
     color_daytime = config.get("color_daytime", DEFAULT_COLOR_DAYTIME)
@@ -160,19 +229,14 @@ def main(config):
 
     # The API limit is ≈256kb (as reported by error messages).
     # However, sending a 256kb file doesn't seem to work.
-    # Increase the duration to create an image containing multples minutes
+    # Increase the duration to create an image containing multiple minutes
     # of frames to smooth out potential network issues.
     # Currently this does not work, becasue app rotation prevents the animation
     # from progressing past a few seconds.
     duration = 1  # in minutes; 1440 = 24 hours
     for _ in range(0, duration):
-        # Set different color during day and night
-        color = color_nighttime
-        if rise == None or set == None:
-            # Antarctica, north pole, etc.
-            color = color_daytime
-        elif now > rise and now < set:
-            color = color_daytime
+        color = mix_colors(color_daytime, color_nighttime, proportion_within_range(min_fade_elevation, int(DEFAULT_SUNRISE_ELEVATION), sunrise.elevation(lat, lng, now)))
+
         frames.append(get_time_image(print_time, color, is_24_hour_format = is_24_hour_format, has_leading_zero = has_leading_zero, has_seperator = True))
 
         if has_flashing_seperator:
@@ -205,6 +269,25 @@ def main(config):
     )
 
 def get_schema():
+    fade_options = [
+        schema.Option(
+            display = "None",
+            value = DEFAULT_SUNRISE_ELEVATION,
+        ),
+        schema.Option(
+            display = "Civil twilight",
+            value = "-6",
+        ),
+        schema.Option(
+            display = "Nautical twilight",
+            value = "-12",
+        ),
+        schema.Option(
+            display = "Astronomical twilight",
+            value = "-18",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -254,6 +337,14 @@ def get_schema():
                 palette = [
                     "#220000",
                 ],
+            ),
+            schema.Dropdown(
+                id = "min_fade_elevation",
+                name = "Fade During",
+                desc = "The time during which the nighttime and daytime colors will be mixed based on the sun's elevation.",
+                icon = "circleHalfStroke",
+                default = fade_options[0].value,
+                options = fade_options,
             ),
         ],
     )

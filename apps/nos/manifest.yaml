@@ -1,0 +1,8 @@
+---
+id: nos
+name: NOS
+summary: Laatste nieuws van NOS
+desc: Laat een willekeurig recente nieuwsbericht zien van de website nos.nl.
+author: PMK (@pmk)
+fileName: nos.star
+packageName: nos
