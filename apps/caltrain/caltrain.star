@@ -381,93 +381,93 @@ def main(config):
     CT_LOGO = CT_LOGO_RQ.body()
 
     # Demo mode, for render preview
-    """
-    return render.Root(
-        child=render.Column(
-            expanded=True,
-            children=[
-                render.Row(
-                    expanded=True,
-                    main_align="left",
-                    children=[
-                        render.Image(
-                            src=CT_LOGO,
-                            width=10,
-                            height=10,
-                        ),
-                        render.Text(content="San Francisco", offset=2, height=10, font="tom-thumb"),
-                    ],
-                ),
-                render.Row(
-                    expanded=True,
-                    cross_align="center",
-                    children=[
-                        render.Text(
-                            content="102",
-                            color=get_train_color("102"),
-                            font="tom-thumb",
-                        ),
-                        render.Text(content="|", color="#000", font="tom-thumb"),
-                        render.Text(
-                            content="San Jose",
-                            font="tom-thumb",
-                            color="#F00",
-                        ),
-                        render.Text(content="|", color="#000", font="tom-thumb"),
-                        render.Text(
-                            content="4",
-                            font="tom-thumb",
-                        ),
-                    ],
-                ),
-                render.Row(
-                    expanded=True,
-                    cross_align="center",
-                    children=[
-                        render.Text(
-                            content="512",
-                            color=get_train_color("512"),
-                            font="tom-thumb",
-                        ),
-                        render.Text(content="|", color="#000", font="tom-thumb"),
-                        render.Text(
-                            content="Tamien  ",
-                            font="tom-thumb",
-                            color="#F00",
-                        ),
-                        render.Text(content="|", color="#000", font="tom-thumb"),
-                        render.Text(
-                            content="13",
-                            font="tom-thumb",
-                        ),
-                    ],
-                ),
-                render.Row(
-                    expanded=True,
-                    cross_align="center",
-                    children=[
-                        render.Text(
-                            content="416",
-                            color=get_train_color("416"),
-                            font="tom-thumb",
-                        ),
-                        render.Text(content="|", color="#000", font="tom-thumb"),
-                        render.Text(
-                            content="Gilroy  ",
-                            font="tom-thumb",
-                            color="#F00",
-                        ),
-                        render.Text(content="|", color="#000", font="tom-thumb"),
-                        render.Text(
-                            content="18",
-                            font="tom-thumb",
-                        ),
-                    ],
-                ),
-            ],
-        ),
-    )
-    """
+    #
+    #return render.Root(
+    #    child=render.Column(
+    #        expanded=True,
+    #        children=[
+    #            render.Row(
+    #                expanded=True,
+    #                main_align="left",
+    #                children=[
+    #                    render.Image(
+    #                        src=CT_LOGO,
+    #                        width=10,
+    #                        height=10,
+    #                    ),
+    #                    render.Text(content="San Francisco", offset=2, height=10, font="tom-thumb"),
+    #                ],
+    #            ),
+    #            render.Row(
+    #                expanded=True,
+    #                cross_align="center",
+    #                children=[
+    #                    render.Text(
+    #                        content="102",
+    #                        color=get_train_color("102"),
+    #                        font="tom-thumb",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="San Jose",
+    #                        font="tom-thumb",
+    #                        color="#F00",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="4",
+    #                        font="tom-thumb",
+    #                    ),
+    #                ],
+    #            ),
+    #            render.Row(
+    #                expanded=True,
+    #                cross_align="center",
+    #                children=[
+    #                    render.Text(
+    #                        content="512",
+    #                        color=get_train_color("512"),
+    #                        font="tom-thumb",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="Tamien  ",
+    #                        font="tom-thumb",
+    #                        color="#F00",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="13",
+    #                        font="tom-thumb",
+    #                    ),
+    #                ],
+    #            ),
+    #            render.Row(
+    #                expanded=True,
+    #                cross_align="center",
+    #                children=[
+    #                    render.Text(
+    #                        content="416",
+    #                        color=get_train_color("416"),
+    #                        font="tom-thumb",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="Gilroy  ",
+    #                        font="tom-thumb",
+    #                        color="#F00",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="18",
+    #                        font="tom-thumb",
+    #                    ),
+    #                ],
+    #            ),
+    #        ],
+    #    ),
+    #)
+    #"""
 
     # If the API key is empty, fail
     if api_key == "":
