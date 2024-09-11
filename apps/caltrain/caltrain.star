@@ -469,9 +469,6 @@ def main(config):
     )
     """
 
-
-
-
     # If the API key is empty, fail
     if api_key == "":
         return render.Root(
@@ -513,8 +510,6 @@ def main(config):
     if direction == "south":
         etaID = stationID + "2"
     ETA = get_caltrain_departures(etaID, api_key)
-
-
 
     # find the stop name
     stop_name = ""
