@@ -327,7 +327,7 @@ def get_schema():
             schema.Toggle(
                 id = "show_history",
                 name = "Display historical values",
-                desc = "Would you like to show the highest, lowest and average values?",
+                desc = "Show the highest, lowest and average values",
                 icon = "list",
                 default = True,
             ),
