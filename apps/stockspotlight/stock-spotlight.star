@@ -5,7 +5,6 @@ Description: Showcase up to 3 of your favorite stocks using your own Finnhub API
 Author: Seth Cottle
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -65,17 +64,9 @@ def get_stock_data(api_key, stocks):
     for symbol in stocks:
         if len(symbol) < 1 or len(symbol) > 5:  # Basic validation for stock symbol length
             continue
-        cached_data = cache.get("stock_data_" + symbol)
-        if cached_data != None:
-            print("Using cached data for " + symbol)
-            stock_data = json.decode(cached_data)
+        stock_data = fetch_stock_data(api_key, symbol)
+        if stock_data[4] == None:  # Only use valid data
             all_stock_data.append(stock_data)
-        else:
-            print("Fetching fresh data for " + symbol)
-            stock_data = fetch_stock_data(api_key, symbol)
-            if stock_data[4] == None:  # Only cache and use valid data
-                cache.set("stock_data_" + symbol, json.encode(stock_data), ttl_seconds = CACHE_TTL)
-                all_stock_data.append(stock_data)
     return all_stock_data
 
 def fetch_stock_data(api_key, symbol):
@@ -84,7 +75,7 @@ def fetch_stock_data(api_key, symbol):
         "symbol": symbol,
         "token": api_key,
     }
-    res = http.get(url = base_url, params = params)
+    res = http.get(url = base_url, params = params, ttl_seconds = CACHE_TTL)
 
     if res.status_code == 403:
         print("Error: Access forbidden. Please check your API key and permissions.")
