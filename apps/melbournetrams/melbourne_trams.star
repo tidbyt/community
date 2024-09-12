@@ -3365,6 +3365,10 @@ Route59StopOptions = [
         value = "2721,2: Collins St/Elizabeth St",
     ),
     schema.Option(
+        display = "3: Bourke St Mall/Elizabeth St",
+        value = "2720,3: Bourke St Mall/Elizabeth St",
+    ),
+    schema.Option(
         display = "5: Melbourne Central Stn/Elizabeth St",
         value = "2718,5: Melbourne Central Stn/Elizabeth St",
     ),
@@ -3483,10 +3487,6 @@ Route59StopOptions = [
     schema.Option(
         display = "39: Hoddle St/Fletcher St",
         value = "2676,39: Hoddle St/Fletcher St",
-    ),
-    schema.Option(
-        display = "3: Bourke St Mall/Elizabeth St",
-        value = "2720,3: Bourke St Mall/Elizabeth St",
     ),
     schema.Option(
         display = "40: Nicholson St/Fletcher St",
@@ -3897,6 +3897,10 @@ Route67StopOptions = [
         value = "2214,1: Melbourne University/Swanston St",
     ),
     schema.Option(
+        display = "3: Lincoln Square/Swanston St",
+        value = "2212,3: Lincoln Square/Swanston St",
+    ),
+    schema.Option(
         display = "4: Collins St/William St",
         value = "3107,4: Collins St/William St",
     ),
@@ -4043,10 +4047,6 @@ Route67StopOptions = [
     schema.Option(
         display = "39: Glen Eira Rd/Brighton Rd",
         value = "3172,39: Glen Eira Rd/Brighton Rd",
-    ),
-    schema.Option(
-        display = "3: Lincoln Square/Swanston St",
-        value = "2212,3: Lincoln Square/Swanston St",
     ),
     schema.Option(
         display = "40: Scott St/Brighton Rd",
