@@ -392,7 +392,6 @@ def main(config):
     splatfest = None
     splatfest_colours = []
 
-
     now = time.now()
 
     if (stages["data"]["festSchedules"] and stages["data"]["currentFest"]):
