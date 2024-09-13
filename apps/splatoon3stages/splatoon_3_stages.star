@@ -392,11 +392,11 @@ def main(config):
     splatfest = None
     splatfest_colours = []
 
-    use_timetable = len(stages["data"]["currentFest"].get("timetable", [])) > 0
 
     now = time.now()
 
     if (stages["data"]["festSchedules"] and stages["data"]["currentFest"]):
+        use_timetable = len(stages["data"]["currentFest"].get("timetable", [])) > 0
         if (now >= time.parse_time(stages["data"]["currentFest"]["startTime"]) and now <= time.parse_time(stages["data"]["currentFest"]["endTime"])):
             teams = stages["data"]["currentFest"]["teams"]
 
