@@ -24,4 +24,5 @@ BUILD.bazel
 
 # Pixlet
 *.webp
+*.gif
 *.tar.gz
