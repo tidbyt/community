@@ -45,17 +45,50 @@ DEFAULT_LOCATION = """
 }
 """
 
-def main(location):
-    # Get Location
-    if type(location) == "string":
-        location = json.decode(location)
-    else:
-        location = json.decode(DEFAULT_LOCATION)
-    latitude = float(location["lat"])
-    longitude = float(location["lng"])
+DEFAULT_STOP_DATA = """
+{
+    "stop_id": "10002",
+    "stop_name": "Dalgety St/Warrigal Rd ",
+    "stop_routes": {
+        "3453": {
+            "processed_id": 0,
+            "route_name": "Dandenong - Chadstone via Mulgrave & Oakleigh",
+            "route_number": "802C"
+        },
+        "8922": {
+            "processed_id": 1,
+            "route_name": "Dandenong - Chadstone via North Dandenong & Oakleigh",
+            "route_number": "862"
+        },
+        "8924": {
+            "processed_id": 2,
+            "route_name": "Dandenong - Chadstone via Mulgrave & Oakleigh",
+            "route_number": "802"
+        },
+        "8934": {
+            "processed_id": 3,
+            "route_name": "Dandenong - Chadstone via Wheelers Hill & Oakleigh",
+            "route_number": "804"
+        },
+        "13820": {
+            "processed_id": 4,
+            "route_name": "Dandenong - Chadstone via Princes Highway & Oakleigh",
+            "route_number": "800"
+        }
+    }
+}
+"""
 
-    if latitude and longitude:
-        departures, stop = get_departures(latitude, longitude)
+def main(config):
+    # Get Stop Data
+    stop = config.get("stop_data")
+    if stop == None or stop == "":
+        stop = json.decode(DEFAULT_STOP_DATA)
+    else:
+        stop = json.decode(json.decode(stop)["value"])
+
+    if stop:
+        departures = get_departures(stop)
 
         # Render - API Credential Error
         if departures == -1:
@@ -226,21 +259,16 @@ def build_divider_invisible_row():
     )
 
 # API - GET Departures Data and Transform
-def get_departures(latitude, longitude):
+def get_departures(stop):
     # Set API ID/KEY
     api_id = LOCAL_API_ID if LOCAL_MODE else secret.decrypt(ENCRYPTED_API_ID)
     api_key = LOCAL_API_KEY if LOCAL_MODE else secret.decrypt(ENCRYPTED_API_KEY)
     if api_id == None or api_key == None:
         print("[ERROR]: Failed to retrieve API credentials")
-        return -1, None
-
-    # Retrieve Data - Bus Stop
-    stop_data = get_bus_stop(api_id, api_key, latitude, longitude)
-    if stop_data == -2:
-        return -2, None
+        return -1
 
     # Retrieve Data - Departures
-    request_path = "/v3/departures/route_type/2/stop/" + stop_data["stop_id"]
+    request_path = "/v3/departures/route_type/2/stop/" + stop["stop_id"]
     request_additional_params = "max_results=2&include_cancelled=false"
     signature_url = request_path + "?" + request_additional_params + "&devid=" + api_id
     signature = get_request_signature(signature_url, api_key)
@@ -249,7 +277,7 @@ def get_departures(latitude, longitude):
     response = http.get(url, ttl_seconds = CACHE_TTL_SECS)
     if response.status_code != 200:
         print("[ERROR]: Request failed with status code: %d - %s and request url: %s" % (response.status_code, response.body(), url))
-        return -2, None
+        return -2
 
     # Transform Data - Departures
     departures = response.json()["departures"]
@@ -278,16 +306,28 @@ def get_departures(latitude, longitude):
     departures_data = sorted(departures_data, key = lambda x: x["remaining_time_minutes"])
 
     # Remove any "combined" routes (i.e. duplicates)
-    departures_data = [departure for departure in departures_data if "C" not in stop_data["stop_routes"][departure["route_id"]]["route_number"]]
+    departures_data = [departure for departure in departures_data if "C" not in stop["stop_routes"][departure["route_id"]]["route_number"]]
 
     # Only collect enough data to render the first two departures
     if len(departures_data) > 2:
         departures_data = departures_data[:2]
 
-    return (departures_data, stop_data)
+    return departures_data
 
 # API - GET Bus Stop Data and Transform
-def get_bus_stop(api_id, api_key, latitude, longitude):
+def get_bus_stop(location):
+    # Set API ID/KEY
+    api_id = LOCAL_API_ID if LOCAL_MODE else secret.decrypt(ENCRYPTED_API_ID)
+    api_key = LOCAL_API_KEY if LOCAL_MODE else secret.decrypt(ENCRYPTED_API_KEY)
+    if api_id == None or api_key == None:
+        print("[ERROR]: Failed to retrieve API credentials")
+        return ""
+
+    # Get Location
+    loc = json.decode(location) if location else json.decode(DEFAULT_LOCATION)
+    latitude = float(loc["lat"])
+    longitude = float(loc["lng"])
+
     # Retrieve Data - Stops
     request_path = "/v3/stops/location/" + str(latitude) + "," + str(longitude)
     request_additional_params = "route_types=2"
@@ -298,43 +338,45 @@ def get_bus_stop(api_id, api_key, latitude, longitude):
     response = http.get(url, ttl_seconds = CACHE_TTL_SECS)
     if response.status_code != 200:
         print("[ERROR]: Request failed with status code: %d - %s and request url: %s" % (response.status_code, response.body(), url))
-        return -2
+        return ""
 
     # Transform Data - Stops
-    stops = response.json()["stops"]
-    if not len(stops) >= 1:
+    stops_data = response.json()["stops"]
+    if not len(stops_data) >= 1:
         print("[ERROR]: No stops found for the given location")
-        return -2
+        return ""
 
-    stop = stops[0]
-    stop_id = str(int(stop["stop_id"]))
-    stop_name = stop["stop_name"]
-    stop_routes = {}
+    stops = []
+    for stop in stops_data:
+        stop_id = str(int(stop["stop_id"]))
+        stop_name = stop["stop_name"]
+        stop_routes = {}
 
-    for i, route in enumerate(stop["routes"]):
-        route_id = int(route["route_id"])
-        route_name = route["route_name"]
+        for i, route in enumerate(stop["routes"]):
+            route_id = int(route["route_id"])
+            route_name = route["route_name"]
 
-        if "combined" in route["route_number"].lower():
-            route_number = route["route_number"][:3] + "C"
-        elif len(route["route_number"]) > 3:
-            route_number = route["route_number"][:3] + "*"
-        else:
-            route_number = route["route_number"]
+            if "combined" in route["route_number"].lower():
+                route_number = route["route_number"][:3] + "C"
+            elif len(route["route_number"]) > 3:
+                route_number = route["route_number"][:3] + "*"
+            else:
+                route_number = route["route_number"]
 
-        stop_routes[str(route_id)] = {
-            "processed_id": i,
-            "route_name": route_name,
-            "route_number": route_number,
+            stop_routes[str(route_id)] = {
+                "processed_id": i,
+                "route_name": route_name,
+                "route_number": route_number,
+            }
+
+        stop_data = {
+            "stop_id": stop_id,
+            "stop_name": stop_name,
+            "stop_routes": stop_routes,
         }
+        stops.append(schema.Option(display = "Stop: %s" % (stop_data["stop_name"]), value = json.encode(stop_data)))
 
-    transformed_data = {
-        "stop_id": stop_id,
-        "stop_name": stop_name,
-        "stop_routes": stop_routes,
-    }
-
-    return transformed_data
+    return stops
 
 # Helper - Generate request signature in HMAC-SHA1 hash format (required query parameter in every request)
 def get_request_signature(signature_url, key):
@@ -364,11 +406,11 @@ def get_schema():
         version = "1",
         fields = [
             schema.LocationBased(
-                id = "location",
-                name = "Bus Location",
-                desc = "Find the nearest bus stop by location",
+                id = "stop_data",
+                name = "Bus Stop Location",
+                desc = "Find the nearest bus stops by location",
                 icon = "locationDot",
-                handler = main,
+                handler = get_bus_stop,
             ),
         ],
     )

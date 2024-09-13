@@ -43,7 +43,7 @@ STATIC_STATIONS = [
     {"id": "7005", "Name": "San Bruno"},
     {"id": "7013", "Name": "San Carlos"},
     {"id": "7001", "Name": "San Francisco"},
-    {"id": "7026", "Name": "San Jose Diridon"},
+    {"id": "7026", "Name": "San Jose"},
     {"id": "7031", "Name": "San Martin"},
     {"id": "7009", "Name": "San Mateo"},
     {"id": "7024", "Name": "Santa Clara"},
@@ -55,30 +55,91 @@ STATIC_STATIONS = [
 
 # Function to get Caltrain departures
 def get_caltrain_departures(stop_id, key):
-    # Define the URL and make an HTTP request
-    url = "http://api.511.org/transit/StopMonitoring?api_key=%s&agency=CT&stopCode=%s&format=json" % (key, stop_id)
-    print(url)
-    response = http.get(url, ttl_seconds = 1)
-    if response.status_code != 200:
-        print("Nope")
-        fail("Rate Limit")
+    # stop_id is the 5 digit stop id, with the last digit being 1 or 2 indicating the direction
+    # key is the 511 API key
 
-    # Trim BOM or unwanted characters from the beginning of the response
-    cleaned_content = clean_response(response.body())
-
-    # Extract Caltrain departures
-    monitored_stop = json.decode(cleaned_content)
-
-    monitored_stop_visits = monitored_stop["ServiceDelivery"]["StopMonitoringDelivery"]["MonitoredStopVisit"]
+    # We want to modify this function to add support for allowing the user to select both directions
 
     # get only the first 3 of visits
     ETAS = []
     FUTURE_ETAS = []
+    print(stop_id, key)
 
-    for visit in monitored_stop_visits:
-        stop = visit["MonitoredVehicleJourney"]
-        if (humanize.time(time.parse_time(stop["MonitoredCall"]["AimedDepartureTime"]))).find("from") != -1:
-            FUTURE_ETAS.append(visit)
+    if (len(stop_id) == 4):
+        # We need to get the northbound and southbound departures
+
+        northbound_stop_id = stop_id + "1"
+        southbound_stop_id = stop_id + "2"
+
+        # --- Northbound departures ---
+
+        # Define the URL and make an HTTP request
+        url = "http://api.511.org/transit/StopMonitoring?api_key=%s&agency=CT&stopCode=%s&format=json" % (key, northbound_stop_id)
+        print(url)
+        response = http.get(url, ttl_seconds = 1)
+        if response.status_code != 200:
+            print("Nope")
+            fail("Rate Limit")
+
+        # Trim BOM or unwanted characters from the beginning of the response
+        cleaned_content = clean_response(response.body())
+
+        # Extract Caltrain departures
+        monitored_stop = json.decode(cleaned_content)
+
+        monitored_stop_visits = monitored_stop["ServiceDelivery"]["StopMonitoringDelivery"]["MonitoredStopVisit"]
+
+        for visit in monitored_stop_visits:
+            stop = visit["MonitoredVehicleJourney"]
+            if (humanize.time(time.parse_time(stop["MonitoredCall"]["AimedDepartureTime"]))).find("from") != -1:
+                FUTURE_ETAS.append(visit)
+
+        # --- Southbound departures ---
+        # Define the URL and make an HTTP request
+        url = "http://api.511.org/transit/StopMonitoring?api_key=%s&agency=CT&stopCode=%s&format=json" % (key, southbound_stop_id)
+        print(url)
+        response = http.get(url, ttl_seconds = 1)
+        if response.status_code != 200:
+            print("Nope")
+            fail("Rate Limit")
+
+        # Trim BOM or unwanted characters from the beginning of the response
+        cleaned_content = clean_response(response.body())
+
+        # Extract Caltrain departures
+        monitored_stop = json.decode(cleaned_content)
+
+        monitored_stop_visits = monitored_stop["ServiceDelivery"]["StopMonitoringDelivery"]["MonitoredStopVisit"]
+
+        for visit in monitored_stop_visits:
+            stop = visit["MonitoredVehicleJourney"]
+            if (humanize.time(time.parse_time(stop["MonitoredCall"]["AimedDepartureTime"]))).find("from") != -1:
+                FUTURE_ETAS.append(visit)
+
+        ## Now we have the departures for both directions, we need to sort them by time
+        FUTURE_ETAS = manual_sort(FUTURE_ETAS, compare_stops)
+
+    if (len(stop_id) == 5):
+        # Define the URL and make an HTTP request
+        url = "http://api.511.org/transit/StopMonitoring?api_key=%s&agency=CT&stopCode=%s&format=json" % (key, stop_id)
+        print(url)
+        response = http.get(url, ttl_seconds = 1)
+        if response.status_code != 200:
+            print("Nope")
+            fail("Rate Limit")
+
+        # Trim BOM or unwanted characters from the beginning of the response
+        cleaned_content = clean_response(response.body())
+
+        # Extract Caltrain departures
+        monitored_stop = json.decode(cleaned_content)
+
+        monitored_stop_visits = monitored_stop["ServiceDelivery"]["StopMonitoringDelivery"]["MonitoredStopVisit"]
+
+        for visit in monitored_stop_visits:
+            stop = visit["MonitoredVehicleJourney"]
+            if (humanize.time(time.parse_time(stop["MonitoredCall"]["AimedDepartureTime"]))).find("from") != -1:
+                FUTURE_ETAS.append(visit)
 
     if len(FUTURE_ETAS) > 0:
         first_slot = FUTURE_ETAS[0]["MonitoredVehicleJourney"]
@@ -91,7 +152,7 @@ def get_caltrain_departures(stop_id, key):
                 children = [
                     render.Text(content = first_slot["FramedVehicleJourneyRef"]["DatedVehicleJourneyRef"], color = first_train_number, font = "tom-thumb"),
                     render.Text(content = "|", color = "#000", font = "tom-thumb"),
-                    render.Text(content = get_first_8_chars(first_slot["DestinationName"]), color = "#F00", font = "tom-thumb"),
+                    render.Text(content = get_first_8_chars(stationNameCleaner(first_slot["DestinationName"])), color = "#F00", font = "tom-thumb"),
                     render.Text(content = "|", color = "#000", font = "tom-thumb"),
                     render.Text(content = simplify_time_duration(humanize.time(time.parse_time(first_slot["MonitoredCall"]["AimedDepartureTime"]))), font = "tom-thumb"),
                 ],
@@ -108,7 +169,7 @@ def get_caltrain_departures(stop_id, key):
                 children = [
                     render.Text(content = second_slot["FramedVehicleJourneyRef"]["DatedVehicleJourneyRef"], color = second_train_number, font = "tom-thumb"),
                     render.Text(content = "|", color = "#000", font = "tom-thumb"),
-                    render.Text(content = get_first_8_chars(second_slot["DestinationName"]), color = "#F00", font = "tom-thumb"),
+                    render.Text(content = get_first_8_chars(stationNameCleaner(second_slot["DestinationName"])), color = "#F00", font = "tom-thumb"),
                     render.Text(content = "|", color = "#000", font = "tom-thumb"),
                     render.Text(content = simplify_time_duration(humanize.time(time.parse_time(second_slot["MonitoredCall"]["AimedDepartureTime"]))), font = "tom-thumb"),
                 ],
@@ -130,7 +191,7 @@ def get_caltrain_departures(stop_id, key):
                         ),
                         render.Text(content = "|", color = "#000", font = "tom-thumb"),
                         render.Text(
-                            content = get_first_8_chars(third_slot["DestinationName"]),
+                            content = get_first_8_chars(stationNameCleaner(third_slot["DestinationName"])),
                             font = "tom-thumb",
                             color = "#F00",
                         ),
@@ -171,6 +232,8 @@ def get_caltrain_departures(stop_id, key):
                         ],
                     ),
                 )
+
+    #"""
     return ETAS
 
 # Manually implement sorting
@@ -193,6 +256,9 @@ def clean_response(content):
     # Return the substring starting from the first '{' character
     return content[start_index:] if start_index != -1 else content
 
+def stationNameCleaner(station_name):
+    return station_name.replace(" Northbound", "").replace(" Southbound", "").replace("Caltrain Station", "").replace("Caltrain", "")
+
 # Function to filter and modify Caltrain stops
 def filter_and_modify_stops(caltrain_stops):
     processed_stations = set()
@@ -200,7 +266,9 @@ def filter_and_modify_stops(caltrain_stops):
 
     for stop in caltrain_stops:
         # Extract station name without "Northbound" or "Southbound"
-        station_name = stop["Name"].replace(" Northbound", "").replace(" Southbound", "").replace(" Caltrain Station", "")
+
+        station_name = stationNameCleaner(stop["Name"])
+        print(stop["Name"])
 
         # Trim the last digit of the stop ID
         stop["id"] = stop["id"][:-1]
@@ -228,22 +296,42 @@ def get_first_8_chars(input_string):
         input_string = ljust(input_string, 8)
     return input_string[:8]
 
+#
 # function to get color of train number, according to the caltrain website
-
 def get_train_color(train_number):
-    #we want #rgb
-    # 1XX, 2XX are grey
-    # 3XX, 4XX, 5XX are yellow
-    # 7XX are red
-    # others are light purple
-
-    if train_number[0] == "1" or train_number[0] == "2":
-        return "#888"
-    if train_number[0] == "3" or train_number[0] == "4" or train_number[0] == "5":
-        return "#ff0"
-    if train_number[0] == "7":
-        return "#f00"
-    return "#f0f"
+    # detect if its past september 20th, 2024
+    # Caltrain's new color scheme for the Full Electrification schedule will be in effect starting September 21, 2024
+    if time.now().unix < 1726037434:
+        # we want #rgb
+        # 1XX, 6XX are grey
+        # 8XX are yellow
+        # 5XX is red
+        # 4XX is turquoise
+        # 9XX and others are light purple
+        if train_number[0] == "1" or train_number[0] == "6":
+            return "#888"
+        if train_number[0] == "4":
+            return "#0ff"
+        if train_number[0] == "5":
+            return "#f00"
+        if train_number[0] == "8":
+            return "#ff0"
+        if train_number[0] == "9":
+            return "#f0f"
+        return "#f0f"
+    else:
+        # we want #rgb
+        # 1XX, 2XX are grey
+        # 3XX, 4XX, 5XX are yellow
+        # 7XX are red
+        # others are light purple
+        if train_number[0] == "1" or train_number[0] == "2":
+            return "#888"
+        if train_number[0] == "3" or train_number[0] == "4" or train_number[0] == "5":
+            return "#ff0"
+        if train_number[0] == "7":
+            return "#f00"
+        return "#f0f"
 
 # Function to convert time duration string to simplified format
 def simplify_time_duration(duration_string):
@@ -288,6 +376,99 @@ def main(config):
     direction = config.get("direction", "south")
     api_key = config.get("apiKey", "")
 
+    # Caltrain Logo
+    CT_LOGO_RQ = http.get("https://agency-logos.sfbatransit.community/caltrain-circle.png")
+    CT_LOGO = CT_LOGO_RQ.body()
+
+    # Demo mode, for render preview
+    #
+    #return render.Root(
+    #    child=render.Column(
+    #        expanded=True,
+    #        children=[
+    #            render.Row(
+    #                expanded=True,
+    #                main_align="left",
+    #                children=[
+    #                    render.Image(
+    #                        src=CT_LOGO,
+    #                        width=10,
+    #                        height=10,
+    #                    ),
+    #                    render.Text(content="San Francisco", offset=2, height=10, font="tom-thumb"),
+    #                ],
+    #            ),
+    #            render.Row(
+    #                expanded=True,
+    #                cross_align="center",
+    #                children=[
+    #                    render.Text(
+    #                        content="102",
+    #                        color=get_train_color("102"),
+    #                        font="tom-thumb",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="San Jose",
+    #                        font="tom-thumb",
+    #                        color="#F00",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="4",
+    #                        font="tom-thumb",
+    #                    ),
+    #                ],
+    #            ),
+    #            render.Row(
+    #                expanded=True,
+    #                cross_align="center",
+    #                children=[
+    #                    render.Text(
+    #                        content="512",
+    #                        color=get_train_color("512"),
+    #                        font="tom-thumb",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="Tamien  ",
+    #                        font="tom-thumb",
+    #                        color="#F00",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="13",
+    #                        font="tom-thumb",
+    #                    ),
+    #                ],
+    #            ),
+    #            render.Row(
+    #                expanded=True,
+    #                cross_align="center",
+    #                children=[
+    #                    render.Text(
+    #                        content="416",
+    #                        color=get_train_color("416"),
+    #                        font="tom-thumb",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="Gilroy  ",
+    #                        font="tom-thumb",
+    #                        color="#F00",
+    #                    ),
+    #                    render.Text(content="|", color="#000", font="tom-thumb"),
+    #                    render.Text(
+    #                        content="18",
+    #                        font="tom-thumb",
+    #                    ),
+    #                ],
+    #            ),
+    #        ],
+    #    ),
+    #)
+    #"""
+
     # If the API key is empty, fail
     if api_key == "":
         return render.Root(
@@ -322,16 +503,13 @@ def main(config):
     # Caltrain stop ids are 5 digits long, however there's two ids for each stop, XXXX1 for northbound and XXXX2 for southbound
     # We are provided the first 4 digits of the stop with `stationID`, and the direction "Northbound" or "Southbound" with `direction`
     etaID = ""
+    ETA = []
 
     if direction == "north":
         etaID = stationID + "1"
     if direction == "south":
         etaID = stationID + "2"
     ETA = get_caltrain_departures(etaID, api_key)
-
-    # Caltrain Logo
-    CT_LOGO_RQ = http.get("https://agency-logos.sfbatransit.community/caltrain-circle.png")
-    CT_LOGO = CT_LOGO_RQ.body()
 
     # find the stop name
     stop_name = ""
@@ -366,7 +544,6 @@ def main(config):
         )
 
     for eta in ETA:
-        # if children is less than 4
         if len(children) < 4:
             children.append(eta)
 
@@ -416,12 +593,12 @@ def get_schema():
                 default = "north",
                 options = [
                     schema.Option(
-                        display = "Southbound",
-                        value = "south",
-                    ),
-                    schema.Option(
                         display = "Northbound",
                         value = "north",
+                    ),
+                    schema.Option(
+                        display = "Southbound",
+                        value = "south",
                     ),
                 ],
             ),
