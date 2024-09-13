@@ -127,7 +127,7 @@ def parseTimetableEntry(entry):
     return struct(
         start_time = entry["startTime"],
         end_time = entry["endTime"],
-        tricolor_stage = entry["festMatchSettings"][0]["vsStages"][0]["name"]
+        tricolor_stage = entry["festMatchSettings"][0]["vsStages"][0]["name"],
     )
 
 def parseSalmonRunMatchSetting(setting):
@@ -399,8 +399,8 @@ def main(config):
     if (stages["data"]["festSchedules"] and stages["data"]["currentFest"]):
         if (now >= time.parse_time(stages["data"]["currentFest"]["startTime"]) and now <= time.parse_time(stages["data"]["currentFest"]["endTime"])):
             teams = stages["data"]["currentFest"]["teams"]
-            
-            if(use_timetable):
+
+            if (use_timetable):
                 tricol_timetable = [parseTimetableEntry(entry) for entry in stages["data"]["currentFest"]["timetable"]]
                 tricol_stage = getCurrentMatch(tricol_timetable, now).tricolor_stage
             else:
