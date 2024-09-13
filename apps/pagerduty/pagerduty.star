@@ -85,7 +85,7 @@ def pagerduty_api_call(config, url, use_cache = True):
     )
     body = res.body()
 
-    if (res.status_code < 200 or res.status_code >= 300) and len(body) <= 0:
+    if len(body) <= 0:
         body = '{"status":%i}' % res.status_code
 
     return json.decode(body)
