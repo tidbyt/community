@@ -5,9 +5,9 @@ Description: This app uses the convenient Haikubox API to display a list of bird
 Author: jachansky
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
@@ -15,6 +15,7 @@ load("time.star", "time")
 def fetchBirdData(serial_code, date):
     print(serial_code)
     print(date)
+
     # API Request
     url = "https://api.haikubox.com/haikubox/" + serial_code + "/daily-count?date=" + date
     response = http.get(url)
@@ -70,7 +71,7 @@ def main(config):
             ),
             scroll_direction = "vertical",
             offset_start = 1,
-	    offset_end = 32,
+            offset_end = 32,
             # offset_end was giving me issues and removing it fixed it,
             # offset_end = len(species_counts) * 18,
         ),
@@ -104,5 +105,5 @@ def get_schema():
                     ),
                 ],
             ),
-        ]
+        ],
     )
