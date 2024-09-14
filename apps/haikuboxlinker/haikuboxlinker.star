@@ -5,9 +5,9 @@ Description: Displays the daily count of different bird species recorded and ide
 Author: jachansky
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
@@ -29,7 +29,8 @@ def fetchBirdData(serial_code, date):
             line = bird + ": " + str(count)
             species_counts.append(line)
         return species_counts
-    #if not successful
+        #if not successful
+
     else:
         return ["No data found"]
 
@@ -55,14 +56,15 @@ def main(config):
     for species in species_counts:
         spaced_counts.append(species)
         spaced_counts.append(" ")
+
     # Extra space appended after each species to create two newlines
     formatted_counts = "\n".join(spaced_counts)
-    
+
     #print(formatted_counts) #for debugging
     # Return the render output
     return render.Root(
         delay = speed,
-	show_full_animation = True,
+        show_full_animation = True,
         child = render.Marquee(
             height = 32,
             child = render.WrappedText(
@@ -72,7 +74,7 @@ def main(config):
             ),
             scroll_direction = "vertical",
             offset_start = 8,
-	    offset_end = 32,
+            offset_end = 32,
             # offset_end was giving me issues and removing it fixed it,
             # offset_end = len(species_counts) * 18,
         ),
@@ -107,14 +109,14 @@ def get_schema():
                 default = options[1].value,
                 options = [
                     schema.Option(
-            	        display = "fast",
-            	        value = "100",
-        	    ),
-        	    schema.Option(
-            		display = "slow",
-            		value = "300",
-        	    ),
-    	        ],
+                        display = "fast",
+                        value = "100",
+                    ),
+                    schema.Option(
+                        display = "slow",
+                        value = "300",
+                    ),
+                ],
             ),
         ],
     )
