@@ -1,0 +1,6 @@
+---
+id: haikubox-linker
+name: Haikubox Linker
+summary: Displays haikubox bird data
+desc: This app uses the convenient Haikubox API to dipslay a list of bird species detected and how many times they were heard today on your Tidbyt device.
+author: jachansky
