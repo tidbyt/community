@@ -5,6 +5,7 @@ Description: Shows current polling averages from FiveThirtyEight
 Author: jwoglom
 """
 
+load("animation.star", "animation")
 load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
@@ -121,13 +122,75 @@ def main(config):
         )
 
     data = postprocess(results.json())
-    results_summary = make_results_summary(data)
+
+    latest_dem = [data[c][0] for c in data.keys() if data[c][0]["party"] == "DEM"][0]
+    latest_rep = [data[c][0] for c in data.keys() if data[c][0]["party"] == "REP"][0]
+    dem_leading_rep = latest_dem["pct_estimate"] >= latest_rep["pct_estimate"]
+
+    def print_num(num):
+        return "%s" % (math.round(10 * num) / 10) + "%"
+
+    WIDTH = 26
+
+    row = render.Stack(
+        children = [
+            render.Row(
+                children = [
+                    render.Box(
+                        width = 63,
+                        height = 32,
+                        color = "#000",
+                    ),
+                    render.Box(
+                        width = WIDTH,
+                        height = 32,
+                        padding = 0,
+                        child =
+                            render.Column(
+                                main_align = "start",
+                                children = [
+                                    render.Text(latest_dem["candidate"], font = FONT, color = PARTY_COLORS["DEM"]),
+                                    render.Text(print_num(latest_dem["pct_estimate"]), font = FONT, color = PARTY_COLORS["DEM"]),
+                                    render.Text(print_num(latest_rep["pct_estimate"]), font = FONT, color = PARTY_COLORS["REP"]),
+                                    render.Text(latest_rep["candidate"], font = FONT, color = PARTY_COLORS["REP"]),
+                                ] if dem_leading_rep else [
+                                    render.Text(latest_rep["candidate"], font = FONT, color = PARTY_COLORS["REP"]),
+                                    render.Text(print_num(latest_rep["pct_estimate"]), font = FONT, color = PARTY_COLORS["REP"]),
+                                    render.Text(print_num(latest_dem["pct_estimate"]), font = FONT, color = PARTY_COLORS["DEM"]),
+                                    render.Text(latest_dem["candidate"], font = FONT, color = PARTY_COLORS["DEM"]),
+                                ],
+                            ),
+                    ),
+                ],
+            ),
+            render.Stack(
+                children = [
+                    draw_chart(data, int(period)),
+                    draw_title(poll_type, poll_state, poll_cycle),
+                ],
+            ),
+        ],
+    )
 
     return render.Root(
-        child = render.Stack(
-            children = [
-                draw_chart(data, int(period)),
-                draw_title(poll_type, poll_state, poll_cycle, results_summary),
+        child = animation.Transformation(
+            child = row,
+            duration = 100,
+            delay = 50,
+            origin = animation.Origin(0, 0),
+            keyframes = [
+                animation.Keyframe(
+                    percentage = 0.0,
+                    transforms = [animation.Translate(0, 0)],
+                ),
+                animation.Keyframe(
+                    percentage = 0.25,
+                    transforms = [animation.Translate(-1 * WIDTH, 0)],
+                ),
+                animation.Keyframe(
+                    percentage = 1.0,
+                    transforms = [animation.Translate(-1 * WIDTH, 0)],
+                ),
             ],
         ),
     )
@@ -144,29 +207,6 @@ def postprocess(results):
         candidates[result["candidate"]].append(final_result)
 
     return candidates
-
-def make_results_summary(data):
-    results = []
-    for candidate in data.keys():
-        last = data[candidate][0]
-        results.append([
-            last["pct_estimate"],
-            last["candidate"],
-            PARTY_COLORS.get(last["party"], "OTHER"),
-        ])
-
-    results = sorted(results, reverse = True)
-
-    return render.Row(
-        children = [
-            render.Text(
-                content = "%s" % (math.round(10 * row[0]) / 10) + "%  ",
-                font = FONT,
-                color = row[2],
-            )
-            for row in results
-        ],
-    )
 
 def draw_chart(data, days):
     return render.Stack(
@@ -213,7 +253,7 @@ def pretty_fmt(txt):
     p = p.replace(" General", "")
     return p
 
-def draw_title(poll_type, poll_state, poll_cycle, results_summary):
+def draw_title(poll_type, poll_state, poll_cycle):
     return render.Padding(
         pad = (0, 1, 0, 0),
         child = render.Marquee(
@@ -221,15 +261,13 @@ def draw_title(poll_type, poll_state, poll_cycle, results_summary):
             child = render.Row(
                 children = [
                     render.Text(
-                        content = "{poll_cycle} {poll_type} ({poll_state}): ".format(
+                        content = "{poll_cycle} {poll_type} ({poll_state})  ".format(
                             poll_cycle = poll_cycle,
                             poll_type = pretty_fmt(poll_type),
                             poll_state = pretty_fmt(poll_state),
-                            results_summary = results_summary,
                         ),
                         font = FONT,
                     ),
-                    results_summary,
                 ] * 3,
             ),
             offset_start = 8,
