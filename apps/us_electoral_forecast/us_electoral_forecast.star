@@ -44,15 +44,18 @@ def main(config):
     data = postprocess(results.json())
 
     latest_data = data[0][type]
-    dem_leading_rep = latest_data["dem"]["median"] >= latest_data["rep"]["median"]
+    dem_leading_rep = latest_data["dem"]["median"] >= latest_data["rep"]["median"] if type != "winprob" else latest_data["dem"] >= latest_data["rep"]
 
     chart = draw_chart(data, type, int(period))
 
     def print_num(num):
         if type == "ec":
-            return "%s EV" % int(num)
-        else:
+            return "%s EV" % int(num["median"])
+        elif type == "pv":
+            return "%s" % (math.round(10 * num["median"]) / 10) + "%"
+        elif type == "winprob":
             return "%s" % (math.round(10 * num) / 10) + "%"
+        return ""
 
     WIDTH = 26
 
@@ -75,13 +78,13 @@ def main(config):
                                 main_align = "start",
                                 children = [
                                     render.Text("HARRIS", font = FONT, color = PARTY_COLORS["DEM"]),
-                                    render.Text(print_num(latest_data["dem"]["median"]), font = FONT, color = PARTY_COLORS["DEM"]),
-                                    render.Text(print_num(latest_data["rep"]["median"]), font = FONT, color = PARTY_COLORS["REP"]),
+                                    render.Text(print_num(latest_data["dem"]), font = FONT, color = PARTY_COLORS["DEM"]),
+                                    render.Text(print_num(latest_data["rep"]), font = FONT, color = PARTY_COLORS["REP"]),
                                     render.Text("TRUMP", font = FONT, color = PARTY_COLORS["REP"]),
                                 ] if dem_leading_rep else [
                                     render.Text("HARRIS", font = FONT, color = PARTY_COLORS["REP"]),
-                                    render.Text(print_num(latest_data["rep"]["median"]), font = FONT, color = PARTY_COLORS["REP"]),
-                                    render.Text(print_num(latest_data["dem"]["median"]), font = FONT, color = PARTY_COLORS["DEM"]),
+                                    render.Text(print_num(latest_data["rep"]), font = FONT, color = PARTY_COLORS["REP"]),
+                                    render.Text(print_num(latest_data["dem"]), font = FONT, color = PARTY_COLORS["DEM"]),
                                     render.Text("TRUMP", font = FONT, color = PARTY_COLORS["DEM"]),
                                 ],
                             ),
@@ -141,17 +144,25 @@ def draw_chart(data, typ, days):
     uppest = [(averagesD[i][0], max(upperD[i][1], upperR[i][1])) for i in range(len(averagesD))]
 
     xlim = (oldest, newest)
-    ylim = (150, 400) if typ == "ec" else (40, 60)
+    ylim = (40, 60)
+    if typ == "ec":
+        ylim = (150, 400)
+    elif typ == "winprob":
+        ylim = (35, 65)
+
+    shades = [] + \
+             draw_range(lowest, uppest, xlim, ylim, PARTY_COLORS["DEM_BG"], PARTY_COLORS["REP_BG"]) + \
+             draw_range(lowerB, upperB, xlim, ylim, PARTY_COLORS["BOTH_BG"], PARTY_COLORS["REP_BG"])
+
+    if typ == "winprob":
+        shades = []
 
     return render.Stack(
-        children = [] +
-                   draw_range(lowest, uppest, xlim, ylim, PARTY_COLORS["DEM_BG"], PARTY_COLORS["REP_BG"]) +
-                   draw_range(lowerB, upperB, xlim, ylim, PARTY_COLORS["BOTH_BG"], PARTY_COLORS["REP_BG"]) +
-                   [
-                       draw_series(lowest, xlim, ylim, "#000", fill = True),
-                       draw_series(averagesD, xlim, ylim, PARTY_COLORS["DEM"]),
-                       draw_series(averagesR, xlim, ylim, PARTY_COLORS["REP"]),
-                   ],
+        children = shades + [
+            draw_series(lowest, xlim, ylim, "#000", fill = True),
+            draw_series(averagesD, xlim, ylim, PARTY_COLORS["DEM"]),
+            draw_series(averagesR, xlim, ylim, PARTY_COLORS["REP"]),
+        ],
     )
 
 def get_averages(data, typ, sub, party, days):
@@ -277,6 +288,10 @@ def get_schema():
                     schema.Option(
                         display = "Popular Vote",
                         value = "pv",
+                    ),
+                    schema.Option(
+                        display = "Win Probability",
+                        value = "winprob",
                     ),
                 ],
             ),
