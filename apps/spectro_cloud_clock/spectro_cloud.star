@@ -28,7 +28,14 @@ def main(config):
     timezone = config.get("timezone") or "America/Phoenix"
     now = time.now().in_location(timezone)
 
-    return getDisplay(config.bool("clock"), message, message2, now)
+    use_24hour = config.bool("24hour", False)
+    time_format_colon = "3:04 PM"
+    time_format_blank = "3 04 PM"
+    if (use_24hour):
+        time_format_colon = "15:04"
+        time_format_blank = "15 04"
+
+    return getDisplay(config.bool("clock"), message, message2, now, time_format_colon, time_format_blank)
 
 def get_schema():
     return schema.Schema(
@@ -39,6 +46,13 @@ def get_schema():
                 desc = "Display the clock",
                 icon = "clock",
                 default = True,
+            ),
+            schema.Toggle(
+                id = "24hour",
+                name = "24 Hour Time",
+                icon = "clock",
+                desc = "Choose whether to display 12-hour time (off) or 24-hour time (on). Requires Display Clock to be enabled.",
+                default = False,
             ),
         ],
         version = "1",
@@ -55,7 +69,7 @@ def getRandomImage(images):
 # If clock is false, it will not display the clock
 # The message and message2 are the text that will be displayed
 # The now is the current time
-def getDisplay(clock, message, message2, now):
+def getDisplay(clock, message, message2, now, time_format_colon, time_format_blank):
     img = getRandomImage(IMAGES)
 
     if (clock):
@@ -84,13 +98,13 @@ def getDisplay(clock, message, message2, now):
                                 render.Animation(
                                     children = [
                                         render.Text(
-                                            content = now.format("3:04 PM"),
-                                            font = "5x8",
+                                            content = now.format(time_format_colon),
+                                            font = "CG-pixel-3x5-mono",
                                             color = PALETTE_FONT_COLOR_PURPLE,
                                         ),
                                         render.Text(
-                                            content = now.format("3 04 PM"),
-                                            font = "5x8",
+                                            content = now.format(time_format_blank),
+                                            font = "CG-pixel-3x5-mono",
                                             color = PALETTE_FONT_COLOR_PURPLE,
                                         ),
                                     ],
