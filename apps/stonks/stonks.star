@@ -8,7 +8,6 @@ v1.0
 Released 15-Sep-2024.
 """
 
-
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -19,9 +18,9 @@ load("schema.star", "schema")
 CACHE_TIME = 1800
 
 # increase value to clear cache
-VERSION = 'v2'
+VERSION = "v2"
 
-DEFAULT_SYMBOL = 'AAPL'
+DEFAULT_SYMBOL = "AAPL"
 
 def get_schema():
     return schema.Schema(
@@ -86,7 +85,7 @@ def get_stock_quote(url, symbol):
         return cache_res
     res = http.get(url)
     if res.status_code != 200:
-        return { "error": "polygon.io API failed with status " + res.status_code }
+        return {"error": "polygon.io API failed with status " + res.status_code}
     payload = res.json()
     cache.set(cache_key, json.encode(payload), ttl_seconds = CACHE_TIME)
     return payload
@@ -94,15 +93,15 @@ def get_stock_quote(url, symbol):
 def is_valid_float(value):
     # all these checks are nice to have when using pixlet
     if type(value) == "string":
-        if value == '':
+        if value == "":
             return False
         allowed_chars = "0123456789."
         for i in range(len(value)):
             if value[i] not in allowed_chars:
                 return False
-        if value.count('.') > 1:
+        if value.count(".") > 1:
             return False
-        if value == '.':
+        if value == ".":
             return False
         value = float(value)
         if value < 0:
@@ -111,17 +110,17 @@ def is_valid_float(value):
     return False
 
 def main(config):
-    symbol = config.get('symbol', DEFAULT_SYMBOL)
+    symbol = config.get("symbol", DEFAULT_SYMBOL)
 
     # avoid error if field is blank or otherwise bogus
-    raw_portfolio = config.get('portfolio', '')
+    raw_portfolio = config.get("portfolio", "")
     if not is_valid_float(raw_portfolio):
         portfolio = 0
     else:
         portfolio = float(raw_portfolio)
 
     # your polygon.io API key
-    api_key = config.get('apikey', 0)
+    api_key = config.get("apikey", 0)
     if not api_key:
         return render.Root(
             child = render.Column(
@@ -134,9 +133,9 @@ def main(config):
                         cross_align = "center",
                         children = [
                             render.Text(
-                                content = 'STONKS! Please add your Polygon.io API key',
-                                font = '5x8',
-                                color='#FF0000'
+                                content = "STONKS! Please add your Polygon.io API key",
+                                font = "5x8",
+                                color = "#FF0000",
                             ),
                         ],
                     ),
@@ -145,12 +144,12 @@ def main(config):
         )
 
     # https://polygon.io/docs/stocks/get_v1_open-close__stocksticker___date
-    url = 'https://api.polygon.io/v2/aggs/ticker/' + symbol + '/prev?adjusted=true&apiKey=' + api_key
+    url = "https://api.polygon.io/v2/aggs/ticker/" + symbol + "/prev?adjusted=true&apiKey=" + api_key
 
     payload = get_stock_quote(url, symbol)
 
     # render error inline
-    if 'error' in payload:
+    if "error" in payload:
         return render.Root(
             child = render.Column(
                 main_align = "space_around",
@@ -161,22 +160,22 @@ def main(config):
                     cross_align = "center",
                     children = [
                         render.Text(
-                            content = payload['error'],
-                            font = '6x10',
-                            color='#FF0000'
+                            content = payload["error"],
+                            font = "6x10",
+                            color = "#FF0000",
                         ),
                     ],
                 ),
             ),
         )
 
-    closing_price = float(payload['results'][0]['c'])
+    closing_price = float(payload["results"][0]["c"])
     price_formatted = format_currency(closing_price)
 
-    font = '6x13'
+    font = "6x13"
     if portfolio:
         # make room for optional portfolio data
-        font = '6x10'
+        font = "6x10"
 
     rows = [
         render.Row(
@@ -186,8 +185,8 @@ def main(config):
             children = [
                 render.Text(
                     content = "{0}".format(symbol),
-                    font = '6x13',
-                    color=config.get('symbol_color', '#00FF00'),
+                    font = "6x13",
+                    color = config.get("symbol_color", "#00FF00"),
                 ),
             ],
         ),
@@ -199,7 +198,7 @@ def main(config):
                 render.Text(
                     content = price_formatted,
                     font = font,
-                    color=config.get('price_color', '#FFFFFF'),
+                    color = config.get("price_color", "#FFFFFF"),
                 ),
             ],
         ),
@@ -209,12 +208,12 @@ def main(config):
         result = portfolio * closing_price
         integer_part = int(result)
         decimal_part = int((result - integer_part) * 100)
-        content = format_currency('.'.join([str(integer_part), str(decimal_part)]))
-        font = '6x10'
+        content = format_currency(".".join([str(integer_part), str(decimal_part)]))
+        font = "6x10"
 
         # eat the rich
         if len(content) > 10:
-            font = '5x8'
+            font = "5x8"
 
         rows.append(
             render.Row(
@@ -225,7 +224,7 @@ def main(config):
                     render.Text(
                         content = content,
                         font = font,
-                        color=config.get('portfolio_color', '#FFFFFF'),
+                        color = config.get("portfolio_color", "#FFFFFF"),
                     ),
                 ],
             ),
