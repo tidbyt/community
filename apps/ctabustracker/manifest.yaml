@@ -1,0 +1,8 @@
+---
+id: cta-bus-tracker
+name: CTA Bus Tracker
+summary: CTA Bus arrival times
+desc: View Chicago CTA Bus arrival times for the closest stop to your location.
+author: John Sylvain
+fileName: cta_bus_tracker.star
+packageName: ctabustracker

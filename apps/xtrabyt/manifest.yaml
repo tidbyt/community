@@ -1,0 +1,8 @@
+---
+id: xtrabyt
+name: Xtrabyt
+summary: Display Xtrabyt.com View
+desc: Display a custom drawing or integration view from Xtrabyt.com.
+author: vmitchell85
+fileName: xtrabyt.star
+packageName: xtrabyt

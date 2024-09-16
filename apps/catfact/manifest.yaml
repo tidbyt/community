@@ -1,0 +1,8 @@
+---
+id: catfact
+name: Catfact
+summary: A random fact about a cat
+desc: Calls an external API and retrieves a random cat fact and renders it. Rotating every 4 minutes.
+author: broepke
+fileName: catfact.star
+packageName: catfact

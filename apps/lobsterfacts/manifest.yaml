@@ -1,0 +1,8 @@
+---
+id: lobster-facts
+name: Lobster Facts
+summary: Random Lobster Facts
+desc: Displays a random lobster fact.
+author: Marc ten Bosch
+fileName: lobster_facts.star
+packageName: lobsterfacts

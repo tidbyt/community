@@ -1,0 +1,8 @@
+---
+id: cuneiform
+name: Cuneiform
+summary: Random cuneiform signs
+desc: Shows a cuneiform sign and its Sumerian transliterations.
+author: dinosaursrarr
+fileName: cuneiform.star
+packageName: cuneiform

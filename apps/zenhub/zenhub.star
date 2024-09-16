@@ -1,10 +1,20 @@
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
+"""
+Applet: Zenhub
+Summary: Displays Zenhub issues,
+Description: Displays your last 3 Zenhub issues from the chosen pipeline,
+    and filter by labels and assignees. To generate your API Keys, visit
+    https://app.zenhub.com/settings/tokens. To retrieve your Workspace and
+    Repository IDs, see https://github.com/ZenHubIO/API#endpoint-reference.
+Author: thiagobrez
+"""
+
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("schema.star", "schema")
 load("hash.star", "hash")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 ZENHUB_REST_API_URL = "https://api.zenhub.com"
 ZENHUB_GQL_API_URL = "https://api.zenhub.com/public/graphql"
@@ -237,6 +247,7 @@ def main(config):
         else:
             return render_error("Pipeline not found")
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("zenhubapp_pipeline_%s" % hash.md5(zenhub_gql_api_key), str(pipeline_id), ttl_seconds = 120)
 
     if issues_cache != None:
@@ -279,6 +290,8 @@ def main(config):
             return render_error("Invalid Zenhub config")
 
         issues = issues_res.json()["data"]["searchIssuesByPipeline"]["nodes"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("zenhubapp_issues_%s" % hash.md5(zenhub_gql_api_key), str(issues), ttl_seconds = 120)
 
     issue_rows = []

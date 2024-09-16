@@ -8,7 +8,6 @@ Author: mabroadfo1027
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/json.star", "json")
 
 DEFAULT_BIRTH_DATE_TIME = "2001-01-01T12:00:00Z"
 DEFAULT_TIME_ZONE = "US/Central"
@@ -27,7 +26,6 @@ def main(config):
     minutes = seconds / 60
     hours = minutes / 60
     days = hours / 24
-    years = days / 365
 
     secondList = []
     minuteList = []

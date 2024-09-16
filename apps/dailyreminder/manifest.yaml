@@ -1,0 +1,8 @@
+---
+id: daily-reminder
+name: Daily Reminder
+summary: A daily reminder app
+desc: Set a reminder for each day of week.
+author: sepowitz
+fileName: daily_reminder.star
+packageName: dailyreminder

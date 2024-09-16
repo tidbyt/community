@@ -1,0 +1,8 @@
+---
+id: divvy
+name: Divvy
+summary: Divvy Bike availability
+desc: Shows the availability of bikes and e-bikes at a Divvy Bike station.
+author: Andy Day (@adayNU)
+fileName: divvy.star
+packageName: divvy

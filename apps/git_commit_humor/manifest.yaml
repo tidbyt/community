@@ -1,0 +1,6 @@
+---
+id: git-commit-humor
+name: Git Commit Humor
+summary: Displays funny Git commits
+desc: Displays humorous Github Commits in a scrolling fashion using the whatthecommit API. The app will rotate through fonts and color based on commit text length.
+author: Zach Schmidt

@@ -1,0 +1,8 @@
+---
+id: wta-tennis
+name: WTA Tennis
+summary: Shows WTA scores
+desc: Display tennis scores from a WTA tournament chosen in the dropdown. Shows live matches and if selected, any match completed in the past 24 hours or any scheduled matches in next 12 hours. Server indicated in green when available. If match is suspended it will be shown in blue.
+author: M0ntyP
+fileName: wta_tennis.star
+packageName: wtatennis

@@ -5,11 +5,10 @@ Description: Display the days, hours, and minutes remaining to a specified event
 Author: CubsAaron
 """
 
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
-load("encoding/json.star", "json")
 
 colorOpt = [
     schema.Option(

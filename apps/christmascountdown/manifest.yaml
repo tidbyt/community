@@ -1,0 +1,8 @@
+---
+id: christmascountdown
+name: Christmas Countdn
+summary: Christmas Countdown
+desc: Displays an animated tree and Merry Christmas and (optionally) the number of days until Dec. 25.
+author: Michael Creamer
+fileName: christmascountdown.star
+packageName: christmascountdown

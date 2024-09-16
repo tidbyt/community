@@ -1,0 +1,8 @@
+---
+id: random-colors
+name: Random Colors
+summary: Generates random color
+desc: Generates random color and corresponding hex code.
+author: M0ntyP
+fileName: random_colors.star
+packageName: randomcolors

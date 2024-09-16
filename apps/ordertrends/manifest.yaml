@@ -1,0 +1,8 @@
+---
+id: shopify-order-trends
+name: Shopify Orders
+summary: Display order totals
+desc: Showcase your daily, weekly, monthly, or annual order totals.
+author: Shopify
+fileName: order_trends.star
+packageName: ordertrends

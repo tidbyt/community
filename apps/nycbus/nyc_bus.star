@@ -5,18 +5,19 @@ Description: Real time bus departures for your preferred stop.
 Author: samandmoore
 """
 
-load("re.star", "re")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("math.star", "math")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
 EXAMPLE_STOP_CODE = "550685"
-ENCRYPTED_API_KEY = "AV6+xWcEsr4R4d680czLc/RnfvU1ZpOx7ofrv0uAb8j7KoKa/Mw9Apbv6dfRFBPPu1oGMxIOSUhdEJV8IdBSwrRHvoOhfSPMmyYzcTJsSdDOoPT0p1KfvAcsyixqdCsYGJcif2+HL4W/qnX6X1hdDZV8pfaQzgswXFmvgnkoFPOWuL9dpc7drUDA"
+ENCRYPTED_API_KEY = "AV6+xWcEyevKcdrIpIo95aDtG0+14nQ1GG+kEuwmjiUiyFaJBRX6CL1/bi31WpHXwyV2AgApxwxDgWlGtvT5SDapGAwoma96vsVKfrXnH4Jlr5Oy38r5F3y+GbDm0Obw1fo6aaqIvr1y4fI7W0neS30mbmdkVBc6H2oK6KpB4HMtOxkm2UkXKSGA"
 BUSTIME_STOP_TIMES_URL = "http://bustime.mta.info/api/siri/stop-monitoring.json"
 BUSTIME_STOP_INFO_URL = "http://bustime.mta.info/api/where/stop/%s.json"
 BUSTIME_STOPS_FOR_LOCATION_URL = "http://bustime.mta.info/api/where/stops-for-location.json"
@@ -56,13 +57,19 @@ def get_stops(location):
     data = res.json()["data"]["stops"]
     stops = [
         schema.Option(display = "%s - %s" % (stop["name"], stop["direction"]), value = stop["code"])
-        for stop in data
+        for stop in sorted(
+            data,
+            key = lambda x: math.sqrt(
+                math.pow(x["lat"] - float(loc["lat"]), 2) + math.pow(x["lon"] - float(loc["lng"]), 2),
+            ),
+        )
     ]
 
     return stops
 
 def main(config):
     api_key = secret.decrypt(ENCRYPTED_API_KEY) or config.get("api_key")
+    widgetMode = config.bool("$widget")
     stop_code = config.get("stop_code")
     if stop_code == None:
         stop_code = EXAMPLE_STOP_CODE
@@ -93,7 +100,7 @@ def main(config):
             child = render.Column(
                 expanded = True,
                 children = [
-                    build_row(journeys[0]),
+                    build_row(journeys[0], widgetMode),
                 ],
             ),
         )
@@ -104,18 +111,18 @@ def main(config):
             expanded = True,
             main_align = "start",
             children = [
-                build_row(journeys[0]),
+                build_row(journeys[0], widgetMode),
                 render.Box(
                     width = 64,
                     height = 1,
                     color = "#666",
                 ),
-                build_row(journeys[1]),
+                build_row(journeys[1], widgetMode),
             ],
         ),
     )
 
-def build_row(journey):
+def build_row(journey, widgetMode = False):
     # Only match names of bus lines that we know won't fit
     multi_line = re.compile("([A-Za-z]+)([0-9]+)([\\/ -])([A-Za-z0-9]+)")
     match = multi_line.match(journey["line_name"])
@@ -143,6 +150,28 @@ def build_row(journey):
     else:
         line_name = render.Text(journey["line_name"], color = "#000", font = "CG-pixel-4x5-mono")
 
+    destination = render.Text(
+        journey["destination_name"],
+        font = "Dina_r400-6",
+        offset = -2,
+        height = 7,
+    )
+    if widgetMode:
+        destination = render.Box(
+            width = 36,
+            height = 7,
+            child = render.Row(
+                expanded = True,
+                main_align = "start",
+                children = [destination],
+            ),
+        )
+    else:
+        destination = render.Marquee(
+            width = 36,
+            child = destination,
+        )
+
     return render.Row(
         expanded = True,
         main_align = "space_evenly",
@@ -163,15 +192,7 @@ def build_row(journey):
             ]),
             render.Column(
                 children = [
-                    render.Marquee(
-                        width = 36,
-                        child = render.Text(
-                            journey["destination_name"],
-                            font = "Dina_r400-6",
-                            offset = -2,
-                            height = 7,
-                        ),
-                    ),
+                    destination,
                     render.Text(journey["eta_text"], color = "#f3ab3f"),
                 ],
             ),
@@ -251,6 +272,7 @@ def get_line_info(stop_id, line_ref, api_key):
         "color": route["color"],
     }
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, base64.encode(json.encode(result)), ttl_seconds = 3600)
 
     return result

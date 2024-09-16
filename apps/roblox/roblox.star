@@ -5,13 +5,13 @@ Description: Real time views of your Roblox experiences.
 Author: Chad Milburn / CODESTRONG
 """
 
-load("http.star", "http")
-load("time.star", "time")
 load("cache.star", "cache")
-load("schema.star", "schema")
-load("render.star", "render")
-load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 ### CONSTANTS
 TTL_SECONDS = 240
@@ -39,6 +39,9 @@ def main(config):
     ### SET USERNAME
     username = config.str("username") if config.str("username") != None and config.str("username") != "" else DEFAULT_USER_NAME
 
+    renderGame = []
+    renderFriend = []
+
     ### GET USER ID
     user_id_cached = cache.get("user_id_%s" % username)
     if user_id_cached != None and user_id_cached != str(""):
@@ -51,6 +54,8 @@ def main(config):
             print("Fetching user id")
             userId = "%d" % repGetUserId.json()["data"][0]["id"] if len(repGetUserId.json()["data"]) > 0 else ""
             userRobloxId = "%s" % userId
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("user_id_%s" % username, str(userRobloxId), ttl_seconds = TTL_SECONDS)
         else:
             userRobloxId = ""
@@ -116,6 +121,7 @@ def main(config):
             profilePhotoImg = http.get(profilePhotoUrl).body()
 
         ### Caching profilePhotoImg value from fetched logic
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("user_avatar_%s" % username, str(profilePhotoImg), ttl_seconds = TTL_SECONDS)
 
     ### GET ONLINE STYLE
@@ -134,6 +140,7 @@ def main(config):
             isOnline = repGetUserOnlineStatus.json()["IsOnline"]
 
         ### Caching isOnline value from fetched logic
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("user_online_status_%s" % username, json.encode(isOnline), ttl_seconds = TTL_SECONDS)
 
     ### FRIEND MODE
@@ -154,6 +161,7 @@ def main(config):
                 userFriends = repGetUsersFriends.json()["data"]
 
             ### Caching userFriends value from fetched logic
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("user_friend_list_%s" % username, json.encode(userFriends), ttl_seconds = TTL_SECONDS)
 
         ### POPULATE FRIENDS LIST
@@ -184,6 +192,7 @@ def main(config):
 
                 ### Caching friendAvatar value from fetched logic
                 if friend < len(userFriends):
+                    # TODO: Determine if this cache call can be converted to the new HTTP cache.
                     cache.set("user_avatar_%s" % friendsList[friend]["username"], str(friendAvatar), ttl_seconds = TTL_SECONDS)
 
             renderFriend.append(
@@ -230,6 +239,7 @@ def main(config):
                 userFavoriteGames = repGetUsersFavoriteGames.json()["data"]
 
             ### Caching userFavoriteGames value from fetched logic
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("user_favorite_games_list_%s" % username, json.encode(userFavoriteGames), ttl_seconds = TTL_SECONDS)
 
         ### POPULATE FAVORITE GAMES RENDER LIST
@@ -257,6 +267,7 @@ def main(config):
 
                 ### Caching gameAvatar value from fetched logic
                 if game < len(userFavoriteGames):
+                    # TODO: Determine if this cache call can be converted to the new HTTP cache.
                     cache.set("game_avatar_%s" % favoriteGamesList[game]["gameId"], str(gameAvatar), ttl_seconds = TTL_SECONDS)
 
             renderGame.append(

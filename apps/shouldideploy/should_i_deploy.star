@@ -5,10 +5,10 @@ Description: Display shouldideploy.today answer.
 Author: humbertogontijo
 """
 
+load("cache.star", "cache")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("cache.star", "cache")
 
 SHOULD_I_DEPLOY_URL = "https://shouldideploy.today/api?tz="
 DEFAULT_TIMEZONE = "UTC"
@@ -23,6 +23,8 @@ def main(config):
         if resp.status_code != 200:
             fail("Request failed with status %d", resp.status_code)
         msg_txt = resp.json()["message"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("api_message", msg_txt, ttl_seconds = 120)
 
     return render.Root(

@@ -1,0 +1,8 @@
+---
+id: fantasynamegen
+name: FantasyNameGen
+summary: Generate fantasy names
+desc: Randomly generate fantasy/RPG characters.
+author: Ryan Allison
+fileName: fantasynamegen.star
+packageName: fantasynamegen

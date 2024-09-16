@@ -1,0 +1,8 @@
+---
+id: positive-quote
+name: Positive Quote
+summary: Display a positive quote
+desc: Shows the user a random positive quote.
+author: Brian Bell
+fileName: positive_quote.star
+packageName: positivequote

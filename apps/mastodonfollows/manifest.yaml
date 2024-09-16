@@ -1,0 +1,8 @@
+---
+id: mastodon-follows
+name: Mastodon Follows
+summary: Display your follower count
+desc: Display your follower count from a Mastodon instance.
+author: Nick Penree
+fileName: mastodon_follows.star
+packageName: mastodonfollows

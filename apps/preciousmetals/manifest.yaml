@@ -1,0 +1,8 @@
+---
+id: precious-metals
+name: Precious Metals
+summary: Quotes on precious metals
+desc: Quotes for gold, platinum and silver.
+author: threeio
+fileName: precious_metals.star
+packageName: preciousmetals

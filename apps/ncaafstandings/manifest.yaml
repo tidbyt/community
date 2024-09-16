@@ -1,0 +1,8 @@
+---
+id: ncaaf-standings
+name: NCAAF Standings
+summary: NCAAF football standings
+desc: View NCAAF standings by conference.
+author: LunchBox8484
+fileName: ncaaf_standings.star
+packageName: ncaafstandings

@@ -1,0 +1,8 @@
+---
+id: shuffle-images
+name: Shuffle Images
+summary: Randomly display an image
+desc: Randomly displays an image from a user-specified list.
+author: rs7q5
+fileName: shuffle_images.star
+packageName: shuffleimages

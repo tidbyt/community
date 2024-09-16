@@ -1,0 +1,8 @@
+---
+id: whosthatpokemon
+name: WhosThatPokemon?
+summary: Pokemon Quiz Game
+desc: Test your Pokemon Master knowledge with this rendition of "Who's That Pokemon?". Turn off classic mode to crank up the difficulty. Set your Tidbyt speed to ensure the animation takes up exactly half the time is has displayed.
+author: Nicole Brooks
+fileName: whosthatpokemon.star
+packageName: whosthatpokemon

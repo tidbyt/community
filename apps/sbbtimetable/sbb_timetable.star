@@ -1,10 +1,18 @@
-load("render.star", "render")
-load("http.star", "http")
+"""
+Applet: SBB Timetable
+Author: LukiLeu
+Summary: SBB Timetable
+Description: Shows a timetable for a station in the Swiss Public Transport
+    network.
+"""
+
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("time.star", "time")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 ERROR_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/
@@ -102,6 +110,8 @@ def main(config):
         if resp.status_code != 200:
             # Show an error message
             return (display_error("API Error occured"))
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("sbb_%s" % station, resp.body(), ttl_seconds = 120)
         resp = json.decode(resp.body())
 
@@ -254,6 +264,8 @@ def search_station(pattern):
                     value = "API Error",
                 ),
             ]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("sbb_pattern_%s" % pattern, resp.body(), ttl_seconds = 604800)
         resp = json.decode(resp.body())
 

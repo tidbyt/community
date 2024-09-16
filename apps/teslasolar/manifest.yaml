@@ -1,0 +1,8 @@
+---
+id: tesla-solar
+name: Tesla Solar
+summary: Tesla Solar Panel Monitor
+desc: Energy production and consumption monitor for your Tesla solar panels.
+author: jweier
+fileName: tesla_solar.star
+packageName: teslasolar

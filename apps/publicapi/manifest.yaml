@@ -1,0 +1,8 @@
+---
+id: publicapi
+name: Public Api
+summary: View random public apis
+desc: Display a random public api from api.publicapis.org/random.
+author: noahpodgurski
+fileName: publicapi.star
+packageName: publicapi

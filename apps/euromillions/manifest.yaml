@@ -1,0 +1,8 @@
+---
+id: euromillions
+name: EuroMillions
+summary: EuroMillions results
+desc: Results for the most recent draw of the EuroMillions transnational lottery.
+author: dinosaursrarr
+fileName: euromillions.star
+packageName: euromillions

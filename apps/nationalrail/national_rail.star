@@ -5,7 +5,6 @@ Description: Realtime departure board information from National Rail Enquiries.
 Author: dinosaursrarr
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
@@ -16,7 +15,7 @@ load("xpath.star", "xpath")
 
 # Used to query Darwin to get live train information.
 # Allows 5000 requests per hour (~1.38 qps) for free. Can buy more if needed.
-ENCRYPTED_DARWIN_APP_KEY = "AV6+xWcEpjb3YSvq0m3DedNFUrniZqd3qLkIUYz5+HhnX5/bJa681u67XiPHyzH0uBBMcNXh7LJGYtRIcJLKAwWByZ3VOL0VP5jRhX4KY4aq1/sMwKr7X+VokgXMYE2Ci6gqAGdd9xWPejcnVa9F3lIpwRIutikv0TVmY0PJXCqQejyYiEHwozEl"
+ENCRYPTED_DARWIN_APP_KEY = "AV6+xWcEW64SUyBE2O/65VFbdcMepQ2EeNFZd4mDkOYY7MufQWq4q9VFzsoA/BoTExvFY4FxTM+lT3zXYO63sZGqBCsyud7GqaJKcpTA9dCA5ixTnzKPddMwid0SA9E8XnA7eiKm4bRhg/tRYQQHDqgR6LPI4/ZWGhlJwPVNtFxITVSaKePPtOji"
 DARWIN_SOAP_URL = "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/ldb9.asmx"
 
 # Filters for trains that call at a given station, if selected. This is an excerpt
@@ -49,7 +48,6 @@ DEPARTURES_REQUEST = """
 </soap:Envelope>
 """
 
-EMPTY_DATA_IN_CACHE = ""
 NO_DESTINATION = "-"
 ORIGIN_STATION = "origin_station"
 DESTINATION_STATION = "destination_station"
@@ -2674,24 +2672,16 @@ def fetch_departures(station, via):
     if not app_key:
         return None
     request = DEPARTURES_REQUEST % (app_key, station, filter)
-
-    cached = cache.get(request)
-    if cached == EMPTY_DATA_IN_CACHE:
-        return None
-    if cached:
-        return cached
-
     resp = http.post(
         url = DARWIN_SOAP_URL,
         body = request,
         headers = {
             "Content-Type": "application/soap+xml; charset=utf-8",
         },
+        ttl_seconds = 60,
     )
     if resp.status_code != 200:
-        cache.set(request, EMPTY_DATA_IN_CACHE, ttl_seconds = 30)
         return None
-    cache.set(request, resp.body(), ttl_seconds = 60)
     return resp.body()
 
 def render_error(error):
@@ -2761,9 +2751,21 @@ def render_times(scheduled, expected):
     )
 
 def render_destination(destination):
-    return render.Text(
-        content = destination["sixteen_char_name"].title(),
-        font = FONT,
+    return render.Column(
+        children = [
+            render.Row(
+                children = [
+                    render.Text(
+                        content = destination["name"].title(),
+                        font = FONT,
+                    ),
+                ],
+                expanded = True,
+                main_align = "start",
+            ),
+        ],
+        expanded = True,
+        cross_align = "start",
     )
 
 def render_no_departures():
@@ -2830,17 +2832,17 @@ def render_compact_train(scheduled, expected, destination):
         ),
     )
 
-def render_train(departures, index, display_mode):
-    scheduled = departures.query("//lt5:trainServices/lt5:service[%s]/lt4:std" % index)
-    expected = departures.query("//lt5:trainServices/lt5:service[%s]/lt4:etd" % index)
-    destination_crs = departures.query("//lt5:trainServices/lt5:service[%s]/lt5:destination/lt4:location/lt4:crs" % index)
+def render_train(train, display_mode):
+    scheduled = train.query("/lt4:std")
+    expected = train.query("/lt4:etd")
+    destination_crs = train.query("/lt5:destination/lt4:location/lt4:crs")
     destination = STATIONS[destination_crs]
 
     if display_mode == DISPLAY_DETAILED:
-        platform = departures.query("//lt5:trainServices/lt5:service[%s]/lt4:platform" % index)
-        operator = departures.query("//lt5:trainServices/lt5:service[%s]/lt4:operator" % index)
-        length = departures.query("//lt5:trainServices/lt5:service[%s]/lt4:length" % index)
-        calling_at = departures.query_all("//lt5:trainServices/lt5:service[%s]//lt4:callingPoint/lt4:locationName" % index)
+        platform = train.query("/lt4:platform")
+        operator = train.query("/lt4:operator")
+        length = train.query("/lt4:length")
+        calling_at = train.query_all("//lt4:callingPoint/lt4:locationName")
         return render_detailed_train(scheduled, expected, operator, destination, length, platform, calling_at)
 
     if display_mode == DISPLAY_COMPACT:
@@ -2849,14 +2851,16 @@ def render_train(departures, index, display_mode):
     fail("Invalid display mode: %s" % display_mode)
 
 def main(config):
-    origin_station = config.get(ORIGIN_STATION) or json.encode(STATIONS["KGX"])
-    origin_station = json.decode(origin_station)
+    origin_station = STATIONS["KGX"]
+    if ORIGIN_STATION in config:
+        origin_station = json.decode(json.decode(config[ORIGIN_STATION])["value"])
 
+    filter_crs = ""
     destination_station = config.get(DESTINATION_STATION)
-    if destination_station and destination_station != NO_DESTINATION:
-        filter_crs = json.decode(destination_station)["crs"]
-    else:
-        filter_crs = ""
+    if destination_station:
+        destination_station_value = json.decode(destination_station)["value"]
+        if destination_station_value != NO_DESTINATION:
+            filter_crs = json.decode(destination_station_value)["crs"]
 
     display_mode = config.get(DISPLAY_MODE) or DISPLAY_DETAILED
     if display_mode == DISPLAY_DETAILED:
@@ -2870,18 +2874,19 @@ def main(config):
     if not resp:
         return render_error("Train times not available")
     departures = xpath.loads(resp)
-    trains = departures.query_all("//lt5:trainServices/lt5:service")
+    trains = departures.query_all_nodes("//lt5:trainServices/lt5:service")
     if len(trains) == 0:
         rendered_trains = [render_no_departures()]
     else:
         max_trains = min(max_trains, len(trains))
-        rendered_trains = [render_train(departures, t + 1, display_mode) for t in range(max_trains)]
+        rendered_trains = [render_train(trains[t], display_mode) for t in range(max_trains)]
 
     return render.Root(
+        max_age = 120,
         child = render.Column(
             cross_align = "center",
             children = [
-                render_title(origin_station["sixteen_char_name"].title()),
+                render_title(origin_station["name"].title()),
                 render_separator(),
             ] + rendered_trains,
         ),
@@ -2905,11 +2910,6 @@ def list_filter_stations(location):
     return [no_destination_option] + list_stations(location)
 
 def get_schema():
-    station_options = [
-        schema.Option(display = station["name"], value = json.encode(station))
-        for station in sorted(STATIONS.values(), key = lambda x: x["name"])
-    ]
-
     return schema.Schema(
         version = "1",
         fields = [

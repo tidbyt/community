@@ -6,16 +6,23 @@ Author: jvivona
 borrowed Fade In and Out technique and the math calculations from @CubsAaron countdown_clock
 """
 
+# 20231107 - jvivona - change fade code to new code & cleanup for loops
+# 20240802 - jvivona - added in code to handle widget mode and remove animations
+
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
+
+VERSION = 24215
 
 DEFAULT_TIMEZONE = "America/New_York"
 TITLE_FONT = "5x8"
 DAYS_FONT = "6x13"
 HOURS_FONT = "tb-8"
 HOURS_COLOR = "#888888"
+
+WIDGET_MODE = False
 
 coloropt = [
     schema.Option(
@@ -53,17 +60,28 @@ coloropt = [
 ]
 
 def main(config):
+    widgetMode = config.bool("$widget")
     return render.Root(
         delay = 100,
+        show_full_animation = True,
+        max_age = 120,
         child = render.Column(
             expanded = True,
             main_align = "center",
             cross_align = "center",
-            children = get_render_children(config),
+            children = get_render_children(config, widgetMode),
+        ),
+    ) if not widgetMode else render.Root(
+        max_age = 120,
+        child = render.Column(
+            expanded = True,
+            main_align = "center",
+            cross_align = "center",
+            children = get_render_children(config, widgetMode),
         ),
     )
 
-def get_render_children(config):
+def get_render_children(config, widgetMode):
     render_children = []
     displayhours = config.bool("display_hours", True)
     displayminutes = config.bool("display_minutes", True) if displayhours else False
@@ -77,19 +95,19 @@ def get_render_children(config):
     days = math.floor(datediff.hours // 24)
     daystring = "{} {}".format(str(days), "Day" if days == 1 else "Days")
 
-    render_children.append(render.Text(content = daystring, font = DAYS_FONT))
+    render_children.append(render.Text(content = daystring, font = DAYS_FONT if not (widgetMode and displayhours) else HOURS_FONT))
 
     if displayhours:
-        render_children.append(get_hours_minutes(datediff, days, displayminutes))
+        render_children.append(get_hours_minutes(datediff, days, displayminutes, widgetMode))
 
     title_insert_index = len(render_children) if titlebelow else 0
 
-    render_children.insert(title_insert_index, get_title(config.str("event", ""), config.str("event_color", coloropt[3].value), displayhours))
+    render_children.insert(title_insert_index, get_title(config.str("event", ""), config.str("event_color", coloropt[3].value), displayhours, widgetMode))
 
     return render_children
 
-def get_title(eventtitle, titlecolor, displayhours):
-    if displayhours:
+def get_title(eventtitle, titlecolor, displayhours, widgetMode):
+    if displayhours and not widgetMode:
         # since we are displaying hours - title needs to be marquee - text less than width will center on screen
         return render.Marquee(
             child = render.Text(content = eventtitle, font = TITLE_FONT, color = titlecolor),
@@ -108,7 +126,7 @@ def get_title(eventtitle, titlecolor, displayhours):
             height = textheight,
         )
 
-def get_hours_minutes(datediff, days, displayminutes):
+def get_hours_minutes(datediff, days, displayminutes, widgetMode):
     # at a minimum we are displaying hours. we already calculated days in the caller - so just pass it in
     # if we are showing both hours and minutes - we need to the fade in and out, otherwise just show hours static
     hours = math.floor(datediff.hours - days * 24)
@@ -116,34 +134,42 @@ def get_hours_minutes(datediff, days, displayminutes):
 
     if displayminutes:
         minutes = math.floor(datediff.minutes - (days * 24 * 60 + hours * 60))
-        return render.Animation(
-            children =
-                createfadelist(hours_text, 30) +
-                createfadelist("{} {}".format(str(minutes), "Minute" if minutes == 1 else "Minutes"), 30),
-        )
+        if widgetMode:
+            return render.Text("{} h   {} m".format(str(hours), str(minutes)), font = HOURS_FONT, color = "#FFFFFF")
+        else:
+            return render.Animation(
+                children =
+                    createfadelist(hours_text, 30) +
+                    createfadelist("{} {}".format(str(minutes), "Minute" if minutes == 1 else "Minutes"), 30),
+            )
     else:
         # just hours so put a single static line here
         return render.Row(
             children = [
-                render.Text(hours_text, font = HOURS_FONT, color = HOURS_COLOR),
+                render.Text(hours_text, font = HOURS_FONT, color = HOURS_COLOR if not widgetMode else "#FFFFFF"),
             ],
             main_align = "center",
             expanded = True,
         )
 
 def createfadelist(text, cycles):
+    alpha_values = ["00", "33", "66", "99", "CC", "FF"]
     cycle_list = []
 
     # this is a pure genius technique and is borrowed from @CubsAaron countdown_clock
     # need to ponder if there is a different way to do it if we want something other than grey
-    for x in range(0, 10, 2):
-        c = "#" + str(x) + str(x) + str(x) + str(x) + str(x) + str(x)
-        cycle_list.append(render.Text(text, font = HOURS_FONT, color = c))
+    # use alpha channel to fade in and out
+
+    # go from none to full color
+    for x in alpha_values:
+        cycle_list.append(render.Text(text, font = HOURS_FONT, color = HOURS_COLOR + x))
     for x in range(cycles):
         cycle_list.append(render.Text(text, font = HOURS_FONT, color = HOURS_COLOR))
-    for x in range(8, 0, -2):
-        c = "#" + str(x) + str(x) + str(x) + str(x) + str(x) + str(x)
-        cycle_list.append(render.Text(text, font = HOURS_FONT, color = c))
+
+    # go from full color back to none
+    for x in alpha_values[5:0]:
+        cycle_list.append(render.Text(text, font = HOURS_FONT, color = HOURS_COLOR + x))
+
     return cycle_list
 
 def show_minutes_option(display_hours):

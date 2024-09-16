@@ -1,0 +1,8 @@
+---
+id: librenms-alerts
+name: LibreNMS Alerts
+summary: LibreNMS Alert Display
+desc: Displays a summary of the currently active LibreNMS alerts.
+author: '@jtinel'
+fileName: librenms_alerts.star
+packageName: librenmsalerts

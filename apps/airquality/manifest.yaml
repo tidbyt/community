@@ -1,0 +1,8 @@
+---
+id: air-quality
+name: Air Quality
+summary: Monitor local air quality
+desc: Monitor your local air quality with the OpenWeather Air Pollution API.
+author: Daniel Sitnik
+fileName: air_quality.star
+packageName: airquality

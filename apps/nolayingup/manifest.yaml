@@ -1,0 +1,8 @@
+---
+id: no-laying-up
+name: No Laying Up
+summary: Lists NLU content
+desc: No Laying Up produces golf and golf adjacent media content. This app displays the last 6 items posted to the No Laying Up RSS feed. Orange for NLU podcasts, green for Trap Draw podcasts, blue for blogs entries and red for video content.
+author: M0ntyP
+fileName: no_laying_up.star
+packageName: nolayingup

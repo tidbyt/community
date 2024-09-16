@@ -1,0 +1,8 @@
+---
+id: step-counter
+name: Step Counter
+summary: Tracks Daily Step Progress
+desc: Fetches your Step Data from Google Fit, Reports progress versus daily goal.
+author: Matt-Pesce
+fileName: stepcounter.star
+packageName: stepcounter

@@ -1,0 +1,8 @@
+---
+id: lirr
+name: LIRR
+summary: LIRR Train Times
+desc: Long Island Railroad Train Times.
+author: bralax
+fileName: lirr.star
+packageName: lirr

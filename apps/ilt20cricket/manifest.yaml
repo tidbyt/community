@@ -1,0 +1,8 @@
+---
+id: ilt20-cricket
+name: ILT20 Cricket
+summary: Shows ILT20 scores
+desc: Choose your favorite team and follow their progress through the ILT20 season! The app shows live scores and scheduled matches..
+author: M0ntyP
+fileName: ilt20_cricket.star
+packageName: ilt20cricket

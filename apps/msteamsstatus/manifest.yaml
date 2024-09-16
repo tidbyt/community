@@ -1,0 +1,8 @@
+---
+id: ms-teams-status
+name: MS Teams Status
+summary: Show your MS Teams status
+desc: Show your presence and status message from Microsoft Teams on a Tidbyt display.
+author: schumatt
+fileName: ms_teams_status.star
+packageName: msteamsstatus

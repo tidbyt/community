@@ -1,0 +1,8 @@
+---
+id: snake2
+name: Snake 2
+summary: Another snake game
+desc: Watch snake play out.
+author: dgoldstein1
+fileName: snake2.star
+packageName: snake2

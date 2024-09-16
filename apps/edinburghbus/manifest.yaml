@@ -1,0 +1,8 @@
+---
+id: edinburgh-bus
+name: Edinburgh Bus
+summary: Shows the next 3 buses
+desc: Give it an Edinburgh stop ID and it will show the next 3 arrivals for the next 3 services at that stop.
+author: dan0
+fileName: edinburgh_bus.star
+packageName: edinburghbus

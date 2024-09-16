@@ -1,0 +1,8 @@
+---
+id: ipl
+name: IPL
+summary: Indian Premier League
+desc: Shows scores for the Indian Premier League.
+author: M0ntyP
+fileName: ipl.star
+packageName: ipl

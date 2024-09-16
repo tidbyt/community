@@ -9,14 +9,16 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 load("secret.star", "secret")
+load("time.star", "time")
 
 URL = "https://api-v3.mbta.com/predictions"
 
 API_KEY = secret.decrypt("AV6+xWcEFe8B+1zoMJpL7mvq/utSOtMw6qSGeCYZjUhKnv21BwCdrfQWjtr/mYvReXGmpd1Wf2SD+EjIZl+/Uh+VxTDZQhJpYqChzPvioRUmj2y6rnxTVuOl8llWXrShy9aXWkVFRsNRFuZ4XZre1Q4Mf6Qmd+DWNzVESSFONPh3Vv0Jieo=")
 
 T_ABBREV = {
+    "Blue": "BL",
+    "Mattapan Trolley": "M",
     "Orange": "OL",
     "Red": "RL",
     "Silver": "SL",
@@ -27,8 +29,10 @@ def main(config):
     stop = json.decode(option)
     mintime = config.get("mintime", "0")
 
+    widgetMode = config.bool("$widget")
+
     params = {
-        "sort": "arrival_time",
+        "sort": "departure_time",
         "include": "route",
         "filter[stop]": stop["value"],
     }
@@ -47,7 +51,7 @@ def main(config):
     for prediction in predictions:
         route = prediction["relationships"]["route"]["data"]["id"]
         route = find(rep.json()["included"], lambda o: o["type"] == "route" and o["id"] == route)
-        r = renderSched(prediction, route)
+        r = renderSched(prediction, route, widgetMode = widgetMode)
         if r:
             tm = prediction["attributes"]["arrival_time"] or prediction["attributes"]["departure_time"]
             t = time.parse_time(tm)
@@ -70,10 +74,14 @@ def main(config):
                     offset = -1,
                     font = "Dina_r400-6",
                 ),
+            ) if not widgetMode else render.WrappedText(
+                content = "No current departures",
+                width = 62,
+                font = "Dina_r400-6",
             ),
         )
 
-def renderSched(prediction, route):
+def renderSched(prediction, route, widgetMode = False):
     attrs = prediction["attributes"]
     if not attrs["departure_time"]:
         return []
@@ -91,7 +99,7 @@ def renderSched(prediction, route):
         first_line = render.Row(
             children = [
                 render.Text(
-                    content = dest + " \\u00b7 ",
+                    content = dest + " \u00b7 ",
                     height = 8,
                     offset = -1,
                     font = "Dina_r400-6",
@@ -112,6 +120,18 @@ def renderSched(prediction, route):
             offset = -1,
             font = "Dina_r400-6",
         )
+
+    headsign = render.Marquee(
+        width = 50,
+        child = first_line,
+    ) if not widgetMode else render.Row(
+        expanded = True,
+        main_align = "start",
+        children = [
+            first_line,
+        ],
+    )
+
     return [render.Row(
         main_align = "space_between",
         children = [
@@ -133,10 +153,7 @@ def renderSched(prediction, route):
                 main_align = "start",
                 cross_align = "left",
                 children = [
-                    render.Marquee(
-                        width = 50,
-                        child = first_line,
-                    ),
+                    headsign,
                     render.Text(
                         content = msg,
                         height = 8,

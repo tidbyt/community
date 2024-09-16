@@ -1,0 +1,8 @@
+---
+id: septarr
+name: SEPTA Rail
+summary: SEPTA Regional Rail
+desc: Displays departure times for SEPTA regional rail.
+author: radiocolin
+fileName: septaregionalrail.star
+packageName: septarr

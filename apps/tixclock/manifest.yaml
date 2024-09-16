@@ -1,0 +1,8 @@
+---
+id: tix-clock
+name: TIX Clock
+summary: Coloful blocks tell time
+desc: A Tidbyt version of the TIX clock. It uses arrays of colorful blocks to show the time. The original TIX Clock was invented by James Thompson.
+author: pawliger
+fileName: tix_clock.star
+packageName: tixclock

@@ -1,0 +1,8 @@
+---
+id: rocketleaguestats
+name: Rocket League
+summary: Rocket League stats
+desc: Displays stats about your Rocket League games taken from ballchasing.com.
+author: Max Timkovich
+fileName: rocketleaguestats.star
+packageName: rocketleaguestats

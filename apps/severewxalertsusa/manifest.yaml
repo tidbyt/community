@@ -1,0 +1,8 @@
+---
+id: severewxalertsusa
+name: SevereWxAlertsUSA
+summary: Display US Severe Wx Alerts
+desc: Show Severe Weather Alerts in your location issued by the US National Weather Service.
+author: aschechter88
+fileName: severewxalertsusa.star
+packageName: severewxalertsusa

@@ -1,0 +1,8 @@
+---
+id: national-lottery
+name: National Lottery
+summary: UK National Lottery results
+desc: Results for the most recent draw of the UK national lottery main game.
+author: dinosaursrarr
+fileName: national_lottery.star
+packageName: nationallottery

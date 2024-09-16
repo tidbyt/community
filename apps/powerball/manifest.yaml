@@ -1,0 +1,8 @@
+---
+id: powerball
+name: PowerBall
+summary: Shows Powerball Numbers
+desc: Shows up to date powerball numbers and next drawing.
+author: AmillionAir
+fileName: powerball.star
+packageName: powerball

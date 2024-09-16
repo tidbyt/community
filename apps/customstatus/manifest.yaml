@@ -1,0 +1,8 @@
+---
+id: custom-status
+name: Custom Status
+summary: Share a custom status
+desc: Share a custom status with coworkers.
+author: Brian Bell
+fileName: custom_status.star
+packageName: customstatus

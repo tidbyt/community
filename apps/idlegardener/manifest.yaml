@@ -1,0 +1,8 @@
+---
+id: idle-gardener
+name: Idle Gardener
+summary: Grow trees while you work
+desc: The Idle Gardener is an Idle tree growing tycoon that takes absolutely no input from you!
+author: yonodactyl
+fileName: idle_gardener.star
+packageName: idlegardener

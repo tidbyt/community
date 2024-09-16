@@ -1,0 +1,8 @@
+---
+id: langtons-ant
+name: Langton's Ant
+summary: 2-D Cellular Automata
+desc: Automata with simple rules but complex emergent behavior.
+author: alewando
+fileName: langtons_ant.star
+packageName: langtonsant

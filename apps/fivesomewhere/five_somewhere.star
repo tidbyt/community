@@ -5,11 +5,11 @@ Description: Displays a random timezone where it's currently in the 5 o'clock ho
 Author: grantmatheny
 """
 
+load("encoding/base64.star", "base64")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/base64.star", "base64")
-load("random.star", "random")
 
 MARTINI_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAIbEAACGxAAGFqWwEAAACRElEQVRIx+3U30tTYRwG8IVEEeVFBYIXQX+AN0V3EUQXEd0VQRhe5EVYQoEELQvBENqshGKQmpm/cnVUSqSmc0HBypluKz1Oc1s/NHOG0LLtOLXO0/PKKU6grdwZdNELn7Ed3vf5nr3f8x6TKcVxbOumHFpvSsdgcDbNUn66CtgoRGv/amF/IJxJO+ggHSczlVIZXaDi9mZ7EYPnbEUnS/g7yxsIJw3Noks0QirhdyoK8lF+NFd/bYLqKGfJAp7B0VLf8GtEv8QxOf0JofEIBoLv4OU1fXCDqx4XW87i1IFt6PO+RPh9ZHH+TFzh9yn0ykHXkgUsVc2ra9s6pWc+GTMxBaqqQgzxOb/wFYm5eSiJBKaiE4jNfsaP8Y3zYkoCcvAtJMcTr63p/uZlt4lFMuhmpb0DnoFXkMPjCI5N4s2HjxiLTMMX8qP2UTlsjhKUtRbC8bxr8R+2Ot2wVtvdXJuZtMGctIquXK1vw+N++Zft8cgjOGHdi7xrO3GuqQA9gwE0trvA+d207o+fIt6NKHT+cs1ddLq9Pws4H3bhuvk0+oaCYM9wQ3ogwjtozYqecy4sZDFVbIEoUFl8Br0vAnD7h8G9FuGS6F1Kh4kBubRQd8+Jp74hdPf4UXGrRYQ3iJ4ZcmIZtJ8UgqZK9MrQ1wIDj2jhoqHGv3cYulsr0JiWF9v/Av9EgX1aAclSfdvQ4I1kobjuHDhpe6rBgpmiumA9VTvNG1ZaIEO7U3WZAoKPthixRbvoEOXRYdpD2daaO0nXfwd97j9iHjgVlQAAAABJRU5ErkJggg==
@@ -529,6 +529,8 @@ TIMEZONES = [
 ]
 
 def main(config):
+    widgetMode = config.bool("$widget")
+
     drinking_timezones = []
 
     # construct list of timezones in which it is 5 o'clock
@@ -542,9 +544,11 @@ def main(config):
 
     if "/" in location:
         split_location = location.split("/")
-        if len(split_location) == 2:
+        if widgetMode:
+            location = split_location[-1]
+        elif len(split_location) == 2:
             location = split_location[1] + ", " + split_location[0]
-        if len(split_location) == 3:
+        elif len(split_location) == 3:
             location = split_location[2] + ", " + split_location[1]
 
     # Display fixes for special cases
@@ -562,11 +566,12 @@ def main(config):
 
     current_time_here = time.now().in_location(config.get("$tz", "America/Los_Angeles"))
     threshold_minutes = int(config.get("past_the_hour", "15"))
+
     if current_time_here.hour == 17 and current_time_here.minute < threshold_minutes:
         if current_time_here.format("Monday") == "Friday":
-            completion_message = "PARTY LIKE IT'S FRIDAY"
+            completion_message = "PARTY LIKE IT'S FRIDAY" if not widgetMode else "FRIDAY! PARTY!"
         else:
-            completion_message = "You made it! Nice job!"
+            completion_message = "You made it! Nice job!" if not widgetMode else "You made it!"
         return render.Root(
             delay = 100,
             child = render.Column(
@@ -619,6 +624,9 @@ def main(config):
                     render.Marquee(
                         width = 64,
                         child = render.Text(completion_message, color = "#09f"),
+                    ) if not widgetMode else render.Text(
+                        content = completion_message,
+                        color = "#09f",
                     ),
                 ],
             ),

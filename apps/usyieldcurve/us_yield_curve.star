@@ -5,14 +5,14 @@ Description: Track changes to the yield curve over different US Treasury maturit
 Author: Rob Kimball
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
-load("time.star", "time")
-load("cache.star", "cache")
-load("xpath.star", "xpath")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
+load("time.star", "time")
+load("xpath.star", "xpath")
 
 DATEFMT = "2006-01-02T15:04:05"
 DATA_LOCS = {
@@ -130,6 +130,7 @@ def main(config):
             min_yield = min(min_yield, min(yields))
             dates.append(this)
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_id, json.encode(dates), ttl_seconds = 60 * 60 * 12)
     else:
         print("Displaying cached data.")

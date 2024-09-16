@@ -6,8 +6,8 @@ Author: misusage
 """
 
 load("encoding/base64.star", "base64")
-load("render.star", "render")
 load("qrcode.star", "qrcode")
+load("render.star", "render")
 load("schema.star", "schema")
 
 WIFI_ICON = base64.decode("""

@@ -1,0 +1,8 @@
+---
+id: atc-radar
+name: ATC Radar
+summary: Display local air traffic
+desc: Display local air traffic.
+author: Robert Ison
+fileName: atc_radar.star
+packageName: atcradar

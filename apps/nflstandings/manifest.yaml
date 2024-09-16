@@ -1,0 +1,8 @@
+---
+id: nfl-standings
+name: NFL Standings
+summary: NFL football standings
+desc: View NFL standings by division.
+author: LunchBox8484
+fileName: nfl_standings.star
+packageName: nflstandings

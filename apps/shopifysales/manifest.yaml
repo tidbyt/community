@@ -1,0 +1,8 @@
+---
+id: shopify-sales
+name: Shopify Stats
+summary: Time period sales tracker
+desc: Show your sales from a specific time period like Black Friday, peak selling seasons, and more.
+author: Shopify
+fileName: shopify_sales.star
+packageName: shopifysales

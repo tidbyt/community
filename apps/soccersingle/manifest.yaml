@@ -1,0 +1,8 @@
+---
+id: soccer-single
+name: Soccer Single
+summary: Soccer Single Team 
+desc: Show upcoming / current / future game for a single soccer team across all leagues / tournaments they play in - one app tracks the team everywhere.  Score rolls over at 1AM US ET after the end of the game as per the standard ESPN API.
+author: jvivona
+fileName: soccer_single.star
+packageName: soccersingle
