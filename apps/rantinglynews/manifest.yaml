@@ -1,0 +1,8 @@
+---
+id: rantinglynews
+name: RantinglyNews
+summary: Show news from Rantingly
+desc: Show top news stories from Rantingly.com.
+author: '@Mad-Chemist'
+fileName: rantinglynews.star
+packageName: rantinglynews

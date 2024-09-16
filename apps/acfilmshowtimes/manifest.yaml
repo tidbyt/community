@@ -1,0 +1,8 @@
+---
+id: ac-film-showtimes
+name: AC Film Showtimes
+summary: Movie showtimes
+desc: Displays movie showtimes for American Cinematheque theaters in Los Angeles.
+author: Platt Thompson & Jim Cummings
+fileName: ac_film_showtimes.star
+packageName: acfilmshowtimes

@@ -1,0 +1,8 @@
+---
+id: multicountdown
+name: MultiCountdown
+summary: Multi event countdown
+desc: A clock that counts down to a series of events, one time or daily.
+author: BestDistress
+fileName: multicountdown.star
+packageName: multicountdown

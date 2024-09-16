@@ -5,10 +5,10 @@ Description: Displays state flags.
 Author: Robert Ison
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("encoding/base64.star", "base64")  #Used to read encoded image
 load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
 
 DISPLAY_FONT = "5x8"
 DISPLAY_COLOR_1 = "#B31942"  #Red
@@ -59,7 +59,7 @@ STATE_FLAGS = {
     "ma": {
         "name": "Massachusetts",
         "order": "6",
-        "entry": "Feb 06, 1788",
+        "entry": "Feb 6, 1788",
         "capital": "Boston",
         "nickname": "Bay State",
         "flag": "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",
@@ -189,7 +189,7 @@ STATE_FLAGS = {
         "order": "22",
         "entry": "Dec 14, 1819",
         "capital": "Montgomery",
-        "nickname": "Heart of Dixie",
+        "nickname": "Heart Dixie",
         "flag": "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",
     },
     "me": {
@@ -204,7 +204,7 @@ STATE_FLAGS = {
         "name": "Missouri",
         "order": "24",
         "entry": "Aug 10, 1821",
-        "capital": "Jefferson City",
+        "capital": "Jefferson Cty",
         "nickname": "Show Me",
         "flag": "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",
     },
@@ -419,24 +419,30 @@ STATE_FLAGS = {
 }
 
 def main(config):
-    #get config items
+    """ Main
+
+    Args:
+        config: Configuration Items to control how the app is displayed
+    Returns:
+        Returns Tidbyt Display
+    """
     show_hints = config.bool("show_hints", True)
 
     frames = []
 
-    for i in range(0, 5):
+    for _ in range(0, 5):
         state = get_random_state()
-        frames.append(render.Image(src = base64.decode(state["flag"]), height = 32))
+        frames.append(render.Image(src = base64.decode(state["flag"]), height = 32, width = 64))
 
         if show_hints:
             frames.append(render.Column(get_hint_screen(state)))
-            frames.append(render.Image(src = base64.decode(state["flag"]), height = 32))
+            frames.append(render.Image(src = base64.decode(state["flag"]), height = 32, width = 64))
 
-        frames.append(render.Column(get_state_info_screen(state)))
+        frames.append(render.Column(get_state_info_screen(state), main_align = "center"))
 
     return render.Root(
         delay = 4000,
-        child = render.Animation(frames),
+        child = render.Animation(children = frames),
     )
 
 def get_state_info_screen(state):
@@ -444,7 +450,7 @@ def get_state_info_screen(state):
         render.Text("%s" % (state["name"]), color = DISPLAY_COLOR_1, font = DISPLAY_FONT),
         render.Text(" "),
         render.Text("Capital:", color = DISPLAY_COLOR_2, font = DISPLAY_FONT),
-        render.Text(" %s" % state["capital"], color = DISPLAY_COLOR_3, font = DISPLAY_FONT),
+        render.Text("%s" % state["capital"], color = DISPLAY_COLOR_3, font = DISPLAY_FONT),
     ]
 
     return children
@@ -452,8 +458,8 @@ def get_state_info_screen(state):
 # get hint screen
 def get_hint_screen(state):
     children = [
+        render.Text("Hints:", color = DISPLAY_COLOR_2, font = DISPLAY_FONT),
         render.Text("%s" % (state["nickname"]), color = DISPLAY_COLOR_1, font = DISPLAY_FONT),
-        render.Text(" "),
         render.Text("Admitted: %s" % state["order"], color = DISPLAY_COLOR_2, font = DISPLAY_FONT),
         render.Text("%s" % state["entry"], color = DISPLAY_COLOR_3, font = DISPLAY_FONT),
     ]
@@ -462,7 +468,9 @@ def get_hint_screen(state):
 
 # retrieves a random state
 def get_random_state():
-    return STATE_FLAGS.values()[random.number(1, len(STATE_FLAGS) - 1)]
+    random_number = random.number(1, len(STATE_FLAGS) - 1)
+    random_state = STATE_FLAGS.values()[random_number]
+    return random_state
 
 def get_schema():
     return schema.Schema(

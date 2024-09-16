@@ -1,0 +1,8 @@
+---
+id: bible-votd
+name: Bible VOTD
+summary: Shows a daily bible verse
+desc: Shows a bible verse on a daily cadence.
+author: danrods
+fileName: bible_votd.star
+packageName: biblevotd

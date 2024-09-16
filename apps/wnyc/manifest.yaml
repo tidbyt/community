@@ -1,0 +1,8 @@
+---
+id: wnyc
+name: WNYC
+summary: WNYC What's On
+desc: Shows what's currently playing on WNYC, New York's flagship public radio station.
+author: Andrew Westling
+fileName: wnyc.star
+packageName: wnyc

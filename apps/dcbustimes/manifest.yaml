@@ -1,0 +1,8 @@
+---
+id: dcbustimes
+name: DC Bus Times
+summary: WMATA Bus Arrival Times
+desc: Displays the predicted arrival times for next buses at specified DC bus stop(s).
+author: JetgirlDC
+fileName: dc_bus_times.star
+packageName: dcbustimes

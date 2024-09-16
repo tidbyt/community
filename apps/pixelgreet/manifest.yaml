@@ -1,0 +1,8 @@
+---
+id: pixelgreet
+name: PixelGreet
+summary: Customized Guest Greetings
+desc: PixelGreet is an app that allows hosts to craft customized messages and images for each guest. Make your guests feel at home with a personal touch, creating memorable experiences. Elevate your hosting, nurture lasting connections, and boost guest satisfaction with this versatile tool.
+author: Justin Gerber
+fileName: pixelgreet.star
+packageName: pixelgreet

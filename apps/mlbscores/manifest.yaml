@@ -1,0 +1,8 @@
+---
+id: mlb-scores
+name: MLB Scores
+summary: MLB baseball scores
+desc: Creating multiple app instances is no longer necessary. Just install once and remove any other instances. You can set the rotation speed of scores in the settings.
+author: LunchBox8484
+fileName: mlb_scores.star
+packageName: mlbscores

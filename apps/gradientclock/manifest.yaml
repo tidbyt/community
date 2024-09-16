@@ -1,0 +1,8 @@
+---
+id: gradient-clock
+name: Gradient Clock
+summary: Clock with gradient
+desc: Shows the time and date with a gradient in the background.
+author: Wilf
+fileName: gradient_clock.star
+packageName: gradientclock

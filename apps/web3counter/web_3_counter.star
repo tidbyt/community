@@ -7,15 +7,13 @@ Author: Nick Kuzmik (github.com/kuzmik)
 
 load("cache.star", "cache")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
-load("humanize.star", "humanize")
 
 W3IGG_API = "https://web3isgoinggreat.com/api/griftTotal"
 
-def main(config):
-    use_cache = config.bool("use_cache", True)
-
+def main():
     total = get_total()
 
     return render.Root(
@@ -61,6 +59,8 @@ def get_total():
         if resp.status_code != 200:
             fail("API request failed with status %d", resp.status_code)
         total_lost = resp.json()["total"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("total_lost", str(total_lost), ttl_seconds = 900)  # 15 minutes
 
     return humanize.comma(float(total_lost))

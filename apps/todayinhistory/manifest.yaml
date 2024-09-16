@@ -1,0 +1,8 @@
+---
+id: today-in-history
+name: Today In History
+summary: Who was born on this day
+desc: Looks at wikipedia for births, deaths and events for the current day. Picks one and displays it.
+author: Alan Moore
+fileName: today_in_history.star
+packageName: todayinhistory

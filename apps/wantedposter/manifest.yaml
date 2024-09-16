@@ -1,0 +1,8 @@
+---
+id: wantedposter
+name: WantedPoster
+summary: Display Wanted Poster
+desc: Displays a custom wanted poster based on an image you upload.
+author: Robert Ison
+fileName: wantedposter.star
+packageName: wantedposter

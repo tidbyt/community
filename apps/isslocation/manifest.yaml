@@ -1,0 +1,8 @@
+---
+id: iss-location
+name: ISS Location
+summary: 'Current ISS city/country '
+desc: Current city/country/ocean the ISS is flying over.
+author: carmineguida
+fileName: iss_location.star
+packageName: isslocation

@@ -1,0 +1,8 @@
+---
+id: solaredge-monitor
+name: SolarEdge Monitor
+summary: PV system monitor
+desc: Energy production and consumption monitor for your SolarEdge solar panels.
+author: Marcus Better
+fileName: solaredge_monitor.star
+packageName: solaredgemonitor

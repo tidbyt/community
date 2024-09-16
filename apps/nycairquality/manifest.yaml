@@ -1,0 +1,8 @@
+---
+id: nyc-air-quality
+name: NYC Air Quality
+summary: PM2.5 Readings in NYC
+desc: View real-time air quality readings from the NYS DEC.
+author: theterg
+fileName: nyc_air_quality.star
+packageName: nycairquality

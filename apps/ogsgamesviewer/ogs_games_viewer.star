@@ -111,6 +111,8 @@ def check_games_cache(games_cache, games_cache_key, player_id):
         games = json.decode(games_cache)
     else:
         games = get_player_games(player_id)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(games_cache_key, json.encode(games), ttl_seconds = 240)
     return games
 
@@ -143,6 +145,8 @@ def check_games_info_cache(games_info_cache, games_info_cache_key, games, player
                 "width": width,
                 "height": height,
             })
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(games_info_cache_key, json.encode(games_info), ttl_seconds = 240)
     return games_info
 
@@ -261,7 +265,7 @@ def draw_game_box(game_board, game_info):
 def draw_games_graphics(game_boxes):
     games_graphics = []
     for game_box in game_boxes:
-        for i in range(0, FRAMES):
+        for _ in range(0, FRAMES):
             games_graphics.append(render.Box(
                 child = render.Row(
                     main_align = "start",
@@ -280,7 +284,6 @@ def draw_game_boxes(games_info):
     # Get the board state for each game and draw the game graphics
     for game_info in games_info:
         # Sort moves in spacially instead of by move number
-        state = game_info["state"]
         coords = init_coords()
         for (y, row) in enumerate(game_info["state"], 1):
             for (x, column) in enumerate(row, 1):
@@ -342,13 +345,15 @@ def main(config):
         games_cache_key = "games_{}".format(username)
         games_info_cache_key = "games_info_{}".format(username)
         cached_user = cache.get(user_cache_key)
-        cached_player_id = cache.get(player_id_cache_key)
 
         # If a new Username has been set in the options, reset the games cache
         # and pull a new player_id
         if cached_user == None:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(user_cache_key, "True", ttl_seconds = 3600)
             player_id = get_player_id_by_username(username)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(player_id_cache_key, str(player_id), ttl_seconds = 3600)
             games_cache = None
             games_info_cache = None

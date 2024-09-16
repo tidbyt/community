@@ -1,0 +1,8 @@
+---
+id: spotthestation
+name: SpotTheStation
+summary: Next ISS visit overhead
+desc: Enter your spotthestation.nasa.gov location's RSS Feed URL.
+author: Robert Ison
+fileName: spotthestation.star
+packageName: spotthestation

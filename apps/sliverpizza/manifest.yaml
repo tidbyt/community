@@ -1,0 +1,8 @@
+---
+id: sliver-pizza
+name: Sliver Pizza
+summary: Sliver's Pizza of the Day
+desc: See the Pizza of the Day at any Sliver Pizzeria location.
+author: Aaron Janse
+fileName: sliver_pizza.star
+packageName: sliverpizza

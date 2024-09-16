@@ -30,12 +30,12 @@ Author: Henry So, Jr.
 
 # See comments in the code for further attribution
 
-load("time.star", "time")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
+load("time.star", "time")
 
 WIDTH = 64
 HALF_W = WIDTH // 2

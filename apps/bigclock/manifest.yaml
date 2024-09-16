@@ -1,0 +1,8 @@
+---
+id: big-clock
+name: Big Clock
+summary: A large retro-style clock
+desc: Display a large retro-style clock; the clock can change color at night based on sunrise and sunset times for a given location, supports 24-hour and 12-hour variants and optionally flashes the separator.
+author: Joey Hoer
+fileName: big_clock.star
+packageName: bigclock

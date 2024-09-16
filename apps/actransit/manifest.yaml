@@ -1,0 +1,8 @@
+---
+id: ac-transit
+name: AC Transit
+summary: Shows AC Transit bus times
+desc: Shows bus departures times for AC Transit.
+author: wshue0
+fileName: ac_transit.star
+packageName: actransit

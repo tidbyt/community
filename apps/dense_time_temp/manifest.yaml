@@ -1,0 +1,8 @@
+---
+id: dense-time-temp
+name: Dense Time Temp
+summary: Time, temp, wind, sun
+desc: Displays time, temperature, wind, sunrise, and sunset on one page.
+author: jordan-p
+fileName: dense_time_temp.star
+packageName: densetimetemp

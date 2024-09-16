@@ -1,8 +1,15 @@
-load("render.star", "render")
-load("http.star", "http")
+"""
+Applet: IFPARank
+Author: cubsaaron
+Summary: Display IFPA Ranking
+Description: Display an International Flipper Pinball Association (IFPA) World Ranking.
+"""
+
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
@@ -24,6 +31,8 @@ def main(config):
         if res.status_code != 200:
             fail("IFPA request failed: statusCode =", res.status_code)
         ifpaCache = json.encode(res.json())  #res.json() converts to dict, but store in cache as a string
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(playerId + "ifpaKey", str(ifpaCache), ttl_seconds = 43200)  # every 12 hours
 
     #    else :

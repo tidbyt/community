@@ -1,0 +1,8 @@
+---
+id: ski-report
+name: Ski Report
+summary: Weather and Trails
+desc: Weather and Trail status for Mountains that are part of the Epic Pass resort system.
+author: Colin Morrisseau
+fileName: ski_report.star
+packageName: skireport

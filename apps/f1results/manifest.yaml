@@ -1,0 +1,8 @@
+---
+id: f1-results
+name: F1 Results
+summary: Qualifying and race results
+desc: Shows F1 qualifying or race results for the current round. Otherwise the app shows date & time of next race.
+author: M0ntyP
+fileName: f1_results.star
+packageName: f1results

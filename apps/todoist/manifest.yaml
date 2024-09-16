@@ -1,0 +1,8 @@
+---
+id: todoist
+name: Todoist
+summary: Integration with Todoist
+desc: Shows the number of tasks you have due today.
+author: zephyern
+fileName: todoist.star
+packageName: todoist

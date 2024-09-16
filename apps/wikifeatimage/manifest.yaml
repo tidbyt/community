@@ -1,0 +1,8 @@
+---
+id: wiki-feat-image
+name: Wiki Feat. Image
+summary: Wikipedia's featured image
+desc: Displays Wikipedia's featured image of the day.
+author: sch0lars
+fileName: wiki_feat_image.star
+packageName: wikifeatimage

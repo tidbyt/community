@@ -1,0 +1,8 @@
+---
+id: snake
+name: Snake
+summary: Snake game animation
+desc: Shows random snake game animation.
+author: noahpodgurski
+fileName: snake.star
+packageName: snake

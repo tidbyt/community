@@ -123,6 +123,7 @@ def main(config):
     elevation = sunrise.elevation(latitude, longitude, now)
 
     return render.Root(
+        max_age = 120,
         child = draw(elevation),
     )
 

@@ -1,0 +1,8 @@
+---
+id: vatsimapp
+name: VATSIMApp
+summary: Display VATSIM Info
+desc: This app enabled the user to display info about the specified airport pulled from the VATSIM network.
+author: Marijn-de-Mul
+fileName: vatsimapp.star
+packageName: vatsimapp

@@ -1,0 +1,8 @@
+---
+id: guardian-news
+name: Guardian News
+summary: Latest news
+desc: Show the latest Guardian top story from your preferred Edition.
+author: meejle
+fileName: guardian_news.star
+packageName: guardiannews

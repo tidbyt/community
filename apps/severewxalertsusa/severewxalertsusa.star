@@ -5,14 +5,14 @@ Description: Display count and contents of Severe Weather Alerts issued by the U
 Author: aschechter88
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
 load("time.star", "time")
-load("cache.star", "cache")
-load("math.star", "math")
 
 DEFAULT_LOCATION = """
 {
@@ -53,8 +53,9 @@ def main(config):
         columnFrames.append(render_summary_card_zero_alerts(jsonLocation))
 
     return render.Root(
-        render.Animation(columnFrames),
         delay = 5000,
+        show_full_animation = True,
+        child = render.Animation(columnFrames),
     )
 
 def get_schema():
@@ -109,6 +110,7 @@ def get_alerts(lat, long):
                 alerts.append(item)
 
         # set cache. cast object to jsonstring
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             key = cachekey,
             value = json.encode(alerts),
@@ -178,6 +180,7 @@ def render_alert(alert, alertIndex, totalAlerts):
         align = "center",
         font = "CG-pixel-4x5-mono",  # tiny
         color = "#FF0000",  # red
+        linespacing = 1,
     )
 
     mainAlertTextWrappedWidget = render.Box(
@@ -264,7 +267,7 @@ def render_summary_card_for_alerts(location, alerts):
     )
     alertsBox = render.Box(
         child = alertsText,
-        height = 17,
+        height = 16,
     )
 
     alertsRow = render.Row(
@@ -281,10 +284,11 @@ def render_summary_card_for_alerts(location, alerts):
         content = location["locality"],
         align = "center",
         font = "CG-pixel-3x5-mono",  # tiny
+        linespacing = 1,
     )
     locationBox = render.Box(
         child = locationText,
-        height = 10,
+        height = 11,
     )
     locationRow = render.Row(
         children = [locationBox],

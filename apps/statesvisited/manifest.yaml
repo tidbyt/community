@@ -1,0 +1,8 @@
+---
+id: states-visited
+name: States Visited
+summary: Show states you've visited
+desc: Select the states you have been to and show them off on your Tidbyt!
+author: sloanesturz
+fileName: states_visited.star
+packageName: statesvisited

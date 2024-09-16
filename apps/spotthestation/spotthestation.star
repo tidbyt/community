@@ -5,15 +5,16 @@ Description: Displays the next time the International Space Station will appear.
 Author: Robert Ison
 """
 
-load("render.star", "render")
-load("http.star", "http")  #HTTP Client
-load("encoding/base64.star", "base64")  #Used to read encoded image
-load("xpath.star", "xpath")  #XPath Expressions to read XML RSS Feed
 load("cache.star", "cache")  #Caching
+load("encoding/base64.star", "base64")  #Used to read encoded image
+load("encoding/json.star", "json")  #Used to figure out timezone
+load("http.star", "http")  #HTTP Client
+load("math.star", "math")  #Used to calculate duration between timestamps
+load("re.star", "re")  #Used for Regular Expressions
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")  #Used to display time and calcuate lenght of TTL cache
-load("math.star", "math")  #Used to calculate duration between timestamps
-load("encoding/json.star", "json")  #Used to figure out timezone
+load("xpath.star", "xpath")  #XPath Expressions to read XML RSS Feed
 
 #Requires the RSS feed for your location from spotthestation.nasa.gov
 #Use the map tool to find the nearest location, click the blue marker then the "View sighting opportunities"
@@ -90,6 +91,13 @@ def get_local_time(config):
     return local_time
 
 def get_local_offset(config):
+    """ Get Local Offset
+
+    Args:
+        config: Configuration Items to control how the app is displayed
+    Returns:
+        The the local offset based on your location
+    """
     timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
     local_time = time.now().in_location(timezone)
     offset = str(local_time).split(" ")
@@ -104,7 +112,14 @@ def get_local_offset(config):
     else:
         return time.parse_duration("+0h")
 
-def get_timestamp_from_item(item, config):
+def get_timestamp_from_item(item):
+    """ Get Timestamp from item
+
+    Args:
+        item: The item from the XML that has a timestamp
+    Returns:
+        an actual timestamp
+    """
     description = item.replace("\n", "").replace("\t", "").split("<br/>")
     item_date = description[0].replace("Date: ", "").split(" ")
     item_time = description[1].replace("Time: ", "").split(" ")
@@ -119,6 +134,18 @@ def get_timestamp_time(time, meridiem):
     return str(time[0]) + ":" + time[1]
 
 def main(config):
+    """ Main
+
+    Args:
+        config: Configuration Items to control how the app is displayed
+    Returns:
+        The display inforamtion for the Tidbyt
+    """
+
+    show_instructions = config.bool("instructions", True)
+    if show_instructions:
+        return display_instructions()
+
     #Defaults
     current_local_time = get_local_time(config)
     found_sighting_to_display = False
@@ -132,7 +159,7 @@ def main(config):
     row3 = ""
 
     #Get Station Selected By User
-    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml" or "https://spotthestation.nasa.gov/sightings/xml_files/China_None_Xian.xml"
+    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
 
     #cache is saved to the tidbyt server, not locally, so we need a unique key per location which is equivelent to the Flyby XML URL
     iss_xml_body = cache.get(ISS_FLYBY_XML_URL)
@@ -141,9 +168,7 @@ def main(config):
         iss_xml = http.get(ISS_FLYBY_XML_URL)
 
         #print("Going to spotthestation.nasa.gov to get XML")
-        if iss_xml.status_code != 200:
-            print("Error Getting ISS Flyby Data")
-        else:
+        if iss_xml.status_code == 200:
             iss_xml_body = iss_xml.body()
 
             #This XML Feed can have many sightings listed, both past and future
@@ -166,11 +191,27 @@ def main(config):
         for i in range(1, number_of_listed_sightings + 1):
             current_query = "//item[" + str(i) + "]/description"
             current_description = xpath.loads(iss_xml_body).query(current_query)
-            current_time_stamp = get_timestamp_from_item(current_description, config)
+            current_time_stamp = get_timestamp_from_item(current_description)
             timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
             current_item_time = time.parse_time(current_time_stamp).in_location(timezone) + get_local_offset(config)
 
-            if current_item_time > current_local_time:
+            # We should add the duration of the sighting to the cutoff so the current sighting displays on the tidbyt
+            # Sound strange? I looked at the app when the ISS was overhead and it was on to the next sighting! Doh!
+
+            duration_pattern = "Duration: (.+?) minute"
+            duration_match = re.match(duration_pattern, current_description)
+            duration = 0
+            if duration_match:
+                duration_string = duration_match[0][1]
+                if duration_string.isdigit():
+                    duration = int(duration_string)
+
+            duration = time.parse_duration("%sm" % duration)
+
+            print(current_item_time)
+            print(current_local_time)
+
+            if current_item_time + duration > current_local_time:
                 item_number_to_display = i
                 time_of_next_sighting = current_time_stamp
 
@@ -199,17 +240,15 @@ def main(config):
             #Let's cache this XML as long as we have good data
             current_query = "//item[" + str(number_of_listed_sightings) + "]/description"
             current_description = xpath.loads(iss_xml_body).query(current_query)
-            current_time_stamp = get_timestamp_from_item(current_description, config)
+            current_time_stamp = get_timestamp_from_item(current_description)
             time_of_furthest_known_sighting = current_time_stamp
             date_diff = time.parse_time(time_of_furthest_known_sighting) - get_local_time(config)
+        elif (time_of_next_sighting == None):
+            date_diff = time.now() - time.now()
         else:
-            #No future Sightings so we can cache at least until the next sighting
-            if (time_of_next_sighting == None):
-                date_diff = time.now() - time.now()
-            else:
-                date_diff = get_local_time(config) - get_local_time(config)  # time.parse_time(time_of_next_sighting) - get_local_time(config)
+            date_diff = get_local_time(config) - get_local_time(config)  # time.parse_time(time_of_next_sighting) - get_local_time(config)
 
-        days = math.floor(date_diff.hours / 24)
+        days = math.floor(date_diff.hours // 24)
         hours = math.floor(date_diff.hours - days * 24)
         minutes = math.floor(date_diff.minutes - (days * 24 * 60 + hours * 60))
         seconds_xml_valid_for = minutes * 60 + hours * 60 * 60 + days * 24 * 60 * 60
@@ -226,9 +265,8 @@ def main(config):
         description = "None"
         row1 = "Error getting Data from spotTheStation.nasa.gov"
     else:
-        description = description.split("<br/>")
         i = 0
-        for item in description:
+        for item in description.split("<br/>"):
             i += 1
             item = item.replace("\n", "").replace("\t", "")
 
@@ -240,12 +278,45 @@ def main(config):
                 row3 += item.replace("Duration: ", "For ").replace("Maximum Elevation:", "Max").replace("Approach:", "from").replace("Departure:", "to").replace("minute", "min")
 
     if (found_sighting_to_display):
-        return get_display(location, row1, row2, row3)
+        return get_display(location, row1, row2, row3, config)
     else:
         return []
 
-def get_display(location, row1, row2, row3):
+def display_instructions():
+    ##############################################################################################################################################################################################################################
+    instructions_1 = "Go to SpotTheStation.NASA.gov, zoom in on the map to find your location. Click on the blue map marker closest to your location, then click 'View sighting opportunities'."
+    instructions_2 = "Next, click the RSS icon listed under the location name. This will give you a page full of XML. No need to look at any of that, just copy the URL."
+    instructions_3 = "Enter that URL in the 'Spot the Station RSS' setting for this application. You're all set to be made aware of ISS passings! "
     return render.Root(
+        render.Column(
+            children = [
+                render.Marquee(
+                    width = 64,
+                    child = render.Text("Spot the Station", color = "#65d0e6", font = "5x8"),
+                ),
+                render.Marquee(
+                    width = 64,
+                    child = render.Text(instructions_1, color = "#f4a306"),
+                ),
+                render.Marquee(
+                    offset_start = len(instructions_1) * 5,
+                    width = 64,
+                    child = render.Text(instructions_2, color = "#f4a306"),
+                ),
+                render.Marquee(
+                    offset_start = (len(instructions_2) + len(instructions_1)) * 5,
+                    width = 64,
+                    child = render.Text(instructions_3, color = "#f4a306"),
+                ),
+            ],
+        ),
+        show_full_animation = True,
+    )
+
+def get_display(location, row1, row2, row3, config):
+    return render.Root(
+        show_full_animation = True,
+        delay = int(config.get("scroll", 45)),
         child = render.Column(
             children = [
                 render.Column(
@@ -263,11 +334,21 @@ def get_display(location, row1, row2, row3):
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON5),
                                         render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON5),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON5),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON5),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON5),
+                                        render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON4),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON3),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON2),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
@@ -322,6 +403,21 @@ def get_schema():
         schema.Option(value = "0", display = "Always Display Next Sighting if known"),
     ]
 
+    scroll_speed_options = [
+        schema.Option(
+            display = "Slow Scroll",
+            value = "60",
+        ),
+        schema.Option(
+            display = "Medium Scroll",
+            value = "45",
+        ),
+        schema.Option(
+            display = "Fast Scroll",
+            value = "30",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -344,6 +440,21 @@ def get_schema():
                 icon = "userClock",
                 options = period_options,
                 default = period_options[0].value,
+            ),
+            schema.Dropdown(
+                id = "scroll",
+                name = "Scroll",
+                desc = "Scroll Speed",
+                icon = "stopwatch",
+                options = scroll_speed_options,
+                default = scroll_speed_options[0].value,
+            ),
+            schema.Toggle(
+                id = "instructions",
+                name = "Display Instructions",
+                desc = "",
+                icon = "book",  #"info",
+                default = False,
             ),
         ],
     )

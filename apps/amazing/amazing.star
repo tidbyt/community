@@ -24,6 +24,9 @@ STEP_SIZE = 8
 # make lint doesn't allow while loops, so workaround with large finite limit.
 MAX_STEPS = 1000000
 
+WHITE = "#ffffff"
+BLACK = "#000000"
+
 # Returns a pixel at x, y in a given colour.
 def draw_pixel(x, y, cell):
     return render.Padding(
@@ -96,7 +99,7 @@ def backtracking():
     visited[current] = True
     stack.append(current)
 
-    for i in range(MAX_STEPS):
+    for _ in range(MAX_STEPS):
         if len(stack) <= 0:
             break
         current = stack.pop()
@@ -140,7 +143,7 @@ def randomized_kruskal():
             union_finds[(x, y)] = struct(parent = (x, y), size = 1)
 
     walls_removed = {}
-    for i in range(MAX_STEPS):
+    for _ in range(MAX_STEPS):
         if len(walls_removed) >= ((WIDTH_CELLS * HEIGHT_CELLS) - 1):
             break
         current = random_cell()
@@ -207,7 +210,7 @@ def aldous_broder():
     current = random_cell()
     remaining = WIDTH_CELLS * HEIGHT_CELLS - 1
 
-    for i in range(MAX_STEPS):
+    for _ in range(MAX_STEPS):
         if remaining <= 0:
             break
         neighbours = get_neighbours(current, visited = [])
@@ -226,7 +229,7 @@ def wilson_random_walk(start, visited):
     current = start
     neighbours = get_neighbours(current, visited = [current])
     last_destination = {}  # Avoid loops by keeping track of last direction used to exit a cell
-    for i in range(MAX_STEPS):
+    for _ in range(MAX_STEPS):
         if len(neighbours) <= 0:
             break
         neighbour = neighbours[random.number(0, len(neighbours) - 1)]
@@ -236,16 +239,18 @@ def wilson_random_walk(start, visited):
         current = neighbour
         neighbours = get_neighbours(current, visited = [current])
 
+    return None
+
 def wilson():
     sequence = []
     visited = {}
     current = random_cell()
     visited[current] = True
 
-    for i in range(MAX_STEPS):
+    for _ in range(MAX_STEPS):
         if len(visited) >= (WIDTH_CELLS * HEIGHT_CELLS):
             break
-        for j in range(MAX_STEPS):
+        for _ in range(MAX_STEPS):
             if current not in visited:
                 break
             current = random_cell()
@@ -319,7 +324,7 @@ def hunt_random_walk(start, visited, sequence):
     current = start
     visited[current] = True
     neighbours = get_neighbours(current, visited)
-    for i in range(MAX_STEPS):
+    for _ in range(MAX_STEPS):
         if len(neighbours) <= 0:
             break
         neighbour = neighbours[random.number(0, len(neighbours) - 1)]
@@ -338,6 +343,8 @@ def next_start(visited):
                 if neighbour in visited:
                     return cell
 
+    return None
+
 def hunt_and_kill():
     sequence = []
     visited = {}
@@ -345,7 +352,7 @@ def hunt_and_kill():
     current = random_cell()
     visited[current] = True
 
-    for i in range(MAX_STEPS):
+    for _ in range(MAX_STEPS):
         if len(visited) >= (WIDTH_CELLS * HEIGHT_CELLS):
             break
         hunt_random_walk(current, visited, sequence)
@@ -456,25 +463,6 @@ ALGORITHMS = {
     "Sidewinder": sidewinder,
 }
 
-COLOURS = [
-    schema.Option(display = "White", value = "#ffffff"),
-    schema.Option(display = "Silver", value = "#c0c0c0"),
-    schema.Option(display = "Gray", value = "#808080"),
-    schema.Option(display = "Black", value = "#000000"),
-    schema.Option(display = "Red", value = "#ff0000"),
-    schema.Option(display = "Maroon", value = "#800000"),
-    schema.Option(display = "Yellow", value = "#ffff00"),
-    schema.Option(display = "Olive", value = "#808000"),
-    schema.Option(display = "Lime", value = "#00ff00"),
-    schema.Option(display = "Green", value = "#008000"),
-    schema.Option(display = "Aqua", value = "#00ffff"),
-    schema.Option(display = "Teal", value = "#008080"),
-    schema.Option(display = "Blue", value = "#0000ff"),
-    schema.Option(display = "Navy", value = "#000080"),
-    schema.Option(display = "Fuchsia", value = "#ff00ff"),
-    schema.Option(display = "Purple", value = "#800080"),
-]
-
 def main(config):
     algorithm_name = config.get("algorithm")
     if not algorithm_name or algorithm_name == CHOOSE_RANDOM_ALGORITHM:
@@ -484,10 +472,10 @@ def main(config):
 
     wall_colour = config.get("foreground")
     if not wall_colour:
-        wall_colour = COLOURS[0].value  # White
+        wall_colour = WHITE
     background_colour = config.get("background")
     if not background_colour:
-        background_colour = COLOURS[3].value  # Black
+        background_colour = BLACK
 
     # Turns out to be much faster to reuse a single pixel than
     # to create new ones as needed.
@@ -530,21 +518,19 @@ def get_schema():
                 default = CHOOSE_RANDOM_ALGORITHM,
                 options = algorithms,
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "foreground",
                 name = "Wall colour",
                 desc = "The colour to show for walls",
                 icon = "trowelBricks",
-                default = COLOURS[0].value,
-                options = COLOURS,
+                default = WHITE,
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "background",
                 name = "Background colour",
                 desc = "The colour to show for empty cells",
                 icon = "brush",
-                default = COLOURS[3].value,
-                options = COLOURS,
+                default = BLACK,
             ),
         ],
     )

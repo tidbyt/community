@@ -5,10 +5,10 @@ Description: Randomly generate fantasy/RPG characters.
 Author: Ryan Allison
 """
 
+load("encoding/base64.star", "base64")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("random.star", "random")
-load("encoding/base64.star", "base64")
 
 bridge = base64.decode("""
 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
@@ -307,7 +307,7 @@ def elf():
 
     if rndTp == 0:
         # Male
-        for x in range(10000):
+        for _ in range(10000):
             if elfName == "":
                 rnd = randnum(0, len(nm1))
                 rnd2 = randnum(0, len(nm2))
@@ -318,7 +318,7 @@ def elf():
                 break
     else:
         # Female
-        for x in range(10000):
+        for _ in range(10000):
             if elfName == "":
                 rnd = randnum(0, len(nm3))
                 rnd2 = randnum(0, len(nm4))
@@ -332,7 +332,7 @@ def elf():
         # Elegant Surname
         rnd = randnum(0, len(nm12))
         rnd2 = randnum(0, len(nm13))
-        for x in range(10000):
+        for _ in range(10000):
             if nm12[rnd] == nm13[rnd2]:
                 rnd2 = randnum(0, len(nm13))
                 continue
@@ -348,7 +348,7 @@ def elf():
         rnd4 = randnum(0, len(nm10))
         rnd5 = randnum(0, len(nm11))
         if nTp == 0:
-            for x in range(10000):
+            for _ in range(10000):
                 if nm11[rnd5] == nm7[rnd3] and nm7[rnd3] == nm5[rnd]:
                     rnd3 = randnum(0, len(nm7))
                     continue
@@ -358,7 +358,7 @@ def elf():
         else:
             rnd6 = randnum(0, len(nm8))
             rnd7 = randnum(0, len(nm9))
-            for x in range(10000):
+            for _ in range(10000):
                 if nm11[rnd5] == nm9[rnd6] and nm9[rnd6] == nm7[rnd3]:
                     rnd7 = randnum(0, len(nm9))
                     continue
@@ -369,14 +369,14 @@ def elf():
             else:
                 rnd8 = randnum(0, len(nm8))
                 rnd9 = randnum(0, len(nm9))
-                for x in range(10000):
+                for _ in range(10000):
                     if nm11[rnd5] == nm9[rnd6] and nm9[rnd6] == nm9[rnd9]:
                         rnd7 = randnum(0, len(nm9))
                         continue
                     else:
                         break
 
-                for x in range(10000):
+                for _ in range(10000):
                     if rnd9 < 8 and rnd7 < 8:
                         rnd7 = randnum(0, len(nm9))
                         continue
@@ -408,7 +408,7 @@ def lizardfolk():
     if namernd == 0:
         # Short Name
         if rnd < 5:
-            for x in range(10000):
+            for _ in range(10000):
                 if nm6[rnd3] == nm1[rnd]:
                     rnd3 = randnum(0, len(nm6))
                     continue
@@ -418,7 +418,7 @@ def lizardfolk():
     else:
         rnd4 = randnum(0, len(nm3))
         rnd5 = randnum(0, len(nm4))
-        for x in range(10000):
+        for _ in range(10000):
             if nm3[rnd4] == nm1[rnd] or nm3[rnd4] == nm6[rnd3]:
                 rnd4 = randnum(0, len(nm3))
                 continue
@@ -431,7 +431,7 @@ def lizardfolk():
             # Long Name
             rnd6 = randnum(0, len(nm2))
             rnd7 = randnum(0, len(nm5))
-            for x in range(10000):
+            for _ in range(10000):
                 if nm5[rnd7] == nm3[rnd4] or nm5[rnd7] == nm6[rnd3]:
                     rnd7 = randnum(0, len(nm5))
                     continue
@@ -450,7 +450,7 @@ def halfelf():
     rndTp = randnum(0, 2)
     if rndTp == 0:
         # Male
-        for x in range(10000):
+        for _ in range(10000):
             if heName == "":
                 rnd = randnum(0, len(nm1))
                 rnd2 = randnum(0, len(nm2))
@@ -461,7 +461,7 @@ def halfelf():
                 break
     else:
         # Female
-        for x in range(10000):
+        for _ in range(10000):
             if heName == "":
                 rnd = randnum(0, len(nm3))
                 rnd2 = randnum(0, len(nm4))
@@ -484,7 +484,7 @@ def halforc():
     rndTp = randnum(0, 2)
     if rndTp == 0:
         # Male
-        for x in range(10000):
+        for _ in range(10000):
             if hoName == "":
                 rnd = randnum(0, len(nm1))
                 rnd2 = randnum(0, len(nm2))
@@ -496,7 +496,7 @@ def halforc():
                 break
     else:
         # Female
-        for x in range(10000):
+        for _ in range(10000):
             if hoName == "":
                 rnd = randnum(0, len(nm4))
                 rnd2 = randnum(0, len(nm5))
@@ -521,7 +521,7 @@ def halfling():
     rndTp = randnum(0, 2)
     if rndTp == 0:
         # Male
-        for x in range(10000):
+        for _ in range(10000):
             if halflingName == "":
                 rnd = randnum(0, len(nm1))
                 rnd2 = randnum(0, len(nm2))
@@ -532,7 +532,7 @@ def halfling():
                 break
     else:
         # Female
-        for x in range(10000):
+        for _ in range(10000):
             if halflingName == "":
                 rnd = randnum(0, len(nm3))
                 rnd2 = randnum(0, len(nm4))
@@ -545,7 +545,7 @@ def halfling():
     #Surname
     rnd = randnum(0, len(nm12))
     rnd2 = randnum(0, len(nm13))
-    for x in range(10000):
+    for _ in range(10000):
         if nm12[rnd] == nm13[rnd2]:
             rnd2 = randnum(0, len(nm13))
             continue
@@ -7800,7 +7800,7 @@ def human():
     rndSur = randnum(0, 11)
 
     # Surname
-    for x in range(10000):
+    for _ in range(10000):
         if surName == "":
             if rndSur == 0:
                 rnd = randnum(0, len(nm9))
@@ -7812,7 +7812,7 @@ def human():
             elif rndSur == 1:
                 rnd = randnum(0, len(nm21))
                 rnd2 = randnum(0, len(nm22))
-                for y in range(10000):
+                for _ in range(10000):
                     if rnd == rnd2:
                         rnd2 = randnum(0, len(nm22))
                         continue
@@ -7833,7 +7833,7 @@ def human():
             elif rndSur == 4:
                 rnd = randnum(0, len(nm21))
                 rnd2 = randnum(0, len(nm22))
-                for y in range(10000):
+                for _ in range(10000):
                     if rnd == rnd2:
                         rnd2 = randnum(0, len(nm22))
                         continue
@@ -7864,15 +7864,12 @@ def human():
                     rnd7 = randnum(0, len(nm64))
                     rnd8 = randnum(0, len(nm63))
                     surName = nm62[rnd] + nm63[rnd2] + nm64[rnd3] + nm63[rnd4] + nm64[rnd5] + nm63[rnd6] + nm64[rnd7] + nm63[rnd8]
-                else:
-                    # rndSur == 8
-                    lname = nm62[rnd] + nm63[rnd2] + nm64[rnd3] + nm63[rnd4] + nm64[rnd5] + nm63[rnd6]
             elif rndSur == 9:
                 rnd = randnum(0, len(nm70))
                 rnd2 = randnum(0, len(nm71))
                 rnd3 = randnum(0, len(nm72))
                 if rnd3 < 3:
-                    for y in range(10000):
+                    for _ in range(10000):
                         if rnd < 3:
                             rnd = randnum(0, len(nm70))
                             continue
@@ -7897,7 +7894,7 @@ def human():
     if rndTp == 0:
         # Male
         rndMas = randnum(0, 13)
-        for x in range(10000):
+        for _ in range(10000):
             if humanName == "":
                 if rndMas == 0:
                     rnd = randnum(0, len(nm1))
@@ -7915,7 +7912,7 @@ def human():
                     if rnd5 < 3:
                         rnd3 = 0
                     else:
-                        for y in range(10000):
+                        for _ in range(10000):
                             if rnd3 == 0:
                                 rnd3 = randnum(0, len(nm15))
                                 continue
@@ -7975,7 +7972,7 @@ def human():
                     rnd2 = randnum(0, len(nm66))
                     rnd3 = randnum(0, len(nm67))
                     if rnd3 < 3:
-                        for y in range(10000):
+                        for _ in range(10000):
                             if rnd < 2:
                                 rnd = randnum(0, len(nm65))
                                 continue
@@ -8003,7 +8000,7 @@ def human():
     elif rndTp == 1:
         # Female
         rndFem = randnum(0, 15)
-        for x in range(10000):
+        for _ in range(10000):
             if humanName == "":
                 if rndFem < 2:
                     rnd = randnum(0, len(nm5))
@@ -8132,7 +8129,7 @@ def dwarf():
 
     if rndTp == 0:
         # Male
-        for x in range(10000):
+        for _ in range(10000):
             if dwarfName == "":
                 rnd = randnum(0, len(nm1))
                 rnd2 = randnum(0, len(nm2))
@@ -8143,7 +8140,7 @@ def dwarf():
                 break
     else:
         # Female
-        for x in range(10000):
+        for _ in range(10000):
             if dwarfName == "":
                 rnd = randnum(0, len(nm3))
                 rnd2 = randnum(0, len(nm4))
@@ -8157,7 +8154,7 @@ def dwarf():
         # Elegant Surname
         rnd = randnum(0, len(nm12))
         rnd2 = randnum(0, len(nm13))
-        for x in range(10000):
+        for _ in range(10000):
             if nm12[rnd] == nm13[rnd2]:
                 rnd2 = randnum(0, len(nm13))
                 continue
@@ -8173,7 +8170,7 @@ def dwarf():
         rnd4 = randnum(0, len(nm10))
         rnd5 = randnum(0, len(nm11))
         if nTp == 0:
-            for x in range(10000):
+            for _ in range(10000):
                 if nm11[rnd5] == nm7[rnd3] and nm7[rnd3] == nm5[rnd]:
                     rnd3 = randnum(0, len(nm7))
                     continue
@@ -8183,7 +8180,7 @@ def dwarf():
         else:
             rnd6 = randnum(0, len(nm8))
             rnd7 = randnum(0, len(nm9))
-            for x in range(10000):
+            for _ in range(10000):
                 if nm11[rnd5] == nm9[rnd7] or nm9[rnd7] == nm7[rnd3]:
                     rnd7 = randnum(0, len(nm9))
                     continue
@@ -8218,7 +8215,7 @@ def gnome():
 
     if rndTp == 0:
         # Male
-        for x in range(10000):
+        for _ in range(10000):
             if gnomeName == "":
                 rnd = randnum(0, len(nm1))
                 rnd2 = randnum(0, len(nm2))
@@ -8229,7 +8226,7 @@ def gnome():
                 break
     else:
         # Female
-        for x in range(10000):
+        for _ in range(10000):
             if gnomeName == "":
                 rnd = randnum(0, len(nm3))
                 rnd2 = randnum(0, len(nm4))
@@ -8243,7 +8240,7 @@ def gnome():
         # Elegant Surname
         rnd = randnum(0, len(nm13))
         rnd2 = randnum(0, len(nm14))
-        for x in range(10000):
+        for _ in range(10000):
             if nm13[rnd] == nm14[rnd2]:
                 rnd2 = randnum(0, len(nm14))
                 continue
@@ -8259,14 +8256,14 @@ def gnome():
             rnd3 = randnum(0, len(nm12))
             rnd4 = randnum(0, len(nm5))
             rnd5 = randnum(0, len(nm10))
-            for x in range(10000):
+            for _ in range(10000):
                 if nm5[rnd] == "":
                     rnd = randnum(0, len(nm5))
                     continue
                 else:
                     break
 
-            for x in range(10000):
+            for _ in range(10000):
                 if nm5[rnd4] == "":
                     rnd4 = randnum(0, len(nm5))
                     continue
@@ -8280,7 +8277,7 @@ def gnome():
             rnd4 = randnum(0, len(nm8))
             rnd5 = randnum(0, len(nm11))
             if nTp == 1:
-                for x in range(10000):
+                for _ in range(10000):
                     if nm7[rnd3] == nm5[rnd] or nm7[rnd3] == nm11[rnd5]:
                         rnd4 = randnum(0, len(nm5))
                         continue
@@ -8290,7 +8287,7 @@ def gnome():
             else:
                 rnd6 = randnum(0, len(nm9))
                 rnd7 = randnum(0, len(nm10))
-                for x in range(10000):
+                for _ in range(10000):
                     if nm7[rnd3] == nm9[rnd6] or nm9[rnd6] == nm11[rnd5]:
                         rnd6 = randnum(0, len(nm9))
                         continue
@@ -8301,7 +8298,7 @@ def gnome():
                 else:
                     rnd8 = randnum(0, len(nm9))
                     rnd9 = randnum(0, len(nm10))
-                    for x in range(10000):
+                    for _ in range(10000):
                         if nm7[rnd3] == nm9[rnd8] or nm9[rnd6] == nm9[rnd8]:
                             rnd8 = randnum(0, len(nm9))
                             continue
@@ -8331,7 +8328,7 @@ def dragonborn():
 
     if rndTp == 0:
         # Male
-        for x in range(10000):
+        for _ in range(10000):
             if dbName == "":
                 rnd = randnum(0, len(nm1))
                 rnd2 = randnum(0, len(nm2))
@@ -8342,7 +8339,7 @@ def dragonborn():
                 break
     else:
         # Female
-        for x in range(10000):
+        for _ in range(10000):
             if dbName == "":
                 rnd = randnum(0, len(nm3))
                 rnd2 = randnum(0, len(nm4))
@@ -8360,7 +8357,7 @@ def dragonborn():
     rnd4 = randnum(0, len(nm6))
     rnd5 = randnum(0, len(nm10))
 
-    for x in range(10000):
+    for _ in range(10000):
         if nm7[rnd3] == nm5[rnd] or nm7[rnd3] == nm10[rnd5]:
             rnd3 = randnum(0, len(nm7))
             continue
@@ -8372,7 +8369,7 @@ def dragonborn():
     else:
         rnd6 = randnum(0, len(nm6))
         rnd7 = randnum(0, len(nm8))
-        for x in range(10000):
+        for _ in range(10000):
             if nm7[rnd3] == nm8[rnd7] or nm8[rnd7] == nm10[rnd5]:
                 rnd7 = randnum(0, len(nm8))
                 continue
@@ -8383,7 +8380,7 @@ def dragonborn():
         else:
             rnd8 = randnum(0, len(nm6))
             rnd9 = randnum(0, len(nm9))
-            for x in range(10000):
+            for _ in range(10000):
                 if nm9[rnd9] == nm8[rnd7] or nm9[rnd9] == nm10[rnd5]:
                     rnd9 = randnum(0, len(nm9))
                     continue
@@ -8399,8 +8396,6 @@ def tabaxi():
     nm1 = ["Afternoon Nap (Nap)", "Animal in the Woods (Woods)", "Answered Riddle (Riddle)", "Art of Shadows (Art)", "Aura of Passion (Aura)", "Aurora of Winter (Aurora)", "Autumn Harvest (Autumn)", "Beats of a Heart (Beats)", "Beauty of Summer (Summer)", "Beauty's Eye (Beauty)", "Belly of a Beast (Beast)", "Berry Bush (Bush)", "Big Heart (Big)", "Bird Feather (Bird)", "Bite Marks (Bite)", "Blank Board (Board)", "Blank Canvas (Canvas)", "Blazing Fire (Blaze)", "Blossoms in Summer (Blossom)", "Branch of a River (River)", "Breath of Fresh Air (Breath)", "Broken Chain (Chain)", "Bubble of a Cauldron (Bubble)", "Burden of Chains (Chains)", "Burning Desire (Desire)", "Burning Fire (Fire)", "Bush in the Forest (Forest)", "Bushy Branch (Branch)", "Busy Bee (Bee)", "Cadence of Water (Cadence)", "Cake of Chocolate (Cake)", "Call of a Bird (Bird)", "Call of the Owl (Owl)", "Call to Action (Action)", "Candle in the Dark (Candle)", "Cannon on Deck (Cannon)", "Carriage on the Road (Road)", "Clanking Bottle (Clank)", "Cloaking Dagger (Dagger)", "Cloud in the Sky (Sky)", "Coursing River (River)", "Cover of Clouds (Cover)", "Crescent Moon (Moon)", "Dangling Button (Button)", "Dangling Lace (Lace)", "Daydream at Night (Dream)", "Dew on the Grass (Dew)", "Dream of Days (Dream)", "Drifting Cloud (Cloud)", "Drifting Snowflake (Snowflake)", "Drop in a Pond (Drop)", "Dust of Chalk (Dust)", "Dust on the Road (Dust)", "Eclipse of the Moon (Eclipse)", "Edge of the World (Edge)", "End of Winter (Winter)", "Endless Time (Time)", "Fall of Water (Water)", "Fallen Twig (Twig)", "Fang of a Snake (Fang)", "Feather in the Wind (Feather)", "Fire in the Distance (Fire)", "Fish in the River (River)", "Flame of Passion (Passion)", "Flame of the Spirit (Flame)", "Flickering Fire (Fire)", "Flickering Flame (Flame)", "Flight of a Robin (Robin)", "Flow of the River (Flow)", "Flower in the Field (Flower)", "Flower of Ivory (Ivory)", "Forgotten Link (Link)", "Four-Leaf Clover (Clover)", "Fragrance of Spring (Spring)", "Friend of Foe (Friend)", "Gale of the Storm (Gale)", "Game of Chance (Game)", "Garden of Flowers (Flower)", "Gift of a Guest (Gift)", "Glow of the Sun (Sun)", "Grass of Spring (Grass)", "Guest at Home (Guest)", "Guide of Life (Guide)", "Hawk Feather (Hawk)", "Hen of the Flock (Hen)", "Hidden Depths (Depth)", "Hidden Treasure (Treasure)", "Hide of the Beast (Hide)", "High Noon (Noon)", "Honey of Bees (Honey)", "Hot Flame (Flame)", "Hot as Fire (Fire)", "Ice in Summer (Ice)", "Ice on the Lake (Ice)", "Ink on Skin (Ink)", "Jewel of the Mountain (Jewel)", "Kite in the Wind (Kite)", "Leaf on the Water (Leaf)", "Leaping Frog (Frog)", "Light in the Morning (Light)", "Lightning After Thunder (Lightning)", "Little Flower (Little)", "Lock on an Open Door (Lock)", "Locket on a Heart (Locket)", "Looping Coil (Coil)", "Loose String (String)", "Luck of the Draw (Luck)", "Marble in the Sky (Marble)", "Mark of Life (Mark)", "Melting of Snow (Snow)", "Mirror's Reflection (Mirror)", "Mist in the Morning (Mist)", "Mountain Boulder (Boulder)", "Needle in Hay (Needle)", "Night of Dreams (Night)", "Open Gates (Gate)", "Owl in the Morning (Owl)", "Page of a Book (Page)", "Paint on a Canvas (Paint)", "Patch in the Forest (Patch)", "Paw of a Bear (Paw)", "Peak of Mountains (Peak)", "Piece of the Puzzle (Piece)", "Plume in the Wind (Plume)", "Plume of Smoke (Smoke)", "Poem of Summer (Poem)", "Print of a Boot (Boot)", "Print of an Animal (Animal)", "Quill in the Grass (Quill)", "Rain in Summer (Rain)", "Rain of Fall (Rain)", "Rainbow After Rain (Rainbow)", "Rays of the Sun (Ray)", "Remnants of History (Remnant)", "Rhythm of Drums (Rhythm)", "Ringing of Bells (Bell)", "Rinkling Chains (Chains)", "Roar of a Bear (Roar)", "Rope in a Knot (Knot)", "Rustling of a Deer (Deer)", "Sailing Ship (Ship)", "Sand of the Beach (Sand)", "Sands of Time (Sand)", "Scarf in Summer (Scarf)", "Scratch on Wood (Scratch)", "Screech of Bats (Bat)", "Sea of Opportunity (Sea)", "Second Chance (Chance)", "Serpent Scale (Scale)", "Shadow of a Star (Shadow)", "Shadows in the Wind (Shadow)", "Sky Full of Stars (Sky)", "Sky of a Sunset (Sky)", "Sleight Hand (Hand)", "Smooth as Silk (Silk)", "Snapping Branch (Snap)", "Snow of the Mountain (Snow)", "Solstice of Summer (Solstice)", "Song of Paradise (Song)", "Sound of the Drum (Drum)", "Spark of Life (Spark)", "Sparkle of Light (Sparkle)", "Spell of Rain (Spell)", "Spots of a Leopard (Spot)", "Spring Blossom (Spring)", "Spring Winds (Spring)", "Star in the Morning (Star)", "Steady Rock (Rock)", "Stitch of Fabric (Stitch)", "Stone in Water (Stone)", "Storm at Sea (Sea)", "Storm on the Horizon (Storm)", "Strength of Love (Love)", "Stripes of a Tiger (Tiger)", "Stroke of a Brush (Brush)", "Summer Afternoon (Summer)", "Sunshine at Night (Sunshine)", "Tale of Wonder (Tale)", "Taste of Fruit (Taste)", "Three Tree (Three)", "Thrill of Life (Thrill)", "Thunder in the Morning (Thunder)", "Ticking Clock (Clock)", "Tome of Secrets (Tome)", "Top Card (Card)", "Trail in the Woods (Trail)", "Tree Blossom (Blossom)", "Tree in the Woods (Tree)", "Tricking Treat (Trick)", "Two River (River)", "Unpulled Cart (Cart)", "Unread Book (Book)", "Veil of Shadows (Veil)", "Veil of a Mask (Veil)", "Wave on the Shore (Wave)", "Windy Shore (Shore)", "Wing of an Angel (Angel)", "Winter Breath (Winter)", "Wish Upon a Star (Wish)", "Wonder of the World (Wonder)"]
     nm2 = ["Active", "Agile", "Amused", "Amusing", "Ancient", "Angelic", "Arctic", "Austere", "Bizarre", "Bold", "Brash", "Brave", "Bright", "Bronze", "Cheeky", "Clever", "Curious", "Defiant", "Dynamic", "Eager", "Elegant", "Elite", "Emerald", "Ethereal", "Faint", "Fine", "Five", "Flawless", "Four", "Fragile", "Fragrant", "Free", "Fresh", "Gentle", "Gold", "Golden", "Grand", "Half", "Happy", "Hearty", "Hidden", "Humble", "Hushed", "Icy", "Jade", "Jolly", "Kind", "Lazy", "Light", "Little", "Lone", "Lost", "Lucky", "Magic", "Mellow", "Merry", "Misty", "Mystery", "Nimble", "Odd", "Opal", "Prime", "Proud", "Pure", "Quick", "Quiet", "Quirky", "Radiant", "Rare", "Ruby", "Sapphire", "Secret", "Serene", "Seven", "Shady", "Silent", "Single", "Six", "Smooth", "Stout", "Subtle", "Sweet", "Swift", "Three", "Tranquil", "True", "Twin", "Two", "Velvet", "Vibrant", "Violet", "Wild"]
     nm3 = ["Animal", "Aspect", "Bat", "Beach", "Bear", "Beast", "Beauty", "Beetle", "Bell", "Berry", "Bird", "Bit", "Bite", "Block", "Board", "Boat", "Book", "Boot", "Bottle", "Brain", "Branch", "Breath", "Brush", "Bubble", "Bush", "Button", "Cable", "Cake", "Candle", "Candy", "Cannon", "Canvas", "Card", "Carriage", "Cart", "Chain", "Chains", "Chalk", "Chance", "Child", "Clock", "Cloud", "Clover", "Coil", "Deer", "Device", "Dream", "Drop", "Dust", "Edge", "Fang", "Feather", "Fire", "Fish", "Flame", "Flower", "Frog", "Game", "Garden", "Gate", "Gift", "Glove", "Grass", "Guest", "Guide", "Hen", "Hide", "Honey", "Ice", "Ink", "Jewel", "Kite", "Knot", "Lace", "Leaf", "Light", "Lightning", "Link", "Lock", "Locket", "Love", "Luck", "Marble", "Mark", "Mask", "Mirror", "Needle", "Night", "Owl", "Page", "Patch", "Path", "Peak", "Piece", "Plume", "Poem", "Quill", "Quilt", "Rain", "Riddle", "River", "Robin", "Rock", "Scale", "Scarf", "Scratch", "Sea", "Shadow", "Shoe", "Shore", "Silk", "Smoke", "Snow", "Snowflake", "Song", "Spark", "Sparkle", "Spell", "Star", "Stitch", "Stone", "Storm", "Straw", "Stream", "String", "Stripe", "Tale", "Thing", "Thrill", "Thunder", "Timber", "Time", "Tome", "Trail", "Tree", "Trick", "Veil", "Wave", "Wind", "Wing", "Wish", "Wonder"]
-    nm4 = ["Abandoned", "Adamant", "Anchored", "Ancient", "Angelic", "Animated", "Arctic", "Ascending", "Awakening", "Awoken", "Barren", "Basking", "Bellowing", "Binding", "Blank", "Bleak", "Blossoming", "Boundless", "Bright", "Brisk", "Broken", "Bustling", "Changing", "Cherished", "Chilly", "Cleansing", "Clear", "Colorful", "Covering", "Crawling", "Dancing", "Dark", "Darkening", "Desired", "Distant", "Dreaming", "Dreary", "Dry", "Dual", "Echoing", "Elder", "Enchanted", "Enchanting", "Entangling", "Ethereal", "Evading", "Everlasting", "Exotic", "Expanding", "Fading", "Far", "Faraway", "Fertile", "Flawless", "Flickering", "Fragile", "Fragrant", "Free", "Gathering", "Gentle", "Gleaming", "Glistening", "Graceful", "Grand", "Great", "Grieving", "Growing", "Healing", "Heavenly", "Hidden", "High", "Humble", "Hushed", "Infinite", "Lasting", "Light", "Little", "Living", "Lone", "Longing", "Loving", "Lurking", "Lush", "Magical", "Meager", "Mellow", "Merging", "Mild", "Misty", "Mountain", "Mumbling", "Murky", "Murmuring", "Musing", "Noiseless", "Passing", "Pleasing", "Precious", "Protecting", "Prowling", "Pure", "Quiet", "Radiant", "Reflected", "Reflecting", "Reigning", "Rising", "Roaming", "Roaring", "Rumbling", "Scented", "Serene", "Shimmering", "Silent", "Sleepy", "Snoozing", "Snoring", "Soothing", "Stormy", "Surging", "Thundering", "Tired", "Trailing", "Tranquil", "Tumbling", "Twinkling", "Twirling", "Twisting", "Unraveling", "Velvet", "Vibrant", "Wailing", "Wandering", "Watching", "Weeping", "Whispering", "Whistling", "Wild"]
-    nm5 = ["Barrens", "Bayou", "Bluff", "Bluffs", "Bog", "Bogs", "Bush", "Cave", "Cavern", "Caverns", "Caves", "Cliff", "Cliffs", "Coast", "Coasts", "Copse", "Crag", "Crags", "Creek", "Creeks", "Deluge", "Den", "Desert", "Deserts", "Dune", "Dunes", "Estuary", "Field", "Fields", "Fjord", "Fjords", "Forest", "Forests", "Glade", "Glades", "Grotto", "Hail", "Island", "Islands", "Isle", "Isles", "Jungle", "Jungles", "Lagoon", "Lagoons", "Lake", "Lakes", "Marsh", "Mesa", "Mist", "Mists", "Monsoon", "Morass", "Mountain", "Mountains", "Oasis", "Peak", "Peaks", "Rain", "Rainforest", "Reservoir", "Ridge", "River", "Rivers", "Shore", "Shores", "Shower", "Sierra", "Slopes", "Storm", "Swamp", "Swamps", "Thicket", "Torrent", "Wild", "Wilderness", "Wilds", "Woodland", "Woodlands", "Woods"]
 
     rndTp = randnum(0, 2)
     if rndTp == 0:
@@ -8426,7 +8421,7 @@ def tiefling():
     rndTp = randnum(0, 2)
     if rndTp == 0:
         # Male
-        for x in range(10000):
+        for _ in range(10000):
             if tName == "":
                 rnd = randnum(0, len(nm1))
                 rnd2 = randnum(0, len(nm2))
@@ -8437,7 +8432,7 @@ def tiefling():
                 break
     else:
         # Female
-        for x in range(10000):
+        for _ in range(10000):
             if tName == "":
                 rnd = randnum(0, len(nm4))
                 rnd2 = randnum(0, len(nm5))

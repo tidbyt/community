@@ -6,12 +6,12 @@ Author: kmphua
 Thanks: aschober, bretep, codeakk
 """
 
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
 
 COINGECKO_PRICE_URL = "https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&community_data=false&developer_data=false"
 
@@ -35,7 +35,7 @@ POST_HEADERS = {
 DAILY_DATA_UPDATES_QUERY = "{\"query\": \"{ dailyDataUpdates(orderBy: timestamp orderDirection: desc first: 1) { payoutPerTShare } }\" }"
 GLOBAL_INFOS_QUERY = "{\"query\": \"{ globalInfos(orderBy: timestamp orderDirection: desc first: 1)  { hexDay, shareRate } }\" }"
 
-def main(config):
+def main():
     # Get coin data for selected coin from CoinGecko
     coin_data = get_json_from_cache_or_http(COINGECKO_PRICE_URL.format("hex"), ttl_seconds = 600)
 
@@ -141,6 +141,7 @@ def get_json_from_cache_or_http(url, ttl_seconds):
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
 
         # Store http response in cache keyed off URL
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, json.encode(http_response.json()), ttl_seconds = ttl_seconds)
         data = http_response.json()
 
@@ -161,6 +162,7 @@ def post_json_from_cache_or_http(url, body, headers, cache_name, ttl_seconds):
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
 
         # Store http response in cache keyed off URL
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_name, json.encode(http_response.json()), ttl_seconds = ttl_seconds)
         data = http_response.json()
 
@@ -186,13 +188,13 @@ def format_float_string(float_value):
             float_value = "0" + float_value
         float_value = (float_value[0:-3] + "." + float_value[-3:])
     elif len(float_value_integer) == 2:
-        float_value = str(int(math.round(currency_price * 1000)))
+        float_value = str(int(math.round(float_value * 1000)))
         float_value = (float_value[0:-3] + "." + float_value[-3:])
     elif len(float_value_integer) == 3:
-        currency_price = str(int(math.round(currency_price * 100)))
-        currency_price = (float_value[0:-2] + "." + float_value[-2:])
+        float_value = str(int(math.round(float_value * 100)))
+        float_value = (float_value[0:-2] + "." + float_value[-2:])
     elif len(float_value_integer) == 4:
-        float_value = str(int(math.round(currency_price * 10)))
+        float_value = str(int(math.round(float_value * 10)))
         float_value = (float_value[0:-1] + "." + float_value[-1:])
     elif len(float_value_integer) == 5:
         float_value = str(int(math.round(float_value)))

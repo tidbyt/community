@@ -1,0 +1,8 @@
+---
+id: updownio
+name: Updown.io
+summary: Simple website monitoring
+desc: Updown.io checks your website's status by periodically sending an HTTP request to the URL of your choice and notifies you when your website is not responding correctly.
+author: jcarbaugh
+fileName: updownio.star
+packageName: updownio

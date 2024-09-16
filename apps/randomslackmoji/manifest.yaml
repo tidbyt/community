@@ -1,0 +1,8 @@
+---
+id: random-slackmoji
+name: Random Slackmoji
+summary: Displays a random Slackmoji
+desc: Displays a random image from slackmojis.com!
+author: btjones
+fileName: random_slackmoji.star
+packageName: randomslackmoji

@@ -1,0 +1,8 @@
+---
+id: fine-art
+name: Fine Art
+summary: Paintings and Fine Art
+desc: The masterpieces of van Gogh, Picasso, Monet, and more. See a new work of art every day for over two months.
+author: chrisbateman
+fileName: fine_art.star
+packageName: fineart

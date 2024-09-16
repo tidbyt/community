@@ -1,0 +1,8 @@
+---
+id: cellularautomata
+name: CellularAutomata
+summary: Draws 1D cellular automata
+desc: Draws the evolution of one-dimensional cellular automata.
+author: dinosaursrarr
+fileName: cellularautomata.star
+packageName: cellularautomata

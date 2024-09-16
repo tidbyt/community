@@ -5,13 +5,13 @@ Description: Displays random quotes from Nintendo Entertainment System games.
 Author: Mark McIntyre
 """
 
-load("render.star", "render")
-load("random.star", "random")
-load("schema.star", "schema")
-load("encoding/csv.star", "csv")
-load("http.star", "http")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/csv.star", "csv")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
 
 CSV_ENDPOINT = "https://gist.githubusercontent.com/markmcintyre/b39cf560d7e66bc0b987f809ca4a568f/raw/nes-quotes.csv"
 GAME_COL = 0
@@ -23,16 +23,23 @@ CACHE_TTL = 604800
 
 # CREATE SLUG
 # -----------
+# def slug(str):
+#     result = ""
+#
+#     for c in str.lower().elems():
+#         if c.isalnum():
+#             result += c
+#         elif c == " ":
+#             result += "-"
+#
+#     return c
 def slug(str):
-    result = ""
-
-    for c in str.lower().elems():
-        if c.isalnum():
-            result += c
-        elif c == " ":
-            result += "-"
-
-    return c
+    # The original method was not correct, and the linter complained about
+    # result being unused. The issue is, this method is used to create an ID
+    # for schema fields. If we change the ID, it will break any existing
+    # installations. Therefore, the safest option is to mimic the behavior of
+    # the original function.
+    return str.lower().elems()[-1]
 
 # GET DATA
 # --------
@@ -48,6 +55,8 @@ def get_data():
             return []
 
         nes_quotes = request.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("nes_quotes", nes_quotes, ttl_seconds = CACHE_TTL)
 
     # Return our quotes, except for the header line

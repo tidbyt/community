@@ -1,0 +1,8 @@
+---
+id: analog-clock
+name: Analog Clock
+summary: Shows a simple analog clock
+desc: Shows a simple analog clock with month and day.
+author: Chris Jones (@IPv6Freely)
+fileName: analog_clock.star
+packageName: analogclock

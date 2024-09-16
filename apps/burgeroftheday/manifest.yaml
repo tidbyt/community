@@ -1,0 +1,8 @@
+---
+id: burgerotd
+name: Burger of the Day
+summary: Shows Burger of the Day
+desc: Display the set Burger of the Day, show a random burger every time, or enter your own custom burger. Burgers courtesy of Bob's Burgers. Use the Show logo and Scroll speed options to fit your Tidbyt.
+author: Kyle Stark
+fileName: burgerotd.star
+packageName: burgeroftheday

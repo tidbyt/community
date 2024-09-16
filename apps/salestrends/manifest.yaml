@@ -1,0 +1,8 @@
+---
+id: shopify-sales-trends
+name: Shopify Sales
+summary: Display sales totals
+desc: Showcase your daily, weekly, monthly, or annual sales totals.
+author: Shopify
+fileName: sales_trends.star
+packageName: salestrends

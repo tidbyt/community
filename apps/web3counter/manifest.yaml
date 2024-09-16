@@ -1,0 +1,8 @@
+---
+id: web-3-counter
+name: Web 3 Counter
+summary: Expose web3 as a scam
+desc: Displays the total dollar value of lost assets due to various crypto scams, rugpulls, and crashes. Data comes from web3isgoinggreat.com, which is very tongue-in-cheek.
+author: Nick Kuzmik (github.com/kuzmik)
+fileName: web_3_counter.star
+packageName: web3counter

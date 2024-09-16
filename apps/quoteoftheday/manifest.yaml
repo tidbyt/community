@@ -1,0 +1,8 @@
+---
+id: quote-of-the-day
+name: A Quote A Day
+summary: Cool daily quotes
+desc: Provides inspirational, humorous or otherwise interesting quotes throughout the day.
+author: Taylor White
+fileName: quote_of_the_day.star
+packageName: quoteoftheday

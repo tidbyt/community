@@ -1,0 +1,8 @@
+---
+id: wbc-scores
+name: WBC Scores
+summary: WBC (Baseball) Scores
+desc: Creating multiple app instances is no longer necessary. Just install once and remove any other instances. You can set the rotation speed of scores in the settings.
+author: LunchBox8484
+fileName: wbc_scores.star
+packageName: wbcscores

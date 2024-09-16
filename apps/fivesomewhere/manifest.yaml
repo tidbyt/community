@@ -1,0 +1,8 @@
+---
+id: five-somewhere
+name: Five Somewhere
+summary: Where it is 5 o'clock
+desc: Displays a random timezone where it's currently in the 5 o'clock hour.
+author: grantmatheny
+fileName: five_somewhere.star
+packageName: fivesomewhere

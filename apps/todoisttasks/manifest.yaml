@@ -1,0 +1,8 @@
+---
+id: todoist-tasks
+name: Todoist Tasks
+summary: Integrates with Todoist
+desc: Shows up to 3 tasks on your To-Do list, sorted by priority. Use the filter option to further sort your tasks by using parameters such as 'today', tomorrow', 'overdue' etc.
+author: Noste
+fileName: todoisttasks.star
+packageName: todoisttasks

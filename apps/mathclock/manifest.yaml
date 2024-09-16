@@ -1,0 +1,8 @@
+---
+id: math-clock
+name: Math Clock
+summary: Do math to find the time
+desc: A clock that displays the current time using math.
+author: rs7q5
+fileName: math_clock.star
+packageName: mathclock

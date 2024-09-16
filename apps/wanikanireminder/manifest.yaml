@@ -1,0 +1,8 @@
+---
+id: wanikani-reminder
+name: WaniKani Reminder
+summary: WaniKani reminders
+desc: Provides lesson and review counts for WaniKani.
+author: Bardiches
+fileName: wanikani_reminder.star
+packageName: wanikanireminder
