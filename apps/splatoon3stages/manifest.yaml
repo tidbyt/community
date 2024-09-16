@@ -1,0 +1,8 @@
+---
+id: splatoon-3-stages
+name: Splatoon 3 Stages
+summary: Splatoon 3 map rotations
+desc: Fetches and shows the current Splatoon 3 map rotations. Data provided by splatoon3.ink.
+author: MarkGamed7794
+fileName: splatoon_3_stages.star
+packageName: splatoon3stages

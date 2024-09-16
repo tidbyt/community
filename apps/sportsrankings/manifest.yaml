@@ -1,0 +1,8 @@
+---
+id: sports-rankings
+name: Sports Rankings
+summary: Shows rankings for sports
+desc: Shows the AP poll rankings for various sports. Currently supports college football and men's and women's college basketball.
+author: Derek Holevinsky
+fileName: sports_rankings.star
+packageName: sportsrankings

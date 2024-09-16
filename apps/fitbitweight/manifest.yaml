@@ -1,0 +1,8 @@
+---
+id: fitbitweight
+name: FitbitWeight
+summary: Displays recent weigh-ins
+desc: Displays your Fitbit recent weigh-ins.
+author: Robert Ison
+fileName: fitbitweight.star
+packageName: fitbitweight

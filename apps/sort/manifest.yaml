@@ -1,0 +1,8 @@
+---
+id: sort
+name: Sort
+summary: Show sorting algorithms
+desc: Show various sorting algorithms.
+author: noahpodgurski
+fileName: sort.star
+packageName: sort

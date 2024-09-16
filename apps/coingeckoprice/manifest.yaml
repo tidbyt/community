@@ -1,0 +1,8 @@
+---
+id: coingecko-price
+name: CoinGecko Price
+summary: Crypto price from CoinGecko
+desc: Displays the current price of any coin supported by CoinGecko against one or two other currencies. Crypto price data updated every 10 minutes. Data provided by CoinGecko.
+author: Allen Schober (@aschober)
+fileName: coingecko_price.star
+packageName: coingeckoprice

@@ -1,0 +1,8 @@
+---
+id: cta-l-tracker
+name: CTA "L" Tracker
+summary: Shows CTA "L" arrivals
+desc: Shows the next two arriving CTA "L" Trains for a selected station.
+author: samshapiro13
+fileName: cta_l_tracker.star
+packageName: ctaltracker

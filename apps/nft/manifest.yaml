@@ -1,0 +1,8 @@
+---
+id: nft
+name: NFT
+summary: Random Opensea NFT
+desc: Displays a random NFT associated with an Ethereum public address.
+author: nipterink
+fileName: nft.star
+packageName: nft

@@ -1,0 +1,8 @@
+---
+id: marta-map
+name: Marta Map
+summary: Display MARTA trains
+desc: Display real-time MARTA train locations and optionaly show station arrivals.
+author: InTheDaylight14
+fileName: marta_map.star
+packageName: martamap

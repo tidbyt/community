@@ -1,0 +1,8 @@
+---
+id: fido
+name: Fido
+summary: A pixel pal
+desc: Fido is a pixel pal that will sit, walk, and feast inside your Tidbyt.
+author: yonodactyl
+fileName: fido.star
+packageName: fido

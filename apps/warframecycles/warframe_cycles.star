@@ -5,10 +5,10 @@ Description: Tells you the cycle that's active in each of the Warframe open area
 Author: grantmatheny
 """
 
+load("cache.star", "cache")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("cache.star", "cache")
 
 def time_dict_conversion(timedict):
     if timedict.get("h") == None and (timedict.get("m") == None or int(timedict.get("m")) == 0):
@@ -29,7 +29,6 @@ def time_dict_conversion(timedict):
             timedict["h"] = str(int(timedict["h"]) - 1)
             timedict["m"] = str(60 + int(timedict["m"]))
         return "%s:%s" % (timedict["h"], timedict["m"])
-    return ""
 
 def main(config):
     platform = config.str("platform", "pc")
@@ -59,6 +58,22 @@ def main(config):
     vallis_remaining_cached = cache.get(vallis_remaining_cache_key)
     zariman_remaining_cache_key = "wf_%s_zariman_remaining_cached" % platform
     zariman_remaining_cached = cache.get(zariman_remaining_cache_key)
+
+    cetuscolor = ""
+    earthcolor = ""
+    cambioncolor = ""
+    valliscolor = ""
+    zarimancolor = ""
+    cetusremaining = None
+    cetusactive = None
+    earthremaining = None
+    earthactive = None
+    cambionremaining = None
+    cambionactive = None
+    vallisremaining = None
+    vallisactive = None
+    zarimanremaining = None
+    zarimanactive = None
 
     if cetus_active_cached != None and cetus_remaining_cached != None:
         print("Hit! Displaying cached data.")
@@ -101,22 +116,38 @@ def main(config):
             fail("Warframe request failed with status %d", rep.status_code)
         cetusactive = rep.json()["cetusCycle"]["state"].title()
         cetusremaining = rep.json()["cetusCycle"]["timeLeft"].split()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cetus_active_cache_key, str(cetusactive), ttl_seconds = 60)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cetus_remaining_cache_key, str(cetusremaining), ttl_seconds = 60)
 
         earthactive = rep.json()["earthCycle"]["state"].title()
         earthremaining = rep.json()["earthCycle"]["timeLeft"].split()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(earth_active_cache_key, str(earthactive), ttl_seconds = 60)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(earth_remaining_cache_key, str(earthremaining), ttl_seconds = 60)
 
         cambionactive = rep.json()["cambionCycle"]["active"].title()
         cambionremaining = rep.json()["cambionCycle"]["timeLeft"].split()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cambion_active_cache_key, str(cambionactive), ttl_seconds = 60)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cambion_remaining_cache_key, str(cambionremaining), ttl_seconds = 60)
 
         vallisactive = rep.json()["vallisCycle"]["state"].title()
         vallisremaining = rep.json()["vallisCycle"]["timeLeft"].split()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(vallis_active_cache_key, str(vallisactive), ttl_seconds = 60)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(vallis_remaining_cache_key, str(vallisremaining), ttl_seconds = 60)
 
         zariman_toggle = config.bool("warframe_cycles_zariman_enabled", False)
@@ -127,7 +158,11 @@ def main(config):
         else:
             zarimanactive = "Corpus"
             zarimanremaining = ["4h", "53m", "38s"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(zariman_active_cache_key, str(zarimanactive), ttl_seconds = 60)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(zariman_remaining_cache_key, str(zarimanremaining), ttl_seconds = 60)
 
     cetustime = {}

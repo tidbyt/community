@@ -1,0 +1,8 @@
+---
+id: airnow
+name: AirNow.gov AQI
+summary: AQI reading via AirNow.gov
+desc: Displays the current AQI value and level by location using data provided by AirNow.gov (US only).
+author: mjc-gh
+fileName: airnow.star
+packageName: airnow

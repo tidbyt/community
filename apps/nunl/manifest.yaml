@@ -1,0 +1,8 @@
+---
+id: nunl
+name: Nu.nl
+summary: Latest news from nu.nl
+desc: Shows random one of the latest news items from the Dutch website nu.nl.
+author: PMK (@pmk)
+fileName: nunl.star
+packageName: nunl

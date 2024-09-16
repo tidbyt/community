@@ -1,0 +1,8 @@
+---
+id: buienradar
+name: Buienradar
+summary: Buienradar (BE/NL)
+desc: Shows the rain radar of Belgium or The Netherlands.
+author: PMK (@pmk)
+fileName: buienradar.star
+packageName: buienradar

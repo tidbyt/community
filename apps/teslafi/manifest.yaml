@@ -1,0 +1,8 @@
+---
+id: teslafi
+name: TeslaFi
+summary: Shows charge/name/range
+desc: Shows your Teslas current Name, Charge in Mi/KM and battery %. Also shows if its charging or not.
+author: mrrobot245
+fileName: teslafi.star
+packageName: teslafi

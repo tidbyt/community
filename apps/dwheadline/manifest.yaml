@@ -1,0 +1,8 @@
+---
+id: dw-headline
+name: DW Headline
+summary: DailyWire Headlines
+desc: Shows the latest published headline on DailyWire.com.
+author: bmdelaune
+fileName: dw_headline.star
+packageName: dwheadline

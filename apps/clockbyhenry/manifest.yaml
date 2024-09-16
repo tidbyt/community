@@ -1,0 +1,8 @@
+---
+id: clock-by-henry
+name: Clock By Henry
+summary: Large Digit Time With Date
+desc: Show the time with numbers you can see from across the room! Bonus date included.
+author: Henry So, Jr.
+fileName: clock_by_henry.star
+packageName: clockbyhenry

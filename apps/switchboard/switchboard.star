@@ -5,12 +5,12 @@ Description: Displays data from Switchboard on your Tidbyt.
 Author: bguggs
 """
 
-load("render.star", "render")
-load("encoding/base64.star", "base64")
-load("http.star", "http")
 load("cache.star", "cache")
-load("schema.star", "schema")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 BASE_API_URL = "https://secure.oneswitchboard.com/api/handle_tidbyt/"
@@ -100,7 +100,6 @@ def main(config):
         return render_failure("API TOKEN REQUIRED", current_time_str)
 
     # Load layout data
-    api_url = BASE_API_URL + "?sb_api_token=%s" % sb_api_token
     sb_cached_json = cache.get("sb_cached_json")
 
     if sb_cached_json != None:
@@ -108,13 +107,15 @@ def main(config):
         res_json = json.decode(sb_cached_json)
     else:
         # Cache miss, re-retrieve from API
-        res = http.get(api_url)
+        res = http.get(BASE_API_URL, auth = ("Switchboard", sb_api_token))
         if res.status_code != 200:
             # Something went wrong with the API request
             return render_failure("REQUEST FAILED: " + str(res.status_code), current_time_str)
 
         # Store the retrieved data in cache
         res_json = res.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("sb_cached_json", json.encode(res_json), ttl_seconds = 60)
 
     # Retrieve values from json blob

@@ -8,7 +8,6 @@ Author: Neal Wright
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
@@ -605,7 +604,7 @@ def draw_game_boxes(games, game_board, username, piece_theme, board_theme):
             ],
         )
         game_stats = draw_game_stats(opponent_name, opponent_color, game["material"], game["turn"])
-        for i in range(0, ANIMATION_FRAMES):
+        for _ in range(0, ANIMATION_FRAMES):
             game_boxes.append(
                 render.Box(
                     width = 64,
@@ -671,7 +670,7 @@ def get_board_state_array(game_fen):
             if char in PIECE_CHARS:
                 row_array.append(char)
             else:
-                for i in range(0, int(char)):
+                for _ in range(0, int(char)):
                     row_array.append(" ")
         board_state_array.append(row_array)
     return board_state_array
@@ -753,6 +752,7 @@ def main(config):
         games_cache_key = "games_{}".format(username)
         cached_user = cache.get(user_cache_key)
         if cached_user == None:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(user_cache_key, "True", ttl_seconds = 3600)
         cached_games = cache.get(games_cache_key)
         if cached_games == None:
@@ -760,6 +760,7 @@ def main(config):
             if games_json == False:
                 games = FAMOUS_GAMES
             else:
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(games_cache_key, json.encode(games_json), ttl_seconds = 240)
                 games = get_games_dicts(games_json)
         else:

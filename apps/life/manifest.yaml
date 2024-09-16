@@ -1,0 +1,8 @@
+---
+id: life
+name: Life
+summary: Conways Game of Life
+desc: Runs a famous cellular automaton and animates the state on screen.
+author: dinosaursrarr
+fileName: life.star
+packageName: life

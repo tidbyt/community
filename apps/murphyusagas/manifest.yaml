@@ -1,0 +1,8 @@
+---
+id: murphy-usa-gas
+name: Murphy USA Gas
+summary: Murphy USA Gas Prices
+desc: Display prices from selected Murphy USA station.
+author: jvivona
+fileName: murphy_usa_gas.star
+packageName: murphyusagas

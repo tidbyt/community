@@ -1,0 +1,8 @@
+---
+id: test-patterns
+name: Test Patterns
+summary: Pretty test patterns
+desc: Test patterns are as old as TV broadcasts.
+author: harrisonpage
+fileName: test_patterns.star
+packageName: testpatterns

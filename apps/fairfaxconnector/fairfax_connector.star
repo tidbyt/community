@@ -5,15 +5,15 @@ Description: Shows when your next bus is arriving. Visit fairfaxconnector.com fo
 Author: Austin Pearce
 """
 
-load("render.star", "render")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
-apiKey = secret.decrypt("AV6+xWcEHWq0zUeozY3oe2t6xhMzEHRhb/Tn+2RBF5rGUi5jc8XcDKxG2RC7lqqhGYS8z0+glkxCg1ZsTf6sCsNAMB7RD+HQpPyyhmB8cek35AnYxHQQsy2A7o9uLswG3g3k3edobR3Qy4KHckKqGdtkVYxXNG3HK0yEqCG4hQ==")
+apiKey = secret.decrypt("AV6+xWcEqn7eWtGqY2uNALHMELi9Wb5rnnlFxLW0nk3JQU9k1Lu7KrMNCyX8nsK2a92gzXtxYqt+j+MB45sUHbbR/njfoHLiUn3Iz6yCD42UF1/2d7u//6rmgf9OsY+ezLmjL4zRiC0Kzna4VWndWrgVK7K1b9En+o6x2DgOdA==")
 ONE_MINUTE = 60
 ONE_DAY = ONE_MINUTE * 60 * 24
 ONE_WEEK = ONE_DAY * 7
@@ -29,6 +29,8 @@ def getAllRoutes():
     if routes == None:
         routesUrl = BASE_URL + "/getroutes?key=" + apiKey + "&format=json"
         routes = http.get(routesUrl).body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("ROUTES", routes, ONE_DAY)
 
     routes = json.decode(routes).get("bustime-response").get("routes")
@@ -40,6 +42,8 @@ def getRouteDirections(route):
     if directions == None:
         dirUrl = BASE_URL + "/getdirections?key=" + apiKey + "&rt=" + route.get("rt") + "&format=json"
         directions = http.get(dirUrl).body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheKey, directions, ONE_DAY)
 
     directions = json.decode(directions).get("bustime-response").get("directions")
@@ -55,6 +59,8 @@ def getStops(route, direction):
         # for URL encoding, so I'm doing this one-off here where it's needed.
         stopsUrl = stopsUrl.replace(" ", "%20")
         stops = http.get(stopsUrl).body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheKey, stops, ONE_DAY)
 
     stops = json.decode(stops).get("bustime-response").get("stops")
@@ -85,6 +91,8 @@ def getRouteColor(routeId):
         for route in routes:
             if route["rt"] == routeId:
                 routeColor = route["rtclr"]
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set("COLOR-" + routeId, routeColor, ONE_WEEK)
                 break
     return routeColor or "#ffffff"
@@ -95,6 +103,8 @@ def getPredictions(stopId):
     if stopPredictions == None:
         predictionUrl = BASE_URL + "/getpredictions?key=" + apiKey + "&stpid=" + stopId + "&format=json"
         stopPredictions = http.get(predictionUrl).body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(stopId, stopPredictions, ONE_MINUTE)
 
     stopPredictions = json.decode(stopPredictions).get("bustime-response")

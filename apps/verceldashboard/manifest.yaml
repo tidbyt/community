@@ -1,0 +1,8 @@
+---
+id: vercel-dashboard
+name: Vercel Dashboard
+summary: Monitor Vercel information
+desc: Monitor your Vercel deployments and view important information.
+author: Chase Roossin
+fileName: vercel_dashboard.star
+packageName: verceldashboard

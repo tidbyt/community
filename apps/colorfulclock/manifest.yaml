@@ -1,0 +1,8 @@
+---
+id: colorful-clock
+name: Colorful Clock
+summary: Colorful Clock
+desc: Shows the time like on an old wall clock.
+author: LukiLeu
+fileName: colorful_clock.star
+packageName: colorfulclock

@@ -1,0 +1,8 @@
+---
+id: any-progressbar
+name: Any Progressbar
+summary: AnyProgressbar
+desc: Show any progress bar using properties.
+author: wojciechka
+fileName: any_progressbar.star
+packageName: anyprogressbar

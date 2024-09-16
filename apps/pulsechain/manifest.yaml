@@ -1,0 +1,8 @@
+---
+id: pulsechain
+name: PulseChain
+summary: Price of PLS and PLSX
+desc: Display the price of PLS and PLSX. Choose between testnet and mainnet prices. After PulseChain mainnet launch, an update will be pushed to this app to display the correct mainnet price.
+author: bretep
+fileName: pulsechain.star
+packageName: pulsechain

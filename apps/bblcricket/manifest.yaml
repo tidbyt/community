@@ -1,0 +1,8 @@
+---
+id: bbl-cricket
+name: BBL Cricket
+summary: Shows BBL scores
+desc: Choose your favorite Big Bash team and follow their progress through the season! The app shows live scores and scheduled matches.
+author: M0ntyP
+fileName: bbl_cricket.star
+packageName: bblcricket

@@ -1,0 +1,8 @@
+---
+id: canvas
+name: Canvas
+summary: 'Show Canvas Assignments '
+desc: Display all of your Canvas Assignments on your Tidbyt.
+author: Oliver
+fileName: canvas.star
+packageName: canvas

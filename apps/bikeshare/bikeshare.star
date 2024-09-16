@@ -7,13 +7,11 @@ Author: snorremd
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("encoding/csv.star", "csv")
+load("encoding/json.star", "json")
 load("http.star", "http")
-load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 
 # URL to a CSV file containing the bikeshare providers supporting GBFS
 BIKESHARE_STATION_START = '{"url": "https://gbfs.urbansharing.com/bergenbysykkel.no/station_status.json", "station": { "station_id": "368", "name": "Festplassen", "address": "Christies gate 3A", "rental_uris": {"android": "bergenbysykkel://stations/368", "ios": "bergenbysykkel://stations/368"}, "lat": 60.391123958982405, "lon": 5.325713785893413, "capacity": 25 } }'
@@ -28,7 +26,7 @@ GBFS_LIST = "https://raw.githubusercontent.com/NABSA/gbfs/master/systems.csv"
 # User agent to identify this as a Tidbyt community app when making requests
 USER_AGENT = "Tidbyt - Bikeshare (https://github.com/tidbyt/community/tree/main/apps/bikeshare)"
 
-def fetch_status(config, station):
+def fetch_status(station):
     station_json = cache.get(station["url"])
     if station_json == None:
         station_status_resp = http.get(
@@ -44,6 +42,8 @@ def fetch_status(config, station):
             return []
 
         station_json = station_status_resp.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(station["url"], station_json, ttl_seconds = 60)
 
     # Station status start
@@ -56,8 +56,8 @@ def main(config):
 
     # Fetch status for start and stop stations
     # We fetch twice (cached anyway) to guarantee that the defaulted url and station ids match
-    start_status = fetch_status(config, start)
-    stop_status = fetch_status(config, stop)
+    start_status = fetch_status(start)
+    stop_status = fetch_status(stop)
     if (len(start_status) == 0 or len(stop_status) == 0):
         return render_error()
 
@@ -149,6 +149,8 @@ def get_bikeshare_providers():
         if resp.status_code != 200:
             return []
         bikeshare_csv = resp.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("bikeshare_csv", bikeshare_csv, ttl_seconds = 60 * 60 * 24)
 
     bikeshares = csv.read_all(
@@ -170,6 +172,8 @@ def gbfs_discovery(gbfs_url):
         if resp.status_code != 200:
             return None
         discovery_json = resp.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("gbfs_discovery_" + gbfs_url, discovery_json, ttl_seconds = 60 * 60 * 24)
     return json.decode(discovery_json)
 
@@ -186,6 +190,8 @@ def bikeshare_stations(url):
         if resp.status_code != 200:
             return []
         resp_json = resp.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("bikeshare_stations_" + url, resp_json, ttl_seconds = 60 * 60 * 24)
 
     return json.decode(resp_json)

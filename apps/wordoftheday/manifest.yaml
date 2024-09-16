@@ -1,0 +1,8 @@
+---
+id: word-of-the-day
+name: Word Of The Day
+summary: Shows the Word Of The Day
+desc: Displays the Merriam-Webster Word Of The Day.
+author: greg-n
+fileName: word_of_the_day.star
+packageName: wordoftheday

@@ -1,0 +1,8 @@
+---
+id: fairfax-connector
+name: Fairfax Connector
+summary: Connector bus stop info
+desc: Shows when your next bus is arriving. Stop IDs can be found on the bus stop sign or online at fairfaxcounty.gov.
+author: Austin Pearce
+fileName: fairfax_connector.star
+packageName: fairfaxconnector

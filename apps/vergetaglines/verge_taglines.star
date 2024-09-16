@@ -5,12 +5,13 @@ Description: Displays the latest tagline from the top of popular tech news site 
 Author: joevgreathead
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("html.star", "html")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("html.star", "html")
+load("http.star", "http")
 load("random.star", "random")
+load("render.star", "render")
 
 # 16x16
 VERGE_LOGO = base64.decode("""
@@ -63,34 +64,63 @@ AABJRU5ErkJggg==
 """)
 PLACEHOLDER_TEXT = "THE VERGE"
 
-SITE = "https://www.theverge.com"
+SITE = "https://www.theverge.com/api/graphql?id=fe430f082510fd2d59950732fdd99e91"
 CACHE_KEY_TAGLINE = "verge-dot-com-tagline"
-SELECTOR_TAGLINE = ".duet--recirculation--storystream-header > p > span > a"
+CACHE_KEY_TAGLINE_BACKUP = "verge-dot-com-tagline-backup"
 
 def main():
     tagline = cache.get(CACHE_KEY_TAGLINE)
+    tagline_backup = cache.get(CACHE_KEY_TAGLINE_BACKUP)
 
     if tagline == None:
         resp = http.get(SITE)
-        html_body = html(resp.body())
-        tagline = get_tagline(html_body)
+        resp_body = html(resp.body())
+        tagline = get_tagline(resp_body)
+        if tagline == None or tagline == "":
+            if tagline_backup == None:
+                tagline = PLACEHOLDER_TEXT
+                display = PLACEHOLDER_TEXT
+            else:
+                tagline = tagline_backup
+                display = "* " + tagline_backup
+        else:
+            display = tagline
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(CACHE_KEY_TAGLINE, tagline, ttl_seconds = 900)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
+        cache.set(CACHE_KEY_TAGLINE_BACKUP, tagline, ttl_seconds = 1200)
+    else:
+        display = tagline
 
     return render.Root(
         child = render.Column(
             expanded = True,
             main_align = "space_evenly",
             cross_align = "center",
-            children = content(tagline),
+            children = content(display),
         ),
     )
 
-def get_tagline(html_body):
-    text = html_body.find(SELECTOR_TAGLINE).text()
-    if text == None:
-        return PLACEHOLDER_TEXT
-    else:
-        return text
+def map_to_tagline():
+    return ["data", "cellData", "prestoComponentData", "masthead_tagline"]
+
+def get_tagline(resp_body):
+    json_blob = resp_body.text()
+    json_object = json.decode(json_blob)
+
+    current_ref = json_object
+    for key in map_to_tagline():
+        if key == 0:
+            if len(current_ref) >= 1:
+                current_ref = current_ref[0]
+        elif key in current_ref:
+            current_ref = current_ref[key]
+        else:
+            return None
+
+    return current_ref
 
 def content(value):
     return [

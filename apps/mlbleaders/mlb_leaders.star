@@ -6,15 +6,13 @@ Author: rs7q5
 """
 #mlb_leaders.star
 #Created 20220412 RIS
-#Last Modified 20220510 RIS
+#Last Modified 20230516 RIS
 
-load("render.star", "render")
 load("http.star", "http")
-load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("random.star", "random")
 
 #this list are the sports that can have their standings pulled
 #leaderType_URL = "https://statsapi.mlb.com/api/v1/leagueLeaderTypes"
@@ -119,7 +117,7 @@ def main(config):
 
     frames_all = []
     frames_all2 = []
-    for idx, x in enumerate(statName_vec):
+    for _, x in enumerate(statName_vec):
         #get data
 
         stat_tmp = get_leaders(x)
@@ -154,6 +152,7 @@ def main(config):
 
     return render.Root(
         delay = int(config.str("speed", "50")),  #speed up scroll text
+        show_full_animation = True,
         child = final_frame,
     )
 
@@ -304,29 +303,21 @@ def get_leaders(statName):
     #base_URL = "https://statsapi.mlb.com/api/v1/stats/leaders"
     today = time.now().in_location("America/New_York")  #get year (season)
 
-    #check for cached data
-    stat_cached = cache.get("mlb_leagueleaders_%s" % statName)
-    if stat_cached != None:
-        print("Hit! Displaying MLB league leaders in %s data." % statName)
-        stats = json.decode(stat_cached)
+    full_URL = "https://statsapi.mlb.com/api/v1/stats/leaders?sportId=1&leaderCategories=%s&season=%s&hydrate=team&limit=5" % (statName, today.year)
+
+    #print(full_URL)
+    rep = http.get(url = full_URL, ttl_seconds = 43200)  #grab data twice a day
+    if rep.status_code != 200:
+        return ["Error getting data"]
     else:
-        print("Miss! Calling MLB league leaders in %s data." % statName)  #error code checked within each function!!!!
-        full_URL = "https://statsapi.mlb.com/api/v1/stats/leaders?sportId=1&leaderCategories=%s&season=%s&hydrate=team&limit=5" % (statName, today.year)
-
-        #print(full_URL)
-        rep = http.get(full_URL)
-        if rep.status_code != 200:
-            return ["Error getting data"]
-        else:
-            data = rep.json()["leagueLeaders"]
-
+        data = rep.json()["leagueLeaders"]
         if data == []:
             return no_stat_text
         else:
             stats = dict()
 
             #print(data["statGroup"])
-            for idx, x in enumerate(data):
+            for _, x in enumerate(data):
                 stats_tmp = []
                 statGroup = x["statGroup"]
                 if x.get("leaders") != None:
@@ -340,9 +331,6 @@ def get_leaders(statName):
                             break
                 stats[statGroup] = stats_tmp
                 #print(stats_tmp)
-
-            #cache the data
-            cache.set("mlb_leagueleaders_%s" % statName, json.encode(stats), ttl_seconds = 43200)  #grab twice a day
 
     return stats
 
@@ -359,8 +347,6 @@ def get_frame_single(stat):
 
                 #format rank and name
                 name_tmp = split_sentence(y[1], 8, join_word = True)
-                name_row = len(name_tmp) // 8 + 1
-                row_ht = name_row * 5  #was used to set row height of text for name_final
                 name_final = render.WrappedText(content = name_tmp, width = 32, font = font4, color = ctmp)
                 rank_name = render.Row(
                     children = [

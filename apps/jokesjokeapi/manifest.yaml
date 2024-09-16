@@ -1,0 +1,8 @@
+---
+id: jokes-jokeapi
+name: Jokes JokeAPI
+summary: Displays jokes from JokeAPI
+desc: Displays different jokes from JokeAPI.
+author: rs7q5
+fileName: jokes_jokeapi.star
+packageName: jokesjokeapi

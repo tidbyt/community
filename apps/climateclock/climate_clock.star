@@ -5,11 +5,11 @@ Description: The most important number in the world.
 Author: Rob Kimball
 """
 
+load("encoding/base64.star", "base64")
 load("math.star", "math")
-load("time.star", "time")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 # This is everything we would get from the API if we were to retrieve it over HTTP. In reality, the data here is only
 # updated every couple of years so pinging the API isn't really necessary. I've pasted a recent JSON pull below, which

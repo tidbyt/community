@@ -1,0 +1,8 @@
+---
+id: tube-status
+name: Tube Status
+summary: Current status from TfL
+desc: Shows the current status of each line on London Underground and other TfL services.
+author: dinosaursrarr
+fileName: tube_status.star
+packageName: tubestatus

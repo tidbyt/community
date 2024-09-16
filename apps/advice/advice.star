@@ -5,12 +5,11 @@ Description: Shows random advice from AdviceSlip.com.
 Author: mrrobot245
 """
 
+load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
-load("http.star", "http")
-load("cache.star", "cache")
 
 def main(config):
     SCROLL_SPEED = config.str("scroll_speed", "60")
@@ -24,6 +23,8 @@ def main(config):
         if rep.status_code != 200:
             fail("Advice request failed with status:", rep.status_code)
         rep = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("adviceapp", json.encode(rep), ttl_seconds = 120)
 
     return render.Root(

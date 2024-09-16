@@ -1,0 +1,8 @@
+---
+id: cost-calculator
+name: Cost Calculator
+summary: Show elapsed time and cost
+desc: Show elapsed time and calculate a cost based on a given rate.
+author: rs7q5
+fileName: cost_calculator.star
+packageName: costcalculator

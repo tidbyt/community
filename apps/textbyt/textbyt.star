@@ -5,9 +5,9 @@ Description: Display a scrolling message sent in via text.
 Author: Josh Reed
 """
 
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
 
 TEXTBYT_API_URL = "https://us-central1-textbyt-rest-api.cloudfunctions.net/textbyt/v1/"
 

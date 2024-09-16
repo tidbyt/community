@@ -1,0 +1,8 @@
+---
+id: custom-quotes
+name: Custom Quotes
+summary: Display custom quotes
+desc: Display quotes from a Gsheet like this https://docs.google.com/spreadsheets/d/1zDiMWjzZQqB6QRMhde0dOoptTjwdv6GalNHHYkUytAI/edit?usp=sharing.
+author: vipulchhajer
+fileName: custom_quotes.star
+packageName: customquotes

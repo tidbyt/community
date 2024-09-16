@@ -1,0 +1,8 @@
+---
+id: abstract-clock
+name: Abstract Clock
+summary: Shows Time
+desc: Uses 60 Pixels to display time across width of Tidbyt.
+author: AmillionAir
+fileName: abstract_clock.star
+packageName: abstractclock

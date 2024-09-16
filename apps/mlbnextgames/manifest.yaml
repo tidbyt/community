@@ -1,0 +1,8 @@
+---
+id: mlb-next-games
+name: MLB Next Games
+summary: Next 3 games of your team
+desc: Shows upcoming 3 games of the next week for your favorite team!
+author: Anthony Rocchio
+fileName: mlb_next_games.star
+packageName: mlbnextgames

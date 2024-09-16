@@ -53,6 +53,7 @@ def main():
         word = word_parsed[0].upper() + word_parsed[1:] + ":"
         definition = definition_parsed[0].upper() + definition_parsed[1:] + "."
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             CACHE_KEY,
             json.encode({"word": word, "definition": definition}),
@@ -60,6 +61,7 @@ def main():
         )
 
     return render.Root(
+        show_full_animation = True,
         child = render.Column(
             children = [
                 render.Marquee(

@@ -5,13 +5,13 @@ Description: Displays a new cocktail every hour, on the hour. Cheers to my mom f
 Author: Nicole Brooks
 """
 
-load("render.star", "render")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
+load("time.star", "time")
 
 ERROR_IMG = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAACMAAAAjCAYAAAAe2bNZAAAAAXNSR0IArs4c6QAAAXJJREFUWEftlz1OAzEQhe1V
@@ -23,7 +23,7 @@ fO5PI9OqOcPICMhohiJzt1o+5JQ3VtjJtKTy+L7dvZIpognBcHV4MFxJbEoV1apx+8wZJiX9bkJCjmhC
 YOhHSGUgGreaxu4jnp/bZzyDMdcnBfMH+p/AM/kQywMAAAAASUVORK5CYII=
 """)
 
-def main(config):
+def main():
     # Check cache for current hour. UTC
     hourlyCocktail = checkCache()
 
@@ -113,7 +113,11 @@ def checkCache():
 # Stores cocktail and current hour for 75 minutes.
 def updateCache(cocktail):
     hour = time.now().in_location("UTC").hour
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("lastHour", str(hour), 75 * 60)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("cocktailData", json.encode(cocktail), 75 * 60)
 
 # Gets the updated cocktail from the API.
@@ -179,7 +183,6 @@ def formatIngredients(cocktail):
 
 # Returns the desired height of the ingredient row.
 def rowHeight(str):
-    length = len(str)
     height = 7
     if len(str) > 8:
         height = 14

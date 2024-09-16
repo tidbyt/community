@@ -1,0 +1,8 @@
+---
+id: trivia
+name: Trivia
+summary: Random trivia question
+desc: Displays a random trivia question with category and difficulty.
+author: Jack Sherbal
+fileName: trivia.star
+packageName: trivia

@@ -1,0 +1,8 @@
+---
+id: zapier
+name: Zapier
+summary: Integrate with Zapier
+desc: The Zapier app allows you to trigger information on your Tidbyt from a Zap.
+author: Tidbyt
+fileName: zapier.star
+packageName: zapier

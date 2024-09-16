@@ -1,0 +1,8 @@
+---
+id: atp-tennis
+name: ATP Tennis
+summary: Shows ATP scores
+desc: Display tennis scores from a tournament chosen in the dropdown. Shows live matches and if selected, any match completed in the past 24 hours or any scheduled matches in next 12 hours. Server indicated in green when available. If match is suspended it will be shown in blue.
+author: M0ntyP
+fileName: atp_tennis.star
+packageName: atptennis

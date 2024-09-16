@@ -46,6 +46,7 @@ def main(config):
 
     return render.Root(
         delay = 500,
+        max_age = 120,
         child = render.Column(
             expanded = True,
             cross_align = "center",

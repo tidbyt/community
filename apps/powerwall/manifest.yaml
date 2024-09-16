@@ -1,0 +1,8 @@
+---
+id: powerwall
+name: Powerwall
+summary: Show Tesla Powerwall state
+desc: Show Tesla Powerwall battery percentage state.
+author: tabrindle
+fileName: powerwall.star
+packageName: powerwall
