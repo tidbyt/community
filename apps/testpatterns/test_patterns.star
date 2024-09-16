@@ -30,22 +30,27 @@ COLORS = [
     "#A0522D",
 ]
 
-def get_next_color():
-    return COLORS[random.number(0, len(COLORS) - 1)]
+def shuffle_colors(colors):
+    colors_copy = colors[:]  # Make a copy of the colors list
+    for i in range(len(colors_copy) - 1, 0, -1):
+        j = random.number(0, i)
+        colors_copy[i], colors_copy[j] = colors_copy[j], colors_copy[i]  # Swap
+    return colors_copy
 
 def main():
+    colors = shuffle_colors(COLORS)[:8]
     return render.Root(
         render.Row(
             expanded = True,
             children = [
-                column(get_next_color()),
-                column(get_next_color()),
-                column(get_next_color()),
-                column(get_next_color()),
-                column(get_next_color()),
-                column(get_next_color()),
-                column(get_next_color()),
-                column(get_next_color()),
+                column(colors[0]),
+                column(colors[1]),
+                column(colors[2]),
+                column(colors[3]),
+                column(colors[4]),
+                column(colors[5]),
+                column(colors[6]),
+                column(colors[7]),
             ],
         ),
     )
