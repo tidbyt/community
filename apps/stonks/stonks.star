@@ -86,7 +86,7 @@ def get_stock_quote(url, symbol):
         return cache_res
     res = http.get(url)
     if res.status_code != 200:
-        fail("polygon.io API failed with status %d", res.status_code)
+        return { "error": "polygon.io API failed with status " + res.status_code }
     payload = res.json()
     cache.set(cache_key, json.encode(payload), ttl_seconds = CACHE_TIME)
     return payload
@@ -123,12 +123,53 @@ def main(config):
     # your polygon.io API key
     api_key = config.get('apikey', 0)
     if not api_key:
-        fail("Missing Polygon.io API key")
+        return render.Root(
+            child = render.Column(
+                main_align = "space_around",
+                cross_align = "center",
+                children = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "center",
+                        cross_align = "center",
+                        children = [
+                            render.Text(
+                                content = 'STONKS! Please add your Polygon.io API key',
+                                font = '5x8',
+                                color='#FF0000'
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        )
 
     # https://polygon.io/docs/stocks/get_v1_open-close__stocksticker___date
     url = 'https://api.polygon.io/v2/aggs/ticker/' + symbol + '/prev?adjusted=true&apiKey=' + api_key
 
     payload = get_stock_quote(url, symbol)
+
+    # render error inline
+    if 'error' in payload:
+        return render.Root(
+            child = render.Column(
+                main_align = "space_around",
+                cross_align = "center",
+                children = render.Row(
+                    expanded = True,
+                    main_align = "center",
+                    cross_align = "center",
+                    children = [
+                        render.Text(
+                            content = payload['error'],
+                            font = '6x10',
+                            color='#FF0000'
+                        ),
+                    ],
+                ),
+            ),
+        )
+
     closing_price = float(payload['results'][0]['c'])
     price_formatted = format_currency(closing_price)
 
