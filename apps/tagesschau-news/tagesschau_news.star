@@ -22,7 +22,6 @@ def format_text(original_text):
             new_line.append(append)
         lines.append(" ".join(new_line))
     return "\n".join(lines)
-            
 
 def format_time(original_time):
     if "T" in original_time:
@@ -32,17 +31,14 @@ def format_time(original_time):
     return "No time available"
 
 def main():
-    
     response = http.get(
         "https://www.tagesschau.de/api2u/homepage/",
-        headers={"accept": "application/json"},
-        ttl_seconds=300,
+        headers = {"accept": "application/json"},
+        ttl_seconds = 300,
     )
-    
-    
+
     data = response.json()
-    
-    
+
     if data["news"]:
         first_news = data["news"][0]
         title = first_news["title"]
@@ -50,36 +46,39 @@ def main():
         formatted_date = format_time(date) if date else "No time available"
     else:
         title = "No news available"
-    
+
     return render.Root(
-            render.Padding(pad=1, child=
-            render.Column(expanded=True,children=[
-                render.Padding(child=
-                    render.Row(expanded=True,main_align="space_between", children=[
-                        render.Image(height = HEADING_HEIGHT, src = base64.decode(ARD_LOGO_ENCODED)),
-                        render.Text(
-                            formatted_date,
-                            # font family
-                            font="CG-pixel-3x5-mono",  
-                            
-                        )],
-                        cross_align="center",
-                        
-                    ),
-                    pad=1),
-
-                    render.Marquee(
-                        offset_start=30,
-                        height=TEXT_HEIGHT,
-                        scroll_direction="vertical",
-                        child=
-
-                        render.WrappedText(
-                            content=format_text(title),
-                            color="#FFFF00"
-                        )
-                    )
-
-                ],
-            ))
+        render.Padding(pad = 1, child =
+                                    render.Column(
+                                        expanded = True,
+                                        children = [
+                                            render.Padding(
+                                                child =
+                                                    render.Row(
+                                                        expanded = True,
+                                                        main_align = "space_between",
+                                                        children = [
+                                                            render.Image(height = HEADING_HEIGHT, src = base64.decode(ARD_LOGO_ENCODED)),
+                                                            render.Text(
+                                                                formatted_date,
+                                                                # font family
+                                                                font = "CG-pixel-3x5-mono",
+                                                            ),
+                                                        ],
+                                                        cross_align = "center",
+                                                    ),
+                                                pad = 1,
+                                            ),
+                                            render.Marquee(
+                                                offset_start = 30,
+                                                height = TEXT_HEIGHT,
+                                                scroll_direction = "vertical",
+                                                child =
+                                                    render.WrappedText(
+                                                        content = format_text(title),
+                                                        color = "#FFFF00",
+                                                    ),
+                                            ),
+                                        ],
+                                    )),
     )
