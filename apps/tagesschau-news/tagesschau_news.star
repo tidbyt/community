@@ -7,14 +7,18 @@ ARD_LOGO_ENCODED_WHITE = "iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAACXBIWX
 ARD_LOGO_ENCODED = "iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAKASURBVHgBtZRNctpAEIW7Rww/VV6QEwTvEuSqaJkYXAUnAJ8AOEHICQgnMJzA9gnsnCBKxWatRSh7F90gpCqxhATT6RkBAYIcOyn3RqOemW96Wk8P4AkC0yZqDhWjOGxaYL2akyohQpEIJojqk5R46XoF/1HQw/K0h0hdICgyzCNCzyxGKhGAo/P8cial6u+Cb0BfO0HJisQFADkI1M/c5Qeuj5M/DrWDNhL2eHtREHQ+3+Qud0ITIH7UY8LZ8Wi858E9odsTx+GAF7dQUP3qS8FdzmWWAysWfDKBVFR3b/f8dFDQBhAN18M6p9oVOwBS4oLn9jk3WUGrB0GNFLUJqePebvZIg2az0OG+9uJ4yv0UxfV5KfNdzjfiODrh147OCXNdEi1++KNx4Wy5WB90ZEcnvOErKW4LQc18oK3Q1SHRkOeauoAVlLFNTg716OjltFmxw28apEh1d4G2I5PND5hRnLMEDfTQjoxE0CLzYQiVswby4QGx6KXPOi4ZqMC5AWRmCQBJeFpO8i73jHvch4cGMhTEc8NSZE0QFESWZeALzRndsR4fwdS3o++m0qyUvh5YMHfgP4KvzgpJbitMPxDcOWED/jG0UgxYCNdAk7T6wOWzJILSXwmoTQXczSr5l2WPGI2z3goqpdGnH8d4msrSIFTv5M/c/tU4X1/m3xyEb7WGCWi48wqVckgVe3q6nquWg/e1Eu3UasWOWnpPtcwesHGZtVi4D0PRk1l1nOaZiQdMe1xhlzV4fj0utFOhCfiHg5Rh+2Mhm95xvzHxU8Xi1qatQCUQBf3rm/xgm5Hq/LpqAdhamfLv8PnnOE/z2nuh61F7sVBFmJ+kgdbjF/18Nbj16wNhAAAAAElFTkSuQmCC"
 
 TIDBYT_HEIGHT = 32
+TIDBYT_WIDTH = 64
 HEADING_HEIGHT = 12
 TEXT_HEIGHT = TIDBYT_HEIGHT - HEADING_HEIGHT - 4
+TEXT_WIDTH = TIDBYT_WIDTH - 2
 CHARS_PER_LINE = 13
 
 def is_urgent(newsEntry):
-    if not "tags" in newsEntry:
-        return False
-    return any([("tag" in tag and tag["tag"] == "Eilmeldung") for tag in newsEntry["tags"]])
+    if "breakingNews" in newsEntry and newsEntry["breakingNews"]:
+        return True
+    if "tags" in newsEntry and any([("tag" in tag and tag["tag"] == "Eilmeldung") for tag in newsEntry["tags"]]):
+        return True
+    return False
 
 def format_text(original_text):
     lines = []
@@ -62,6 +66,8 @@ def main(config):
     date = headline["date"]
     formatted_date = format_time(date) if date else "No time available"
     news_is_urgent = is_urgent(headline)
+
+    # content = headline["content"][0]["value"]
     if config and not news_is_urgent and config.bool("hide_if_not_urgent"):
         return None
 
@@ -88,17 +94,28 @@ def main(config):
                                                 pad = 1,
                                             ),
                                             render.Marquee(
-                                                offset_start = 30,
                                                 height = TEXT_HEIGHT,
                                                 scroll_direction = "vertical",
-                                                child =
+                                                delay = 20,
+                                                child = render.Column(children = [
                                                     render.WrappedText(
                                                         content = format_text(title),
                                                         color = "#FFFF00" if news_is_urgent else "#FFFFFF",
                                                     ),
+                                                    # render.Padding(
+                                                    #     render.WrappedText(
+                                                    #         content = format_text(content) if content else "",
+                                                    #         color = "#FFFFFF",
+
+                                                    #         height = 200,
+                                                    #     ),
+                                                    #     pad = (0, 10, 0, 0),
+                                                    # ),
+                                                ]),
                                             ),
                                         ],
                                     )),
+        show_full_animation = True,
     )
 
 def get_schema():
