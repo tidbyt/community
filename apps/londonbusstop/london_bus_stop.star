@@ -36,7 +36,7 @@ def extract_stop(stop):
         return None
     if not stop.get("stopLetter"):
         print(stop)
-        print("TFL StopPoint search result does not contain stop code")
+        print("TFL StopPoint search result does not contain name")
         return None
     if not stop.get("id"):
         print(stop)
@@ -117,35 +117,41 @@ def fetch_stop(stop_id):
         return None
     return resp.json()
 
+# The hierarchy of stops can be deeply nested, with grandchildren or lower.
+def extract_child(stop_id, children):
+    for child in children:
+        if child["naptanId"] == stop_id:
+            if "commonName" in child and "stopLetter" in child:
+                return {
+                    "name": child["commonName"],
+                    "code": child["stopLetter"],
+                }
+        grandchild = extract_child(stop_id, child.get("children", []))
+        if grandchild:
+            return grandchild
+    return None
+
 # Look up a particular stop by its Naptan ID. There can be a hierarchy of
 # StopPoints. It seems like for buses, there is a parent ID for all the stops
 # with a given name/at a given junction, and then a child ID for each stop.
-# Assumed here that you're looking up a child stop, since you don't get any
-# arrivals data if you look up the parent ID.
+# This looks for the inner-most child to get specific arrivals.
 def get_stop(stop_id):
     data = fetch_stop(stop_id)
     if not data:
         return None
 
-    # Looking up a child returns a response about the parent, which contains
-    # a child object.
-    for child in data["children"]:
-        if child["naptanId"] != stop_id:
-            continue
+    child = extract_child(stop_id, data.get("children", []))
+    if child:
+        return child
 
-        if not child.get("commonName"):
-            print("TFL StopPoint response did not contain name")
-            continue
-        if not child.get("stopLetter"):
-            print("TFL StopPoint response did not contain stop letter")
-            continue
+    commonName = data.get("commonName")
+    if not commonName:
+        return None
 
-        return {
-            "name": child["commonName"],
-            "code": child["stopLetter"],
-        }
-
-    return None
+    return {
+        "name": commonName,
+        "code": data.get("stopLetter", "?"),
+    }
 
 def get_arrivals(stop_id):
     resp = http.get(
