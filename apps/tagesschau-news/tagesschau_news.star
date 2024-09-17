@@ -110,7 +110,7 @@ def get_schema():
                 name = "Don't show if urgent",
                 desc = "Don't show the news if it's not an urgent headline",
                 default = False,
-                icon = "eye-slash",
+                icon = "eyeSlash",
             ),
         ],
     )
