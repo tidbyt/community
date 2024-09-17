@@ -63,11 +63,11 @@ def main(config):
             font = "CG-pixel-3x5-mono",
         ))
     title = headline["title"]
+    topline = headline["topline"]
     date = headline["date"]
     formatted_date = format_time(date) if date else "No time available"
     news_is_urgent = is_urgent(headline)
 
-    # content = headline["content"][0]["value"]
     if config and not news_is_urgent and config.bool("hide_if_not_urgent"):
         return None
 
@@ -99,18 +99,16 @@ def main(config):
                                                 delay = 20,
                                                 child = render.Column(children = [
                                                     render.WrappedText(
-                                                        content = format_text(title),
+                                                        content = format_text(topline),
                                                         color = "#FFFF00" if news_is_urgent else "#FFFFFF",
                                                     ),
-                                                    # render.Padding(
-                                                    #     render.WrappedText(
-                                                    #         content = format_text(content) if content else "",
-                                                    #         color = "#FFFFFF",
-
-                                                    #         height = 200,
-                                                    #     ),
-                                                    #     pad = (0, 10, 0, 0),
-                                                    # ),
+                                                    render.Padding(
+                                                        render.WrappedText(
+                                                            content = format_text(title),
+                                                            color = "#FFFF00" if news_is_urgent else "#FFFFFF",
+                                                        ),
+                                                        pad = (0, 3, 0, 0),
+                                                    ),
                                                 ]),
                                             ),
                                         ],
