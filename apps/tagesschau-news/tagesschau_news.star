@@ -107,7 +107,7 @@ def get_schema():
         fields = [
             schema.Toggle(
                 id = "hide_if_not_urgent",
-                name = "Don't show if urgent",
+                name = "Don't show if not urgent",
                 desc = "Don't show the news if it's not an urgent headline",
                 default = False,
                 icon = "eyeSlash",
