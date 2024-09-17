@@ -20,7 +20,7 @@ TITLE_HEIGHT = 8
 TITLE_WIDTH = 64
 AREA_HEIGHT = 24
 
-ENDPOINT_SYSTEMS  = "https://api.enphaseenergy.com/api/v4/systems"
+ENDPOINT_SYSTEMS = "https://api.enphaseenergy.com/api/v4/systems"
 ENDPOINT_SUMMARY = "https://api.enphaseenergy.com/api/v4/systems/{}/summary"
 AUTH_URL = "https://api.enphaseenergy.com/oauth/token"
 EXPIRE_MSG = "Access token has expired"
