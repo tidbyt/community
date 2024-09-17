@@ -36,7 +36,7 @@ def extract_stop(stop):
         return None
     if not stop.get("stopLetter"):
         print(stop)
-        print("TFL StopPoint search result does not contain name")
+        print("TFL StopPoint search result does not contain stop code")
         return None
     if not stop.get("id"):
         print(stop)
