@@ -10,6 +10,11 @@ HEADING_HEIGHT = 12
 TEXT_HEIGHT = TIDBYT_HEIGHT - HEADING_HEIGHT - 4
 CHARS_PER_LINE = 13
 
+def is_urgent(newsEntry):
+    if not "tags" in newsEntry:
+        return False
+    return any([("tag" in tag and tag["tag"] == "Eilmeldung") for tag in newsEntry["tags"]])
+
 def format_text(original_text):
     lines = []
     for line in original_text.split("\n"):
@@ -27,7 +32,7 @@ def format_time(original_time):
         time_part = original_time.split("T")[1].split(":")
         formatted_time = time_part[0] + ":" + time_part[1] + " Uhr"
         return formatted_time
-    return "No time available"
+    return "n/a"
 
 def main():
     response = http.get(
@@ -40,11 +45,13 @@ def main():
 
     formatted_date = ""
     title = "No news available"
+    news_is_urgent = False
     if data["news"]:
         first_news = data["news"][0]
         title = first_news["title"]
         date = first_news["date"]
         formatted_date = format_time(date) if date else "No time available"
+        news_is_urgent = is_urgent(first_news)
 
     return render.Root(
         render.Padding(pad = 1, child =
@@ -75,7 +82,7 @@ def main():
                                                 child =
                                                     render.WrappedText(
                                                         content = format_text(title),
-                                                        color = "#FFFF00",
+                                                        color = "#FFFF00" if news_is_urgent else "#FFFFFF",
                                                     ),
                                             ),
                                         ],
