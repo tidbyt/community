@@ -57,10 +57,6 @@ def get_system_id(api_key, unique_suffix):
     }
 
     response = http.get(ENDPOINT_SYSTEMS, params = params, headers = headers)
-    print("URL: " + ENDPOINT_SYSTEMS)
-    print("params: " + str(params))
-    print("Headers: " + str(headers))
-    print("Response: " + str(response))
 
     status, result = check_response(response)
 
@@ -68,7 +64,6 @@ def get_system_id(api_key, unique_suffix):
         if len(result["systems"]) < 1:
             return 404, "No system found."
         system_id = str(int(result["systems"][0]["system_id"]))
-        print("System ID: {}".format(system_id)) # JK TODO REMOVE
         return 200, system_id
     elif status == 401:
         return 401, None
@@ -90,8 +85,6 @@ def get_system_stats(api_key, unique_suffix, system_id):
     response = http.get(ENDPOINT_SUMMARY.format(system_id), params = params, headers = headers)
     status, result = check_response(response)
     if status == 200 and result:
-        print("Successfully get system summary.")
-        print(str(result))
         return 200, str(result["energy_today"])
     elif status == 401:
         return 401, None
@@ -162,7 +155,6 @@ def render_msg(msg):
     scroll = len(msg) > SCROLL_MSG_LEN
     return render.Root(
         delay = 100,
-        # show_full_animation = True,
         child = render.Column(
             children = [
                 render.Box(
@@ -187,7 +179,9 @@ def main(config):
     client_id = config.str("client_id")
     client_secret = config.str("client_secret")
     api_key = config.str("api_key")
-    unique_suffix = hash.md5(client_id)
+    unique_suffix = None
+    if client_id != None:
+        unique_suffix = hash.md5(client_id)
 
     if not all([access_token, refresh_token, client_id, client_secret, api_key]):
         msg = "Missing credential information. In order to show number of kWh energy generated everyday, please provide Access Token, Refresh Token, Client ID, Client Secret and API Key in the App Configuration."
@@ -238,7 +232,6 @@ def main(config):
         else:
             return render_msg("Unable to get system id, status code: {}".format(status))
     else:
-        print("Hit! Displaying cached data.")
         system_id = system_id_cached
 
     # Get "energy_today"
