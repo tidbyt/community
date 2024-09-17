@@ -155,6 +155,7 @@ def render_msg(msg):
     scroll = len(msg) > SCROLL_MSG_LEN
     return render.Root(
         delay = 100,
+        show_full_animation = True,
         child = render.Column(
             children = [
                 render.Box(
@@ -210,10 +211,8 @@ def main(config):
         # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(INIT_KEY.format(unique_suffix), "1")
 
-    # check access token if it needs to be refreshed
-    access_token = cache.get(ACCESS_TOKEN_KEY.format(unique_suffix))
-    if access_token == None:
-        request_refresh_token(cache.get(REFRESH_TOKEN_KEY.format(unique_suffix)), client_id, client_secret)
+    # refresh access token
+    request_refresh_token(cache.get(REFRESH_TOKEN_KEY.format(unique_suffix)), client_id, client_secret)
 
     # Get "system_id"
     system_id_cached = cache.get(SYSTEM_ID_KEY.format(unique_suffix))
@@ -228,7 +227,7 @@ def main(config):
             )
         elif status == 401:
             request_refresh_token(cache.get(REFRESH_TOKEN_KEY.format(unique_suffix)), client_id, client_secret)
-            return render_msg("Token just refreshed wait for next call.")
+            return render_msg("System token just refreshed wait for next call.")
         else:
             return render_msg("Unable to get system id, status code: {}".format(status))
     else:
@@ -247,7 +246,7 @@ def main(config):
             )
         elif status == 401:
             request_refresh_token(cache.get(REFRESH_TOKEN_KEY.format(unique_suffix)), client_id, client_secret)
-            return render_msg("Token just refreshed wait for next call.")
+            return render_msg("Summary token just refreshed wait for next call.")
         else:
             return render_msg("Unable to get system stats, status code: {}".format(status))
     else:
