@@ -2,7 +2,7 @@
 Applet: WowCharacterStats
 Summary: Show stats for a WoW toon
 Description: Show statistics for a World of Warcraft character. Stats shown include name, class, item level, Mythic+ rating, and raid progress.
-Author: Kevin Wajdowicz
+Author: KDubs
 """
 
 load("cache.star", "cache")
@@ -56,13 +56,20 @@ WOW_ICON = base64.decode("""
 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
 """)
 
-DEFAULT_CHARACTER = "chinpokomon"
+RAID_COLORS = {
+    "Raid Finder": "#1eff00",
+    "Normal": "#0070dd",
+    "Heroic": "#a335ee",
+    "Mythic": "#ff8000",
+}
+
+DEFAULT_CHARACTER = "chinpokodin"
 DEFAULT_REALM = "firetree"
 DEFAULT_REGION = "us"
 DEFAULT_AUTH_TTL = 86399
 
-CURRENT_EXPANSION = "Dragonflight"
-CURRENT_INSTANCE = "Amirdrassil, the Dream's Hope"
+CURRENT_EXPANSION = "The War Within"
+CURRENT_INSTANCE = "Nerub-ar Palace"
 
 def main(config):
     client_id = secret.decrypt(
@@ -120,8 +127,12 @@ def main(config):
             ),
         )
 
+    faction_color = "#f00"
+    if player_profile["faction"]["name"] == "Alliance":
+        faction_color = "#00f"
+
     return render.Root(
-        delay = 150,
+        delay = 294,
         child = render.Column(
             expanded = True,
             main_align = "space_around",
@@ -135,28 +146,48 @@ def main(config):
                         color = determine_class_color(player_profile),
                     ),
                 ),
-                render.Box(
-                    height = 1,
-                    color = "#000",
-                ),
                 render.Row(
                     expanded = True,
-                    main_align = "space_around",
+                    main_align = "start",
                     cross_align = "center",
                     children = [
-                        render.Image(src = determine_icon(player_profile)),
-                        render.Column(
-                            expanded = True,
-                            main_align = "space_evenly",
-                            cross_align = "center",
-                            children = [
-                                render.Text(
-                                    content = "ilvl %d" % player_profile["equipped_item_level"],
-                                    font = "tom-thumb",
-                                ),
-                                get_mythic_plus_io(player_mythic),
-                                get_raid_progress(player_raids),
-                            ],
+                        render.Padding(
+                            pad = (2, 1, 1, 1),
+                            child = render.Image(src = determine_icon(player_profile)),
+                        ),
+                        render.Padding(
+                            pad = (2, 1, 2, 1),
+                            child = render.Sequence(
+                                children = [
+                                    render.Marquee(
+                                        width = 36,
+                                        height = 22,
+                                        scroll_direction = "vertical",
+                                        offset_start = 22,
+                                        # offset_end = 0,
+                                        child = render.Column(
+                                            cross_align = "center",
+                                            children = [
+                                                render.Text(
+                                                    content = "lvl %d" % player_profile["level"],
+                                                    font = "tom-thumb",
+                                                ),
+                                                render.Text(
+                                                    content = "%s" % player_profile["faction"]["name"],
+                                                    font = "tom-thumb",
+                                                    color = faction_color,
+                                                ),
+                                                render.Text(
+                                                    content = "ilvl %d" % player_profile["equipped_item_level"],
+                                                    font = "tom-thumb",
+                                                ),
+                                                get_mythic_plus_io(player_mythic),
+                                                get_raid_progress(player_raids),
+                                            ],
+                                        ),
+                                    ),
+                                ],
+                            ),
                         ),
                     ],
                 ),
@@ -319,6 +350,7 @@ def pad_hex(i):
 
 def get_raid_progress(progress):
     status = "N/A raid"
+    raid_level = "none"
 
     if "expansions" in progress:
         for expansion in progress["expansions"]:
@@ -331,11 +363,19 @@ def get_raid_progress(progress):
                                 mode["progress"]["total_count"],
                                 mode["difficulty"]["type"][:1],
                             )
+                            raid_level = mode["difficulty"]["name"]
 
-    return render.Text(
-        content = status,
-        font = "tom-thumb",
-    )
+    if raid_level != "none":
+        return render.Text(
+            content = status,
+            font = "tom-thumb",
+            color = RAID_COLORS[raid_level],
+        )
+    else:
+        return render.Text(
+            content = status,
+            font = "tom-thumb",
+        )
 
 def get_mythic_plus_io(mythic):
     if "current_mythic_rating" in mythic:

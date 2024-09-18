@@ -35,43 +35,32 @@ list_options = [
 ]
 
 def main(config):
-    show_instructions = config.bool("instructions", False)
-    if show_instructions:
-        return display_instructions()
-
     # US, Global,
     selected_list = config.get("list", list_options[0].value)
     cache_name = "%s_%s" % (BILLBOARD_CACHED_TOP10_NAME, selected_list)
 
-    top10_alive_key = config.get("apiKey")
-    #print("Key: %s" % top10_alive_key)
+    top10_alive_key = secret.decrypt(BILLBOARD_SECRET_ENCRYPTED)
+
+    print(top10_alive_key)
 
     top10_data = cache.get(cache_name)
 
     if top10_data == None:
         #print("Nothing in Cache, trying again")
-
-        if top10_alive_key == None or top10_alive_key == "":
-            top10_alive_key = secret.decrypt(BILLBOARD_SECRET_ENCRYPTED)
-
-        if top10_alive_key == None or top10_alive_key == "":
-            return display_instructions()
-
-        top10_data = get_top10_information(top10_alive_key, selected_list)
-
-        #this should only be called for demos that Tidbyt displays on their websites
-        if top10_data == None:
+        if top10_alive_key == None:
+            #this should only be called for demos that Tidbyt displays on their websites
             top10_data = json.decode(BILLBOARD_SAMPLE_DATA)
         else:
-            # Add the fetch date to the dataset
-            top10_data["DateFetched"] = time.now().format("2006-01-02T15:04:05Z07:00")
+            top10_data = get_top10_information(top10_alive_key, selected_list)
 
-            # We want to make <20 calls per month to the API
-            # We have two different possible list types we can pull
-            # Therefore, 10 calls a month max each to keep us under the limit
-            # If we cache each call for 3 days we should be good
-            #cache Time 3 Days x 24 hours x 60 minutes x 60 seconds = 259200 seconds
-            cache.set(cache_name, json.encode(top10_data), ttl_seconds = 259200)
+        top10_data["DateFetched"] = time.now().format("2006-01-02T15:04:05Z07:00")
+
+        # We want to make <20 calls per month to the API
+        # We have two different possible list types we can pull
+        # Therefore, 10 calls a month max each to keep us under the limit
+        # If we cache each call for 3 days we should be good
+        #cache Time 3 Days x 24 hours x 60 minutes x 60 seconds = 259200 seconds
+        cache.set(cache_name, json.encode(top10_data), ttl_seconds = 259200)
     else:
         #print("Fetched from cache")
         top10_data = json.decode(top10_data)
@@ -80,18 +69,25 @@ def main(config):
     if ("DateFetched" in top10_data):
         fetched_time = time.parse_time(top10_data["DateFetched"])
 
-    row1 = "%s - Top 10" % getListDisplayFromListValue(selected_list)
+    display_count = config.get("count", 10)
+
+    row1 = "%s - Top %s" % (getListDisplayFromListValue(selected_list), display_count)
     row2 = getDisplayInfo(top10_data["content"]["1"])
-    row3 = getDisplayInfoMulti(top10_data["content"], 2, 5)
-    if fetched_time == None:
+
+    if (display_count == 10):
+        row3 = getDisplayInfoMulti(top10_data["content"], 2, 5)
         row4 = getDisplayInfoMulti(top10_data["content"], 6, 10)
     else:
-        row4 = "%s -- %s" % (getDisplayInfoMulti(top10_data["content"], 6, 10), fetched_time.format("Mon Jan 2 2006 15:04"))
+        row3 = getDisplayInfoMulti(top10_data["content"], 2, 3)
+        row4 = getDisplayInfoMulti(top10_data["content"], 4, 5)
 
-    #print(row1)
-    #print(row2)
-    #print(row3)
-    #print(row4)
+    if fetched_time != None:
+        row4 = "%s -- %s" % (row4, fetched_time.format("Mon Jan 2 2006 15:04"))
+
+    print(row1)
+    print(row2)
+    print(row3)
+    print(row4)
 
     return render.Root(
         render.Column(
@@ -201,37 +197,6 @@ def getDisplayInfoMulti(items, start, end):
 
     return display
 
-def display_instructions():
-    ##############################################################################################################################################################################################################################
-    instructions_1 = "Get a RapidAPI.com Key. Create an account at RapidAPI.com "
-    instructions_2 = "Click 'Apps', 'Add New App'. Fill in App Name and Description, leave everything else as is, then click 'Add App'. "
-    instructions_3 = "Find your API Key by clicking your app name, then click 'Authorization'. Click the icons next to the API Key to your key. Paste it into the Rapid API Key setting. "
-    return render.Root(
-        render.Column(
-            children = [
-                render.Marquee(
-                    width = 64,
-                    child = render.Text("Billboard Top 10", color = "#65d0e6", font = "5x8"),
-                ),
-                render.Marquee(
-                    width = 64,
-                    child = render.Text(instructions_1, color = "#f4a306"),
-                ),
-                render.Marquee(
-                    offset_start = len(instructions_1) * 5,
-                    width = 64,
-                    child = render.Text(instructions_2, color = "#f4a306"),
-                ),
-                render.Marquee(
-                    offset_start = (len(instructions_2) + len(instructions_1)) * 5,
-                    width = 64,
-                    child = render.Text(instructions_3, color = "#f4a306"),
-                ),
-            ],
-        ),
-        show_full_animation = True,
-    )
-
 def get_schema():
     scroll_speed_options = [
         schema.Option(
@@ -248,16 +213,20 @@ def get_schema():
         ),
     ]
 
+    song_count_options = [
+        schema.Option(
+            display = "5",
+            value = "5",
+        ),
+        schema.Option(
+            display = "10",
+            value = "10",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Toggle(
-                id = "instructions",
-                name = "Display Instructions",
-                desc = "",
-                icon = "book",  #"info",
-                default = False,
-            ),
             schema.Dropdown(
                 id = "list",
                 name = "Billboard List",
@@ -266,11 +235,13 @@ def get_schema():
                 default = list_options[0].value,
                 options = list_options,
             ),
-            schema.Text(
-                id = "apiKey",
-                name = "Rapid API Key",
-                desc = "Your Rapid API Key",
-                icon = "key",
+            schema.Dropdown(
+                id = "count",
+                name = "Number of Songs",
+                desc = "Number of songs to display",
+                icon = "plusMinus",
+                default = song_count_options[len(song_count_options) - 1].value,
+                options = song_count_options,
             ),
             schema.Dropdown(
                 id = "scroll",
