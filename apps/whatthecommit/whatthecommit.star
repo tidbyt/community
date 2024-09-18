@@ -22,7 +22,7 @@ def main():
         return render.Root(
             render.WrappedText(
                 "Error pulling funny commit msg :/",
-                font="5x8"
+                font = "5x8",
             ),
         )
     msg = data["commit_message"]
@@ -42,17 +42,16 @@ def main():
                             height = 1,
                             color = "#ffffff",
                         ),
-                        pad = (0,1,0,1)
+                        pad = (0, 1, 0, 1),
                     ),
                     render.Marquee(
                         render.WrappedText(
                             format_text(msg),
-                            font="5x8"
+                            font = "5x8",
                         ),
                         height = 22,
                         delay = 20,
                         scroll_direction = "vertical",
-                        
                     ),
                 ],
             ),
