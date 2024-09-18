@@ -72,6 +72,7 @@ def main(config):
         return []
 
     return render.Root(
+        
         render.Stack([
             render.Box(
                 color = "#1e283f",
@@ -122,6 +123,7 @@ def main(config):
                                             ],
                                         )),
         ]),
+        delay=100,
         show_full_animation = True,
     )
 
