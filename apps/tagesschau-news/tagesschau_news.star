@@ -101,13 +101,16 @@ def main(config):
                                                     render.WrappedText(
                                                         content = format_text(topline),
                                                         color = "#FFFF00" if news_is_urgent else "#FFFFFF",
+                                                        font="5x8"
+
                                                     ),
                                                     render.Padding(
                                                         render.WrappedText(
                                                             content = format_text(title),
                                                             color = "#FFFF00" if news_is_urgent else "#FFFFFF",
+                                                            font="5x8"
                                                         ),
-                                                        pad = (0, 3, 0, 0),
+                                                        pad = (0, 5, 0, 0),
                                                     ),
                                                 ]),
                                             ),
