@@ -1,0 +1,8 @@
+---
+id: whatthecommit
+name: WhatTheCommit
+summary: Random commit message
+desc: Displays a random funny commit message from whatthecommit.com
+author: dev-manuel
+fileName: whatthecommit.star
+packageName: whatthecommit
