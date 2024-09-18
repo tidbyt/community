@@ -1,0 +1,6 @@
+---
+id: us-electoral-forecast
+name: ElectoralForecast
+summary: 538 US Presidental forecast
+desc: Shows US President electoral forecast from FiveThirtyEight.
+author: jwoglom
