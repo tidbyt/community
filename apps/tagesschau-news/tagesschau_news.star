@@ -72,7 +72,6 @@ def main(config):
         return []
 
     return render.Root(
-        
         render.Stack([
             render.Box(
                 color = "#1e283f",
@@ -106,24 +105,24 @@ def main(config):
                                                     delay = 20,
                                                     child = render.Column(children = [
                                                         render.WrappedText(
-                                                            content = format_text(topline),
+                                                            content = ("+++ " if is_urgent else "") + format_text(topline) + ":",
                                                             color = "#FFFF00" if news_is_urgent else "#FFFFFF",
                                                             font = "5x8",
                                                         ),
                                                         render.Padding(
                                                             render.WrappedText(
-                                                                content = format_text(title),
+                                                                content = format_text(title) + (" +++" if is_urgent else ""),
                                                                 color = "#FFFF00" if news_is_urgent else "#FFFFFF",
                                                                 font = "5x8",
                                                             ),
-                                                            pad = (0, 5, 0, 0),
+                                                            pad = (0, 2, 0, 0),
                                                         ),
                                                     ]),
                                                 ),
                                             ],
                                         )),
         ]),
-        delay=100,
+        delay = 100,
         show_full_animation = True,
     )
 
