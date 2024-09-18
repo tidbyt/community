@@ -6,13 +6,12 @@ Author: DanDobrick
 """
 
 load("http.star", "http")
-load("xpath.star", "xpath")
 load("humanize.star", "humanize")
-load("time.star", "time")
 load("math.star", "math")
-load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
+load("xpath.star", "xpath")
 
 EXAMPLE_USERNAME = "zefquaavius"  # User named from the API docs, luckily has lots of recent plays
 BGG_PLAYS_API_URL = "https://boardgamegeek.com/xmlapi2/plays?username={}"
