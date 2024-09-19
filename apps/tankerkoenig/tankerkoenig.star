@@ -11,15 +11,14 @@ GAS_TYPES = {
     "e10": "E10",
     "diesel": "Diesel",
 }
-RADIUS_OPTIONS = [2,5,10,20,25]
-
+RADIUS_OPTIONS = [2, 5, 10, 20, 25]
 
 def format_text(text):
     return text.replace("ß", "ss")
 
 def get_relevant_stations(stations):
     filtered = [s for s in stations if ("price" in s and s["price"])]
-    sorted_l = sorted(filtered, key=lambda x: x["price"]) 
+    sorted_l = sorted(filtered, key = lambda x: x["price"])
     return sorted_l[:min(3, len(sorted_l))]
 
 def main(config):
@@ -27,9 +26,9 @@ def main(config):
     location_json = config.get("location")
     api_key = config.str("api_key")
     radius = config.str("radius")
-    
+
     demo = not api_key or not location_json
-    
+
     if demo:
         results = [
             ["GutTank - Anne-Walter-Straße 8", 1.109],
@@ -38,7 +37,7 @@ def main(config):
         ]
     else:
         location = json.decode(location_json)
-        url = "https://creativecommons.tankerkoenig.de/json/list.php?lat=" + location["lat"] + "&lng=" + location["lng"] + "&rad="+str(radius)+"&sort=dist&type=" + selected_type + "&apikey=" + api_key
+        url = "https://creativecommons.tankerkoenig.de/json/list.php?lat=" + location["lat"] + "&lng=" + location["lng"] + "&rad=" + str(radius) + "&sort=dist&type=" + selected_type + "&apikey=" + api_key
         resp = http.get(
             url,
             headers = {"accept": "application/json"},
