@@ -22,7 +22,7 @@ def get_relevant_stations(stations):
     return sorted_l[:min(3, len(sorted_l))]
 
 def main(config):
-    selected_type = config.str("gas_type")
+    selected_type = config.str("gas_type",GAS_TYPES.keys()[0])
     location_json = config.get("location")
     api_key = config.str("api_key")
     radius = config.str("radius")
