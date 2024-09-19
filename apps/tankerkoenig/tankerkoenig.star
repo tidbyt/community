@@ -127,8 +127,15 @@ def main(config):
     return render.Root(
         render.Column(
             [
-                render.Text(
-                    GAS_TYPES[selected_type] + "-Preis",
+                render.Row(
+                    [
+                        render.Text(
+                            GAS_TYPES[selected_type],
+                        ),
+                        render.Text("EUR"),
+                    ],
+                    expanded = True,
+                    main_align = "space_between",
                 ),
                 render.Box(
                     width = TIDBYT_WIDTH,
