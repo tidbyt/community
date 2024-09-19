@@ -13,11 +13,11 @@ TEXT_HEIGHT = TIDBYT_HEIGHT - HEADING_HEIGHT - 4
 TEXT_WIDTH = TIDBYT_WIDTH - 2
 CHARS_PER_LINE = 13
 
-def is_urgent(newsEntry):
+def is_breaking(newsEntry):
     if "breakingNews" in newsEntry and newsEntry["breakingNews"]:
         return True
-    if "tags" in newsEntry and any([("tag" in tag and tag["tag"] == "Eilmeldung") for tag in newsEntry["tags"]]):
-        return True
+    # if "tags" in newsEntry and any([("tag" in tag and tag["tag"] == "Eilmeldung") for tag in newsEntry["tags"]]):
+    #     return True
     return False
 
 def format_text(original_text):
@@ -49,7 +49,7 @@ def get_most_important_headline():
     data = response.json()
     if "news" in data:
         for entry in data["news"]:
-            if is_urgent(entry):
+            if is_breaking(entry):
                 return entry
         return data["news"][0]
     return None
@@ -66,7 +66,7 @@ def main(config):
     topline = headline["topline"]
     date = headline["date"]
     formatted_date = format_time(date) if date else "No time available"
-    news_is_urgent = is_urgent(headline)
+    news_is_urgent = is_breaking(headline)
 
     if config and not news_is_urgent and config.bool("hide_if_not_urgent"):
         return []
@@ -105,13 +105,13 @@ def main(config):
                                                     delay = 20,
                                                     child = render.Column(children = [
                                                         render.WrappedText(
-                                                            content = ("+++ " if is_urgent else "") + format_text(topline) + ":",
+                                                            content = ("+++ " if news_is_urgent else "") + format_text(topline) + ":",
                                                             color = "#FFFF00" if news_is_urgent else "#FFFFFF",
                                                             font = "5x8",
                                                         ),
                                                         render.Padding(
                                                             render.WrappedText(
-                                                                content = format_text(title) + (" +++" if is_urgent else ""),
+                                                                content = format_text(title) + (" +++" if news_is_urgent else ""),
                                                                 color = "#FFFF00" if news_is_urgent else "#FFFFFF",
                                                                 font = "5x8",
                                                             ),
