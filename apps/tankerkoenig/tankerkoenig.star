@@ -73,7 +73,7 @@ def get_relevant_stations(stations):
         if name_av:
             title += r["brand"] + " ("
             color = GAS_STATION_COLOR_MAP.get(r["brand"].lower(), "#FFFFFF")
-        title += r["street"] + " " + r["houseNumber"]
+        title += r["street"].title() + " " + r["houseNumber"]
         if name_av:
             title += ")"
         out.append([title, r["price"], color])
@@ -143,7 +143,7 @@ def main(config):
                                     render.Marquee(
                                         render.Text(
                                             format_text(result[0]),
-                                            font = "CG-pixel-3x5-mono",
+                                            font = "tom-thumb",
                                             color = result[2],
                                         ),
                                         scroll_direction = "horizontal",
