@@ -66,7 +66,6 @@ def main(config):
         ),
     )
 
-
 def get_schema():
     options = [
         schema.Option(
