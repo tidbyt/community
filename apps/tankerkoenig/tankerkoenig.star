@@ -59,7 +59,7 @@ def format_price(price):
     return price_str + ".00"
 
 def format_text(text):
-    return text.replace("ß", "ss")
+    return text.replace("ß", "ss").replace("ö", "oe").replace("ä", "ae").replace("ü", "ue").replace("Ö", "Oe").replace("Ä", "Ae").replace("Ü", "Ue")
 
 def get_relevant_stations(stations):
     filtered = [s for s in stations if ("price" in s and s["price"])]
