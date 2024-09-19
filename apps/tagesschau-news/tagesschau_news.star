@@ -16,6 +16,7 @@ CHARS_PER_LINE = 13
 def is_breaking(newsEntry):
     if "breakingNews" in newsEntry and newsEntry["breakingNews"]:
         return True
+
     # if "tags" in newsEntry and any([("tag" in tag and tag["tag"] == "Eilmeldung") for tag in newsEntry["tags"]]):
     #     return True
     return False
