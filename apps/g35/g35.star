@@ -5,7 +5,6 @@ Description: Train arrival times for the Clinton-Washington station of NYC's G t
 Author: samdotdesign
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -20,26 +19,15 @@ TIME_PADDING = dict(top = -2, right = 3, bottom = 0, left = 0)
 TIMES_ROW_PADDING = dict(top = 0, right = 0, bottom = 0, left = 2)
 
 def main():
-    cached_data = cache.get("train_data")
     api_error = None
 
-    rep = http.get(MTA_API_URL, ttl_seconds = 60)
+    rep = http.get(MTA_API_URL, ttl_seconds = CACHE_TTL)
     if rep.status_code != 200:
-        api_error = "HTTP Error: {}".format(rep.status_code)
-    else:
-        data = rep.json()
-        if validate_data(data):
-            cache.set("train_data", json.encode(data), ttl_seconds = CACHE_TTL)
-            cached_data = json.encode(data)
-        else:
-            api_error = "Invalid data format"
+        return render_error("HTTP Error: {}".format(rep.status_code))
 
-    if cached_data:
-        data = json.decode(cached_data)
-    elif api_error:
-        return render_error(api_error)
-    else:
-        return render_error("No data available")
+    data = rep.json()
+    if not validate_data(data):
+        return render_error("Invalid data format")
 
     station_data = data["data"][0]
     northbound = station_data.get("N", [])[:3]  # Get up to 3 northbound trains
