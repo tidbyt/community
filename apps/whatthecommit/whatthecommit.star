@@ -100,20 +100,21 @@ def main():
     frame_buffer_size = 15
 
     return render.Root(
-        # render.Padding(
-        render.Column(
-            [
-                render.Sequence(
-                    [
-                        write_command("git commit -m \"", 1, frame_buffer_size, 5, 20),
-                        write_command(msg, 3, frame_buffer_size, 20, 20, "dquote> "),
-                    ],
-                ),
-            ],
-            expanded = True,
-            main_align = "center",
+        render.Padding(
+            render.Column(
+                [
+                    render.Sequence(
+                        [
+                            write_command("git commit -m \"", 3, frame_buffer_size, 5, 16),
+                            write_command(msg, 4, frame_buffer_size, 20, 20, "dquote> "),
+                        ],
+                    ),
+                ],
+                expanded = True,
+                main_align = "center",
+                cross_align = "center",
+            ),
+            pad = (0, 4, 0, 0),
         ),
         delay = 40,
-        #     pad = 1,
-        # ),
     )
