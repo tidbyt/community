@@ -133,9 +133,24 @@ def main(config):
                         cross_align = "center",
                         children = [
                             render.Text(
-                                content = "STONKS! Please add your Polygon.io API key",
-                                font = "5x8",
-                                color = "#FF0000",
+                                content = "STONKS!",
+                                font = "6x13",
+                                color = "#FFFFFF",
+                            ),
+                        ],
+                    ),
+                    render.Row(
+                        expanded = True,
+                        main_align = "center",
+                        cross_align = "center",
+                        children = [
+                            render.Marquee(
+                                width=64,
+                                child=render.Text(
+                                    content = "GET STARTED: HTTPS://STONKS.MARKET",
+                                    font = "5x8",
+                                    color = "#00FF00",
+                                ),
                             ),
                         ],
                     ),
