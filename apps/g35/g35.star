@@ -5,7 +5,6 @@ Description: Train arrival times for the Clinton-Washington station of NYC's G t
 Author: samdotdesign
 """
 
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
