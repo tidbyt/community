@@ -120,6 +120,16 @@ def parseMatch(match, key):
         series_setting = pro_setting,
     )
 
+def parseTimetableEntry(entry):
+    # This has only been used for Tricolor stages during the Grand Fest.
+    # I don't know why they changed it. Was it just to make my life harder?
+
+    return struct(
+        start_time = entry["startTime"],
+        end_time = entry["endTime"],
+        tricolor_stage = entry["festMatchSettings"][0]["vsStages"][0]["name"],
+    )
+
 def parseSalmonRunMatchSetting(setting):
     return struct(
         boss = (setting["boss"]["name"] if setting["boss"] else "(no boss)"),
@@ -385,8 +395,16 @@ def main(config):
     now = time.now()
 
     if (stages["data"]["festSchedules"] and stages["data"]["currentFest"]):
+        use_timetable = len(stages["data"]["currentFest"].get("timetable", [])) > 0
         if (now >= time.parse_time(stages["data"]["currentFest"]["startTime"]) and now <= time.parse_time(stages["data"]["currentFest"]["endTime"])):
             teams = stages["data"]["currentFest"]["teams"]
+
+            if (use_timetable):
+                tricol_timetable = [parseTimetableEntry(entry) for entry in stages["data"]["currentFest"]["timetable"]]
+                tricol_stage = getCurrentMatch(tricol_timetable, now).tricolor_stage
+            else:
+                tricol_stage = stages["data"]["currentFest"]["tricolorStage"]["name"]
+
             splatfest_colours = [
                 rgb2hex([teams[0]["color"]["r"] * 150, teams[0]["color"]["g"] * 150, teams[0]["color"]["b"] * 150]),
                 rgb2hex([teams[1]["color"]["r"] * 150, teams[1]["color"]["g"] * 150, teams[1]["color"]["b"] * 150]),
@@ -394,7 +412,7 @@ def main(config):
             ]
 
             splatfest = struct(
-                tricolor_stage = stages["data"]["currentFest"]["tricolorStage"]["name"],
+                tricolor_stage = tricol_stage,
                 start_time = time.parse_time(stages["data"]["currentFest"]["startTime"]),
                 halftime = time.parse_time(stages["data"]["currentFest"]["midtermTime"]),
                 end_time = time.parse_time(stages["data"]["currentFest"]["endTime"]),

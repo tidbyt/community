@@ -94,24 +94,16 @@ def make_tricolor_turf_war():
     def nodes_accessor(data):
         current_fest = data["currentFest"]
         return {
-            "nodes": [
-                {
-                    "startTime": current_fest["midtermTime"],
-                    "endTime": current_fest["endTime"],
-                    "setting": {
-                        "tricolorStage": [current_fest["tricolorStage"]],
-                    },
-                },
-            ] if current_fest else [],
+            "nodes": current_fest["timetable"] if current_fest else [],
         }
 
     return struct(
         nodes_accessor = nodes_accessor,
-        setting_key = "setting",
+        setting_key = "festMatchSettings",
         is_splatfest = True,
         title_color = None,
         subtitle_generator = None,
-        images_accessor = lambda x: x["tricolorStage"],
+        images_accessor = lambda x: get_vs_stages(x[0]),
     )
 
 MODES = {
