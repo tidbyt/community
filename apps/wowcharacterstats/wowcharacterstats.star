@@ -132,7 +132,7 @@ def main(config):
         faction_color = "#00f"
 
     return render.Root(
-        delay = 294,
+        delay = 3750,
         child = render.Column(
             expanded = True,
             main_align = "space_around",
@@ -152,39 +152,43 @@ def main(config):
                     cross_align = "center",
                     children = [
                         render.Padding(
-                            pad = (2, 1, 1, 1),
+                            pad = (2, 1, 0, 1),
                             child = render.Image(src = determine_icon(player_profile)),
                         ),
-                        render.Padding(
-                            pad = (2, 1, 2, 1),
-                            child = render.Sequence(
+                        render.Box(
+                            height = 24,
+                            width = 40,
+                            padding = 1,
+                            child = render.Animation(
                                 children = [
-                                    render.Marquee(
-                                        width = 36,
-                                        height = 22,
-                                        scroll_direction = "vertical",
-                                        offset_start = 22,
-                                        # offset_end = 0,
-                                        child = render.Column(
-                                            cross_align = "center",
-                                            children = [
-                                                render.Text(
-                                                    content = "lvl %d" % player_profile["level"],
-                                                    font = "tom-thumb",
-                                                ),
-                                                render.Text(
-                                                    content = "%s" % player_profile["faction"]["name"],
-                                                    font = "tom-thumb",
-                                                    color = faction_color,
-                                                ),
-                                                render.Text(
-                                                    content = "ilvl %d" % player_profile["equipped_item_level"],
-                                                    font = "tom-thumb",
-                                                ),
-                                                get_mythic_plus_io(player_mythic),
-                                                get_raid_progress(player_raids),
-                                            ],
-                                        ),
+                                    render.Column(
+                                        cross_align = "center",
+                                        main_align = "space_evenly",
+                                        expanded = True,
+                                        children = [
+                                            render.Text(
+                                                content = "lvl %d" % player_profile["level"],
+                                                font = "tom-thumb",
+                                            ),
+                                            render.Text(
+                                                content = "%s" % player_profile["faction"]["name"],
+                                                font = "tom-thumb",
+                                                color = faction_color,
+                                            ),
+                                            render.Text(
+                                                content = "ilvl %d" % player_profile["equipped_item_level"],
+                                                font = "tom-thumb",
+                                            ),
+                                        ],
+                                    ),
+                                    render.Column(
+                                        cross_align = "center",
+                                        main_align = "space_evenly",
+                                        expanded = True,
+                                        children = [
+                                            get_mythic_plus_io(player_mythic),
+                                            get_raid_progress(player_raids),
+                                        ],
                                     ),
                                 ],
                             ),

@@ -1,0 +1,8 @@
+---
+id: tankerkoenig
+name: Tankerkönig
+summary: Near gas stations (Germany)
+desc: This app displays some nearby cheap gas stations in Germany (Tankerkönig) based on your location.
+author: dev-manuel
+fileName: tankerkoenig.star
+packageName: tankerkoenig
