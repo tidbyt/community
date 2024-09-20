@@ -97,18 +97,21 @@ def main(config):
                     "street": "Anne-Walter-Straße",
                     "houseNumber": "8",
                     "price": 1.109,
+                    "dist": 0.5,
                 },
                 {
                     "brand": "BestGas",
                     "street": "Hauptstraße",
                     "houseNumber": "1",
                     "price": 1.1,
+                    "dist": 1.2,
                 },
                 {
                     "brand": "Alal",
                     "street": "Johann-Georg-Halske-Straße",
                     "houseNumber": "1",
                     "price": 1.34,
+                    "dist": 2.3,
                 },
             ],
         }
@@ -160,7 +163,7 @@ def main(config):
                                         ),
                                         scroll_direction = "horizontal",
                                         width = 44,
-                                        delay = 30,
+                                        delay = 50,
                                     ),
                                     render.Padding(
                                         render.Animation(
