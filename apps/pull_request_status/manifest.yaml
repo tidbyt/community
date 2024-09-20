@@ -1,6 +1,6 @@
 ---
 id: pull-request-status
-name: Pull Request Status
+name: GitHub PR Status
 summary: Show pull request status
 desc: This app displays the status of up to 3 pull requests of one ore more GitHub repositories. 
 author: dev-manuel
