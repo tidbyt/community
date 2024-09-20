@@ -13,11 +13,12 @@ TEXT_HEIGHT = TIDBYT_HEIGHT - HEADING_HEIGHT - 4
 TEXT_WIDTH = TIDBYT_WIDTH - 2
 CHARS_PER_LINE = 13
 
-def is_urgent(newsEntry):
+def is_breaking(newsEntry):
     if "breakingNews" in newsEntry and newsEntry["breakingNews"]:
         return True
-    if "tags" in newsEntry and any([("tag" in tag and tag["tag"] == "Eilmeldung") for tag in newsEntry["tags"]]):
-        return True
+
+    # if "tags" in newsEntry and any([("tag" in tag and tag["tag"] == "Eilmeldung") for tag in newsEntry["tags"]]):
+    #     return True
     return False
 
 def format_text(original_text):
@@ -49,7 +50,7 @@ def get_most_important_headline():
     data = response.json()
     if "news" in data:
         for entry in data["news"]:
-            if is_urgent(entry):
+            if is_breaking(entry):
                 return entry
         return data["news"][0]
     return None
@@ -66,55 +67,63 @@ def main(config):
     topline = headline["topline"]
     date = headline["date"]
     formatted_date = format_time(date) if date else "No time available"
-    news_is_urgent = is_urgent(headline)
+    news_is_urgent = is_breaking(headline)
 
     if config and not news_is_urgent and config.bool("hide_if_not_urgent"):
-        return None
+        return []
 
     return render.Root(
-        render.Padding(pad = 1, child =
-                                    render.Column(
-                                        expanded = True,
-                                        children = [
-                                            render.Padding(
-                                                child =
-                                                    render.Row(
-                                                        expanded = True,
-                                                        main_align = "space_between",
-                                                        children = [
-                                                            render.Image(height = HEADING_HEIGHT, src = base64.decode(ARD_LOGO_ENCODED)),
-                                                            render.Text(
-                                                                formatted_date,
-                                                                # font family
-                                                                font = "CG-pixel-3x5-mono",
-                                                            ),
-                                                        ],
-                                                        cross_align = "center",
-                                                    ),
-                                                pad = 1,
-                                            ),
-                                            render.Marquee(
-                                                height = TEXT_HEIGHT,
-                                                scroll_direction = "vertical",
-                                                delay = 20,
-                                                child = render.Column(children = [
-                                                    render.WrappedText(
-                                                        content = format_text(topline),
-                                                        color = "#FFFF00" if news_is_urgent else "#FFFFFF",
-                                                        font = "5x8",
-                                                    ),
-                                                    render.Padding(
+        render.Stack([
+            render.Box(
+                color = "#1e283f",
+                width = TIDBYT_WIDTH,
+                height = TIDBYT_HEIGHT,
+            ),
+            render.Padding(pad = 1, child =
+                                        render.Column(
+                                            expanded = True,
+                                            children = [
+                                                render.Padding(
+                                                    child =
+                                                        render.Row(
+                                                            expanded = True,
+                                                            main_align = "space_between",
+                                                            children = [
+                                                                render.Image(height = HEADING_HEIGHT, src = base64.decode(ARD_LOGO_ENCODED_WHITE)),
+                                                                render.Text(
+                                                                    formatted_date,
+                                                                    # font family
+                                                                    font = "CG-pixel-3x5-mono",
+                                                                ),
+                                                            ],
+                                                            cross_align = "center",
+                                                        ),
+                                                    pad = 1,
+                                                ),
+                                                render.Marquee(
+                                                    height = TEXT_HEIGHT,
+                                                    scroll_direction = "vertical",
+                                                    delay = 20,
+                                                    child = render.Column(children = [
                                                         render.WrappedText(
-                                                            content = format_text(title),
+                                                            content = ("+++ " if news_is_urgent else "") + format_text(topline) + ":",
                                                             color = "#FFFF00" if news_is_urgent else "#FFFFFF",
                                                             font = "5x8",
                                                         ),
-                                                        pad = (0, 5, 0, 0),
-                                                    ),
-                                                ]),
-                                            ),
-                                        ],
-                                    )),
+                                                        render.Padding(
+                                                            render.WrappedText(
+                                                                content = format_text(title) + (" +++" if news_is_urgent else ""),
+                                                                color = "#FFFF00" if news_is_urgent else "#FFFFFF",
+                                                                font = "5x8",
+                                                            ),
+                                                            pad = (0, 2, 0, 0),
+                                                        ),
+                                                    ]),
+                                                ),
+                                            ],
+                                        )),
+        ]),
+        delay = 100,
         show_full_animation = True,
     )
 
