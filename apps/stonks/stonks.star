@@ -145,8 +145,8 @@ def main(config):
                         cross_align = "center",
                         children = [
                             render.Marquee(
-                                width=64,
-                                child=render.Text(
+                                width = 64,
+                                child = render.Text(
                                     content = "GET STARTED: HTTPS://STONKS.MARKET",
                                     font = "5x8",
                                     color = "#00FF00",
