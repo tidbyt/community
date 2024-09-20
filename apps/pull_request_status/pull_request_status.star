@@ -22,7 +22,6 @@ def read_repo_pr_label_setup(config):
 
 # returns "merged" or "closed" or "open"
 def get_pr_status(repo, pr):
-    
     api_url = "https://api.github.com/repos/" + repo + "/pulls/" + str(pr)
 
     response = http.get(api_url, ttl_seconds = 180)
@@ -70,7 +69,7 @@ def main(config):
     #         continue
     #     hide_after_hours = int(hide_after)
 
-    image_height = min(int(24/len(elements_to_display)),15)
+    image_height = min(int(24 / len(elements_to_display)), 15)
     return render.Root(
         render.Padding(
             render.Column(
@@ -93,7 +92,7 @@ def main(config):
                                     label,
                                     font = "tom-thumb",
                                 ),
-                                width = 62-image_height,
+                                width = 62 - image_height,
                             ),
                             (render.Image(
                                 src = base64.decode(status_icon),
