@@ -10,7 +10,7 @@ load("render.star", "render")
 load("time.star", "time")
 
 MTA_API_URL = "https://mta-api-ochre.vercel.app/by-id/G35"
-CACHE_TTL = 60  # Cache data for 1 minute
+CACHE_TTL = 60  # Cache data for a minute
 
 # Adjustable padding values
 DIRECTION_PADDING = dict(top = 2, right = 0, bottom = 1, left = 2)
