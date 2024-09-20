@@ -76,7 +76,9 @@ def get_relevant_stations(stations):
         title += r["street"].title() + " " + r["houseNumber"]
         if name_av:
             title += ")"
-        out.append([title, r["price"], color])
+        dist = str(r["dist"]) if "dist" in r else "?"
+
+        out.append([title, r["price"], dist, color])
     return out
 
 def main(config):
@@ -132,7 +134,10 @@ def main(config):
                         render.Text(
                             GAS_TYPES[selected_type],
                         ),
-                        render.Text("EUR"),
+                        render.Animation(
+                            [render.Text("EUR") for _ in range(40)] +
+                            [render.Text("KM") for _ in range(40)],
+                        ),
                     ],
                     expanded = True,
                     main_align = "space_between",
@@ -151,21 +156,28 @@ def main(config):
                                         render.Text(
                                             format_text(result[0]),
                                             font = "tom-thumb",
-                                            color = result[2],
+                                            color = result[3],
                                         ),
                                         scroll_direction = "horizontal",
                                         width = 44,
-                                        delay = 50,
+                                        delay = 30,
                                     ),
                                     render.Padding(
-                                        render.Text(
-                                            str(format_price(result[1])) + "€",
-                                            font = "CG-pixel-3x5-mono",
+                                        render.Animation(
+                                            [render.Text(
+                                                str(format_price(result[1])),
+                                                font = "CG-pixel-3x5-mono",
+                                            ) for _ in range(40)] +
+                                            [render.Text(
+                                                str(result[2]),
+                                                font = "CG-pixel-3x5-mono",
+                                            ) for _ in range(40)],
                                         ),
                                         pad = (3, 0, 0, 0),
                                     ),
                                 ],
                                 expanded = True,
+                                main_align = "space_between",
                             ),
                             pad = 1,
                         )
