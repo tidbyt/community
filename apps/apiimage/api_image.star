@@ -5,8 +5,8 @@ Description: Display an image from an endpoint.
 Author: Michael Yagi
 """
 
-load("render.star", "render")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 DEFAULT_API_URL = "https://dog.ceo/api/breeds/image/random"
@@ -19,7 +19,7 @@ def main(config):
     api_url = config.str("api_url", DEFAULT_API_URL)
     response_path = config.get("response_path", DEFAULT_RESPONSE_PATH)
     api_headers = config.get("api_headers", DEFAULT_APP_HEADERS)
-        
+
     # print("api_url")
     # print(api_url)
     # print("response_path")
@@ -29,7 +29,8 @@ def main(config):
 
     if api_url == "":
         failure = True
-        # print("api_url must not be blank.") 
+        # print("api_url must not be blank.")
+
     else:
         if api_headers != "" or api_headers != {}:
             api_headers = api_headers.split(",")
@@ -39,13 +40,14 @@ def main(config):
                 if len(headerKeyValueArray) > 1:
                     headerMap[headerKeyValueArray[0].strip()] = headerKeyValueArray[1].strip()
 
-            rep = http.get(api_url, headers=headerMap)
+            rep = http.get(api_url, headers = headerMap)
         else:
             rep = http.get(api_url)
 
         if rep.status_code != 200:
             failure = True
             # print("Request failed with status %d", rep.status_code)
+
         else:
             json = rep.json()
 
@@ -53,7 +55,6 @@ def main(config):
                 failure = True
 
             if failure == False or json != "" or response_path != []:
-
                 responsePathArray = response_path
 
                 responsePathArray = responsePathArray.split(",")
@@ -62,11 +63,13 @@ def main(config):
                     item = item.strip()
                     if item.isdigit():
                         item = int(item)
+
                     # print("item")
                     # print(item)
                     # print(type(json))
                     if (type(json) == "dict" and json.get(item) == None) or (type(json) == "list" and json[item] == None):
                         failure = True
+
                         # print("responsePathArray invalid. " + item + " does not exist")
                         break
                     else:
@@ -76,6 +79,7 @@ def main(config):
                     if json.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
                         failure = True
                         # print("Invalide URL. Requires a base_url")
+
                     else:
                         if base_url != "":
                             img = http.get(base_url + json).body()
@@ -84,11 +88,11 @@ def main(config):
 
                         return render.Root(
                             render.Row(
-                                expanded=True,
-                                main_align="space_evenly",
-                                cross_align="center",
-                                children = [render.Image(src = img, height = 32)]
-                            )
+                                expanded = True,
+                                main_align = "space_evenly",
+                                cross_align = "center",
+                                children = [render.Image(src = img, height = 32)],
+                            ),
                         )
                 else:
                     # print("Invalid path for image")
@@ -98,12 +102,18 @@ def main(config):
                 # print("Status failed")
                 # print(json)
                 failure = True
-        
-    if failure == True:
-        # fail()
-        print("Something went wrong")
-    
-    # return failure
+
+    # if failure == True:
+    # fail()
+    # print("Something went wrong")
+    return render.Root(
+        render.Row(
+            expanded = True,
+            main_align = "space_evenly",
+            cross_align = "center",
+            children = [render.Text("Could not get image.")],
+        ),
+    )
 
 def get_schema():
     return schema.Schema(
@@ -136,6 +146,6 @@ def get_schema():
                 desc = "Comma separated key:value pairs to build the request headers. eg, `x-api-key:abc123,content-type:application/json`",
                 icon = "",
                 default = "",
-            )
+            ),
         ],
     )
