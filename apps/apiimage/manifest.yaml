@@ -1,6 +1,6 @@
 ---
 id: api-image
 name: API Image
-summary: Displays image from an API endpoint.
-desc: Configure a URL, headers and the response path to the image to display. Best when using an endpoint that serves random images.
+summary: Pull image from an API.
+desc: Configure a URL, headers and the response path to the image to display.
 author: MichaelYagi
