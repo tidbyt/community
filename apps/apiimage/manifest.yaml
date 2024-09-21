@@ -1,6 +1,6 @@
 ---
 id: api-image
 name: API Image
-summary: Pull image from an API
+summary: Pull an image from an API
 desc: Configure a URL, headers and the response path to the image to display.
 author: MichaelYagi
