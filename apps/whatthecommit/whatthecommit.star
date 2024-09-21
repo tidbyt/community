@@ -106,7 +106,7 @@ def main():
                     render.Sequence(
                         [
                             write_command("git commit -m \"", 3, frame_buffer_size, 5, 16),
-                            write_command(msg, 4, frame_buffer_size, 20, 20, "dquote> "),
+                            write_command(msg, 4, frame_buffer_size, 30, 20, "dquote> "),
                         ],
                     ),
                 ],
@@ -117,4 +117,5 @@ def main():
             pad = (0, 4, 0, 0),
         ),
         delay = 40,
+        show_full_animation = True,
     )
