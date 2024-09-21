@@ -13,6 +13,7 @@ DEFAULT_API_URL = "https://dog.ceo/api/breeds/image/random"
 DEFAULT_BASE_URL = ""
 DEFAULT_APP_HEADERS = ""
 DEFAULT_RESPONSE_PATH = "message"
+TTL_SECONDS = 60
 
 def main(config):
     base_url = config.str("base_url", DEFAULT_BASE_URL)
@@ -40,9 +41,9 @@ def main(config):
                 if len(headerKeyValueArray) > 1:
                     headerMap[headerKeyValueArray[0].strip()] = headerKeyValueArray[1].strip()
 
-            rep = http.get(api_url, headers = headerMap)
+            rep = http.get(api_url, headers = headerMap, ttl_seconds = TTL_SECONDS)
         else:
-            rep = http.get(api_url)
+            rep = http.get(api_url, ttl_seconds = TTL_SECONDS)
 
         if rep.status_code != 200:
             failure = True
@@ -82,9 +83,9 @@ def main(config):
 
                     else:
                         if base_url != "":
-                            img = http.get(base_url + json).body()
+                            img = http.get(base_url + json, ttl_seconds = TTL_SECONDS).body()
                         else:
-                            img = http.get(json).body()
+                            img = http.get(json, ttl_seconds = TTL_SECONDS).body()
 
                         return render.Root(
                             render.Row(
@@ -106,9 +107,9 @@ def main(config):
     return render.Root(
         child = render.Box(
             render.Row(
-                expanded = True,
-                main_align = "space_evenly",
-                cross_align = "center",
+                expanded=True,
+                main_align="space_evenly",
+                cross_align="center",
                 children = [
                     render.WrappedText(content = "Could not get image", font = "5x8"),
                 ],
