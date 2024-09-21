@@ -106,9 +106,9 @@ def main(config):
     return render.Root(
         child = render.Box(
             render.Row(
-                expanded=True,
-                main_align="space_evenly",
-                cross_align="center",
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "center",
                 children = [
                     render.WrappedText(content = "Could not get image", font = "5x8"),
                 ],
