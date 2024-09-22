@@ -51,83 +51,89 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output):
                 if len(headerKeyValueArray) > 1:
                     headerMap[headerKeyValueArray[0].strip()] = headerKeyValueArray[1].strip()
 
-        json_body = get_cached(api_url, debug_output, headerMap)
+        output_body = get_cached(api_url, debug_output, headerMap)
 
-        if json_body != None:
-            decoded_json = json.decode(json_body)
+        if output_body != None and type(output_body) == "string":
+            output = json.decode(output_body, None)
 
             if debug_output:
                 print("Decoded JSON")
-                print(decoded_json)
+                print(output)
 
-            if decoded_json.get("status") == "fail":
-                failure = True
+            if failure == False or output_body != "":
+                if response_path != "":
+                    responsePathArray = response_path
 
-            if failure == False or decoded_json != "" or response_path != []:
-                responsePathArray = response_path
+                    responsePathArray = responsePathArray.split(",")
 
-                responsePathArray = responsePathArray.split(",")
+                    for item in responsePathArray:
+                        item = item.strip()
+                        if item.isdigit():
+                            item = int(item)
 
-                for item in responsePathArray:
-                    item = item.strip()
-                    if item.isdigit():
-                        item = int(item)
-
-                    if debug_output:
-                        print("item")
-                        print(item)
-                        print(type(decoded_json))
-
-                    if (type(decoded_json) == "dict" and decoded_json.get(item) == None) or (type(decoded_json) == "list" and decoded_json[item] == None):
-                        failure = True
-                        message = "Response path invalid. " + item + " does not exist"
                         if debug_output:
-                            print("responsePathArray invalid. " + item + " does not exist")
-                        break
-                    else:
-                        decoded_json = decoded_json[item]
+                            print("item")
+                            print(item)
+                            print(type(output))
 
-                if type(decoded_json) == "string" and failure == False:
-                    if decoded_json.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
-                        failure = True
-                        message = "Base URL missing"
+                        if (type(output) == "dict" and output.get(item) == None) or (type(output) == "list" and output[item] == None):
+                            failure = True
+                            message = "Response path invalid. " + item + " does not exist"
+                            if debug_output:
+                                print("responsePathArray invalid. " + item + " does not exist")
+                            break
+                        elif output != None:
+                            output = output[item]
+
+                if failure == False:
+                    img = None
+                    if output != None and failure == False:
                         if debug_output:
-                            print("Invalide URL. Requires a base_url")
+                            print("JSON from URL")
 
-                    else:
-                        if base_url != "":
-                            url = base_url + decoded_json
+                        if output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
+                            failure = True
+                            message = "Base URL missing"
+                            if debug_output:
+                                print("Invalide URL. Requires a base_url")
+
                         else:
-                            url = decoded_json
+                            if base_url != "":
+                                url = base_url + output
+                            else:
+                                url = output
 
-                        img = get_cached(url, debug_output)
+                            img = get_cached(url, debug_output)
 
+                            if debug_output:
+                                print("URL: " + url)
+
+                    else:
                         if debug_output:
-                            print("URL: " + url)
+                            print("Image from URL")
+                        img = output_body
 
-                        if img != None:
-                            return render.Root(
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_evenly",
-                                    cross_align = "center",
-                                    children = [render.Image(src = img, height = 32)],
-                                ),
-                            )
-                else:
-                    message = "Invalid image path"
-                    if debug_output:
-                        print("Invalid image path")
-                        print(decoded_json)
-                    failure = True
-                    # return get_image(base_url, api_url, response_path, api_headers, debug_output)
+                    if img != None:
+                        return render.Root(
+                            render.Row(
+                                expanded = True,
+                                main_align = "space_evenly",
+                                cross_align = "center",
+                                children = [render.Image(src = img, height = 32)],
+                            ),
+                        )
+                    else:
+                        failure = True
+                        message = "Invalid image"
 
             else:
-                message = "Something went wrong."
+                message = "Invalid image path"
                 if debug_output:
-                    print("Status failed")
-                    print(decoded_json)
+                    print("Invalid image path")
+                    print(output)
                 failure = True
+                # return get_image(base_url, api_url, response_path, api_headers, debug_output)
+
         else:
             message = "Something went wrong. Check URL and header values."
             if debug_output:
@@ -140,11 +146,10 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output):
     row = render.Row(children = [])
     if debug_output == True:
         row = render.Row(
-            expanded = True,
             main_align = "space_evenly",
             cross_align = "center",
             children = [
-                render.WrappedText(content = message, font = "5x8"),
+                render.WrappedText(content = message, font = "tom-thumb"),
             ],
         )
 
@@ -190,14 +195,14 @@ def get_schema():
             schema.Text(
                 id = "api_url",
                 name = "URL",
-                desc = "The API url.",
+                desc = "The API url. Supports JSON or image types.",
                 icon = "",
                 default = "",
                 # default = "https://dog.ceo/api/breeds/image/random",
             ),
             schema.Text(
                 id = "response_path",
-                name = "Response path",
+                name = "JSON response path",
                 desc = "A comma separated path to the image in the response JSON. eg. `json_key1, 2, key_to_image_url`",
                 icon = "",
                 default = "",
