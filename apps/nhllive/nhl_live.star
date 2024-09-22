@@ -328,6 +328,7 @@ def get_games(teamId, currDate, game_info):
     return game_info
 
 def get_game_status(game_info, games, currDate):
+    # Check if game is today
     if game_info["game_date"] == str(currDate):
         game_info["is_game_today"] = True
 
@@ -570,7 +571,7 @@ def get_next_game(currDate, games):
 def get_current_date(config):
     timezone = get_timezone(config)
     now = time.now().in_location(timezone)
-    today = now.format("2006-1-2").upper()
+    today = now.format("2006-01-02").upper()
     return today
 
 def get_team(config):
