@@ -11,7 +11,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-DEBUG = True
+DEBUG = False
 
 def main(config):
     base_url = config.str("base_url", "")
