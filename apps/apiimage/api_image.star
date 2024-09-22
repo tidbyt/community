@@ -93,9 +93,9 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output):
 
                         if output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
                             failure = True
-                            message = "Base URL missing"
+                            message = "Base URL required"
                             if debug_output:
-                                print("Invalide URL. Requires a base_url")
+                                print("Invalid URL. Requires a base_url")
 
                         else:
                             if output.startswith("http") == False and base_url != "":
@@ -122,14 +122,11 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output):
                                 children = [render.Image(src = img, height = 32)],
                             ),
                         )
-                    else:
-                        failure = True
-                        message = "Invalid image"
 
             else:
-                message = "Invalid image path"
+                message = "Invalid image URL"
                 if debug_output:
-                    print("Invalid image path")
+                    print(message)
                     print(output)
                 failure = True
                 # return get_image(base_url, api_url, response_path, api_headers, debug_output)
