@@ -17,6 +17,7 @@ def main(config):
     response_path = config.get("response_path", "")
     api_headers = config.get("api_headers", "")
     debug_output = config.bool("debug_output", False)
+    fit_screen = config.bool("fit_screen", False)
 
     if debug_output:
         print("api_url")
@@ -27,10 +28,12 @@ def main(config):
         print(api_headers)
         print("debug_output")
         print(debug_output)
+        print("fit_screen")
+        print(fit_screen)
 
-    return get_image(base_url, api_url, response_path, api_headers, debug_output)
+    return get_image(base_url, api_url, response_path, api_headers, debug_output, fit_screen)
 
-def get_image(base_url, api_url, response_path, api_headers, debug_output):
+def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_screen):
     failure = False
     message = ""
 
@@ -114,12 +117,23 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output):
                         img = output_body
 
                     if img != None:
+                        imgRender = render.Image(
+                            src = img,
+                            height = 32,
+                        )
+
+                        if fit_screen == True:
+                            imgRender = render.Image(
+                                src = img,
+                                width = 64,
+                            )
+
                         return render.Root(
                             render.Row(
                                 expanded = True,
                                 main_align = "space_evenly",
                                 cross_align = "center",
-                                children = [render.Image(src = img, height = 32)],
+                                children = [imgRender],
                             ),
                         )
 
@@ -211,6 +225,13 @@ def get_schema():
                 desc = "Comma separated key:value pairs to build the request headers. eg, `x-api-key:abc123,content-type:application/json`",
                 icon = "",
                 default = "",
+            ),
+            schema.Toggle(
+                id = "fit_screen",
+                name = "Fit screen",
+                desc = "Fit image on screen.",
+                icon = "",
+                default = False,
             ),
             schema.Toggle(
                 id = "debug_output",
