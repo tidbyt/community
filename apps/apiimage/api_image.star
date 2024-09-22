@@ -120,7 +120,8 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output):
                         print("Invalid image path")
                         print(decoded_json)
                     failure = True
-                    return get_image(base_url, api_url, response_path, api_headers, debug_output)
+                    # return get_image(base_url, api_url, response_path, api_headers, debug_output)
+
             else:
                 message = "Something went wrong."
                 if debug_output:
@@ -128,7 +129,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output):
                     print(decoded_json)
                 failure = True
         else:
-            message = "Something went wrong. Check header values."
+            message = "Something went wrong. Check URL and header values."
             if debug_output:
                 print(message)
             failure = True
