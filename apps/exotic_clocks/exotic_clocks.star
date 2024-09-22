@@ -41,9 +41,13 @@ def main(config):
 
     current_time = time.now().in_location(timezone)
 
+    clock = render_thai_clock(current_time)
+
+    if config.get("clocktype") == "roman":
+        clock = render_roman_clock(current_time)
     return render.Root(
         delay = 500,
-        child = render_thai_clock(current_time),
+        child = clock,
     )
 
 def render_thai_clock(current_time):
@@ -82,6 +86,23 @@ def render_thai_clock(current_time):
         ],
     )
 
+def roman_numeral (num) :
+    numbers = [ (50, 'L'), (40, 'XL'), (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I') ]
+    result = "" 
+    for val, str in numbers:
+        for _ in range(10):
+            if num >= val:
+                result += str
+                num -= val
+    return result
+
+def render_roman_clock (current_time):
+    hh = int(current_time.format("15"))
+    mm = int(current_time.format("04"))
+    texts = [ render.Text("H " + roman_numeral(hh), font="6x13")]
+    if mm != 0: texts.append(render.Text("M " + roman_numeral(mm), font="6x13"))
+    return render.Box( child = render.Column( children = texts ) )
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -92,5 +113,22 @@ def get_schema():
                 desc = "Location for which to display the time",
                 icon = "locationDot",
             ),
+            schema.Dropdown(
+                id = "clocktype",
+                name = "Clock Type",
+                desc = "Type of the clock to display",
+                icon = "language",
+                default = "thai",
+                options = [
+                    schema.Option(
+                        display = "Thai",
+                        value = "thai",
+                    ),
+                    schema.Option(
+                        display = "Roman",
+                        value = "roman",
+                    ),
+                ],
+            )
         ],
     )
