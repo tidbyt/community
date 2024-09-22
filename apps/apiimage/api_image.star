@@ -11,7 +11,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-DEBUG = False
+DEBUG = True
 
 def main(config):
     base_url = config.str("base_url", "")
@@ -27,6 +27,9 @@ def main(config):
         print("api_headers")
         print(api_headers)
 
+    return get_image(base_url, api_url, response_path, api_headers)
+
+def get_image(base_url, api_url, response_path, api_headers):
     failure = False
 
     if api_url == "":
@@ -37,9 +40,9 @@ def main(config):
     else:
         headerMap = {}
         if api_headers != "" or api_headers != {}:
-            api_headers = api_headers.split(",")
+            api_headers_array = api_headers.split(",")
 
-            for app_header in api_headers:
+            for app_header in api_headers_array:
                 headerKeyValueArray = app_header.split(":")
                 if len(headerKeyValueArray) > 1:
                     headerMap[headerKeyValueArray[0].strip()] = headerKeyValueArray[1].strip()
@@ -108,6 +111,7 @@ def main(config):
                     print("Invalid path for image")
                     print(decoded_json)
                 failure = True
+                return get_image(base_url, api_url, response_path, api_headers)
         else:
             if DEBUG:
                 print("Status failed")
