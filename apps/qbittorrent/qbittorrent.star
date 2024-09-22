@@ -7,10 +7,10 @@ Author: DoubleGremlin181
 
 load("animation.star", "animation")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("humanize.star", "humanize")
 
 DEVICE_WIDTH = 64
 DEVICE_HEIGHT = 32
@@ -73,9 +73,10 @@ def server_login(base_url, username, password):
         username = username,
         password = password,
     )
+
     # Login to the server and return the session ID
     url = "{}/api/v2/auth/login".format(base_url)
-    response = http.post(url, form_body=form_body, ttl_seconds = 60)
+    response = http.post(url, form_body = form_body, ttl_seconds = 60)
 
     if response.body() == "Ok.":
         return response.headers["Set-Cookie"].split(";")[0][4:]
