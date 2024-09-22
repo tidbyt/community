@@ -98,7 +98,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output):
                                 print("Invalide URL. Requires a base_url")
 
                         else:
-                            if base_url != "":
+                            if output.startswith("http") == False and base_url != "":
                                 url = base_url + output
                             else:
                                 url = output
@@ -203,7 +203,7 @@ def get_schema():
             schema.Text(
                 id = "response_path",
                 name = "JSON response path",
-                desc = "A comma separated path to the image in the response JSON. eg. `json_key1, 2, key_to_image_url`",
+                desc = "A comma separated path to the image URL in the response JSON. eg. `json_key1, 2, key_to_image_url`",
                 icon = "",
                 default = "",
                 # default = "message",
