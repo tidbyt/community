@@ -5,117 +5,148 @@ Description: Display an image from an endpoint.
 Author: Michael Yagi
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-DEFAULT_API_URL = "https://dog.ceo/api/breeds/image/random"
-DEFAULT_BASE_URL = ""
-DEFAULT_APP_HEADERS = ""
-DEFAULT_RESPONSE_PATH = "message"
-TTL_SECONDS = 60
+DEBUG = True
 
 def main(config):
-    base_url = config.str("base_url", DEFAULT_BASE_URL)
-    api_url = config.str("api_url", DEFAULT_API_URL)
-    response_path = config.get("response_path", DEFAULT_RESPONSE_PATH)
-    api_headers = config.get("api_headers", DEFAULT_APP_HEADERS)
+    base_url = config.str("base_url", "")
+    api_url = config.str("api_url", "")
+    response_path = config.get("response_path", "")
+    api_headers = config.get("api_headers", "")
 
-    # print("api_url")
-    # print(api_url)
-    # print("response_path")
-    # print(response_path)
+    if DEBUG:
+        print("api_url")
+        print(api_url)
+        print("response_path")
+        print(response_path)
+        print("api_headers")
+        print(api_headers)
 
     failure = False
 
     if api_url == "":
         failure = True
-        # print("api_url must not be blank.")
+        if DEBUG:
+            print("api_url must not be blank.")
 
     else:
+        headerMap = {}
         if api_headers != "" or api_headers != {}:
             api_headers = api_headers.split(",")
-            headerMap = {}
+
             for app_header in api_headers:
                 headerKeyValueArray = app_header.split(":")
                 if len(headerKeyValueArray) > 1:
                     headerMap[headerKeyValueArray[0].strip()] = headerKeyValueArray[1].strip()
 
-            rep = http.get(api_url, headers = headerMap, ttl_seconds = TTL_SECONDS)
-        else:
-            rep = http.get(api_url, ttl_seconds = TTL_SECONDS)
+        json_body = get_cached(api_url, headerMap)
 
-        if rep.status_code != 200:
+        decoded_json = json.decode(json_body)
+
+        if DEBUG:
+            print("Decoded JSON")
+            print(decoded_json)
+
+        if decoded_json.get("status") == "fail":
             failure = True
-            # print("Request failed with status %d", rep.status_code)
 
-        else:
-            json = rep.json()
+        if failure == False or decoded_json != "" or response_path != []:
+            responsePathArray = response_path
 
-            if json.get("status") == "fail":
-                failure = True
+            responsePathArray = responsePathArray.split(",")
 
-            if failure == False or json != "" or response_path != []:
-                responsePathArray = response_path
+            for item in responsePathArray:
+                item = item.strip()
+                if item.isdigit():
+                    item = int(item)
 
-                responsePathArray = responsePathArray.split(",")
+                if DEBUG:
+                    print("item")
+                    print(item)
+                    print(type(decoded_json))
 
-                for item in responsePathArray:
-                    item = item.strip()
-                    if item.isdigit():
-                        item = int(item)
-
-                    # print("item")
-                    # print(item)
-                    # print(type(json))
-                    if (type(json) == "dict" and json.get(item) == None) or (type(json) == "list" and json[item] == None):
-                        failure = True
-
-                        # print("responsePathArray invalid. " + item + " does not exist")
-                        break
-                    else:
-                        json = json[item]
-
-                if type(json) == "string" and failure == False:
-                    if json.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
-                        failure = True
-                        # print("Invalide URL. Requires a base_url")
-
-                    else:
-                        if base_url != "":
-                            img = http.get(base_url + json, ttl_seconds = TTL_SECONDS).body()
-                        else:
-                            img = http.get(json, ttl_seconds = TTL_SECONDS).body()
-
-                        return render.Root(
-                            render.Row(
-                                expanded = True,
-                                main_align = "space_evenly",
-                                cross_align = "center",
-                                children = [render.Image(src = img, height = 32)],
-                            ),
-                        )
-                else:
-                    # print("Invalid path for image")
-                    # print(json)
+                if (type(decoded_json) == "dict" and decoded_json.get(item) == None) or (type(decoded_json) == "list" and decoded_json[item] == None):
                     failure = True
+                    if DEBUG:
+                        print("responsePathArray invalid. " + item + " does not exist")
+                    break
+                else:
+                    decoded_json = decoded_json[item]
+
+            if type(decoded_json) == "string" and failure == False:
+                if decoded_json.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
+                    failure = True
+                    if DEBUG:
+                        print("Invalide URL. Requires a base_url")
+
+                else:
+                    if base_url != "":
+                        url = base_url + decoded_json
+                    else:
+                        url = decoded_json
+
+                    img = get_cached(url)
+
+                    if DEBUG:
+                        print("URL: " + url)
+
+                    return render.Root(
+                        render.Row(
+                            expanded = True,
+                            main_align = "space_evenly",
+                            cross_align = "center",
+                            children = [render.Image(src = img, height = 32)],
+                        ),
+                    )
             else:
-                # print("Status failed")
-                # print(json)
+                if DEBUG:
+                    print("Invalid path for image")
+                    print(decoded_json)
                 failure = True
+        else:
+            if DEBUG:
+                print("Status failed")
+                print(decoded_json)
+            failure = True
 
     return render.Root(
         child = render.Box(
-            render.Row(
-                expanded = True,
-                main_align = "space_evenly",
-                cross_align = "center",
-                children = [
-                    render.WrappedText(content = "Could not get image", font = "5x8"),
-                ],
-            ),
+            # render.Row(
+            #     expanded=True,
+            #     main_align="space_evenly",
+            #     cross_align="center",
+            #     children = [
+            #         render.WrappedText(content = "Could not get image", font = "5x8"),
+            #     ],
+            # ),
         ),
     )
+
+def get_cached(url, headerMap = {}, ttl_seconds = 20):
+    data = cache.get(url)
+    if data:
+        return data
+
+    if headerMap == {}:
+        res = http.get(url)
+    else:
+        res = http.get(url, headers = headerMap)
+
+    if res.status_code != 200:
+        if DEBUG:
+            print("status %d from %s: %s" % (res.status_code, url, res.body()))
+        fail("status %d from %s: %s" % (res.status_code, url, res.body()))
+
+    data = res.body()
+
+    cache.set(url, data, ttl_seconds = ttl_seconds)
+
+    return data
 
 def get_schema():
     return schema.Schema(
@@ -133,14 +164,16 @@ def get_schema():
                 name = "URL",
                 desc = "The API url.",
                 icon = "",
-                default = "https://dog.ceo/api/breeds/image/random",
+                default = "",
+                # default = "https://dog.ceo/api/breeds/image/random",
             ),
             schema.Text(
                 id = "response_path",
                 name = "Response path",
                 desc = "A comma separated path to the image in the response JSON. eg. `json_key1, 2, key_to_image_url`",
                 icon = "",
-                default = "message",
+                default = "",
+                # default = "message",
             ),
             schema.Text(
                 id = "api_headers",
