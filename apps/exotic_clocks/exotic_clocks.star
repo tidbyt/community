@@ -86,9 +86,9 @@ def render_thai_clock(current_time):
         ],
     )
 
-def roman_numeral (num) :
-    numbers = [ (50, 'L'), (40, 'XL'), (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I') ]
-    result = "" 
+def roman_numeral(num):
+    numbers = [(50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
+    result = ""
     for val, str in numbers:
         for _ in range(10):
             if num >= val:
@@ -96,12 +96,13 @@ def roman_numeral (num) :
                 num -= val
     return result
 
-def render_roman_clock (current_time):
+def render_roman_clock(current_time):
     hh = int(current_time.format("15"))
     mm = int(current_time.format("04"))
-    texts = [ render.Text("H " + roman_numeral(hh), font="6x13")]
-    if mm != 0: texts.append(render.Text("M " + roman_numeral(mm), font="6x13"))
-    return render.Box( child = render.Column( children = texts ) )
+    texts = [render.Text("H " + roman_numeral(hh), font = "6x13")]
+    if mm != 0:
+        texts.append(render.Text("M " + roman_numeral(mm), font = "6x13"))
+    return render.Box(child = render.Column(children = texts))
 
 def get_schema():
     return schema.Schema(
@@ -129,6 +130,6 @@ def get_schema():
                         value = "roman",
                     ),
                 ],
-            )
+            ),
         ],
     )
