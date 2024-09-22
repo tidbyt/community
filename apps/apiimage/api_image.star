@@ -197,19 +197,19 @@ def get_schema():
         version = "1",
         fields = [
             schema.Text(
-                id = "base_url",
-                name = "Base URL",
-                desc = "The base URL if URLs are relative paths.",
-                icon = "",
-                default = "",
-            ),
-            schema.Text(
                 id = "api_url",
                 name = "URL",
-                desc = "The API url. Supports JSON or image types.",
+                desc = "The API URL. Supports JSON or image types.",
                 icon = "",
                 default = "",
                 # default = "https://dog.ceo/api/breeds/image/random",
+            ),
+            schema.Text(
+                id = "base_url",
+                name = "Base URL",
+                desc = "The base URL if response JSON contain relative paths.",
+                icon = "",
+                default = "",
             ),
             schema.Text(
                 id = "response_path",
