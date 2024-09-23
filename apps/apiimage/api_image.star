@@ -92,7 +92,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
                     if output != None:
                         if len(responsePathArray) > 0:
                             if debug_output:
-                                print("Response type JSON from URL")
+                                print("Response content type JSON")
 
                             if type(output) == "string" and output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
                                 failure = True
@@ -122,7 +122,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
 
                     else:
                         if debug_output:
-                            print("Response type image from URL")
+                            print("Response content type image")
                         img = output_body
 
                     if img != None:
@@ -190,7 +190,7 @@ def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
         res = http.get(url, headers = headerMap)
 
     headers = res.headers
-    isValidType = False
+    isValidContentType = False
 
     headersStr = str(headers)
     headersStr = headersStr.lower()
@@ -199,12 +199,12 @@ def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
         contentType = headers.get("content-type")
 
         if contentType.find("json") != -1 or contentType.find("image") != -1:
-            isValidType = True
+            isValidContentType = True
 
     if debug_output:
-        print("isValidType: " + str(isValidType))
+        print("isValidContentType: " + str(isValidContentType))
 
-    if res.status_code != 200 or isValidType == False:
+    if res.status_code != 200 or isValidContentType == False:
         if debug_output:
             print("status: " + str(res.status_code))
             print("Requested url: " + str(url))
