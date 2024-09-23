@@ -267,7 +267,7 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "api_url",
-                name = "URL",
+                name = "API URL",
                 desc = "The API URL. Supports JSON or image types.",
                 icon = "",
                 default = "",
