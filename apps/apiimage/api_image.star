@@ -56,9 +56,6 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
             output = json.decode(output_body, None)
             responsePathArray = []
 
-            if debug_output:
-                print("Decoded JSON length: " + str(len(str(output))))
-
             if failure == False or output_body != "":
                 if response_path != "":
                     responsePathArray = response_path
@@ -94,6 +91,7 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                         if len(responsePathArray) > 0:
                             if debug_output:
                                 print("Response content type JSON")
+                                print("Decoded JSON length: " + str(len(str(output))))
 
                             if type(output) == "string" and output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
                                 failure = True
