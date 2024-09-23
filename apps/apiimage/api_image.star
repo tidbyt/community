@@ -56,7 +56,7 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
             responsePathArray = []
 
             if debug_output:
-                print("Decoded JSON: " + str(output))
+                print("Decoded JSON length: " + str(len(str(output))))
 
             if failure == False or output_body != "":
                 if response_path != "":
