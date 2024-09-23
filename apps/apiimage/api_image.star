@@ -20,16 +20,11 @@ def main(config):
     fit_screen = config.bool("fit_screen", False)
 
     if debug_output:
-        print("api_url")
-        print(api_url)
-        print("response_path")
-        print(response_path)
-        print("api_headers")
-        print(api_headers)
-        print("debug_output")
-        print(debug_output)
-        print("fit_screen")
-        print(fit_screen)
+        print("api_url: " + api_url)
+        print("response_path: " + response_path)
+        print("api_headers: " + api_headers)
+        print("debug_output: " + str(debug_output))
+        print("fit_screen: " + str(fit_screen))
 
     return get_image(base_url, api_url, response_path, api_headers, debug_output, fit_screen)
 
@@ -42,7 +37,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
         message = "API URL must not be blank"
 
         if debug_output:
-            print("api_url must not be blank.")
+            print(message)
 
     else:
         headerMap = {}
@@ -61,8 +56,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
             responsePathArray = []
 
             if debug_output:
-                print("Decoded JSON")
-                print(output)
+                print("Decoded JSON: " + str(output))
 
             if failure == False or output_body != "":
                 if response_path != "":
@@ -76,9 +70,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
                             item = int(item)
 
                         if debug_output:
-                            print("item")
-                            print(item)
-                            print(type(output))
+                            print("path array item: " + str(item) + " - type " + str(type(output)))
 
                         if (type(output) == "dict" and output.get(item) == None) or (type(output) == "list" and output[item] == None) or type(output) == "string":
                             failure = True
@@ -88,9 +80,9 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
                             break
                         elif output != None and (type(output) == "string" or (type(output) == "dict" and output.get(item) == None)):
                             failure = True
-                            message = "Response path invalid. " + item + " does not exist"
+                            message = "Response path invalid. " + str(item) + " does not exist"
                             if debug_output:
-                                print("responsePathArray invalid. " + item + " does not exist")
+                                print("responsePathArray invalid. " + str(item) + " does not exist")
                             break
                         elif output != None and output.get(item) != None:
                             output = output[item]
@@ -100,7 +92,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
                     if output != None:
                         if len(responsePathArray) > 0:
                             if debug_output:
-                                print("JSON from URL")
+                                print("Response type JSON from URL")
 
                             if type(output) == "string" and output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
                                 failure = True
@@ -116,7 +108,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
                                 img = get_cached(url, debug_output)
 
                                 if debug_output:
-                                    print("URL: " + url)
+                                    print("Image URL: " + url)
                             else:
                                 message = "Bad path for JSON"
                                 if debug_output:
@@ -130,7 +122,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
 
                     else:
                         if debug_output:
-                            print("Image from URL")
+                            print("Response type image from URL")
                         img = output_body
 
                     if img != None:
@@ -211,17 +203,12 @@ def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
             isValidType = True
 
     if debug_output:
-        print("isValidType")
-        print(isValidType)
+        print("isValidType: " + str(isValidType))
 
     if res.status_code != 200 or isValidType == False:
         if debug_output:
-            print("status ")
-            print(res.status_code)
-            print("url")
-            print(url)
-            print("isValidType")
-            print(isValidType)
+            print("status: " + str(res.status_code))
+            print("Requested url: " + str(url))
     else:
         data = res.body()
 
