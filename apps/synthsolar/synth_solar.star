@@ -287,13 +287,14 @@ def round_to_two_decimals_str(x):
 
     return v
 
-def get_savings(url, timezone):
+def get_savings(url, timezone, mode):
     """
     Get savings
 
     Args:
         url: Base URL
         timezone: User's timezone, defaults for London
+        mode: Device mode, digital or 8bit
 
     Returns:
         Widget
@@ -314,35 +315,92 @@ def get_savings(url, timezone):
     now = time.now().in_location(timezone)
     formatted_date = now.format("Mon Jan 2").upper()
 
-    return render.Box(
-        width = max_width,
-        padding = 1,
-        child = render.Column(
-            children = [
-                render.Box(
-                    width = max_width,
-                    child = render.Column(
-                        expanded = True,
-                        main_align = "center",
-                        cross_align = "start",
-                        children = [
-                            render.Text(content = formatted_date, color = "#B0B0B0", font = "6x10-rounded"),
-                            render.Row(
-                                expanded = True,
-                                # main_align = "space_around",
-                                # cross_align = "start",
-                                children = [
-                                    render.Padding(child = render.Text(content = "SYNTH", color = "#FFFF", font = "6x10-rounded"), pad = (0, 0, 3, 0)),
-                                    render.Text(content = "SAVED", color = "#FFFF", font = "6x10-rounded"),
-                                ],
-                            ),
-                            render.Text(content = "£" + str(round_to_two_decimals_str(total_savings_today)), color = "#FFFF", font = "6x10-rounded"),
-                        ],
+    if mode == "digital":
+        return render.Box(
+            width = max_width,
+            padding = 1,
+            child = render.Column(
+                children = [
+                    render.Box(
+                        width = max_width,
+                        child = render.Column(
+                            expanded = True,
+                            main_align = "center",
+                            cross_align = "start",
+                            children = [
+                                render.Text(content = formatted_date, color = "#B0B0B0", font = "6x10-rounded"),
+                                render.Row(
+                                    expanded = True,
+                                    # main_align = "space_around",
+                                    # cross_align = "start",
+                                    children = [
+                                        render.Padding(child = render.Text(content = "SYNTH", color = "#FFFF", font = "6x10-rounded"), pad = (0, 0, 3, 0)),
+                                        render.Text(content = "SAVED", color = "#FFFF", font = "6x10-rounded"),
+                                    ],
+                                ),
+                                render.Text(content = "£" + str(round_to_two_decimals_str(total_savings_today)), color = "#FFFF", font = "6x10-rounded"),
+                            ],
+                        ),
                     ),
-                ),
-            ],
-        ),
-    )
+                ],
+            ),
+        )
+    else:
+        copper_coin_icon = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAASUSURBVHgB7VdbbFRVFN3TdjrSSqlW2woy2hRBcAwtVivR+Ch+ICaoH4YEqFGU+GVQsVEwfvjG1EeIHwaTYkLbj6qJNSXwwUuNpuFZCG0wo02mFasthejITMfWzuWsfe8+c8+8OsMPP+zk5DznrHX2XvucO0RX2Dx0Gbahymtlmts5OpXXnkX5LBbgtqGTRMWlRJMRVVeqkYjdht1SZ+VDJCcCGvjPXxno9YV36bk5swp1eyz8v00uDyIzEgC4AH+w+A4eOx+d1vPSvtZbQMuXltHLNcvIV+ixifw1TNS42so3LAa4FT9nWbEB6/1FpdbpzUssK7RXF3cf7Zdu8nHpWnkj11Y8xHPZNDMDeEiDR79caYOpfnJJR0STwJp8SWQDZzBXzQVrVXETSSGhSk4kksGH3m4wwVVI7Dpk7Wqq4JKJSHI4cieQBI4NpQiIkPyv6zmThBBxXD8TiQJ358myQqX4Ed33P/0O14H3vrbr1j12vktRd0Hx/WtpzQtPUPuqB3gN186d0P/ZZvq0t5t6T4XtDeWucFmaNFTptvQeary7Qm/iBu9/4ynq6xvlseY9PxJVVOtfAry5/Su7VnNMHKmorGa+jzbeXEdtZ0/yHSGpqQmsKC2wamcn+CxYWGmcvr9lle4HnE0FSAztye8+MY4jXtjYsJoqSgrtG9RlRgiSTU6PHwkRnIjHq/3a9T/17OMpgHft6Nbk3AfQlhSG1BA4C34LjlHTuzuMKWwmIQiA1+Ov0BpVAxSnByhIwUBKSDTv7EhsUlxJ2T3guEhCAEAi023N+4/rtpxYXA9SwSO9TB7A8+aWUvuG9a5fRzITGI/EDRfB1YEXP1ZjY0bsWA/oO1rA6cULIMyCVSFCARGQ0JYmE9ggwrXlRfoOOLDeb9757vx2LiXOf+dC0heQrHHdFdjj+Ru81mv+a7gPLME1NPBYQzlturWeto8E+eVbsOtNCv8Ttb2A0+JUjidYXAiPOlF9fZURJjtspNNw4tB27m8L/UIt8xcZBzcInBi8SOOxuCHE5SuWJBa4SThEEmkX0S4WYBCpDfhp69ZDdgpGLlDf31N0IBLXz7PWAAaPjU6yF1pql9GWU0fo8NHzdO738UQ6CgnnJgSQiDCdAXywf5h8Xg9tCx6nTbfdm7LGEGGRx/ECxKiAtpwZoM7OM1Q2p4TdqImAhBQxEEKoZN6xnt1D7HqMhWM5vMgQSPTzR6xX5/lsESohiSjlWU7+MNGPkWsMa/E7+Sh5ptxrPVhSYOVE4Iv7yrloEq7XMfnjQ8BAAi8j2unA37q9xFC/mCcTiZ6PmujgvgH6/vAFav25m8WHRwq2bt1iQ6CIM+L9TftROvtHjMegIbj92Tr1BlxXSNDXD9G4JycCMDzNj945m9vB0ATXrYMnWP3ycZrOoBvoAUKGlmqqvXRwOJYWPCsBIdH54cPc7ug4lkIk5X+BGpM8f6jxehoZnaDOvnBG8BkJCAnUIIKQYFMhks4EeO/pf2lKJdPui9NZMXL+XhciQgYGr8ytmsVtgKLdtn+M+9+Gp3Pa+7L+MLjJJFuuwFdN7BIz+uXTb14bYwAAAABJRU5ErkJggg==")
+        silver_coin_icon = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAARhSURBVHgB7ZdLKHVdGMeX8x3KpVwikpBSLgMjUhgoIykMSDKRgYEMMDH8vplEBjJjJiQDylSSlNzKwF1yvyaEUuJ857f6ntXe+5zN8X6Dd/I+tVuXvfb6/5//86xn763Ub7Yw9QuWk5Pjc7u3u7v7oz1/tFiAZ2ZmVHJysrq5uVFpaWnq/f1d97Hq6uofEfGGskiAl5eXNVBjY6O5FxkZafrPz8+a3H9EfKEQ+ZYl4ALc0tKi5+7v7wPWRUREqMzMTHV8fKy8Xq8aGxtTi4uLqq+v70sS3u/A19fX1fn5uQbPzs5WJSUl5v7S0pIZ09/Y2NB9wlJfX68WFhb02E/C50YiLFTPi4qKVF5eniorKwtY29PTE0BE1JicnAxJiQDwx8dH397enq+0tNTX2dnpGx4e1uPm5mZby8VaLuZYx1VQUOAjD2hl3VenxxW8tbXVBv76+qpb1lRVVenLjYiVBPPBCIQFI0AmI3t+fr4qLCzUsooNDAyYPuEZGRlR29vbqr+/38zLEUX6wcFBEw5yori42BYKjxU8IyNDJ50Y4Fh3d7cBZ2O5AIIkudHV1aXX0EpNgHh7e7sGF8JO8zgnKCp4TybLJiSZgNMHRIDwSIy5uro6Q0aIY0lJSaqmpkbXCWsozDFMSUnxJSQkmAdiY2Ntm3R0dJgx0gqgVXr6hMRqogL3oqKitGpfKuB8GOMhIQI48xxHkf709FTfk3wQclYHxJxhCCAgC56enmxFRzYD/O7uTo8JFSReXl60h4Az5oqJiTGhspqE1pWASCQhIObh4eG2NaOjo6YvHov0kIJgRUWFjjlEpqenzXpyzJWA/4zbJJJSSym2xo58YCy5IN7TSsISIi6IQELMGQLbu+Dj48P0CQEPiwrIb80FSOApajQ1NemWOTktQlhK9+bmptnbX5SCK0DsOEazs7Pa69XVVaMC3srGQoSjxRytNUwQhowUIwnT3NycamhoUK4huLi4sIUBFeLj4819IYGJhxJ7iS33IQdpiAAOMEcQFa6urtT19XVgJWQSr1EBlmzMGELWUiwkBEi8C2aQf3h4MN8H1AOn2XLA4/EYFQAiFP6XjS63ALGZhMNpEJJja71/cHCgFZiamlJvb28Bz9lCgAqXl5eqsrJSDQ0N6YcgsbW1pZiXcFgV4ahJXbCCQ3hlZUU/zz69vb06+azyY385GfmPzN9IxtGZn5/XLdKR5XFxcfrFYv34SE9PV5+fn2p8fFwriBIQcoInJiZqAv6i9Y8VL+gXCu8F8uDs7EwdHR2ptrY2fZzkm5CQkKCpqal6TGhQZ39/3xwxcgg1AMcJ8un29jYAz/UTiVdzbm6u7kvmT0xM6OwnL9wMr1mPA+QSnh8eHgYF/5KAkKitrdV9/0dEABHnfwFz5eXlek1WVpYmwPehG/i3BIQELUQIibNcO02Ad3Z2dGX1S////gucRIQMhirR0dG6Dyj9tbU1PT45OQlp71/6N7SScVqowH9M7F/8/0Knd6fTRgAAAABJRU5ErkJggg==")
+        gold_coin_icon = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAASKSURBVHgB7VdbaFxFGP5Ok1Qt1tQoLWjbFUNpqTEPXiDUS61YzEZpEY1iFEV90LyVIIIQIVCxWLWID64v+lQqVkGU0vVSCSq0pVaFtLuV1ojdlkrUpAmNibFNxvlmzj9nzp69HPPiS38YZs7MnPm++f7L2QX+ZwswD8sua1LV1vIj5+d1ZmpgNlWEUn9lbT+Ti8a6yZ60Z6ZiKwfu/eUe4GQej2ej1xZfGu0bnVTY/aUdd21oMn09RRqRAlyAe2/6zHAen44uOD5t+0Ua74brgIc3AgsbAuwdPI9iXi9sb1K1SDTWBS+9BQz3oveBAO1rFNbfGa1//Q3cM8eDh+141QpliOw+nsXryNckEaS6uQbfsE6hrQ1Ym03uzb2YJEI1Cr/CuIRKPL+9KX2AmkALA+u51YH64Cmowhs2yN7eHO9dQOrGOe5j674WauA22/sB+p/B3+0uA9dRb3q9p78DplUjEiOh5ysRCCpKrwOIst/artDRYWUV693l+UC755MdwOGjwNb3vEMyWbNG6Qd2eO7QMdF1/b6YKxb44OuaG2zQhUZwA7rNA9cHu6aBWm8GbtGx8dLTdo/puQZLfKDPggvhcluQmLnwqbl960rlDmGQCTjHBBGgtvXRq5x75MmIjBCnLV8K3H8XTHr6rnBp2L4oUJkr5twLLUvih+R68u65mI8Afek5pkt8ExVeeBVYcplWPtOpZ/fVUKDsZWNaaiFCcM4zHUX6EyftmsSDkPMv4KzMDUkC4YaxccSKjhxG8DMj9nlznyUxcc7enuB8Zmte7LnKt9ZcHQIZG+XiAvocjZtiW7Z+FWWC3FikJ6kzf+hvgVb60W5L5P0PvZd1jFUlMDalYhK5UqtLsRAzpHpsBkgsyO3ZS8DSRWwkQhLOKmSCMQbh3S1wBei1jVFVc1XP++xyzhShsCBJAXJ7wqLEMc+4bynUY5nAPBOrogK3rwYe0uU/90MnhksBDh6MVDC3DXNfgvKaZXbO9J6bqIJRKSxGR0M37Sx2oufeoLoLjv8GnP0bsUC8qiVadyRooUtc2olv+fHaZkmTCME/+sKm4OiBPAqjwNCUSlZCTh4ZCYwKZJn7WBkVJifjpdiRCIEkCCsZyY+O6d8HjQF25hWefSK5J6aA/h1hVGAwEoiu+G4owCUL7U2ECNekOdOEJG39+aGfAiM95yZn6hCgCsXfAzzTBbz8ZoDiO3lHonQ6coevCFNN6oIPTsKD+wPzPs/pewU4PRXE5KclvoaM0OxaG6Ql7ZL+Lcqkk3wdZ/6J//jgmGBHjtkCNDNr18rBV1wNHDqVgoCQ6H9Q4edT+uDhOAkaiTBAVy63++lnqkMSf561exhDVIPgV+o6wPgqTKsEXtWfSPw037Fq1ilB2/W5silofpxWNt6a8cBAZizx5gdKlcFrEhASWzZZEt8fSxIx2cDazhQMa0TPGkvuxlaFCZ1BewrVwesSEBLsSYQu4aFCpJIJ8LcnGnBhTuHQubmaGKn/RgkRIUOjKs2X2zmCcrznxwbzvH9iNtXZ8/of55Mpt7TAF03sXyg4xZgA27ILAAAAAElFTkSuQmCC")
+        coin_pile_icon = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAQDSURBVHgB7VZLaFNbFF33JfX1Pat58N4zVPyhWFT8C4qK2qooFREV1IEVdKCosyIKfgYVfxNFcaCCiCKoOPGLpgNBrT8oVCtiS+OnTfw1jTZNa29a0/S49z33JPcmua0DHdkNyTk52efstdbe+54L9Fmf/e6mOf1R7M0Rav6xrQvPdaHhF5gbDsFv342jdLWGjRsErt+kxUpNWEFYAfZmvlBc+2EAKniNDzhadQKl07aiYJRA/l8cTxODB8gt7GPY8GI6ZRnQdUP+DvjkGo+mLSlKgU0Hk1UBDn7hMnBgszx03lyg9hXQ+k4kA5/cmTzS/Ng4235ZwS4ZeUdYQbgz2L9diN1FPgzJN9lQmdyvANo6pM/u9TD+Y1DjiChGnZTsFWML+xpzicG+/0SEzvlweAedtc8lHrYktAwAhgV8GUtKAba1a2RgBoLLDGYLnNhzULZV64DJCySg7Yfs3hkAatLih6PCpsDps1SYEMTGdHBSIE2JksVAJAYUkHo+f3cmAKv8ka/EzNz4v0cjBURSgaKZwgCBs2rnVnNUaS035+XJNSaxspACP6F5K3pQgKuZJJwwGthysRilM8qNDjh/SSqgJ4C3ARhrnBZWprfROxCoqgWu0Fz/RqSaNdR1iuxFmGwlNpIvHAU20kEvq4EHVXK5slbDMK8w1gIf4DieOiNBD8ilWogAf/cD6qP24JkA0gqQ5b9fIVD5AmjWgbwcYuQBgiENnjzZ2q/fAaFmCZADqpEDN0bl5yt3YTtQSMrhjSaqdQcFrAWo5v8NlIdVNwKrpwP/eIShyraDNqxGoPTxyK5UOi5QGgNhIJaw73Pxl1GAweM4tu2WUYDef4ERw4Gn1RqaWohlCIh2At0dBJwK2E2HDPUCm0qAXOE88hmPHpNiDUSgnu4UKsASIhH4pJV9SWCvXQEz/0YBUq+qe+DWNaB/jnSxyh8loHxHZBtV/rlzeKzwy/1jBhGpersC7mz5V/KzfA9fpZz/JFp7NgD7j8kURup7vo9ef07NV0wFXgQzfdxOm0OUw8HNkn3tF2DxOMn++k2BOVN/rA0579PGyjZsaCJ1Yj20oWLNG5lhLl1gVvZNBGhFocDVe3JvS9Q5Df5gSv42syusavSqQEQXmE+MnzVQZlr4AaRhEFU/t5xizyDZz8lUN6jAnP8YtWO40e5ndMHoPFfZotndmDhetlc+FVsdVX6cKj7YrsFPkol2V1lBvkCI0jFpAiC+9d4Fc+m8foyRzmklFZ6HMx9EtjecqB7H8snyef2e8l/VJIMrn1kel0F56ZSEIbcnD1lHXbc/BTnvbOnBbQDYJvX/Q8S6UrL6O7O/ByogbO3x7mwu6LA8cOo6f837ZJ/12U+x70pVJ9TvV2OnAAAAAElFTkSuQmCC")
+        goblet_icon = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAN1SURBVHgB5VdLSFRRGP7MUdTKCBpTCQ1rEGxCiUxdVKCQSjWQq9optorSgiKiBxZFUljpxqCi16YIJCwZCw0iapMklo6JCjmIWlrT+JhRmTr9/5x5KTr3zh2yRR8c/vO653/c8z8O8L8jQs2mTEBAIzoUeOiggvmRwsXXh74AyeslnY9RGzD9DaIniBBBpdukhzi2BWh9AZypWXhPZydgNErKGOwCvo541qxAbjrwYBjoG1+Yl6IFypvrgKIK3Dg9d35yWlJ7kG+ZeZZHgMWgKAC6K1DeUAyUmBEK+Jcw8zfdCAOr0gXSCkRXDYSwUBN1QkwVCze8dKZe9rlZ5D7e32iCOGGgy5uQLRCXqvESkwAX+sQcIc4uj/Ix4paQgznjUkjmNds8zHdfCSrAMiUZ6j+P+/rnsqNw3LgGZRk0SC3G2jKg8n4c4g/412tzktDQGHDA8CDgmoV2kBWSntvdVvBq6NaWTM7aH24iTVf7TV/qsYAa7RmKFnAr8arV179rgdQ+3+zWvu0DoC8AYvbI9RITMMBuOO0Aej4paq8sgL0nAndOubsWcoSIWuoMmOEg/3v2xIFRsvAU/aUZCjr9rwFTEmC1eb61tgCzw0FjjapQzOCgdDkP2FsNnzA5t+iAZGCiHWjcLufZ7cZ+EnVS8JlUPl+1AIyNKyCu5QMbdgYIdlEy7yWzj9gk89ZJUt6p7uyQBMjUQUT/lv39W/3zXsbvx+Q4MpKSkEvd2cqRcB7e7QNevgWq2uTYGXDHN1Mz0vieC38PbIWmRHI7crWbKyG6yQUpDIhL1HZRM4SYukP6BYFCMI0N0PS7h/ZqPFMT2DM45DKFRqgKRMFgSERYCFuAQJf8JwJkUKkw48TSg/+7uz6wyOSj9R5osgB7wTquxaha4pDMUZDHBg3Vc0iByKtlIjFrLqJSMcu/toOSXn80kBIp96gNxaoZu01ONQDn/IeZEIXREL/yII4SfUwWySXtq5MhnpbIlhIrm9LZkUob+F1QScnm9iMa2PugN9VB5zBDPwSc/Eg5gKbbSdeDVJofokqIY5ONckM85YY0su/oBKqoe36x8xXNxAJwBVZAj5Py655JKkigo8rDRRzjqI8Kug8yRfP7wErvAccPoIXSNBd0HVofJoFCMA32QpqPq/SYiYHy0yy0dBzCLe9YypwQDv4ACTiKGoF3JeYAAAAASUVORK5CYII=")
+        treasure_chest_icon = base64.decode("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")
+
+        icon = None
+        text_widget = [
+            render.Text(content = "SYNTH", color = "#FFFF", font = "6x10-rounded"),
+            render.Padding(child = render.Text(content = "SAVED", color = "#FFFF", font = "6x10-rounded"), pad = (0, 0, 3, 0)),
+            render.Text(content = "£" + str(round_to_two_decimals_str(total_savings_today)), color = "#FF3F00", font = "6x10-rounded"),
+        ]
+
+        if 0.00 <= total_savings_today and total_savings_today <= 0.20:
+            icon = render.Image(src = copper_coin_icon)
+            text_widget = [
+                render.Text(content = "SAVED", color = "#FFFF", font = "6x10-rounded"),
+                render.Text(content = "£" + str(round_to_two_decimals_str(total_savings_today)), color = "#FF3F00", font = "6x10-rounded"),
+                render.Padding(child = render.Text(content = "TODAY", color = "#FFFF", font = "6x10-rounded"), pad = (0, 0, 3, 0)),
+            ]
+        elif 0.21 <= total_savings_today and total_savings_today <= 0.50:
+            icon = render.Image(src = silver_coin_icon)
+            text_widget = [
+                render.Text(content = "SAVED", color = "#FFFF", font = "6x10-rounded"),
+                render.Text(content = "£" + str(round_to_two_decimals_str(total_savings_today)), color = "#FF3F00", font = "6x10-rounded"),
+                render.Padding(child = render.Text(content = "TODAY", color = "#FFFF", font = "6x10-rounded"), pad = (0, 0, 3, 0)),
+            ]
+        elif 0.51 <= total_savings_today and total_savings_today <= 1.00:
+            icon = render.Image(src = gold_coin_icon)
+        elif 1.01 <= total_savings_today and total_savings_today <= 2.00:
+            icon = render.Image(src = coin_pile_icon)
+        elif 2.01 <= total_savings_today and total_savings_today <= 3.00:
+            icon = render.Image(src = goblet_icon)
+        else:
+            icon = render.Image(src = treasure_chest_icon)
+
+        return render.Box(
+            width = max_width,
+            padding = 1,
+            child = render.Row(
+                children = [
+                    icon,
+                    render.Box(
+                        width = max_width // 2,
+                        child = render.Column(
+                            expanded = True,
+                            main_align = "center",
+                            cross_align = "start",
+                            children = text_widget,
+                        ),
+                    ),
+                ],
+            ),
+        )
 
 def build_keyframe(offset, pct):
     return animation.Keyframe(
@@ -398,13 +456,14 @@ def padd_number(number, padd_by = 3):
 
     return padded_number
 
-def get_widgets_and_animations(url, timezone):
+def get_widgets_and_animations(url, timezone, mode):
     """
     Get widget and animations
 
     Args:
         url: Base URL
         timezone: User's timezone, defaults for London
+        mode: Device mode, digital or 8bit
 
     Returns:
         Widgets & Animations
@@ -424,9 +483,9 @@ def get_widgets_and_animations(url, timezone):
     if not battery_data.get("battery_soc") and load_data.get("load_kw", 0) <= 0.001:
         print("No battery and load data found")
         widgets = [
-            get_overall_realtime_performance(url, timezone),
-            get_savings(url, timezone),
+            get_savings(url, timezone, mode),
             get_todays_generation(url),
+            get_overall_realtime_performance(url, timezone),
         ]
         keyframes = [
             build_keyframe(0, 0.0),
@@ -441,10 +500,10 @@ def get_widgets_and_animations(url, timezone):
 
     elif not battery_data.get("battery_soc"):
         widgets = [
-            get_savings(url, timezone),
-            get_overall_realtime_performance(url, timezone),
-            get_current_load_widget(load_data),
+            get_savings(url, timezone, mode),
             get_todays_generation(url),
+            get_current_load_widget(load_data),
+            get_overall_realtime_performance(url, timezone),
         ]
         keyframes = [
             build_keyframe(0, 0.0),
@@ -459,10 +518,10 @@ def get_widgets_and_animations(url, timezone):
 
     elif load_data.get("load_kw", 0) <= 0.001:
         widgets = [
-            get_savings(url, timezone),
-            get_overall_realtime_performance(url, timezone),
-            get_current_battery_charge_widget(battery_data),
+            get_savings(url, timezone, mode),
             get_todays_generation(url),
+            get_current_battery_charge_widget(battery_data),
+            get_overall_realtime_performance(url, timezone),
         ]
         keyframes = [
             build_keyframe(0, 0.0),
@@ -477,11 +536,11 @@ def get_widgets_and_animations(url, timezone):
 
     else:
         widgets = [
-            get_overall_realtime_performance(url, timezone),
-            get_savings(url, timezone),
+            get_savings(url, timezone, mode),
+            get_todays_generation(url),
             get_current_battery_charge_widget(battery_data),
             get_current_load_widget(load_data),
-            get_todays_generation(url),
+            get_overall_realtime_performance(url, timezone),
         ]
         keyframes = [
             build_keyframe(0, 0.0),
@@ -519,8 +578,11 @@ def main(config):
     """
     serial_number = config.get("serial_number")
     timezone = config.get("timezone") or "Europe/London"
+    mode = config.get("mode")
 
     max_width = 64
+
+    print("selected mode ", mode)
 
     if not serial_number:
         return render.Root(
@@ -547,9 +609,9 @@ def main(config):
                                         cross_align = "center",
                                         expanded = True,
                                         children = [
-                                            render.Text(content = "Enter", color = "#ffffff", font = "6x10-rounded"),
-                                            render.Text(content = "Serial", color = "#ffffff", font = "6x10-rounded"),
-                                            render.Text(content = "Number", color = "#ffffff", font = "6x10-rounded"),
+                                            render.Text(content = "ENTER", color = "#ffffff", font = "6x10-rounded"),
+                                            render.Text(content = "SERIAL", color = "#ffffff", font = "6x10-rounded"),
+                                            render.Text(content = "NUMBER", color = "#ffffff", font = "6x10-rounded"),
                                         ],
                                     ),
                                 ),
@@ -563,7 +625,7 @@ def main(config):
 
     BASE_URL = "https://api.synth.solar/api/v1/devices/" + serial_number + "/data"
 
-    keyframes, widgets, max_animation_duration = get_widgets_and_animations(BASE_URL, timezone)
+    keyframes, widgets, max_animation_duration = get_widgets_and_animations(BASE_URL, timezone, mode)
 
     return render.Root(
         delay = 80,
