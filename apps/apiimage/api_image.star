@@ -89,7 +89,6 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
                             output = output[item]
 
                 if failure == False:
-                    img = None
                     if output != None and failure == False:
                         if debug_output:
                             print("JSON from URL")
@@ -111,31 +110,30 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
                             if debug_output:
                                 print("URL: " + url)
 
-                    else:
-                        if debug_output:
-                            print("Image from URL")
-                        img = output_body
+                            if img != None:
+                                imgRender = render.Image(
+                                    src = img,
+                                    height = 32,
+                                )
 
-                    if img != None:
-                        imgRender = render.Image(
-                            src = img,
-                            height = 32,
-                        )
+                                if fit_screen == True:
+                                    imgRender = render.Image(
+                                        src = img,
+                                        width = 64,
+                                    )
 
-                        if fit_screen == True:
-                            imgRender = render.Image(
-                                src = img,
-                                width = 64,
-                            )
+                                return render.Root(
+                                    render.Row(
+                                        expanded = True,
+                                        main_align = "space_evenly",
+                                        cross_align = "center",
+                                        children = [imgRender],
+                                    ),
+                                )
 
-                        return render.Root(
-                            render.Row(
-                                expanded = True,
-                                main_align = "space_evenly",
-                                cross_align = "center",
-                                children = [imgRender],
-                            ),
-                        )
+                    else:  # Only supports JSON responses
+                        message = "No JSON response detected"
+                        failure = True
 
             else:
                 message = "Invalid image URL"
@@ -199,7 +197,7 @@ def get_schema():
             schema.Text(
                 id = "api_url",
                 name = "URL",
-                desc = "The API URL. Supports JSON or image types.",
+                desc = "The API URL. Only supports JSON responses.",
                 icon = "",
                 default = "",
                 # default = "https://dog.ceo/api/breeds/image/random",
