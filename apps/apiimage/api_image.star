@@ -15,20 +15,20 @@ def main(config):
     base_url = config.str("base_url", "")
     api_url = config.str("api_url", "")
     response_path = config.get("response_path", "")
-    api_headers = config.get("api_headers", "")
+    request_headers = config.get("request_headers", "")
     debug_output = config.bool("debug_output", False)
     fit_screen = config.bool("fit_screen", False)
 
     if debug_output:
         print("CONFIG - api_url: " + api_url)
         print("CONFIG - response_path: " + response_path)
-        print("CONFIG - api_headers: " + api_headers)
+        print("CONFIG - request_headers: " + request_headers)
         print("CONFIG - debug_output: " + str(debug_output))
         print("CONFIG - fit_screen: " + str(fit_screen))
 
-    return get_image(base_url, api_url, response_path, api_headers, debug_output, fit_screen)
+    return get_image(base_url, api_url, response_path, request_headers, debug_output, fit_screen)
 
-def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_screen):
+def get_image(base_url, api_url, response_path, request_headers, debug_output, fit_screen):
     failure = False
     message = ""
 
@@ -41,10 +41,10 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
 
     else:
         headerMap = {}
-        if api_headers != "" or api_headers != {}:
-            api_headers_array = api_headers.split(",")
+        if request_headers != "" or request_headers != {}:
+            request_headers_array = request_headers.split(",")
 
-            for app_header in api_headers_array:
+            for app_header in request_headers_array:
                 headerKeyValueArray = app_header.split(":")
                 if len(headerKeyValueArray) > 1:
                     headerMap[headerKeyValueArray[0].strip()] = headerKeyValueArray[1].strip()
@@ -152,7 +152,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
                     print(message)
                     print(output)
                 failure = True
-                # return get_image(base_url, api_url, response_path, api_headers, debug_output)
+                # return get_image(base_url, api_url, response_path, request_headers, debug_output)
 
         else:
             message = "Something went wrong. Check URL and header values."
@@ -245,7 +245,7 @@ def get_schema():
                 # default = "message",
             ),
             schema.Text(
-                id = "api_headers",
+                id = "request_headers",
                 name = "Request headers",
                 desc = "Comma separated key:value pairs to build the request headers. eg, `x-api-key:abc123,content-type:application/json`",
                 icon = "",
