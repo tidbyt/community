@@ -53,13 +53,15 @@ def get_data(url, params):
 
     return data
 
-def get_overall_realtime_performance(url, timezone):
+def get_overall_realtime_performance(url, timezone, mode):
     """
     Realtime performance widget
 
     Args:
         url: Base URL
         timezone: User's timezone
+        mode: Device mode, digital or 8bit
+
     Returns:
         Widget
     """
@@ -78,29 +80,81 @@ def get_overall_realtime_performance(url, timezone):
 
     now = time.now().in_location(timezone)
 
-    return render.Box(
-        width = max_width,
-        padding = 1,
-        child =
-            render.Column(
+    if mode == "digital":
+        return render.Box(
+            width = max_width,
+            padding = 1,
+            child =
+                render.Column(
+                    children = [
+                        render.Row(
+                            expanded = True,
+                            # main_align = "space_around",
+                            # cross_align = "start",
+                            children = [
+                                render.Padding(
+                                    child = render.Text(content = padd_number(str(math.ceil(rtp))) + "%", color = "#FFFF", font = "6x10-rounded"),
+                                    pad = (0, 0, 3, 0),
+                                ),
+                                render.Text(content = "OF MAX", color = "#FFFF", font = "6x10-rounded"),
+                            ],
+                        ),
+                        render.Text(content = "GENERATION", color = "#FFFF", font = "6x10-rounded"),
+                        render.Text(content = now.format("3:04 PM"), color = "#B0B0B0", font = "6x10-rounded"),
+                    ],
+                ),
+        )
+
+    else:
+        lion_icon = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAF7SURBVHgB7VY7TgMxEF2vwgHScQG4AQfgAFQ0fCoKWgqQIlLSoUhQ0FJQgWig4QCcggZqJCpyAIqgF2mssTVje5yfFO2TNuvf7nt+45lN03TosGK4eOB5tz/h/YP3sWuWISAmlrAIMa6UfFFC2qYCVsEpOP6y/aOTYPLl6SH5MDnxd38uCto4vc065UMQk5eI0J6xCGnJgf7lYzCBPq4USc4hgubQVAA1xtfHwQT68ViMUgeAm8FIFNFSHGnHuCZ7236BtEsLcQ7egd+Pq+CugcjnJSJIw5hc2n1p3CVIYfACXg+HftC9fapEtTu/GA3ETOjhB+cA2cBF1ODua3N6P9v6UdfABRKDdnElnDXmSEVOTOHwAigbUnU+JYIXG3IiJQJAWySTan0pOT9oIIiLUFwVxRBwF753hio5Xpar97l59QxwEZqlMbRqVyWgVoQVPcti2Mljija3WMr11IcISDogWVryjbfA5EANcoLNu8mllRVV/wk7rBX+AVPorwa+rpPzAAAAAElFTkSuQmCC")
+        baboon_icon = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJjSURBVHgB7VU9SFtRFD7vRQvVVgRLWjqU145SWrq1S0kd2tIupX+U0rWDe9rOXaWmHVq6ikhwUHEQUZQoLroK6ppkEUEFEfwB47v63eTE++69eXnGKA754HCO5577ne+dc4lEDTRw2fH50/csjM4JDlVpTiS8UmkuPdhzly5KQLB5uTzHUb3EuJUOUs/vefackFavtVgFgPxGS7ORD+bqI8KxC/gm0OxWe1sgv7a1TRu7BzrFmd6GISA9vpwd6+/zEM/Nj9LDzm6ZX1z5T0+fvJHxs7fvaGZkOCDCRq4Kw7RsQpv0hC+cxLHLIe74+odSU9My//E4pqVZGS9MTmi39Md60vREiL3GeAOuI2Y5bm6PU1wUpCFmPH7xkqKh+GAxVUwNvqoAIYSH4krAmTkBCq0HZ0vrNZ5uuAAAxbg4MDZM3bE70hAjh7PoEyhylZsp0w0VwBf/XS/QT39VGmImU0lPA0xCX4O5AnI99g8+vKe/8Zg0xJmRIVnDPgr0Wn0NhoAvrzvzaA5/tbVNioAh3tvZkYTwAL8V3avgOyxEX4N1BWjOHo0xcs5xc4Dfiu6B9Y2bARF8r+oEKk3EdoY8BCJWPZof+jFrPX9IZAEsQv/dRxPk1ZWxtzVnHj0XSUBJv6f+hSZdXb+zKrHeQF0DYPvndQoBVnj29KHHIsn1lRrz57g2AQFSE5lMsjyJdLo3H0pFNTRVSXkNKmy5MwswvwRjlpYwq5Ernqd+9GTv3+4gmA1NFAEggd8/8GlpdVPm1DHrUM9ePfqVuOKUvtP1axPgF9wEvCSykIQh2ZvMUwOXGUd9nSGrQIl/UgAAAABJRU5ErkJggg==")
+        goat_icon = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGUSURBVHgB5ZW/SgNBEMZ3w4EPIDYWFr6B/14gD6HBNtgJQYLpRGwjUQRbW9E0vkFewPgKgqlCfAJBOJmDCcNmZm9ud7TxB1fc7ex+38zuzTr33/HawP3715K+T08P1HOzDFDh8ckOG7O9ViSb8RpxSdjCiG8qjiJ141pasUHN4vAtZwta2sBQJDyEOP7+9V26BrAGwhOvJacSKwYgE3ykGO67SQU0WPWBZAMckL3pXwC8XNw4LWZ9YDQYsvvYHw68FIdj3NxwXtSAJG4BZ8T0DKQgVuDyYVS9X3X7zhpaiUIK+g1hFO8dHZZ3z+PKhGoLYocoFTDBGujtri8fYPYxNTeB2bMGONBtLjQJcQuKTtfTCdRtDm+zT3fcOV9JhD2E1ASgMYFbBnPDXgLiEo2ywwz2tjZEcfymMfH4dO2TGlG4GAiHVQsPLYhxa6krQPcPF+PuAiQ2hmslVYBmIv2aMfGQ7Lsg5RacLzarBxBbMaXdvi3nC6cCegY2Lw21BkC8LqaJIDCZnC0rk91kaJe0alp/yg9MY8EoMQdB0wAAAABJRU5ErkJggg==")
+        penguin_icon = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAEHSURBVHgB7Za/CsIwEMZPKTj4Dg5OPo5uokOfooPgKDj0KVpQ3ARX38XBd3AQhMoVImmI8e68IEJ+UPov9L7cd70EIJH4MT0QsJgXjX2/P5Si77AFmMD1dALXWd55Nx5kIhF9YHI61+15dKw6zy/3RwMCyKrdtBs21fZ1vc5XbDtIGcDgu1sZDG6PBU0BJvhyWLSzM4c7DmcvESGuXp/ntgiEYge7CEOgJT5b1AVQK55ihWoGDJwssAVI/3c1AdpEE2Bs+FQH/5UBbpdTFxCDJIAlAHs7Z+PxzU4pCBYjNqTQQS3YDITgyue2XHc1pMBO0bsNqf2ck3qxRxjQF5wrQJUYjSoRnScesIbBYsZxjAAAAABJRU5ErkJggg==")
+        koala_icon = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAD4SURBVHgB7ZUxCsJAEEU3EvAeqeJVFGytLQTvYO0dBAtrW0GvYqrcQxAiE/gyLLvMTIw2zmsy2Xxm/87sbkJwHOffKTSi6+HS0XOxXRaIQTxG78GAKKbks/W8j++nW1KD79BYTKiE7ePZIXkOmKimpakCE0kQl3y12yTjnF5CXQFaGZJj4vP++NZQ2aELBsQKEJqkZI5a9JUKxBM1bdPHdVVnddqNaDKA1UmnwmJC1YIc/Pil0LRDbSCXTDIxmgGOdad/ZICOFi4iAn0dy0QpCTBR6ozzuwHmSCdtTo66BakVx5XBO/aF9cc0CG4CMR/7qQHHcZwhvAAqD4PLpcv76wAAAABJRU5ErkJggg==")
+        tortoise_icon = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFPSURBVHgB7ZO9SwMxGMafOwrqZXGQDsWPeh21h+AkCEbxf+jgIrooThY/wMlFBytd3UTs6H+g2GtR6CCii6Oli0U6Fg4VK/HuIHJSm8ZDkNL8lny8yfs8Sd4ACoVCoVAoFN2OhhBktzM2Y4z+mJCBpjNbRUjyKwMi4bBGdEhykVuxDeOFyq5nGgrZzYOZduukDYRhNFEtnJ+uCk1EWgUO11I2Ate9vpfHcsoCIRYcpxd/hSYSP8nfg47HEY/2+/Pe2DPRp8uZMM0qnis1OPUGdDdf+uisqSYiogSLcxNffU/8wyDYP77BzhKQTA748+VyrMmMJ0zIKx4f6kLxtgaCDI7EUHPeMOS2ucsnzFfeESU9SIw1QMzvaYLCGy2EOdLfcHJ6ymYAdaubLljDu7w++OmC8burUpE/o+j0/n78M9JPcHtdmuV99waEcUVH8QnHpIuqc92R7gAAAABJRU5ErkJggg==")
+
+        icon = None
+
+        rtp = math.ceil(rtp)
+
+        if rtp == 0:
+            icon = render.Image(src = tortoise_icon)
+        elif rtp >= 1 and rtp <= 20:
+            icon = render.Image(src = koala_icon)
+        elif rtp >= 21 and rtp <= 40:
+            icon = render.Image(src = penguin_icon)
+        elif rtp >= 41 and rtp <= 60:
+            icon = render.Image(src = goat_icon)
+        elif rtp >= 61 and rtp <= 80:
+            icon = render.Image(src = baboon_icon)
+        elif rtp >= 81:
+            icon = render.Image(src = lion_icon)
+
+        return render.Box(
+            width = max_width,
+            padding = 1,
+            child = render.Row(
                 children = [
-                    render.Row(
-                        expanded = True,
-                        # main_align = "space_around",
-                        # cross_align = "start",
-                        children = [
-                            render.Padding(
-                                child = render.Text(content = padd_number(str(math.ceil(rtp))) + "%", color = "#FFFF", font = "6x10-rounded"),
-                                pad = (0, 0, 3, 0),
-                            ),
-                            render.Text(content = "OF MAX", color = "#FFFF", font = "6x10-rounded"),
-                        ],
+                    render.Box(
+                        width = max_width // 2,
+                        child = render.Column(
+                            expanded = True,
+                            main_align = "center",
+                            cross_align = "start",
+                            children = [
+                                render.Text(content = "SOLAR", color = "#FFFF", font = "6x10-rounded"),
+                                render.Padding(child = render.Text(content = "GEN.", color = "#FFFF", font = "6x10-rounded"), pad = (0, 0, 3, 0)),
+                                render.Padding(
+                                    child = render.Text(content = padd_number(str(math.ceil(rtp))) + "%", color = "#FF3F00", font = "6x10-rounded"),
+                                    pad = (0, 0, 3, 0),
+                                ),
+                            ],
+                        ),
                     ),
-                    render.Text(content = "GENERATION", color = "#FFFF", font = "6x10-rounded"),
-                    render.Text(content = now.format("3:04 PM"), color = "#B0B0B0", font = "6x10-rounded"),
+                    icon,
                 ],
             ),
-    )
+        )
 
 def get_todays_generation(url, mode):
     """
@@ -152,12 +206,14 @@ def get_todays_generation(url, mode):
         ),
     )
 
-def get_current_load_widget(data):
+def get_current_load_widget(data, mode):
     """
     Get current inverter load
 
     Args:
         data: Data from the api
+        mode: Device mode, digital or 8bit
+
 
     Returns:
         Widget
@@ -191,7 +247,11 @@ def get_current_load_widget(data):
             main_align = "space_around",
             cross_align = "start",
             children = [
-                synth_primary_text("USAGE", round_to_one_decimal_str(data["load_kw"]) + "kW"),
+                synth_primary_text(
+                    "USAGE",
+                    round_to_one_decimal_str(data["load_kw"]) + "kW",
+                    "#FFFF" if mode == "digital" else "#FF3F00",
+                ),
                 render.Box(width = max_width, height = 1, color = "#FFFF"),
                 render.Row(
                     expanded = True,
@@ -205,7 +265,7 @@ def get_current_load_widget(data):
                         ),
                     ],
                 ),
-                synth_primary_text("SYNTH", round_to_one_decimal_str(data["inverter_power_kw"]) + "kW", "#B0B0B0"),
+                synth_primary_text("SYNTH", round_to_one_decimal_str(data["inverter_power_kw"]) + "kW", "#B0B0B0" if mode == "digital" else "#FFF599"),
             ],
         ),
     )
@@ -531,7 +591,7 @@ def get_widgets_and_animations(url, timezone, mode):
         widgets = [
             get_savings(url, timezone, mode),
             get_todays_generation(url, mode),
-            get_overall_realtime_performance(url, timezone),
+            get_overall_realtime_performance(url, timezone, mode),
         ]
         keyframes = [
             build_keyframe(0, 0.0),
@@ -548,8 +608,8 @@ def get_widgets_and_animations(url, timezone, mode):
         widgets = [
             get_savings(url, timezone, mode),
             get_todays_generation(url, mode),
-            get_current_load_widget(load_data),
-            get_overall_realtime_performance(url, timezone),
+            get_overall_realtime_performance(url, timezone, mode),
+            get_current_load_widget(load_data, mode),
         ]
         keyframes = [
             build_keyframe(0, 0.0),
@@ -567,7 +627,7 @@ def get_widgets_and_animations(url, timezone, mode):
             get_savings(url, timezone, mode),
             get_todays_generation(url, mode),
             get_current_battery_charge_widget(battery_data, mode),
-            get_overall_realtime_performance(url, timezone),
+            get_overall_realtime_performance(url, timezone, mode),
         ]
         keyframes = [
             build_keyframe(0, 0.0),
@@ -582,11 +642,11 @@ def get_widgets_and_animations(url, timezone, mode):
 
     else:
         widgets = [
-            get_current_battery_charge_widget(battery_data, mode),
             get_savings(url, timezone, mode),
             get_todays_generation(url, mode),
-            get_current_load_widget(load_data),
-            get_overall_realtime_performance(url, timezone),
+            get_current_battery_charge_widget(battery_data, mode),
+            get_overall_realtime_performance(url, timezone, mode),
+            get_current_load_widget(load_data, mode),
         ]
         keyframes = [
             build_keyframe(0, 0.0),
