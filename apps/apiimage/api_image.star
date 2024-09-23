@@ -194,6 +194,7 @@ def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
     headersStr = str(headers)
     headersStr = headersStr.lower()
     headers = json.decode(headersStr, None)
+    contentType = ""
     if headers != None and headers.get("content-type") != None:
         contentType = headers.get("content-type")
 
@@ -201,7 +202,7 @@ def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
             isValidContentType = True
 
     if debug_output:
-        print("isValidContentType for "+url+": " + str(isValidContentType))
+        print("isValidContentType for " + url + " content type " + contentType + ": " + str(isValidContentType))
 
     if res.status_code != 200 or isValidContentType == False:
         if debug_output:
