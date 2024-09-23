@@ -358,7 +358,7 @@ def get_current_battery_charge_widget(data, mode):
             icon = render.Image(src = battery_40_50)
         elif battery_soc >= 25 and battery_soc < 40:
             icon = render.Image(src = battery_25_40)
-        elif battery_soc >= 10 and battery_soc < 25:
+        elif battery_soc > 10 and battery_soc < 25:
             icon = render.Image(src = battery_10_25)
         else:
             icon = render.Image(src = battery_0_10)
@@ -547,7 +547,7 @@ def get_schema():
             schema.Dropdown(
                 id = "mode",
                 name = "Mode",
-                desc = "Digitasl or 8-bit mode",
+                desc = "Digital or 8-bit mode",
                 icon = "brush",
                 default = mode_options[0].value,
                 options = mode_options,
