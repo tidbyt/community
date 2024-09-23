@@ -80,13 +80,19 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
                             print(item)
                             print(type(output))
 
-                        if (type(output) == "dict" and output.get(item) == None) or (type(output) == "list" and output[item] == None):
+                        if (type(output) == "dict" and output.get(item) == None) or (type(output) == "list" and output[item] == None) or type(output) == "string":
                             failure = True
                             message = "Response path invalid. " + item + " does not exist"
                             if debug_output:
                                 print("responsePathArray invalid. " + item + " does not exist")
                             break
-                        elif output != None:
+                        elif output != None and (type(output) == "string" or (type(output) == "dict" and output.get(item) == None)):
+                            failure = True
+                            message = "Response path invalid. " + item + " does not exist"
+                            if debug_output:
+                                print("responsePathArray invalid. " + item + " does not exist")
+                            break
+                        elif output != None and output.get(item) != None:
                             output = output[item]
 
                 if failure == False:
@@ -96,13 +102,12 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
                             if debug_output:
                                 print("JSON from URL")
 
-                            if output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
+                            if type(output) == "string" and output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
                                 failure = True
                                 message = "Base URL required"
                                 if debug_output:
                                     print("Invalid URL. Requires a base_url")
-
-                            else:
+                            elif type(output) == "string":
                                 if output.startswith("http") == False and base_url != "":
                                     url = base_url + output
                                 else:
@@ -112,6 +117,11 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
 
                                 if debug_output:
                                     print("URL: " + url)
+                            else:
+                                message = "Bad path for JSON"
+                                if debug_output:
+                                    print(message)
+                                failure = True
                         else:
                             message = "Missing path for JSON"
                             if debug_output:
