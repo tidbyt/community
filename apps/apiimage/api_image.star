@@ -192,12 +192,11 @@ def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
     headers = res.headers
     isValidType = False
 
-    if headers != None and (headers.get("Content-Type") != None or headers.get("content-type") != None or headers.get("CONTENT-TYPE") != None):
-        contentType = headers.get("Content-Type")
-        if contentType == None:
-            contentType = headers.get("content-type")
-        if contentType == None:
-            contentType = headers.get("CONTENT-TYPE")
+    headersStr = str(headers)
+    headersStr = headersStr.lower()
+    headers = json.decode(headersStr, None)
+    if headers != None and headers.get("content-type") != None:
+        contentType = headers.get("content-type")
 
         if contentType.find("json") != -1 or contentType.find("image") != -1:
             isValidType = True
