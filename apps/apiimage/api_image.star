@@ -20,6 +20,7 @@ def main(config):
     fit_screen = config.bool("fit_screen", False)
 
     if debug_output:
+        print("------------------------------")
         print("CONFIG - api_url: " + api_url)
         print("CONFIG - response_path: " + response_path)
         print("CONFIG - request_headers: " + request_headers)
@@ -202,7 +203,7 @@ def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
             isValidContentType = True
 
     if debug_output:
-        print("isValidContentType: " + str(isValidContentType))
+        print("isValidContentType for "+url+": " + str(isValidContentType))
 
     if res.status_code != 200 or isValidContentType == False:
         if debug_output:
