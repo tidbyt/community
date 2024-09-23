@@ -20,11 +20,11 @@ def main(config):
     fit_screen = config.bool("fit_screen", False)
 
     if debug_output:
-        print("api_url: " + api_url)
-        print("response_path: " + response_path)
-        print("api_headers: " + api_headers)
-        print("debug_output: " + str(debug_output))
-        print("fit_screen: " + str(fit_screen))
+        print("CONFIG - api_url: " + api_url)
+        print("CONFIG - response_path: " + response_path)
+        print("CONFIG - api_headers: " + api_headers)
+        print("CONFIG - debug_output: " + str(debug_output))
+        print("CONFIG - fit_screen: " + str(fit_screen))
 
     return get_image(base_url, api_url, response_path, api_headers, debug_output, fit_screen)
 
