@@ -210,12 +210,14 @@ def get_current_load_widget(data):
         ),
     )
 
-def get_current_battery_charge_widget(data):
+def get_current_battery_charge_widget(data, mode):
     """
     Get daily_gen_+_batt.star widget
 
     Args:
         data: Data from the api
+        mode: Device mode, digital or 8bit
+
 
     Returns:
         Widget
@@ -228,6 +230,8 @@ def get_current_battery_charge_widget(data):
 
     if battery_soc == 100:
         battery_state = "CHARGED"
+    elif battery_soc <= 10:
+        battery_state = "DISCHARGED"
     elif battery_power > 0:
         battery_state = "CHARGING"
     else:
@@ -235,40 +239,83 @@ def get_current_battery_charge_widget(data):
 
     mapped_battery_value = 0 if battery_soc == 0 else int((math.ceil(battery_soc) / 100) * 60)
 
-    return render.Box(
-        width = max_width,
-        padding = 1,
-        child = render.Column(
-            main_align = "space_around",
-            cross_align = "start",
-            children = [
-                synth_primary_text(padd_number(str(math.ceil(battery_soc))) + "%", ""),
-                render.Stack(
-                    children = [
-                        render.Box(
-                            width = 62,
-                            height = 9,
-                            color = "#ffff",
-                            child = render.Box(
-                                width = 60,
-                                height = 7,
-                                color = "#000",
+    if mode == "digital":
+        return render.Box(
+            width = max_width,
+            padding = 1,
+            child = render.Column(
+                main_align = "space_around",
+                cross_align = "start",
+                children = [
+                    synth_primary_text(padd_number(str(math.ceil(battery_soc))) + "%", ""),
+                    render.Stack(
+                        children = [
+                            render.Box(
+                                width = 62,
+                                height = 9,
+                                color = "#ffff",
+                                child = render.Box(
+                                    width = 60,
+                                    height = 7,
+                                    color = "#000",
+                                ),
                             ),
-                        ),
-                        render.Padding(
-                            pad = (1, 1, 0, 0),
-                            child = render.Box(
-                                width = mapped_battery_value,
-                                height = 7,
-                                color = "#B0B0B0",
+                            render.Padding(
+                                pad = (1, 1, 0, 0),
+                                child = render.Box(
+                                    width = mapped_battery_value,
+                                    height = 7,
+                                    color = "#B0B0B0",
+                                ),
                             ),
-                        ),
-                    ],
-                ),
-                synth_primary_text(battery_state, ""),
-            ],
-        ),
-    )
+                        ],
+                    ),
+                    synth_primary_text(battery_state, ""),
+                ],
+            ),
+        )
+    else:
+        battery_0_10 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAADwAAAAJCAYAAABuS09sAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACBSURBVHgB5ZUxDYBADEV/CTsSWC5oAB+wIgANjKcBAawgBA1sSDgDlLsEbqoB2rc0abv8/OaXkBg3hnbWgVIpk1g/9dDOjGhqFF1+ja4lcdEFRl2ROLwC8x9m/uB8wVlwI+/ihiLiNRcwRnb4ZDm3HHRhy+EYWmQmpZf9FZww9Icf01s3onWN4QUAAAAASUVORK5CYII=")
+        battery_10_25 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAADwAAAAJCAYAAABuS09sAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACKSURBVHgB5ZWxDYAgEEXvDD0j2BBn0D20dQBnsGQGB7DVQZzB2DgCC3hColQYWuFeQ8K/5udf/iE4+oUgd+YO3SOcWT20kDsj2FCtafF+NDUGB5UhOOS3VkoMiqch+oumN/Ib7A1X4Vm4IlpS2G0ugBk+4Z3CvaUiWmrwStiWFrJp6Wl9DDsY3eEbkRo6xPBRV0sAAAAASUVORK5CYII=")
+        battery_25_40 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAADwAAAAJCAYAAABuS09sAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACjSURBVHgB5ZWxDYNADEW/I3o2SBqUDSIlZXZI2nRpMkAqSioGoICOFgZBYgNEAxuwAOZOgquM6BBwrznpnpsvWzZB88kYRyd9k34cHTb4vXB0fKimqtDO9PG4k1jodYzanXfnUHbtn3FxSZRNx7ymCwo2E2wCX+Va9AsOty92g5rmEyzDdLhieW95Cw5lIjo8Y2wRuzqslhZZs6WjfAyssegOD3HFPJ/BNyegAAAAAElFTkSuQmCC")
+        battery_40_50 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAADwAAAAJCAYAAABuS09sAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACpSURBVHgB5ZWxDYNADEW/I3o2SBqUDSIlZXZI2nRpMkCqlFQZgAI6WhgEiQ0QDWzAApg7Ca4yR4OExL3mpHtuvmzZBM0rY+yd9En68XTY8PPA3vlBNVWF9qaP25XEwqBj1P68O/5l137t7uSTKJuOeW0XFmwm2AQ+y7XoFxwub8xic1ugpvkAxzAdrljeW8GCQ5mIDvfY7jbCrQ6rpUXObOkoHwNrHLrDAx58PnqynSjjAAAAAElFTkSuQmCC")
+        battery_50_65 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAADwAAAAJCAYAAABuS09sAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAC4SURBVHgB5ZUxCsJAEEX/SPrcQC2CbSpBS++grZ2NBxAUy2DhASy0s9WDCFa2YqHeIBfIZBeSrWazEEiK7GsW9k3zmWGGoFneGF3nuiD9BDpssp6j6+yhmqpCB+XHdEJiYZQyPqHd9Y+y+28c7mVxMWMQkih/KXMdlzzYTLAJPJJrkTkcxitYqXLDA1pHTXMPnmE6/GZ5b0UOh+dFdJidq913J7t4iybxq8NqaZE3W/p0LwJrPLrDORGbQCKNuvJkAAAAAElFTkSuQmCC")
+        battery_65_80 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAADwAAAAJCAYAAABuS09sAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAC6SURBVHgB5ZUhDsJAEEX/kPreABANtooEJHcAi8NwABIIskFwAAQ4LByEBIUlCOAGvUCnu0m7anY3aV33mU32jfmZyQxBs7wxus51QfqJdNhsPUfX2UM1VYWO6o/phMTCJGd8YrvrH2X333jcy+JStxvEJMpfzmxz2YPNBJvAI7kWhcdhvIIVlxsemrk2qGnuITBMh98s763E4/C8iA6zs9t9d7JLt27XkrA6rJYWBbOlT/cqsCagO1wC1ktBypX2zOQAAAAASUVORK5CYII=")
+        battery_80_95 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAADwAAAAJCAYAAABuS09sAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADMSURBVHgB5dUxCsIwFAbgP9K9N1CHYse6FHT0AoKgq5uLBxAUJykOHsBBN1cFwVMIXXRUHMQb6AGMCdhML0np2PxLIF+Wx3u8MMgM9xxlz27A5OHJYpNxH2XPHKKpomgvu2i3GPkweHM8fL1VV7S9Jha7aiwyW/NG2yXkqPmMxOTM1QSrghv0W3wthngEbUxWXxaybtyj4QN7xDRX4FhUh++c3luBxZBuSUNnY7bnjLZoarRTeiRpESJX3OqwWFrMmS29PvwLlnHoH/4BdRtFZUp5A4QAAAAASUVORK5CYII=")
+        battery_95_100 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAADwAAAAJCAYAAABuS09sAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADOSURBVHgB5dUxCsIwFAbgP9LdG4hDsWNdCjp6AUHQ1c3FtSAoTiIOHsBBN1cFwVtIFx0VB/EGeoDGBGrb4SWBjs2/JOTL8njhhUFmeOAoe/YDJhdHFrsc91H2zCGaKop2/gftFiMvuh+OZ1VttTVt74nBbgrz9da803b11BbG2QNOC24w+nJsMAQjKKOz+qqQdYMeDV+NXZJVvOYKLEva4Qen55ZrMEQ70tDZ6u01o82fau0cnUhaeFBamNvb1WExtJg1U3pzTAqWsegf/gECkEmhgtm2lQAAAABJRU5ErkJggg==")
+
+        icon = None
+
+        if battery_soc > 95:
+            icon = render.Image(src = battery_95_100)
+        elif battery_soc >= 80 and battery_soc <= 95:
+            icon = render.Image(src = battery_80_95)
+        elif battery_soc >= 65 and battery_soc < 80:
+            icon = render.Image(src = battery_65_80)
+        elif battery_soc >= 50 and battery_soc < 65:
+            icon = render.Image(src = battery_50_65)
+        elif battery_soc >= 40 and battery_soc < 50:
+            icon = render.Image(src = battery_40_50)
+        elif battery_soc >= 25 and battery_soc < 40:
+            icon = render.Image(src = battery_25_40)
+        elif battery_soc >= 10 and battery_soc < 25:
+            icon = render.Image(src = battery_10_25)
+        else:
+            icon = render.Image(src = battery_0_10)
+
+        return render.Box(
+            width = max_width,
+            padding = 1,
+            child = render.Column(
+                main_align = "space_around",
+                cross_align = "start",
+                children = [
+                    synth_primary_text(padd_number(str(math.ceil(battery_soc))) + "%", ""),
+                    icon,
+                    synth_primary_text(battery_state, ""),
+                ],
+            ),
+        )
 
 def round_to_one_decimal_str(x):
     v = str(int(math.round(x * 10)))
@@ -519,7 +566,7 @@ def get_widgets_and_animations(url, timezone, mode):
         widgets = [
             get_savings(url, timezone, mode),
             get_todays_generation(url, mode),
-            get_current_battery_charge_widget(battery_data),
+            get_current_battery_charge_widget(battery_data, mode),
             get_overall_realtime_performance(url, timezone),
         ]
         keyframes = [
@@ -535,9 +582,9 @@ def get_widgets_and_animations(url, timezone, mode):
 
     else:
         widgets = [
+            get_current_battery_charge_widget(battery_data, mode),
             get_savings(url, timezone, mode),
             get_todays_generation(url, mode),
-            get_current_battery_charge_widget(battery_data),
             get_current_load_widget(load_data),
             get_overall_realtime_performance(url, timezone),
         ]
