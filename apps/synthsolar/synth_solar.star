@@ -102,12 +102,13 @@ def get_overall_realtime_performance(url, timezone):
             ),
     )
 
-def get_todays_generation(url):
+def get_todays_generation(url, mode):
     """
     Get daily_gen_+_batt.star widget
 
     Args:
         url: Base URL
+        mode: Device mode, digital or 8bit
 
     Returns:
         Widget
@@ -134,19 +135,17 @@ def get_todays_generation(url):
             children = [
                 render.Row(
                     expanded = True,
-                    # main_align = "space_around",
-                    # cross_align = "start",
                     children = [
                         render.Padding(child = render.Text(content = "SYNTH", color = "#FFFF", font = "6x10-rounded"), pad = (0, 0, 3, 0)),
                         render.Text(content = "TODAY", color = "#FFFF", font = "6x10-rounded"),
                     ],
                 ),
-                render.Text(content = padd_number(str(total_energy), 2) + ".0 kWh", color = "#FFFF", font = "6x10-rounded"),
+                render.Text(content = padd_number(str(total_energy), 2) + ".0 kWh", color = "#FFFF" if mode == "digital" else "#FF3F00", font = "6x10-rounded"),
                 render.Plot(
                     data = power_generation_history_tuple,
                     width = max_width - 1,
                     height = 12,
-                    color = "#FFFF",
+                    color = "#FFFF" if mode == "digital" else "#FF3F00",
                     fill = True,
                 ),
             ],
@@ -484,7 +483,7 @@ def get_widgets_and_animations(url, timezone, mode):
         print("No battery and load data found")
         widgets = [
             get_savings(url, timezone, mode),
-            get_todays_generation(url),
+            get_todays_generation(url, mode),
             get_overall_realtime_performance(url, timezone),
         ]
         keyframes = [
@@ -501,7 +500,7 @@ def get_widgets_and_animations(url, timezone, mode):
     elif not battery_data.get("battery_soc"):
         widgets = [
             get_savings(url, timezone, mode),
-            get_todays_generation(url),
+            get_todays_generation(url, mode),
             get_current_load_widget(load_data),
             get_overall_realtime_performance(url, timezone),
         ]
@@ -519,7 +518,7 @@ def get_widgets_and_animations(url, timezone, mode):
     elif load_data.get("load_kw", 0) <= 0.001:
         widgets = [
             get_savings(url, timezone, mode),
-            get_todays_generation(url),
+            get_todays_generation(url, mode),
             get_current_battery_charge_widget(battery_data),
             get_overall_realtime_performance(url, timezone),
         ]
@@ -537,7 +536,7 @@ def get_widgets_and_animations(url, timezone, mode):
     else:
         widgets = [
             get_savings(url, timezone, mode),
-            get_todays_generation(url),
+            get_todays_generation(url, mode),
             get_current_battery_charge_widget(battery_data),
             get_current_load_widget(load_data),
             get_overall_realtime_performance(url, timezone),
