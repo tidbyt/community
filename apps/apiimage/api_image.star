@@ -58,6 +58,7 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
 
         if output_body != None and type(output_body) == "string":
             output = json.decode(output_body, None)
+            responsePathArray = []
 
             if debug_output:
                 print("Decoded JSON")
@@ -90,26 +91,32 @@ def get_image(base_url, api_url, response_path, api_headers, debug_output, fit_s
 
                 if failure == False:
                     img = None
-                    if output != None and failure == False:
-                        if debug_output:
-                            print("JSON from URL")
-
-                        if output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
-                            failure = True
-                            message = "Base URL required"
+                    if output != None:
+                        if len(responsePathArray) > 0:
                             if debug_output:
-                                print("Invalid URL. Requires a base_url")
+                                print("JSON from URL")
 
-                        else:
-                            if output.startswith("http") == False and base_url != "":
-                                url = base_url + output
+                            if output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
+                                failure = True
+                                message = "Base URL required"
+                                if debug_output:
+                                    print("Invalid URL. Requires a base_url")
+
                             else:
-                                url = output
+                                if output.startswith("http") == False and base_url != "":
+                                    url = base_url + output
+                                else:
+                                    url = output
 
-                            img = get_cached(url, debug_output)
+                                img = get_cached(url, debug_output)
 
+                                if debug_output:
+                                    print("URL: " + url)
+                        else:
+                            message = "Missing path for JSON"
                             if debug_output:
-                                print("URL: " + url)
+                                print(message)
+                            failure = True
 
                     else:
                         if debug_output:
@@ -180,9 +187,31 @@ def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
     else:
         res = http.get(url, headers = headerMap)
 
-    if res.status_code != 200:
+    headers = res.headers
+    isValidType = False
+
+    if headers != None and (headers.get("Content-Type") != None or headers.get("content-type") != None or headers.get("CONTENT-TYPE") != None):
+        contentType = headers.get("Content-Type")
+        if contentType == None:
+            contentType = headers.get("content-type")
+        if contentType == None:
+            contentType = headers.get("CONTENT-TYPE")
+
+        if contentType.find("json") != -1 or contentType.find("image") != -1:
+            isValidType = True
+
+    if debug_output:
+        print("isValidType")
+        print(isValidType)
+
+    if res.status_code != 200 or isValidType == False:
         if debug_output:
-            print("status %d from %s: %s" % (res.status_code, url, res.body()))
+            print("status ")
+            print(res.status_code)
+            print("url")
+            print(url)
+            print("isValidType")
+            print(isValidType)
     else:
         data = res.body()
 
