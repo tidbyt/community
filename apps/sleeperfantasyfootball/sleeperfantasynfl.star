@@ -244,12 +244,12 @@ def get_current_nfl_week():
             return []
 
 def get_current_nfl_year():
-    current_year = 2024
+    current_year = "2024"
     current_year_url = SLEEPER_API_BASE_URL + "/state/nfl"
     current_year_response = http.get(current_year_url)
     current_year_response_json = current_year_response.json()
     if current_year_response_json != None:
-        current_year = int(current_year_response_json["league_season"])
+        current_year = str(current_year_response_json["league_season"])
         return current_year
     else:
         return []
