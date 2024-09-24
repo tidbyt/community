@@ -378,6 +378,10 @@ def get_current_battery_charge_widget(data, mode):
         )
 
 def round_to_one_decimal_str(x):
+    # Round to 0 if the value is less than 0.05 in magnitude
+    if math.fabs(x) < 0.05:
+        return "0.0"
+
     v = str(int(math.round(x * 10)))
     if len(v) == 1:
         v = "0" + v
