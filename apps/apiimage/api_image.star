@@ -289,14 +289,14 @@ def get_schema():
             schema.Text(
                 id = "base_url",
                 name = "Base URL",
-                desc = "The base URL if response JSON contain relative paths.",
+                desc = "The base URL if response JSON contains relative paths.",
                 icon = "",
                 default = "",
             ),
             schema.Text(
                 id = "response_path",
                 name = "JSON response path",
-                desc = "A comma separated path to the image URL in the response JSON. eg. `json_key1, 2, key_to_image_url`",
+                desc = "A comma separated path to the image URL in the response JSON. eg. `json_key_1, 2, json_key_to_image_url`",
                 icon = "",
                 default = "",
                 # default = "message",
@@ -318,7 +318,7 @@ def get_schema():
             schema.Toggle(
                 id = "debug_output",
                 name = "Toggle debug messages",
-                desc = "Toggle debug message output.",
+                desc = "Toggle debug messages. Will display the messages on the display if enabled.",
                 icon = "",
                 default = False,
             ),
