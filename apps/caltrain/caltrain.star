@@ -299,39 +299,38 @@ def get_first_8_chars(input_string):
 #
 # function to get color of train number, according to the caltrain website
 def get_train_color(train_number):
-    # detect if its past september 20th, 2024
-    # Caltrain's new color scheme for the Full Electrification schedule will be in effect starting September 21, 2024
-    if time.now().unix < 1726037434:
+    # Caltrain's new color scheme for the Full Electrification schedule post September 21, 2024
+    # if time.now().unix < 1726037434:
         # we want #rgb
         # 1XX, 6XX are grey
         # 8XX are yellow
         # 5XX is red
         # 4XX is turquoise
         # 9XX and others are light purple
-        if train_number[0] == "1" or train_number[0] == "6":
-            return "#888"
-        if train_number[0] == "4":
-            return "#0ff"
-        if train_number[0] == "5":
-            return "#f00"
-        if train_number[0] == "8":
-            return "#ff0"
-        if train_number[0] == "9":
-            return "#f0f"
+    if train_number[0] == "1" or train_number[0] == "6":
+        return "#888"
+    if train_number[0] == "4":
+        return "#0ff"
+    if train_number[0] == "5":
+        return "#f00"
+    if train_number[0] == "8":
+        return "#ff0"
+    if train_number[0] == "9":
         return "#f0f"
-    else:
+    return "#f0f"
+    # else:
         # we want #rgb
         # 1XX, 2XX are grey
         # 3XX, 4XX, 5XX are yellow
         # 7XX are red
         # others are light purple
-        if train_number[0] == "1" or train_number[0] == "2":
-            return "#888"
-        if train_number[0] == "3" or train_number[0] == "4" or train_number[0] == "5":
-            return "#ff0"
-        if train_number[0] == "7":
-            return "#f00"
-        return "#f0f"
+        # if train_number[0] == "1" or train_number[0] == "2":
+        #     return "#888"
+        # if train_number[0] == "3" or train_number[0] == "4" or train_number[0] == "5":
+        #     return "#ff0"
+        # if train_number[0] == "7":
+        #    return "#f00"
+        #return "#f0f"
 
 # Function to convert time duration string to simplified format
 def simplify_time_duration(duration_string):
