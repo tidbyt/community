@@ -1,11 +1,9 @@
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("time.star", "time")
 
 # development API key, provide your key here or the app will default to static data
 DEV_API_KEY = ""
@@ -18,7 +16,10 @@ PROD_API_KEYS = [
 ]
 
 # Default cache value. Only query APIs once per 6 hours.
-cache_ttl_sec = 60 * 60 * 6
+CACHE_TTL_SEC = 60 * 60 * 6
+
+# Cache value for more frequent updates, every 10 mins.
+FREQ_CACHE_TTL_SEC = 60 * 10
 
 # Functions to calculate USA AQI based on pollutant data
 
@@ -95,20 +96,24 @@ DEFAULT_LOCATION = """
 }
 """
 
-def fetch(url, request_name):
-    rep = http.get(url, ttl_seconds = cache_ttl_sec)
+def fetch(url, request_name, freq_update):
+    if freq_update:
+        rep = http.get(url, ttl_seconds = FREQ_CACHE_TTL_SEC)
+    else:
+        rep = http.get(url, ttl_seconds = CACHE_TTL_SEC)
+
     if rep.status_code != 200:
         fail(request_name + " request failed with status " + str(rep.status_code) + ": " + rep.body())
     return rep.json()
 
-def fetch_weather_data(lat, long, api_key):
+def fetch_weather_data(lat, long, api_key, freq_update):
     current_weather_url = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + long + "&appid=" + api_key
-    return fetch(current_weather_url, "Weather")
+    return fetch(current_weather_url, "Weather", freq_update)
 
-def fetch_aqi_data(lat, long, api_key):
+def fetch_aqi_data(lat, long, api_key, freq_update):
     historical_aqi_url = "http://api.openweathermap.org/data/2.5/air_pollution?lat=" + lat + "&lon=" + long + "&appid=" + api_key
 
-    return fetch(historical_aqi_url, "AQI")
+    return fetch(historical_aqi_url, "AQI", freq_update)
 
 # Functions to select the correct icon
 
@@ -191,17 +196,18 @@ def main(config):
     personal_api_key = config.get("api_key", "")
     if personal_api_key == "":
         api_key = get_api_key(long)
+        freq_update = False
     else:
         api_key = personal_api_key
-        cache_ttl_sec = 60 * 10 #query api every 10 mins
+        freq_update = True
 
     if api_key in (None, ""):
         print("DEV_API_KEY not provided, using static data instead")
         weather_response = json.decode('{"coord":{"lon":-73.9442,"lat":40.6782},"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04d"}],"base":"stations","main":{"temp":298.78,"feels_like":298.86,"temp_min":297.67,"temp_max":300.26,"pressure":1014,"humidity":56,"sea_level":1014,"grnd_level":1013},"visibility":10000,"wind":{"speed":7.2,"deg":50},"clouds":{"all":75},"dt":1726865771,"sys":{"type":2,"id":2037026,"country":"US","sunrise":1726828907,"sunset":1726872982},"timezone":-14400,"id":5110302,"name":"Brooklyn","cod":200}')
         aqi_response = json.decode('{"coord":{"lon":-73.9442,"lat":40.6782},"list":[{"main":{"aqi":2},"components":{"co":263.69,"no":0.55,"no2":20.56,"o3":87.26,"so2":5.36,"pm2_5":1.8,"pm10":2.95,"nh3":1.14},"dt":1726866131}]}')
     else:
-        weather_response = fetch_weather_data(lat, long, api_key)
-        aqi_response = fetch_aqi_data(lat, long, api_key)
+        weather_response = fetch_weather_data(lat, long, api_key, freq_update)
+        aqi_response = fetch_aqi_data(lat, long, api_key, freq_update)
 
     temperature_kelvin = weather_response["main"]["temp"]
     if temperature_display == "Celsius":
