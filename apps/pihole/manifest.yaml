@@ -1,0 +1,6 @@
+---
+id: pihole
+name: PiHole
+summary: PiHole stats for Tidbyt
+desc: Display Pi-hole blocking statistics on Tidbyt.
+author: siva801
