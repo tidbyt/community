@@ -22,6 +22,7 @@ def main(config):
     if debug_output:
         print("------------------------------")
         print("CONFIG - api_url: " + api_url)
+        print("CONFIG - base_url: " + base_url)
         print("CONFIG - response_path: " + response_path)
         print("CONFIG - request_headers: " + request_headers)
         print("CONFIG - debug_output: " + str(debug_output))
@@ -57,6 +58,19 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
             responsePathArray = []
 
             if failure == False or output_body != "":
+                if debug_output:
+                    outputStr = str(output)
+                    outputLen = len(outputStr)
+                    if outputLen >= 200:
+                        outputLen = 200
+
+                    outputStr = outputStr[0:outputLen]
+                    if outputLen >= 200:
+                        outputStr = outputStr + "..."
+                        print("Decoded JSON truncated: " + outputStr)
+                    else:
+                        print("Decoded JSON: " + outputStr)
+
                 if response_path != "":
                     responsePathArray = response_path
 
@@ -91,7 +105,6 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                         if len(responsePathArray) > 0:
                             if debug_output:
                                 print("Response content type JSON")
-                                print("Decoded JSON length: " + str(len(str(output))))
 
                             if type(output) == "string" and output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
                                 failure = True
