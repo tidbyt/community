@@ -123,12 +123,12 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                                 if debug_output:
                                     print("Image URL: " + convert_text(url))
                             else:
-                                message = "Bad path for JSON"
+                                message = "Bad response path for JSON"
                                 if debug_output:
                                     print(message)
                                 failure = True
                         else:
-                            message = "Missing path for JSON"
+                            message = "Missing response path for JSON"
                             if debug_output:
                                 print(message)
                             failure = True
