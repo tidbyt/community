@@ -1,0 +1,6 @@
+---
+id: fenecon
+name: Fenecon
+summary: Fenecon charts
+desc: It displays the status of the battery, the generated energy and the consumption, which is fetched from the Fenecon solar system.
+author: raven-rwho
