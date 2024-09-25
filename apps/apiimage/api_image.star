@@ -71,41 +71,36 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                     else:
                         print("Decoded JSON: " + outputStr)
 
-                if response_path != "":
-                    responsePathArray = response_path
-
-                    responsePathArray = responsePathArray.split(",")
-
-                    for item in responsePathArray:
-                        item = item.strip()
-                        if item.isdigit():
-                            item = int(item)
-
-                        if debug_output:
-                            print("path array item: " + str(item) + " - type " + str(type(output)))
-
-                        if (type(output) == "dict" and output.get(item) == None) or (type(output) == "list" and type(item) == "int" and (item > len(output) - 1 or output[item] == None)) or type(output) == "string":
-                            failure = True
-                            message = "Response path invalid. " + str(item) + " does not exist"
-                            if debug_output:
-                                print("responsePathArray invalid. " + str(item) + " does not exist")
-                            break
-                        elif output != None and (type(output) == "string" or (type(output) == "dict" and output.get(item) == None)):
-                            failure = True
-                            message = "Response path invalid. " + str(item) + " does not exist"
-                            if debug_output:
-                                print("responsePathArray invalid. " + str(item) + " does not exist")
-                            break
-                        elif output != None and type(item) == "string" and output.get(item) != None:
-                            output = output[item]
-                        elif output != None and type(item) == "int" and output[item] != None:
-                            output = output[item]
-
                 if failure == False:
                     img = None
 
                     if output != None:
-                        if len(responsePathArray) > 0:
+                        if response_path != "":
+                            # Parse response path for JSON
+                            if response_path != "":
+                                responsePathArray = response_path
+
+                                responsePathArray = responsePathArray.split(",")
+
+                                for item in responsePathArray:
+                                    item = item.strip()
+                                    if item.isdigit():
+                                        item = int(item)
+
+                                    if debug_output:
+                                        print("path array item: " + str(item) + " - type " + str(type(output)))
+
+                                    if output != None and type(output) == "dict" and type(item) == "string" and output.get(item) != None:
+                                        output = output[item]
+                                    elif output != None and type(output) == "list" and type(item) == "int" and item <= len(output) - 1 and output[item] != None:
+                                        output = output[item]
+                                    else:
+                                        failure = True
+                                        message = "Response path invalid. " + str(item) + " does not exist"
+                                        if debug_output:
+                                            print("responsePathArray invalid. " + str(item) + " does not exist")
+                                        break
+
                             if debug_output:
                                 print("Response content type JSON")
 
@@ -125,7 +120,8 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                                 if debug_output:
                                     print("Image URL: " + convert_text(url))
                             else:
-                                message = "Bad response path for JSON. Must point to an image URL."
+                                if message == "":
+                                    message = "Bad response path for JSON. Must point to an image URL."
                                 if debug_output:
                                     print(message)
                                 failure = True
