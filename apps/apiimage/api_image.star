@@ -168,7 +168,7 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                 # return get_image(base_url, api_url, response_path, request_headers, debug_output)
 
         else:
-            message = "Something went wrong. Check URL and header values."
+            message = "Oops! Check URL and header values. URL must return JSON or image."
             if debug_output:
                 print(message)
             failure = True
