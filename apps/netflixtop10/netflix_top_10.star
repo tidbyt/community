@@ -165,21 +165,11 @@ def get_title(row):
     return season
 
 def load_url_cached(url):
-    cache_key = "url-%s" % (url,)
-
-    val = cache.get(cache_key)
-    if val != None:
-        return val
-
-    resp = http.get(url)
+    resp = http.get(url, ttl_seconds = 60 * 60)
     if resp.status_code != 200:
         return None
 
-    val = resp.body()
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(cache_key, val, ttl_seconds = 60 * 60)
-    return val
+    return resp.body()
 
 def load_countries_table():
     body = load_url_cached("https://top10.netflix.com/data/all-weeks-countries.tsv")
