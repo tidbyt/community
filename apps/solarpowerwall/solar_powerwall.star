@@ -16,12 +16,12 @@ load("schema.star", "schema")
 
 DUMMY_DATA = {
     "response": {
-        "solar_power": 1000,
-        "percentage_charged": 88.59770786188773,
-        "battery_power": -1000,
-        "load_power": 1000,
+        "solar_power": 937,
+        "percentage_charged": 87.59770786188773,
+        "battery_power": 300,
+        "load_power": 1567,
         "grid_status": "Active",
-        "grid_power": 400,
+        "grid_power": 0,
         "generator_power": 0,
         "timestamp": "2024-09-24T18:27:11+01:00",
     },
@@ -41,18 +41,18 @@ d75IOgAAAABJRU5ErkJggg==
 """)
 
 CLOUDS = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAABAAAAAHCAYAAAABIM1CAAAAAXNSR0IArs4c6QAAAMBJREFUKFM9
-kdERwyAMQ6XhCtPEzAJMgzuce5Zp+MiBIj0UhyDAAFprESQYAUjEu9ydcfWevnyTobi23lsgiMcM
-lEr8OenacyEhrbcwGy94rglWGHiGCZphpW+DCGLvhXMOs6WZleeC2XoPewystGrVg5hrqWra/biQ
-rXVB5l66SNSRVJUv89q7WgA47pRYR+SF//3XnQKkw0ZCAnMuNVQw7oTvFxWjNNXJZG4+OQcNlnA/
-UjX1968kOq/RrGtd+A8C0XNT7ib24gAAAABJRU5ErkJggg==
+iVBORw0KGgoAAAANSUhEUgAAAAwAAAAICAYAAADN5B7xAAAAAXNSR0IArs4c6QAAAKRJREFUKFNd
+UNsRBCEIS5rDasRaxGrcLY4bwL3bOT8cXkkIJABpzQEgvsjdM83HKIBwOK59kU3EdSjcecrf2QM/
+JHCYGSjSXLVnk3QUeer8VIKKgM0HMHr232MZnyFVzWYCgqZUNFltGbSPtyOYLYDh4WZ6CiYRSRc9
+1ovCS3LZwr537pUKtUuZlibe+8g46nMu3NdmOXoAf4eJy9WNib13kR7ABwQlU4HKN3e7AAAAAElF
+TkSuQmCC
 """)
 
 SUN = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAAsAAAAJCAYAAADkZNYtAAAAAXNSR0IArs4c6QAAAJ1JREFUKFNN
-UEsWwyAQArvW3v+Y1XWkbyCmzSbOh89ALUoSSEDC8weANkBNqN4gqqAE1dsNjwwk2pDb5wuyhiAK
-dlBF0HqqkNCq2CtSQcUSeyxwkIRq1068thejWctv0EwQrgm1G1AdFENJelulRNlvTrNyzW3juovj
-b3+o1xBPDH82YqTQ7A7QjT2p1u0lxyWCFNvecoaZfjE8kX4BeHpgAF0mptUAAAAASUVORK5CYII=
+iVBORw0KGgoAAAANSUhEUgAAAAwAAAAICAYAAADN5B7xAAAAAXNSR0IArs4c6QAAAJJJREFUKFNV
+UEsWAyEMAvfa+x+zzrrSB3HsdJdH+CUkgDUhDnJNiSAEwLgItC5qQgayzcKiCzKj6KUIC0LrGQq+
+nZxS3HIpmRLThrN+u70k1qXDi5PlnXS6q8XM4LqoilWqBZbA4aFqrUm1AeYgvly9+id8z5+H0W18
+jgkwofYQO5k7+f8GN3g7Utw/Om89+H7nF6BfW+6PI0ouAAAAAElFTkSuQmCC
 """)
 
 SOLAR_PANEL = base64.decode("""
@@ -78,13 +78,14 @@ uwAAAABJRU5ErkJggg==
 """)
 
 GRID = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAA8AAAARCAYAAAACCvahAAAAAXNSR0IArs4c6QAAASdJREFUOE9t
-U1GWxCAIS+j9j7yyL0GUzkx/1CqBhECcjwDyHgGszAxSF4CvCSL3K8I3FXJ3a2XqyEwk6ZVP8Ct4
-ogomlQ6JiKBAIkj9MkA8fGX+SIrMlWQFgi4AdV4Z8XBSKz4DIZVFH4A/Zw4HrFwZ1P4yPI/MUfwz
-vZE02PsGP1JJOCl5FS0lzW9nbu2rCpUdJTAB0XLwrUQ0LfNIapH1y6svdmfYAjWAEPXoIY2jPnbr
-xLnVlganjA2LUjVogbT+1aoWOnYaZvrqi/8OaJ4CkE5VUTusyxt2bCDRUrli2m08zW1UcdNlXbQ6
-0mYL5F+J0+stWz3fVpztacGmMVyRdbMTlFHKva03x+tz3sptzzTJy6Vjxs40ms01yXJhP6N+jep7
-cIF/3835AVj1VIAAAAAASUVORK5CYII=
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAV9JREFUOE9d
+k9uWxSAMQoP+/ycrZ3Yubdf40HbZSICgIiIUCuebZ8SxHa5viV2HHKG1NLXBXp8NuYpmXV9vLc4U
+SCjuPV6796wQp23e+VV4qk7n2ntRXLyAv9eGQUG+zeRa3ar+w9SHA/RR2MfSlhOlAfKIQtf2Qmgv
+aqp7JO3U2Z39sKiGdBZ6qbYUW9K91+sBQKRjFZXIWi0VEQfoKlSsUPgevA4YnY+RHAQEtshfO0cT
+SHqoj4SxZIrK4poCdtIsbU3atPssfp1TEh6nazhJ1+fWJGavc9KReAuSWsnuFshDv1IGXqWJABXF
+ni5Fe6U+CudfppBTZAQ/1p7ofiUw7+oyjQHBNQzsvGWg8KctwBX901g0ienkgUllSok3zJDXBr46
+eyzwzo6FnXmv0CkuJuJYG4kJxSAchwBpv+63urlmgJH4DNRkZ24juU+KeQlq7nPFvmOe8aVE7syf
+Xz9QUiESRvuC3gAAAABJRU5ErkJggg==
 """)
 
 RED_COLOR = "#ff0000"
@@ -149,7 +150,7 @@ def get_solar_panel(value):
                 child = render.Image(src = SOLAR_PANEL),
             ),
             render.Padding(
-                pad = (15, 0, 0, 0),
+                pad = (16, 0, 0, 0),
                 child = render.Image(src = SUN if value != "0" else CLOUDS),
             ),
             render.Padding(
@@ -330,9 +331,9 @@ def main(config):
 
     # Grid to House
     grid_to_house = get_angled_arrow(
-        start_position = (12, 19),
-        length = 44,
-        fs_length = 41,
+        start_position = (17, 20),
+        length = 42,
+        fs_length = 38,
         direction = "right-up",
         color = RED_COLOR,
     ) if grid_to_house_power > 0 else None
@@ -340,7 +341,7 @@ def main(config):
     # Solar to Battery
     solar_to_battery = get_angled_arrow(
         start_position = (29, 10),
-        length = 18,
+        length = 19,
         fs_length = 9,
         direction = "right-down",
         color = GREEN_COLOR,
@@ -348,7 +349,7 @@ def main(config):
 
     # Grid to Battery
     grid_to_battery = get_arrow(
-        start_position = (16, 23),
+        start_position = (17, 23),
         length = 15,
         direction = "right",
         color = RED_COLOR,
@@ -356,7 +357,7 @@ def main(config):
 
     # Solar to Grid
     solar_to_grid = get_angled_arrow(
-        start_position = (15, 7),
+        start_position = (16, 7),
         length = 16,
         fs_length = 9,
         direction = "left-down",
