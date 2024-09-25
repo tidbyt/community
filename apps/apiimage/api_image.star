@@ -1,7 +1,7 @@
 """
 Applet: API image
 Summary: API image display
-Description: Display an image from an endpoint.
+Description: Display an image from an API endpoint.
 Author: Michael Yagi
 """
 
@@ -57,7 +57,7 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
             output = json.decode(output_body, None)
             responsePathArray = []
 
-            if failure == False or output_body != "":
+            if output_body != "":
                 if debug_output:
                     outputStr = str(output)
                     outputLen = len(outputStr)
@@ -101,6 +101,7 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
 
                 if failure == False:
                     img = None
+
                     if output != None:
                         if len(responsePathArray) > 0:
                             if debug_output:
