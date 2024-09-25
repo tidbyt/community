@@ -9,7 +9,6 @@ load("bsoup.star", "bsoup")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 
@@ -68,7 +67,7 @@ def process_departures(departures, routes):
             continue
         departure["direction"] = departure["direction"].replace(" ", "\u2022")
         departure["routeName"] = routes[departure["routeId"]]
-        departure["timeText"] = str(math.floor(departure["actualRelativeTime"] / 60)) + "m"
+        departure["timeText"] = departure["mixedTime"].replace(" %UNIT_MIN%", "m").replace(":", "")
         departure["timeColor"] = ORANGE if departure["actualRelativeTime"] < 300 else GREEN
         result.append(departure)
     return result
@@ -261,7 +260,7 @@ def render_departures_frame(departures):
                             content = departure["routeName"],
                             color = RED,
                             font = FONT,
-                            width = 16,
+                            width = 12,
                             height = 6,
                             align = "left",
                         ),
@@ -276,7 +275,7 @@ def render_departures_frame(departures):
                             content = departure["timeText"],
                             color = departure["timeColor"],
                             font = FONT,
-                            width = 12,
+                            width = 16,
                             height = 6,
                             align = "right",
                         ),
