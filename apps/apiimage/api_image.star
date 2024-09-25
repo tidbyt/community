@@ -196,9 +196,9 @@ def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
         return data
 
     if headerMap == {}:
-        res = http.get(url)
+        res = http.get(url, ttl_seconds = ttl_seconds)
     else:
-        res = http.get(url, headers = headerMap)
+        res = http.get(url, headers = headerMap, ttl_seconds = ttl_seconds)
 
     headers = res.headers
     isValidContentType = False
@@ -223,7 +223,7 @@ def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
     else:
         data = res.body()
 
-        cache.set(url, data, ttl_seconds = ttl_seconds)
+        cache.set(url, data)
 
         return data
 
