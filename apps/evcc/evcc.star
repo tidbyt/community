@@ -23,8 +23,8 @@ DEFAULT_TIMEZONE = "Europe/Berlin"
 
 INFLUXDB_HOST_DEFAULT = "https://eu-central-1-1.aws.cloud2.influxdata.com/api/v2/query"
 
-TTL_FOR_LAST = 60  # the TTL for up2date info
-TTL_FOR_MAX = 60  # how often the max values are being refreshed
+TTL_FOR_LAST = 300  # the TTL for up2date info
+TTL_FOR_MAX = 900  # how often the max values are being refreshed
 TTL_FOR_SERIES = 900  # how often the time series for pvPower and homePower are being refreshed
 
 # COLOR DEFINITIONS
@@ -166,7 +166,7 @@ def main(config):
     if vehicleRangeLast == 0:
         str_vehicleRangeLast = "?"
     else:
-        str_vehicleRangeLast = str(vehicleRangeLast) + "%"
+        str_vehicleRangeLast = str(vehicleRangeLast)
 
     # calculating the car progress bar
     # based on the vehicleSocLast value
@@ -399,11 +399,13 @@ def getgridPowerSeries(dbhost, defaults, api_key):
     #print ("query=" + fluxql)
     return getTouples(dbhost, fluxql, api_key, TTL_FOR_SERIES)
 
+# average over 5 min, cached for 15 min
 def getMaxValue(measurement, dbhost, defaults, api_key):
     fluxql = defaults + ' \
         |> range(start: today()) \
         |> filter(fn: (r) => r._measurement == "' + measurement + '") \
         |> group() \
+        |> aggregateWindow(every: 5m, fn: mean)          \
         |> max() \
         |> toInt() \
         |> keep(columns: ["_value"])'
@@ -413,12 +415,13 @@ def getMaxValue(measurement, dbhost, defaults, api_key):
     print("%sMax = %s" % (measurement, value))
     return int(value)
 
+# average over 5 min, cached for 5 min
 def getLastValue(measurement, dbhost, defaults, api_key):
     fluxql = defaults + ' \
-        |> range(start: -1m) \
+        |> range(start: -5m) \
         |> filter(fn: (r) => r._measurement == "' + measurement + '") \
         |> group() \
-        |> last() \
+        |> aggregateWindow(every: 5m, fn: mean)                    \
         |> toInt() \
         |> keep(columns: ["_value"])'
 
