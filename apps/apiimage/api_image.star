@@ -5,7 +5,6 @@ Description: Display an image from an API endpoint.
 Author: Michael Yagi
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -51,7 +50,7 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                 if len(headerKeyValueArray) > 1:
                     headerMap[headerKeyValueArray[0].strip()] = headerKeyValueArray[1].strip()
 
-        output_body = get_cached(api_url, debug_output, headerMap)
+        output_body = get_data(api_url, debug_output, headerMap)
 
         if output_body != None and type(output_body) == "string":
             output = json.decode(output_body, None)
@@ -115,7 +114,7 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                                 else:
                                     url = output
 
-                                img = get_cached(url, debug_output)
+                                img = get_data(url, debug_output)
 
                                 if debug_output:
                                     print("Image URL: " + url)
@@ -190,13 +189,7 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
         ),
     )
 
-def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
-    data = cache.get(url)
-    if data:
-        if debug_output:
-            print("Retrieved content from cache")
-        return data
-
+def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
     if headerMap == {}:
         res = http.get(url, ttl_seconds = ttl_seconds)
     else:
@@ -224,8 +217,6 @@ def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
             print("Requested url: " + str(url))
     else:
         data = res.body()
-
-        cache.set(url, data)
 
         return data
 
