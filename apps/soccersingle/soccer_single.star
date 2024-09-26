@@ -9,6 +9,7 @@ Author: jvivona
 # 20230829 fixed PK score - in a different place for single match results..   Not enough testing :-)
 # 20240223 fixed issue with PPD games showing before their scheduled start time
 # 20240802 added code to handle widgetMode - only show the 1st piece, no animations
+# 20240926 resolve issue where sometimes FT indicator from API is longer than can be displayed, override to show just FT
 
 # Tons of thanks to @whyamihere/@rs7q5 for the API assistance - couldn't have gotten here without you
 # and thanks to @dinotash/@dinosaursrarr for making me think deep thoughts about connected schema fields
@@ -20,7 +21,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 24215
+VERSION = 24270
 
 CACHE_TTL_SECONDS = 60
 
@@ -46,7 +47,9 @@ SHORTENED_WORDS = """
     " / ": " ",
     "Postponed": "PPD",
     "1st Half": "1H",
-    "2nd Half": "2H"
+    "2nd Half": "2H",
+    "FT-Pens": "FT",
+    "AET" : "FT"
 }
 """
 
@@ -64,7 +67,6 @@ def main(config):
         teamid = DEFAULT_TEAM
 
     league = API % ("all", str(teamid))
-    print("api call: " + league)
     teamdata = get_scores(league)
     scores = teamdata["nextEvent"]
 
@@ -697,7 +699,7 @@ def get_gametime_column(gameTime, textColor, leagueAbbr):
 
     gameTimeColumn = [
         render.WrappedText(width = 25, height = 6, content = leagueAbbr, linespacing = 1, font = "CG-pixel-3x5-mono", color = textColor, align = "center"),
-        render.WrappedText(width = 39, height = 6, content = gameTime, linespacing = 1, font = "CG-pixel-3x5-mono", color = textColor, align = "right"),
+        render.WrappedText(width = 39, height = 6, content = get_shortened_display(gameTime), linespacing = 1, font = "CG-pixel-3x5-mono", color = textColor, align = "right"),
     ]
     return gameTimeColumn
 
