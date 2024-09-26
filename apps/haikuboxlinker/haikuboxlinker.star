@@ -15,7 +15,7 @@ load("time.star", "time")
 def fetchBirdData(serial_code, date):
     # API Request
     url = "https://api.haikubox.com/haikubox/" + serial_code + "/daily-count?date=" + date
-    response = http.get(url)
+    response = http.get(url, ttl_seconds = 900)
 
     # If request successful
     if response.status_code == 200:
