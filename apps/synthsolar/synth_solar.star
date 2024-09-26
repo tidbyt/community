@@ -366,15 +366,18 @@ def get_current_battery_charge_widget(data, mode):
         return render.Box(
             width = max_width,
             padding = 1,
-            child = render.Column(
-                main_align = "space_around",
-                cross_align = "start",
-                children = [
-                    synth_primary_text(padd_number(str(math.ceil(battery_soc))) + "%", ""),
-                    icon,
-                    synth_primary_text(battery_state, ""),
-                ],
-            ),
+            child =
+                render.Padding(
+                    pad = (1, 0, 0, 0),
+                    child = render.Column(
+                        main_align = "space_evenly",
+                        children = [
+                            synth_primary_text(padd_number(str(math.ceil(battery_soc))) + "%", ""),
+                            icon,
+                            synth_primary_text(battery_state, ""),
+                        ],
+                    ),
+                ),
         )
 
 def round_to_one_decimal_str(x):
@@ -495,8 +498,8 @@ def get_savings(url, timezone, mode):
 
         return render.Box(
             width = max_width,
-            padding = 1,
             child = render.Row(
+                main_align = "start",
                 children = [
                     icon,
                     render.Box(
