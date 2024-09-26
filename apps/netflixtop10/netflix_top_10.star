@@ -190,6 +190,12 @@ def load_global_table():
     return parse_tsv(body)
 
 def get_rows_for_display(region, category):
+    cache_key = "rows-%s-%s" % (region, category)
+
+    val = cache.get(cache_key)
+    if val != None:
+        return json.decode(val)
+
     data = load_global_table() if region == "global" else load_countries_table()
     if data == None:
         return [{"show_title": "Error loading chart"}]
@@ -203,6 +209,8 @@ def get_rows_for_display(region, category):
 
     filtered = [row for row in data if matches(row)]
     rows = sorted(filtered, key = lambda row: int(row["weekly_rank"]))
+
+    cache.set(cache_key, json.encode(rows), ttl_seconds = 60 * 60)
 
     return rows
 
