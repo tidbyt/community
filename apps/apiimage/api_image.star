@@ -193,6 +193,8 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
 def get_cached(url, debug_output, headerMap = {}, ttl_seconds = 20):
     data = cache.get(url)
     if data:
+        if debug_output:
+            print("Retrieved content from cache")
         return data
 
     if headerMap == {}:
