@@ -291,7 +291,7 @@ def get_schema():
                 name = "Refresh rate",
                 desc = "Refresh data at the specified interval. Useful for when an endpoint serves random images.",
                 icon = "",
-                default = ttl_options[0].value,
+                default = ttl_options[1].value,
                 options = ttl_options,
             ),
             schema.Toggle(
