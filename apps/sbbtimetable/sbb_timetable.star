@@ -162,10 +162,10 @@ def main(config):
                         color = trainCategoryColor,
                         padding = 0,
                         child = render.Row(
-                                children = [
+                            children = [
                                 render.Text(
-                                content = "%s" % trainCategory,
-                                font = FONT_TO_USE,
+                                    content = "%s" % trainCategory,
+                                    font = FONT_TO_USE,
                                 ),
                             ],
                         ),
@@ -181,10 +181,10 @@ def main(config):
                         color = trainCategoryColor,
                         padding = 0,
                         child = render.Row(
-                                children = [
+                            children = [
                                 render.Text(
-                                content = "%s" % trainCategoryLine,
-                                font = FONT_TO_USE,
+                                    content = "%s" % trainCategoryLine,
+                                    font = FONT_TO_USE,
                                 ),
                             ],
                         ),
@@ -203,9 +203,9 @@ def main(config):
                 render.Column(
                     children = [
                         render.Box(width = 1, height = 1),
-                        render.Box(width = 1, height = 1, color="#FFF"),
+                        render.Box(width = 1, height = 1, color = "#FFF"),
                         render.Box(width = 1, height = 1),
-                        render.Box(width = 1, height = 1, color="#FFF"),
+                        render.Box(width = 1, height = 1, color = "#FFF"),
                         render.Box(width = 1, height = 1),
                     ],
                 ),
@@ -215,19 +215,19 @@ def main(config):
                     font = FONT_TO_USE,
                 ),
             ]
-                
 
             if trainDelay == "+0":
-                renderTime = render.Row(children=renderTimeNormal)
+                renderTime = render.Row(children = renderTimeNormal)
             else:
                 renderTimeChild = []
-                renderTimeChild.extend([
-                    render.Box(
-                        width = 18,
-                        height = 5,
-                        padding = 0,
-                        child = render.Row(children=renderTimeNormal)
-                    ),
+                renderTimeChild.extend(
+                    [
+                        render.Box(
+                            width = 18,
+                            height = 5,
+                            padding = 0,
+                            child = render.Row(children = renderTimeNormal),
+                        ),
                     ] * NO_FRAMES_TOGGLE,
                 )
                 if trainDelay == "X":
@@ -235,31 +235,32 @@ def main(config):
                 else:
                     delayText = (time.parse_duration("%sm" % trainDelay) + time.parse_time(trainTime, format = "2006-01-02 15:04:05")).format("15:04")
                 hoursDelay, minutesDelay = delayText.split(":")
-                renderTimeChild.extend([
-                    render.Row(
-                        children = [
-                            render.Text(
-                                content = hoursDelay,
-                                font = FONT_TO_USE,
-                                color = COLOR_DELAY,
-                            ),
-                            render.Column(
-                                children = [
-                                    render.Box(width = 1, height = 1),
-                                    render.Box(width = 1, height = 1, color=COLOR_DELAY),
-                                    render.Box(width = 1, height = 1),
-                                    render.Box(width = 1, height = 1, color=COLOR_DELAY),
-                                    render.Box(width = 1, height = 1),
-                                ],
-                            ),
-                            render.Box(width = 1, height = 5),
-                            render.Text(
-                                content = minutesDelay,
-                                font = FONT_TO_USE,
-                                color = COLOR_DELAY,
-                            ),
-                        ],
-                    ),
+                renderTimeChild.extend(
+                    [
+                        render.Row(
+                            children = [
+                                render.Text(
+                                    content = hoursDelay,
+                                    font = FONT_TO_USE,
+                                    color = COLOR_DELAY,
+                                ),
+                                render.Column(
+                                    children = [
+                                        render.Box(width = 1, height = 1),
+                                        render.Box(width = 1, height = 1, color = COLOR_DELAY),
+                                        render.Box(width = 1, height = 1),
+                                        render.Box(width = 1, height = 1, color = COLOR_DELAY),
+                                        render.Box(width = 1, height = 1),
+                                    ],
+                                ),
+                                render.Box(width = 1, height = 5),
+                                render.Text(
+                                    content = minutesDelay,
+                                    font = FONT_TO_USE,
+                                    color = COLOR_DELAY,
+                                ),
+                            ],
+                        ),
                     ] * NO_FRAMES_TOGGLE,
                 )
                 renderTime = render.Animation(children = renderTimeChild)
@@ -276,7 +277,6 @@ def main(config):
                             color = COLOR_DELAY,
                             font = FONT_TO_USE,
                         ),
-                        
                         render.Box(width = 1, height = 5),
                         render.Marquee(
                             width = 37 if trainDelay == "+0" else 37 - len(trainDelay) * 4,
