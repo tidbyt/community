@@ -74,7 +74,32 @@ def utc_to_local(utc,tz):
     # Format the local time as a string
     return local_time.format("2006-01-02 15:04:05")
     
-
+def error(reason):
+    return render.Root(
+        child = render.Box(
+            render.Column(
+                expanded = True,
+                cross_align = "center",
+                main_align = "space_evenly",
+                children = [
+                    render.Text(
+                        content = "Error:",
+                        font = "tb-8",
+                        color = "#FF5500",
+                    ),
+                    render.Text(
+                        content = reason,
+                        font = "tb-8",
+                        color = "#FF0000",
+                    ),
+                    # render.Text(
+                    #     content = data["error"],
+                    #     color = "#FF0000",
+                    # ),
+                ],
+            ),
+        ),
+    )
 def main(config):
     debug_print("Program Start ############################################################")
     units = "ft"
@@ -95,11 +120,10 @@ def main(config):
     lon = location['lng']
     tz = location['timezone']
     debug_print(tz)
-    # api_key = config.get("api_key","de381698-7c4f-11ef-95ed-0242ac130004-de381738-7c4f-11ef-95ed-0242ac130004")
+    #api_key = config.get("api_key","de381698-7c4f-11ef-95ed-0242ac130004-de381738-7c4f-11ef-95ed-0242ac130004")
     api_key = config.get("api_key","")
-    need_api_key = False
     if api_key == "":
-        need_api_key = True
+        return error("No API Key")
 
     now = time.now().in_location(tz)
 
@@ -139,6 +163,8 @@ def main(config):
     #     debug_print("pulling fresh tide data")
     tides_hilo = get_tides_hilo(api_key,lat,lon,start,end,DATUM)
     tides_graph = get_tides_graph(api_key,lat,lon,start,end,DATUM)
+    if tides_hilo == None:
+        return error("HTTP Error")
     # if tides_hilo != None:
     #     # TODO: Determine if this cache call can be converted to the new HTTP cache.
     #     cache.set(cache_key_hilo, json.encode(tides_hilo), ttl_seconds = 14400)  # 4 hours
@@ -154,7 +180,7 @@ def main(config):
 
     # generate up HILO lines
     debug_print("generating hilos")
-    if tides_hilo != None and "data" in tides_hilo and need_api_key != True:
+    if tides_hilo != None and "data" in tides_hilo:
         debug_print("tide data is present")
         if station_name == None or station_name == "":  # set via config.get at the top
             station_name = tides_hilo['meta']['station']['name'].split(',')[0].title()
@@ -254,7 +280,7 @@ def main(config):
             children = lines,
         ),
     )
-    if need_api_key != True and len(points) > 0:
+    if len(points) > 0:
         if y_lim_max == "":
             y_lim_max = None
         elif y_lim_max != None:
@@ -270,7 +296,7 @@ def main(config):
         )
     root_children = [main_text]
 
-    if config.bool("display_graph") and len(points) > 0 and need_api_key != True:  # panic if we try to render an empty graph object
+    if config.bool("display_graph") and len(points) > 0:  # panic if we try to render an empty graph object
         root_children = [data_graph, main_text]
 
     return render.Root(
