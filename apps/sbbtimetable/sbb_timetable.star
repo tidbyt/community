@@ -215,15 +215,16 @@ def main(config):
                 render.Row(
                     children = [
                         render.Animation(children = renderCategory),
-                        render.Box(width = 1, height = 5),
+                        render.Box(width = 2, height = 5),
                         renderTime,
                         render.Text(
                             content = "" if trainDelay == "+0" else "%s" % trainDelay,
                             color = COLOR_DELAY,
                             font = FONT_TO_USE,
                         ),
+                        render.Box(width = 1, height = 5),
                         render.Marquee(
-                            width = 36 if trainDelay == "+0" else 36 - len(trainDelay) * 4,
+                            width = 34 if trainDelay == "+0" else 34 - len(trainDelay) * 4,
                             child = render.Text(
                                 content = "%s" % trainDest,
                                 font = FONT_TO_USE,
