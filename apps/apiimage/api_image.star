@@ -17,6 +17,8 @@ def main(config):
     request_headers = config.get("request_headers", "")
     debug_output = config.bool("debug_output", False)
     fit_screen = config.bool("fit_screen", False)
+    ttl_seconds = config.get("ttl_seconds", 20)
+    ttl_seconds = int(ttl_seconds)
 
     if debug_output:
         print("------------------------------")
@@ -26,10 +28,11 @@ def main(config):
         print("CONFIG - request_headers: " + request_headers)
         print("CONFIG - debug_output: " + str(debug_output))
         print("CONFIG - fit_screen: " + str(fit_screen))
+        print("CONFIG - ttl_seconds: " + str(ttl_seconds))
 
-    return get_image(base_url, api_url, response_path, request_headers, debug_output, fit_screen)
+    return get_image(base_url, api_url, response_path, request_headers, debug_output, fit_screen, ttl_seconds)
 
-def get_image(base_url, api_url, response_path, request_headers, debug_output, fit_screen):
+def get_image(base_url, api_url, response_path, request_headers, debug_output, fit_screen, ttl_seconds):
     failure = False
     message = ""
 
@@ -50,7 +53,7 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                 if len(headerKeyValueArray) > 1:
                     headerMap[headerKeyValueArray[0].strip()] = headerKeyValueArray[1].strip()
 
-        output_body = get_data(api_url, debug_output, headerMap)
+        output_body = get_data(api_url, debug_output, headerMap, ttl_seconds)
 
         if output_body != None and type(output_body) == "string":
             output = json.decode(output_body, None)
@@ -114,7 +117,7 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                                 else:
                                     url = output
 
-                                img = get_data(url, debug_output)
+                                img = get_data(url, debug_output, {}, ttl_seconds)
 
                                 if debug_output:
                                     print("Image URL: " + url)
@@ -223,6 +226,33 @@ def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
     return None
 
 def get_schema():
+    ttl_options = [
+        schema.Option(
+            display = "5 sec",
+            value = "5",
+        ),
+        schema.Option(
+            display = "20 sec",
+            value = "20",
+        ),
+        schema.Option(
+            display = "1 min",
+            value = "60",
+        ),
+        schema.Option(
+            display = "15 min",
+            value = "900",
+        ),
+        schema.Option(
+            display = "1 hour",
+            value = "3600",
+        ),
+        schema.Option(
+            display = "24 hours",
+            value = "86400",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -255,6 +285,14 @@ def get_schema():
                 desc = "Comma separated key:value pairs to build the request headers. eg, `x-api-key:abc123,content-type:application/json`",
                 icon = "",
                 default = "",
+            ),
+            schema.Dropdown(
+                id = "ttl_seconds",
+                name = "Refresh rate",
+                desc = "Refresh data at the specified interval. Useful for when an endpoint serves random images.",
+                icon = "",
+                default = ttl_options[0].value,
+                options = ttl_options,
             ),
             schema.Toggle(
                 id = "fit_screen",
