@@ -24,6 +24,9 @@ Re-arranged some code so that it only executes during 1st or 2nd inngs and not b
 v2.2.1
 Re-arranged some code again, as it introduced some bugs
 Use white color text for "No Result" matches
+
+v2.3
+Updated for 2024/25 season
 """
 
 load("encoding/json.star", "json")
@@ -33,7 +36,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-SeriesID = "1386092"
+SeriesID = "1443056"
 
 LiveGames_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/home?lang=en&seriesId=" + SeriesID
 Standings_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/standings?lang=en&seriesId=" + SeriesID
