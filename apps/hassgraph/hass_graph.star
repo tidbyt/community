@@ -1,5 +1,6 @@
 load("animation.star", "animation")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -58,7 +59,15 @@ PLACEHOLDER_DATA = [
 
 MAX_TIME_PERIOD = 24
 
+TIME_FORMAT = "2006-01-02T15:04:05Z"
+
 def main(config):
+    timezone = None
+    location = config.get("location")
+    if location:
+        loc = json.decode(location)
+        timezone = loc["timezone"]
+
     if not config.str("ha_instance") or not config.str("ha_entity") or not config.str("ha_token"):
         print("Using placeholder data, please configure the app")
         data = PLACEHOLDER_DATA
@@ -79,7 +88,7 @@ def main(config):
     unit = data[0]["attributes"]["unit_of_measurement"]
     points = calculate_hourly_average(data)
     current_value = data[-1]["state"]
-    stats = calc_stats(data)
+    stats = calc_stats(timezone, data)
 
     return render_app(config, current_value, points, stats, unit)
 
@@ -114,7 +123,10 @@ def calculate_hourly_average(data):
 
     return list(hourly_averages.items())
 
-def calc_stats(data):
+def localize_timestamp(timezone, timestamp):
+    return time.parse_time(timestamp).in_location(timezone).format(TIME_FORMAT)
+
+def calc_stats(timezone, data):
     highest_value = float("-inf")
     highest_timestamp = None
     lowest_value = float("inf")
@@ -138,6 +150,11 @@ def calc_stats(data):
 
     average_value = total_value / count if count else 0
     average_value = (average_value * 10) // 1 / 10
+
+    if timezone:
+        lowest_timestamp = localize_timestamp(timezone, lowest_timestamp)
+        highest_timestamp = localize_timestamp(timezone, highest_timestamp)
+
     return {
         "lowest_value": str(lowest_value),
         "lowest_time": lowest_timestamp.split("T")[1][:5] if lowest_value != float("inf") else "N/A",
@@ -147,7 +164,7 @@ def calc_stats(data):
     }
 
 def get_entity_data(config, start_time):
-    start_time_str = start_time.format("2006-01-02T15:04:05Z")
+    start_time_str = start_time.format(TIME_FORMAT)
     url = config.str("ha_instance") + "/api/history/period/" + start_time_str + "?filter_entity_id=" + config.str("ha_entity")
     headers = {
         "Authorization": "Bearer " + config.str("ha_token"),
@@ -330,6 +347,12 @@ def get_schema():
                 desc = "Show the highest, lowest and average values",
                 icon = "list",
                 default = True,
+            ),
+            schema.Location(
+                id = "location",
+                name = "Location",
+                icon = "locationDot",
+                desc = "Location for which to display time",
             ),
             schema.Dropdown(
                 id = "icon",

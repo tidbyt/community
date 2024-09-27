@@ -1,0 +1,6 @@
+---
+id: random-recipe
+name: Random Recipe
+summary: Get a random recipe idea
+desc: Display a random recipe from themealdb.com.
+author: noahpodgurski
