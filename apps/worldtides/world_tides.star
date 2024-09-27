@@ -10,36 +10,36 @@ load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 production = True
 debug = False  #  debug mode will not hit network apis
-print_debug = False
+print_debug = True
 
-default_location = """
+DEFAULT_LOCATION = """
   {
 	"lat": "20.89",
 	"lng": "-156.50",
 	"description": "Wailuku, HI, USA",
 	"locality": "Maui",
-	"timezone": "America/Honolulu"
+	"timezone": "Pacific/Honolulu"
 }
 """
 
 DATUM = "MLLW"
-# NOAA_API_URL_GRAPH = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=%s&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&format=json"
-# NOAA_API_URL_HILO = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=%s&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&format=json&interval=hilo"
 API_URL_HILO = "https://api.stormglass.io/v2/tide/extremes/point?lat=%s&lng=%s&start=%s&end=%s&datum=%s"
-API_URL_GRAPH = "https://api.stormglass.io/v2/tide/sea-level/point?lat=%s&lng=%s&start=%s&end=%s&dataum=%s"
+API_URL_GRAPH = "https://api.stormglass.io/v2/tide/sea-level/point?lat=%s&lng=%s&start=%s&end=%s&datum=%s"
+
 def debug_print(arg):
     if print_debug:
         print(arg)
 
-def get_tides_hilo(station_id):
+def get_tides_hilo(api_key,lat,lon,start,end,datum):
     tides = {}
-    url = API_URL_HILO % (lat,lng,start,end,datum)
+    url = API_URL_HILO % (lat,lon,start,end,datum)
+    debug_print("HILO Url : " + url)
     if not debug:
-        debug_print("HILO Url : " + url)
-        resp = http.get(url, ttl_seconds = 14400)  # cache for 4 hours (tides don't change much)
+        resp = http.get(url, headers = {"Authorization": api_key}, ttl_seconds = 0)  # cache for 4 hours (tides don't change much)
         if resp.status_code != 200:
             tides = None
         else:
@@ -47,24 +47,33 @@ def get_tides_hilo(station_id):
             debug_print(tides)
     else:  # in debug mode return None so main program will just use hilo data for graphing
         # tides_json = """{"predictions": [{"t": "2022-03-04 00:19", "v": "1.630", "type": "H"}, {"t": "2022-03-04 11:05", "v": "-5.532", "type": "L"}, {"t": "2022-03-04 17:10", "v": "12.85", "type": "H"}, {"t": "2022-03-04 22:52", "v": "-1.058", "type": "L"}]}"""
-        tides_json = """{"data":[{"height":-0.09259438260748565,"time":"2024-09-26T06:11:00+00:00","type":"low"},{"height":-0.08286593465801828,"time":"2024-09-26T08:39:00+00:00","type":"high"},{"height":-0.15480071130433282,"time":"2024-09-26T13:27:00+00:00","type":"low"},{"height":0.38358592538523006,"time":"2024-09-26T21:48:00+00:00","type":"high"}],"meta":{"cost":1,"dailyQuota":10,"datum":"MSL","end":"2024-09-27 00:00","lat":20.7984,"lng":-156.3319,"offset":0,"requestCount":1,"start":"2024-09-26 00:00","station":{"distance":18,"lat":20.9,"lng":-156.467,"name":"kahului","source":"uhslc"}}}"""
+        tides_json = """{"data":[{"height":0.1704194207101767,"time":"2024-09-26T13:19:00+00:00","type":"low"},{"height":0.718609558578788,"time":"2024-09-26T21:42:00+00:00","type":"high"},{"height":0.21023378849638952,"time":"2024-09-27T05:21:00+00:00","type":"low"},{"height":0.30855932928070645,"time":"2024-09-27T09:43:00+00:00","type":"high"}],"meta":{"cost":1,"dailyQuota":10,"datum":"MLLW","end":"2024-09-27 09:59","lat":20.89,"lng":-156.5,"offset":-0.34,"requestCount":2,"start":"2024-09-26 10:00","station":{"distance":2,"lat":20.895,"lng":-156.476694,"name":"kahului, kahului harbor, hi","source":"noaa"}}}"""
         tides = json.decode(tides_json)
     return tides
 
-def get_tides_graph(station_id):
+def get_tides_graph(api_key,lat,lon,start,end,datum):
     tides = {}
-    url = NOAA_API_URL_GRAPH % (station_id)
+    url = API_URL_GRAPH % ((lat,lon,start,end,datum))
+    debug_print("Graph Url : " + url)
     if not debug:
-        debug_print("Graph Url : " + url)
-        resp = http.get(url, ttl_seconds = 14400)  # cache for 4 hours (tides don't change much)
+        resp = http.get(url, headers = {"Authorization": api_key}, ttl_seconds = 0)  # cache for 4 hours (tides don't change much)
         print(resp.headers.get("Tidbyt-Cache-Status"))
         if resp.status_code != 200:
             tides = None
         else:
             tides = json.decode(resp.body())
     else:
-        tides = json.decode("""{"data":[{"sg":0.22,"time":"2024-09-26T00:00:00+00:00"},{"sg":0.14,"time":"2024-09-26T01:00:00+00:00"},{"sg":0.06,"time":"2024-09-26T02:00:00+00:00"},{"sg":-0.0,"time":"2024-09-26T03:00:00+00:00"},{"sg":-0.05,"time":"2024-09-26T04:00:00+00:00"},{"sg":-0.08,"time":"2024-09-26T05:00:00+00:00"},{"sg":-0.09,"time":"2024-09-26T06:00:00+00:00"},{"sg":-0.09,"time":"2024-09-26T07:00:00+00:00"},{"sg":-0.08,"time":"2024-09-26T08:00:00+00:00"},{"sg":-0.08,"time":"2024-09-26T09:00:00+00:00"},{"sg":-0.09,"time":"2024-09-26T10:00:00+00:00"},{"sg":-0.11,"time":"2024-09-26T11:00:00+00:00"},{"sg":-0.13,"time":"2024-09-26T12:00:00+00:00"},{"sg":-0.15,"time":"2024-09-26T13:00:00+00:00"},{"sg":-0.15,"time":"2024-09-26T14:00:00+00:00"},{"sg":-0.12,"time":"2024-09-26T15:00:00+00:00"},{"sg":-0.06,"time":"2024-09-26T16:00:00+00:00"},{"sg":0.03,"time":"2024-09-26T17:00:00+00:00"},{"sg":0.13,"time":"2024-09-26T18:00:00+00:00"},{"sg":0.23,"time":"2024-09-26T19:00:00+00:00"},{"sg":0.31,"time":"2024-09-26T20:00:00+00:00"},{"sg":0.37,"time":"2024-09-26T21:00:00+00:00"},{"sg":0.38,"time":"2024-09-26T22:00:00+00:00"},{"sg":0.35,"time":"2024-09-26T23:00:00+00:00"},{"sg":0.28,"time":"2024-09-27T00:00:00+00:00"}],"meta":{"cost":1,"dailyQuota":10,"datum":"MSL","end":"2024-09-27 00:00","lat":20.7984,"lng":-156.3319,"offset":0,"requestCount":3,"start":"2024-09-26 00:00","station":{"distance":18,"lat":20.9,"lng":-156.467,"name":"kahului","source":"uhslc"}}}""")
+        tides = json.decode("""{"data":[{"sg":0.22,"time":"2024-09-26T10:00:00+00:00"},{"sg":0.21,"time":"2024-09-26T11:00:00+00:00"},{"sg":0.18,"time":"2024-09-26T12:00:00+00:00"},{"sg":0.17,"time":"2024-09-26T13:00:00+00:00"},{"sg":0.18,"time":"2024-09-26T14:00:00+00:00"},{"sg":0.21,"time":"2024-09-26T15:00:00+00:00"},{"sg":0.27,"time":"2024-09-26T16:00:00+00:00"},{"sg":0.36,"time":"2024-09-26T17:00:00+00:00"},{"sg":0.46,"time":"2024-09-26T18:00:00+00:00"},{"sg":0.57,"time":"2024-09-26T19:00:00+00:00"},{"sg":0.65,"time":"2024-09-26T20:00:00+00:00"},{"sg":0.71,"time":"2024-09-26T21:00:00+00:00"},{"sg":0.72,"time":"2024-09-26T22:00:00+00:00"},{"sg":0.68,"time":"2024-09-26T23:00:00+00:00"},{"sg":0.6,"time":"2024-09-27T00:00:00+00:00"},{"sg":0.5,"time":"2024-09-27T01:00:00+00:00"},{"sg":0.4,"time":"2024-09-27T02:00:00+00:00"},{"sg":0.31,"time":"2024-09-27T03:00:00+00:00"},{"sg":0.24,"time":"2024-09-27T04:00:00+00:00"},{"sg":0.21,"time":"2024-09-27T05:00:00+00:00"},{"sg":0.22,"time":"2024-09-27T06:00:00+00:00"},{"sg":0.24,"time":"2024-09-27T07:00:00+00:00"},{"sg":0.28,"time":"2024-09-27T08:00:00+00:00"},{"sg":0.3,"time":"2024-09-27T09:00:00+00:00"}],"meta":{"cost":1,"dailyQuota":10,"datum":"MLLW","end":"2024-09-27 09:59","lat":20.89,"lng":-156.5,"offset":-0.34,"requestCount":4,"start":"2024-09-26 10:00","station":{"distance":2,"lat":20.895,"lng":-156.476694,"name":"kahului, kahului harbor, hi","source":"noaa"}}}""")
     return tides
+
+def utc_to_local(utc,tz):
+    utc_time = time.parse_time(utc)
+    # Convert UTC time to your local timezone (adjust "Local" to your actual timezone)
+    local_time = utc_time.in_location(tz)
+
+    # Format the local time as a string
+    return local_time.format("2006-01-02 15:04:05")
+    
 
 def main(config):
     debug_print("Program Start ############################################################")
@@ -73,39 +82,41 @@ def main(config):
     # get preferences
     units_pref = config.get("h_units", "feet")
     time_format = config.get("time_format", "24HR")
-    station_id = config.get("station_id", "")
+    custom_lat = config.get("custom_lat", "")
+    custom_lon = config.get("custom_long","")
     station_name = config.get("station_name")  #  we want this to be blank or None
     color_label = config.get("label_color", "#0a0")  # green
     color_low = config.get("low_color", "#A00")  # red
     color_high = config.get("high_color", "#D2691E")  # nice orange
-    y_lim_min = config.get("y_lim_min", 0)
-    y_lim_max = config.get("y_lim_max", None)
+    y_lim_min = config.get("y_lim_min", "")
+    y_lim_max = config.get("y_lim_max", "")
+    location = json.decode(config.get("location",DEFAULT_LOCATION))
+    lat = location['lat']
+    lon = location['lng']
+    tz = location['timezone']
+    debug_print(tz)
+    # api_key = config.get("api_key","de381698-7c4f-11ef-95ed-0242ac130004-de381738-7c4f-11ef-95ed-0242ac130004")
+    api_key = config.get("api_key","")
+    need_api_key = False
+    if api_key == "":
+        need_api_key = True
 
-    # get our station_id
-    debug_print("station id from config.get: " + station_id)
-    if station_id == "none" or station_id == "" or not station_id:  # if manual input is empty load from local selection
-        debug_print("getting local_station_id")
-        if production:
-            local_selection = config.get("local_station_id", '{"display": "Kahului Harbor", "value": "1613198"}')
-        else:
-            local_selection = config.get("local_station_id", "1613198")  # default is Waimea
+    now = time.now().in_location(tz)
 
-        if local_selection == "None Found":
-            local_selection = "1613198"  # config.get bug ?
-        debug_print("Local selection : " + local_selection)
+    # Create the start of the day (00:00) for today
+    start_local = time.time(year=now.year, month=now.month, day=now.day, hour=0, minute=0, second=0,location=tz)
+    
+    # Create the end of the day (23:59) for today
+    end_local = time.time(year=now.year, month=now.month, day=now.day, hour=23, minute=59, second=0,location=tz)
 
-        # this is needed for locationbased selection in production environment
-        if "value" in local_selection:
-            station_id = json.decode(local_selection)["value"]
-            if station_name == None or station_name == "":
-                if "display" in local_selection:
-                    station_name = json.decode(local_selection)["display"]
-                else:
-                    station_name = station_id
-        else:
-            station_id = local_selection  # san fran
+    # Convert both times to UTC
+    start_utc = start_local.in_location("UTC")
+    end_utc = end_local.in_location("UTC")
 
-    debug_print("using station_id: " + station_id)
+    # Format the times into the desired string format
+    start = start_utc.format("2006-01-02T15:04")
+    end = end_utc.format("2006-01-02T15:04")  
+
 
     ################################ CACHINE CODE
     tides_hilo = {}
@@ -126,8 +137,8 @@ def main(config):
     # #     tides_graph = json.decode(cache_str_graph)
     # if len(tides_hilo) == 0:
     #     debug_print("pulling fresh tide data")
-    tides_hilo = get_tides_hilo(station_id)
-    tides_graph = get_tides_graph(station_id)
+    tides_hilo = get_tides_hilo(api_key,lat,lon,start,end,DATUM)
+    tides_graph = get_tides_graph(api_key,lat,lon,start,end,DATUM)
     # if tides_hilo != None:
     #     # TODO: Determine if this cache call can be converted to the new HTTP cache.
     #     cache.set(cache_key_hilo, json.encode(tides_hilo), ttl_seconds = 14400)  # 4 hours
@@ -135,40 +146,39 @@ def main(config):
     #     # TODO: Determine if this cache call can be converted to the new HTTP cache.
     #     cache.set(cache_key_graph, json.encode(tides_graph), ttl_seconds = 14400)  # 4 hours
 
-    debug_print("Tides HILO : " + str(tides_hilo))
-    debug_print("Tides GRAPH: " + str(tides_graph))
+    # debug_print("Tides HILO : " + str(tides_hilo))
+    # debug_print("Tides GRAPH: " + str(tides_graph))
     line_color = color_low
     lines = list()
+    points = []
 
-    # check for custom name label
-    debug_print("station_name:" + str(station_name))
-    if station_name == None or station_name == "":  # set via config.get at the top
-        lines.append(render.Text(content = "NOAA Tides", color = color_label, font = "tb-8"))
-    else:
-        # if station name is short enough we can use tb-8
+    # generate up HILO lines
+    debug_print("generating hilos")
+    if tides_hilo != None and "data" in tides_hilo and need_api_key != True:
+        debug_print("tide data is present")
+        if station_name == None or station_name == "":  # set via config.get at the top
+            station_name = tides_hilo['meta']['station']['name'].split(',')[0].title()
+            # if station name is short enough we can use tb-8
         if len(station_name) < 12:
             lines.append(render.Text(content = station_name, color = color_label, font = "tb-8"))
         else:
             if len(station_name) > 16:
                 station_name = station_name[0:16]
             lines.append(render.Text(content = station_name, color = color_label, font = "tom-thumb"))
-
-    points = []
-
-    # generate up HILO lines
-    debug_print("generating hilos")
-    if tides_hilo != None and "predictions" in tides_hilo:
-        debug_print("tide data is present")
-        for pred in tides_hilo["predictions"]:
+        for pred in tides_hilo["data"]:
+            _type = "L"
+            if "high" in pred['type']:
+                _type = "H"
             if units_pref == "meters":
-                v = int((float(pred["v"]) / 3 + 0.05) * 10) / 10.0  # round to 1 decimal
+                v = int((float(pred["height"]) + 0.05) * 10) / 10.0  # round to 1 decimal
                 units = "m"
             else:
-                v = int((float(pred["v"]) + 0.05) * 10) / 10.0  # round to 1 decimal
+                v = int((float(pred["height"]) * 3.28  + 0.05 ) * 10) / 10.0  # round to 1 decimal
 
-            if v < y_lim_min:
+            if y_lim_min == "" or v < y_lim_min:
                 y_lim_min = v  # set the lower level of graph to be the lowest negative
-            t = pred["t"][11:]  # strip the date from the front = start to first occurence of a space
+            #  probably need to convert back to local here
+            t = utc_to_local(pred["time"],tz)[11:16]  # strip the date from the front = start to first occurence of a space
             if time_format == "AMPM":
                 m = "A"
                 hr = int(t[0:2])
@@ -184,12 +194,12 @@ def main(config):
                     else:
                         hr = "0" + str(hr)
 
-                left_side = "%s %s:%s%s" % (pred["type"], hr, mn, m)
+                left_side = "%s %s:%s%s" % (_type, hr, mn, m)
                 right_side = "%s%s" % (v, units)
             else:
-                left_side = "%s %s" % (pred["type"], t)
+                left_side = "%s %s" % (_type, t)
                 right_side = "%s%s" % (v, units)
-            if "H" in pred["type"]:
+            if "H" in _type:
                 line_color = color_high
             else:
                 line_color = color_low
@@ -221,16 +231,16 @@ def main(config):
             )
 
         # Create the graph points list and populate it
-        if tides_graph == None or "predictions" not in tides_graph:
+        if tides_graph == None or "data" not in tides_graph:
             tides_graph = tides_hilo
         x = 0
-        for height_at_time in tides_graph["predictions"]:
-            points.append((x, float(height_at_time["v"])))
+        for height_at_time in tides_graph["data"]:
+            points.append((x, float(height_at_time["sg"]*3.3)))
             x = x + 1
 
     else:  # append error message to lines, return it down below
         lines.append(render.WrappedText(
-            content = "Invalid Station ID",
+            content = "Enter API Key",
             font = "tb-8",
             color = "#FF0000",
             align = "center",
@@ -244,22 +254,23 @@ def main(config):
             children = lines,
         ),
     )
-    if y_lim_max == "":
-        y_lim_max = None
-    elif y_lim_max != None:
-        y_lim_max = float(y_lim_max)
-    data_graph = render.Plot(
-        data = points,
-        width = 64,
-        height = 32,
-        color = "#00c",  #00c
-        color_inverted = "#505",
-        fill = True,
-        y_lim = (y_lim_min, y_lim_max),
-    )
+    if need_api_key != True and len(points) > 0:
+        if y_lim_max == "":
+            y_lim_max = None
+        elif y_lim_max != None:
+            y_lim_max = float(y_lim_max)
+        data_graph = render.Plot(
+            data = points,
+            width = 64,
+            height = 32,
+            color = "#00c",  #00c
+            color_inverted = "#505",
+            fill = True,
+            y_lim = (y_lim_min, y_lim_max),
+        )
     root_children = [main_text]
 
-    if config.bool("display_graph") and len(points) > 0:  # panic if we try to render an empty graph object
+    if config.bool("display_graph") and len(points) > 0 and need_api_key != True:  # panic if we try to render an empty graph object
         root_children = [data_graph, main_text]
 
     return render.Root(
@@ -291,28 +302,37 @@ def get_schema():
         schema.Option(display = "AM/PM", value = "AMPM"),
     ]
     fields = []
-    if not production:
-        stations_list = get_stations((default_location))  # locationbased schema don't work so use default location
-        fields.append(
-            schema.Dropdown(
-                id = "local_station_id",
-                name = "Local Tide Station",
-                icon = "monument",
-                desc = "Debug Location Stations",
-                options = stations_list,
-                default = "None Found",
-            ),
-        )
-    else:  # in production, locationbased schema fields work
-        fields.append(
-            schema.LocationBased(
-                id = "local_station_id",
-                name = "Local Tide Station",
-                icon = "monument",
-                desc = "Location Based Stations",
-                handler = get_stations,
-            ),
-        )
+    # if not production:
+    #     stations_list = get_stations((default_location))  # locationbased schema don't work so use default location
+    #     fields.append(
+    #         schema.Dropdown(
+    #             id = "local_station_id",
+    #             name = "Local Tide Station",
+    #             icon = "monument",
+    #             desc = "Debug Location Stations",
+    #             options = stations_list,
+    #             default = "None Found",
+    #         ),
+    #     )
+    # else:  # in production, locationbased schema fields work
+        # fields.append(
+        #     schema.LocationBased(
+        #         id = "local_station_id",
+        #         name = "Local Tide Station",
+        #         icon = "monument",
+        #         desc = "Location Based Stations",
+        #         handler = get_stations,
+        #     ),
+        # )
+    fields.append(
+        schema.Text(
+            id = "api_key",
+            name = "StormGlass API Key",
+            icon = "key",
+            desc = "Mandatory Personal API Key",
+            default = "",
+        ),
+    )
     fields.append(
         schema.Text(
             id = "station_name",
@@ -374,10 +394,18 @@ def get_schema():
     )
     fields.append(
         schema.Text(
-            id = "station_id",
-            name = "Manual Station ID Input",
+            id = "custom_lat",
+            name = "Custom Location Latitude",
             icon = "monument",
-            desc = "Optional manual station id",
+            desc = "Optional manual latitude",
+        ),
+    )
+    fields.append(
+        schema.Text(
+            id = "custom_lon",
+            name = "Custom Location Longitude",
+            icon = "monument",
+            desc = "Optional manual longitude",
         ),
     )
 
@@ -392,6 +420,15 @@ def get_schema():
     )
     fields.append(
         schema.Text(
+            id = "y_lim_min",
+            name = "Graph minimum",
+            desc = "Scale the graph by setting a local tide maximum. Leave blank to disable",
+            icon = "compress",
+            default = "",
+        ),
+    )
+    fields.append(
+        schema.Text(
             id = "y_lim_max",
             name = "Graph maximum",
             desc = "Scale the graph by setting a local tide maximum. Leave blank to disable",
@@ -399,7 +436,14 @@ def get_schema():
             default = "",
         ),
     )
-
+    fields.append(
+        schema.Location(
+            id = "location",
+            name = "Location",
+            desc = "Location for which to display tide.",
+            icon = "locationDot",
+        )
+    )
     return schema.Schema(
         version = "1",
         fields = fields,
