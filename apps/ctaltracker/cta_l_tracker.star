@@ -56,11 +56,12 @@ def get_schema():
     )
 
 def main(config):
+    widgetMode = config.bool("$widget")
     selected_station = config.get("station", DEFAULT_STATION)
 
     arrivals = get_journeys(selected_station)
 
-    rendered_rows = render_arrival_list(arrivals)
+    rendered_rows = render_arrival_list(arrivals, widgetMode)
 
     return render.Root(
         delay = 75,
@@ -68,7 +69,7 @@ def main(config):
         child = rendered_rows,
     )
 
-def render_arrival_list(arrivals):
+def render_arrival_list(arrivals, widgetMode):
     """
     Renders a given lists of arrivals
     """
@@ -76,7 +77,7 @@ def render_arrival_list(arrivals):
 
     if arrivals:
         for a in arrivals:
-            rendered.append(render_arrival_row(a))
+            rendered.append(render_arrival_row(a, widgetMode))
 
     if rendered == None or len(rendered) == 0 or arrivals == None:
         return render.Column(
@@ -86,7 +87,7 @@ def render_arrival_list(arrivals):
                 render.Marquee(
                     width = 64,
                     child = render.Text("No trains found"),
-                ),
+                ) if not widgetMode else render.Text("No trains"),
             ],
         )
 
@@ -112,16 +113,13 @@ def render_arrival_list(arrivals):
         ],
     )
 
-def render_arrival_row(arrival):
+def render_arrival_row(arrival, widgetMode):
     """
     Creates a Row and adds needed children objects
     for a single arrival
     """
     background_color = render.Box(width = 22, height = 11, color = arrival["color_hex"])
-    destination_text = render.Marquee(
-        width = 36,
-        child = render.Text(arrival["destination_name"], font = "CG-pixel-4x5-mono", height = 7),
-    )
+    destination_text = render.Text(arrival["destination_name"], font = "CG-pixel-4x5-mono", height = 7)
     arrival_in_text = render.Text(arrival["eta_text"], color = "#f3ab3f")
 
     stack = render.Stack(children = [
@@ -129,18 +127,23 @@ def render_arrival_row(arrival):
     ])
 
     column = render.Column(
+        cross_align = "start",
         children = [
-            destination_text,
+            render.Marquee(
+                width = 36,
+                child = destination_text,
+            ) if not widgetMode else destination_text,
             arrival_in_text,
         ],
     )
 
     return render.Row(
         expanded = True,
-        main_align = "space_evenly",
+        main_align = "start",
         cross_align = "center",
         children = [
             stack,
+            render.Box(width = 1, height = 1),
             column,
         ],
     )

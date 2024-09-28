@@ -1,0 +1,6 @@
+---
+id: stock-spotlight
+name: Stock Spotlight
+summary: Showcase 3 Stocks
+desc: Showcase up to 3 of your favorite stocks using your own Finnhub API key (available from https://finnhub.io).
+author: Seth Cottle

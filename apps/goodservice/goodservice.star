@@ -1,7 +1,7 @@
 """
-Applet: Goodservice
-Summary: Goodservice NYC subway
-Description: Projected New York City subway departure times, powered by goodservice.io.
+Applet: The Weekendest
+Summary: The Weekendest - NYC subway
+Description: Real-time New York City Subway projected departure times for a selected station, as seen on The Weekendest app. Takes into account of overnight and weekend service changes.
 Author: blahblahblah-
 """
 
@@ -27,6 +27,7 @@ NAME_OVERRIDE = {
     "Times Sq-42 St": "Times Sq",
     "Coney Island-Stillwell Av": "Coney Is",
     "South Ferry": "S Ferry",
+    "Mets-Willets Point": "Willets Pt",
 }
 
 STREET_ABBREVIATIONS = [
@@ -55,9 +56,9 @@ ABBREVIATIONS = {
 }
 
 DIAMONDS = {
-    "#21ba45": "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsSAAALEgHS3X78AAAAf0lEQVQYlX2QwQ2AIAxFnyzACEYncAQueGZUz3pxBCcwcQQnwGCqAUT+hUDfS2kb7z1x+mUcgAlwu523uKYK4Aq04ZT7F45ALU86F9QPSEloutn+gXFOwCgZpgY+HaYAOzFrCXWnZD2mItxfCNw9YEV4wWR1BSEBEzgTjhwEuAAX3ToeSy69ZQAAAABJRU5ErkJggg==",
-    "#a333c8": "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsSAAALEgHS3X78AAAAgUlEQVQYlWP8//8/AzJYYnLSgIGBYQMDA0NAzBnzC8hyTFgUHmBgYJAH0VA+pmIkhfxQIX50DUw4FDJg08C42PgELoXI4CMDA4MDE9Qz+BTCbNgAUhwA1YkPgOQDmKDB44BHA9gJIHVgD+LRAFeIEnRYNKAoRFGMpuEhukIGBgYGAL61OaAb+ZxMAAAAAElFTkSuQmCC",
-    "#f2711c": "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsSAAALEgHS3X78AAAAgElEQVQYlX2QYQ2AIBBGH/x3FtBZwQhGoIoGMYsRjGAFZwI1AA53OkDk+8Pg3ttxp6y1+DmHugUmwBTjtvg1nQBnoHGn3L+wB5byVMaC/gFJCeroqz/Qzw50WobJgU+HycFGzFxc3WhZT5cR7i847h4wI7xgsLqEEIABHAlrDAJc17Y5vym7CTIAAAAASUVORK5CYII=",
+    "#00933c": "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAcElEQVQYlX3QsRHCMAxA0YcWAfagADaBleg5MgkciwRvQpNwjnCsTuf3C3njdpBmizuuKPVDNOATZ7ymvYlnuJ/2XQ5iBWoF0YF/QeDRgXUwhMbVjSm4BEYcO0HBCeN84Gcl+EGWX5eDBcy4Dt4ZwhdZ8R3soZmzOQAAAABJRU5ErkJggg==",
+    "#b933ad": "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAc0lEQVQYlX3QwREBQRBA0acTQQwSQCYEpghAAE6URNZk4rKrZtvs9K1r3j/0rB67uzRrXHBGqR+iAZ844jXuTTzB7bhvchALUCuIDvwLAtcOrINbaFzdmIJTYMC+ExQcMEwHfhaCH2T+dTmYwYzr4J0hfAHfSh628EQX+AAAAABJRU5ErkJggg==",
+    "#ff6319": "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAcElEQVQYlX3QwREBQRBA0aezcEImyAR5KSKhJLImEi67arbNTt+65v1Dz+pzWUuzwRVnlPohGvCBI57j3sQT3I37NgexALWC6MC/IHDrwDq4h8bVjSk4BQbsO0HBAcN04Hsh+EHmX5eDGcy4Dl4ZwhemXh6YbpNeCwAAAABJRU5ErkJggg==",
 }
 
 def main(config):
@@ -91,6 +92,9 @@ def main(config):
     blocks = []
     min_estimated_arrival_time = ts + (travel_time_min * 60)
 
+    include_lines_str = config.str("include_lines", "").upper()
+    include_lines = include_lines_str.split(",")
+
     for dir in directions:
         upcoming_routes = {
             "north": [],
@@ -110,7 +114,6 @@ def main(config):
                 if r["route_id"] == trip["route_id"] and r["destination_stop"] == trip["destination_stop"]:
                     matching_route = r
                     break
-
             if matching_route:
                 if len(matching_route["times"]) < 3:
                     matching_route["times"].append(trip["estimated_current_stop_arrival_time"])
@@ -138,6 +141,12 @@ def main(config):
                         blocks.append(render.Box(width = 64, height = 1, color = "#333"))
 
                 selected_route = routes_req.json()["routes"][r["route_id"]]
+
+                route_name = selected_route["name"].upper()
+
+                if include_lines_str and len(include_lines) and route_name not in include_lines:
+                    continue
+
                 route_color = selected_route["color"]
                 text_color = selected_route["text_color"] if selected_route["text_color"] else "#fff"
                 destination = None
@@ -275,7 +284,7 @@ def get_schema():
 
     for s in stops_req.json()["stops"]:
         stop_name = s["name"].replace(" - ", "-") + " - " + s["secondary_name"] if s["secondary_name"] else s["name"].replace(" - ", "-")
-        routes = sorted(s["routes"].keys())
+        routes = sorted(s["scheduled_routes"].keys())
         stops_options.append(
             schema.Option(
                 display = stop_name + " (" + ", ".join(routes) + ")",
@@ -371,6 +380,13 @@ def get_schema():
                         value = DISPLAY_ORDER_ALPHABETICAL,
                     ),
                 ],
+            ),
+            schema.Text(
+                id = "include_lines",
+                name = "Filter Lines",
+                desc = "Only show certain lines (comma separated)",
+                icon = "route",
+                default = "",
             ),
         ],
     )

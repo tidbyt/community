@@ -11,11 +11,11 @@ load("render.star", "render")
 
 BLOCKS_PER_HALVING = 210000
 BLOCKS_DIFFICULTY_ADJUSTMENT = 2016
-PROGRESS_WIDTH = 64
+PROGRESS_WIDTH = 60
 URL_BLOCK_TIP_HEIGHT = "https://mempool.space/api/blocks/tip/height"
 URL_DIFFICULTY_ADJUSTMENT = "https://mempool.space/api/v1/difficulty-adjustment"
 
-ACTIVE_PROGRESS_COLOR = "#6d4626"
+ACTIVE_PROGRESS_COLOR = "#5b4029"
 BACKGROUND_COLOR = "#000"
 BORDER_COLOR_DARK = "#494542"
 BORDER_COLOR_LIGHT = "#848280"
@@ -105,7 +105,7 @@ def render_progress_bar(width, height, progress, text_stack):
                     child = render.Stack(
                         children = [
                             render.Box(
-                                width = PROGRESS_WIDTH - progress,
+                                width = progress,
                                 height = height,
                                 color = ACTIVE_PROGRESS_COLOR,
                             ),
@@ -132,9 +132,10 @@ def main():
 
     curr_epoch = math.ceil(block_tip_height / BLOCKS_PER_HALVING)
     blocks_left_to_next_epoch = (curr_epoch * BLOCKS_PER_HALVING) - block_tip_height
+    blocks_remaining_this_epoch = BLOCKS_PER_HALVING - blocks_left_to_next_epoch
 
-    halving_progress = int(math.round((blocks_left_to_next_epoch / BLOCKS_PER_HALVING) * PROGRESS_WIDTH))
-    difficulty_adjustment_progress = int(math.round((difficulty_adjustment_remaining / BLOCKS_DIFFICULTY_ADJUSTMENT) * PROGRESS_WIDTH))
+    halving_progress = int(math.ceil((blocks_remaining_this_epoch / BLOCKS_PER_HALVING) * PROGRESS_WIDTH))
+    difficulty_adjustment_progress = int(math.ceil((difficulty_adjustment_remaining / BLOCKS_DIFFICULTY_ADJUSTMENT) * PROGRESS_WIDTH))
 
     difficulty_change_text_color = TEXT_COLOR
     if difficulty_change > 0.1:

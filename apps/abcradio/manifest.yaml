@@ -1,0 +1,8 @@
+---
+id: abc-radio
+name: ABC Radio
+summary: Now playing on ABC stations
+desc: Shows the current playing song on various ABC stations in Australia.
+author: M0ntyP
+fileName: abc_radio.star
+packageName: abcradio

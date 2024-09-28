@@ -27,6 +27,83 @@ c66r64KYCDITyo0CKqwiLEQPtLCNX9EXgRLrV5Dwh8iSZp6QOPW0Ii67R4loYZxTaffMY86z
 G0G7SVeJFbVj4HbvAYKAnd83qTc7AAAAAElFTkSuQmCC
 """)
 
+demo_devices = {
+    "demo": True,
+    "devices": [
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 0, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86399},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86399},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86399},
+        {"status": 1, "ignore": 0, "uptime": 86399},
+        {"status": 1, "ignore": 0, "uptime": 86399},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86399},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86399},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86399},
+        {"status": 1, "ignore": 0, "uptime": 86399},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 0, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86399},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+        {"status": 1, "ignore": 0, "uptime": 86400},
+    ],
+}
+
 # Define the configuration schema
 def get_schema():
     return schema.Schema(
@@ -103,38 +180,41 @@ def render_box(color, size = BOX_SIZE):
         color = colors[color],
     )
 
-# Render rows of up/down data by querying LibreNMS server for device status
-def render_rows(devices):
+# Render rows of boxes to indicate up/down statuses
+def render_rows(device_info):
     boxes = list()
     children = list()
+    devices = device_info["devices"]
 
+    if device_info["demo"] == True:
+        children.append(
+            render.Row(
+                children = [
+                    render.Text("Demo Data"),
+                ],
+            ),
+        )
+        children.append(
+            render.Row(
+                children = [
+                    render.Text("Check CFG"),
+                ],
+            ),
+        )
     for device in devices:
-        # Device is currently offline
-        if device["status"] == 0:
-            # See if the "Ignore Alerts" flag is set
-            if device["ignore"] == 1:
-                # Device is offline but set to ignore alerts, mark as green
-                boxes.append(render_box("green"))
-
+        if device["status"] == 0:  # Device is currently down
+            if device["ignore"] == 1:  # "Ignore Alerts" flag is set
+                boxes.append(render_box("green"))  # Device offline; ignore alerts is set, mark as green
             else:
-                # Device is offline and not set to ignore alerts, mark as red
-                boxes.append(render_box("red"))
+                boxes.append(render_box("red"))  # Device offline; ignore alerts is NOT set, mark as red
 
+        elif device["uptime"] != None:  # Device online; uptime information present in device record
+            if int(device["uptime"]) < 86400:  # Check if device has been up for more than 24 hours
+                boxes.append(render_box("orange"))  # Uptime is less than 24 hours, mark as orange
+            else:
+                boxes.append(render_box("green"))  # Uptime is more than 24 hours, mark as green
         else:
-            # Device is up, and uptime information is present in device record
-            if device["uptime"] != None:
-                # Check if the device has been up for more than 24 hours
-                if int(device["uptime"]) < 86400:
-                    # Uptime is less than 24 hours, mark as orange
-                    boxes.append(render_box("orange"))
-
-                else:
-                    # Device uptime is more than 24 hours, mark as green
-                    boxes.append(render_box("green"))
-
-            else:
-                # Device has no uptime data but is up - mark as green
-                boxes.append(render_box("green"))
+            boxes.append(render_box("green"))  # Device has no uptime data but is up - mark as green
 
         boxes.append(
             render.Box(
@@ -164,26 +244,19 @@ def render_rows(devices):
 
     return children
 
-def main(config):
-    children = list()
+def get_devices(config):
+    headers = {"X-Auth-Token": config.str("api_key")}
 
-    librenms_url = config.str("librenms_url") or ""
-    if librenms_url == "":
-        return render_error("LibreNMS URL invalid - check config")
-
-    api_key = config.str("api_key") or ""
-    if api_key == "":
-        return render_error("LibreNMS API key not specified - check config")
-    headers = {"X-Auth-Token": api_key}
-
-    r = http.get((librenms_url + ENDPOINT_DEVICES), headers = headers)
+    r = http.get((config.str("librenms_url") + ENDPOINT_DEVICES), headers = headers)
     if r.status_code != 200:
         return render_error("Request failed with error {}".format(r.status_code))
 
-    devices = r.json()["devices"]
+    device_info = dict()
+    device_info["demo"] = False
+    device_info["devices"] = r.json()["devices"]
+    return device_info
 
-    children += render_rows(devices)
-
+def render_root(rows):
     return render.Root(
         delay = MARQUEE_SCROLL_SPEED,
         child = render.Column(
@@ -204,10 +277,20 @@ def main(config):
                             expanded = False,
                             main_align = "center",
                             cross_align = "center",
-                            children = children,
+                            children = rows,
                         ),
                     ),
                 ),
             ],
         ),
     )
+
+def main(config):
+    if config.str("librenms_url") and config.str("api_key"):
+        device_info = get_devices(config)
+    else:
+        device_info = demo_devices
+
+    rows = render_rows(device_info)
+
+    return render_root(rows)
