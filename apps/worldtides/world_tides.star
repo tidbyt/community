@@ -5,14 +5,13 @@ Description: Display global tide predictions in list format.
 Author: tavdog
 """
 
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("humanize.star", "humanize")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("cache.star", "cache")
-load("math.star","math")
 
 debug = False  #  debug mode will not hit network apis
 print_debug = True
@@ -35,12 +34,13 @@ def debug_print(arg):
     if print_debug:
         print(arg)
 
-def get_tides_hilo(api_key,lat,lon,start,end,datum):
+def get_tides_hilo(api_key, lat, lon, start, end, datum):
     tides = {}
-    url = API_URL_HILO % (lat,lon,start,end,datum)
+    url = API_URL_HILO % (lat, lon, start, end, datum)
     debug_print("HILO Url : " + url)
     if not debug:
         resp = http.get(url, headers = {"Authorization": api_key}, ttl_seconds = 0)  # cache for 4 hours (tides don't change much)
+
         # we don't check for http 200 here because an error will have an "errors" key in the json and so we check for that later
         tides = json.decode(resp.body())
     else:  # in debug mode return None so main program will just use hilo data for graphing
@@ -48,12 +48,13 @@ def get_tides_hilo(api_key,lat,lon,start,end,datum):
         tides = json.decode(tides_json)
     return tides
 
-def get_tides_graph(api_key,lat,lon,start,end,datum):
+def get_tides_graph(api_key, lat, lon, start, end, datum):
     tides = {}
-    url = API_URL_GRAPH % ((lat,lon,start,end,datum))
+    url = API_URL_GRAPH % ((lat, lon, start, end, datum))
     debug_print("Graph Url : " + url)
     if not debug:
         resp = http.get(url, headers = {"Authorization": api_key}, ttl_seconds = 0)  # cache for 4 hours (tides don't change much)
+
         # print(resp.headers.get("Tidbyt-Cache-Status"))
         # we don't check for http 200 here because an error will have an "errors" key in the json and so we check for that later
         tides = json.decode(resp.body())
@@ -61,14 +62,15 @@ def get_tides_graph(api_key,lat,lon,start,end,datum):
         tides = json.decode("""{"data": [{"sg": 0.31, "time": "2024-09-27T10:00:00+00:00"}, {"sg": 0.29, "time": "2024-09-27T11:00:00+00:00"}, {"sg": 0.25, "time": "2024-09-27T12:00:00+00:00"}, {"sg": 0.2, "time": "2024-09-27T13:00:00+00:00"}, {"sg": 0.16, "time": "2024-09-27T14:00:00+00:00"}, {"sg": 0.15, "time": "2024-09-27T15:00:00+00:00"}, {"sg": 0.18, "time": "2024-09-27T16:00:00+00:00"}, {"sg": 0.25, "time": "2024-09-27T17:00:00+00:00"}, {"sg": 0.35, "time": "2024-09-27T18:00:00+00:00"}, {"sg": 0.48, "time": "2024-09-27T19:00:00+00:00"}, {"sg": 0.6, "time": "2024-09-27T20:00:00+00:00"}, {"sg": 0.69, "time": "2024-09-27T21:00:00+00:00"}, {"sg": 0.74, "time": "2024-09-27T22:00:00+00:00"}, {"sg": 0.72, "time": "2024-09-27T23:00:00+00:00"}, {"sg": 0.66, "time": "2024-09-28T00:00:00+00:00"}, {"sg": 0.55, "time": "2024-09-28T01:00:00+00:00"}, {"sg": 0.43, "time": "2024-09-28T02:00:00+00:00"}, {"sg": 0.31, "time": "2024-09-28T03:00:00+00:00"}, {"sg": 0.23, "time": "2024-09-28T04:00:00+00:00"}, {"sg": 0.19, "time": "2024-09-28T05:00:00+00:00"}, {"sg": 0.2, "time": "2024-09-28T06:00:00+00:00"}, {"sg": 0.24, "time": "2024-09-28T07:00:00+00:00"}, {"sg": 0.3, "time": "2024-09-28T08:00:00+00:00"}, {"sg": 0.35, "time": "2024-09-28T09:00:00+00:00"}], "meta": {"cost": 1, "dailyQuota": 10, "datum": "MLLW", "end": "2024-09-28 09:59", "lat": 20.89, "lng": -156.5, "offset": -0.34, "requestCount": 8, "start": "2024-09-27 10:00", "station": {"distance": 2, "lat": 20.895, "lng": -156.476694, "name": "kahului, kahului harbor, hi", "source": "noaa"}}}""")
     return tides
 
-def utc_to_local(utc,tz):
+def utc_to_local(utc, tz):
     utc_time = time.parse_time(utc)
+
     # Convert UTC time to your local timezone (adjust "Local" to your actual timezone)
     local_time = utc_time.in_location(tz)
 
     # Format the local time as a string
     return local_time.format("2006-01-02 15:04:05")
-    
+
 def error(reason):
     return render.Root(
         child = render.Box(
@@ -91,6 +93,7 @@ def error(reason):
             ),
         ),
     )
+
 def main(config):
     debug_print("Program Start ############################################################")
     units = "ft"
@@ -98,30 +101,28 @@ def main(config):
     # get preferences
     units_pref = config.get("h_units", "feet")
     time_format = config.get("time_format", "24HR")
-    custom_lat = config.get("custom_lat", "")
-    custom_lon = config.get("custom_long","")
     station_name = config.get("station_name")  #  we want this to be blank or None
     color_label = config.get("label_color", "#0a0")  # green
     color_low = config.get("low_color", "#A00")  # red
     color_high = config.get("high_color", "#D2691E")  # nice orange
     y_lim_min = config.get("y_lim_min", "")
     y_lim_max = config.get("y_lim_max", "")
-    location = json.decode(config.get("location",DEFAULT_LOCATION))
+    location = json.decode(config.get("location", DEFAULT_LOCATION))
     lat = math.round(1000.0 * float(location["lat"])) / 1000.0  # Truncate to 3dp for better caching and to protect user privacy
-    lon = math.round(1000.0 * float(location["lng"])) / 1000.0 
-    tz = location['timezone']
+    lon = math.round(1000.0 * float(location["lng"])) / 1000.0
+    tz = location["timezone"]
     debug_print(tz)
-    api_key = config.get("api_key","")
+    api_key = config.get("api_key", "")
     if api_key == "":
         return error("No API Key")
 
     now = time.now().in_location(tz)
 
     # Create the start of the day (00:00) for today
-    start_local = time.time(year=now.year, month=now.month, day=now.day, hour=0, minute=0, second=0,location=tz)
-    
+    start_local = time.time(year = now.year, month = now.month, day = now.day, hour = 0, minute = 0, second = 0, location = tz)
+
     # Create the end of the day (23:59) for today
-    end_local = time.time(year=now.year, month=now.month, day=now.day, hour=23, minute=59, second=0,location=tz)
+    end_local = time.time(year = now.year, month = now.month, day = now.day, hour = 23, minute = 59, second = 0, location = tz)
 
     # Convert both times to UTC
     start_utc = start_local.in_location("UTC")
@@ -129,20 +130,19 @@ def main(config):
 
     # Format the times into the desired string format
     start = start_utc.format("2006-01-02T15:04")
-    end = end_utc.format("2006-01-02T15:04")  
-
+    end = end_utc.format("2006-01-02T15:04")
 
     ################################ CACHINE CODE
     tides_hilo = {}
 
     #load HILO cache
-    cache_key_hilo = "world_tides_%s_%s" % (lat+lon,start)
+    cache_key_hilo = "world_tides_%s_%s" % (lat + lon, start)
     cache_str_hilo = cache.get(cache_key_hilo)  #  not actually a json object yet, just a string
 
     #load GRAPH cache
-    cache_key_graph = "world_tides_graph_%s_%s" % (lat+lon,start)
+    cache_key_graph = "world_tides_graph_%s_%s" % (lat + lon, start)
     cache_str_graph = cache.get(cache_key_graph)
-    debug_print("cache keys : %s , %s" % (cache_key_hilo,cache_key_graph))
+    debug_print("cache keys : %s , %s" % (cache_key_hilo, cache_key_graph))
 
     tides_graph = {}
 
@@ -152,19 +152,19 @@ def main(config):
     if cache_str_graph != None:
         debug_print("loading cached graph data")
         tides_graph = json.decode(cache_str_graph)
-    
-    if len(tides_hilo) == 0: # len(None) is 0 too
+
+    if len(tides_hilo) == 0:  # len(None) is 0 too
         debug_print("pulling fresh tide data")
 
-        tides_hilo = get_tides_hilo(api_key,lat,lon,start,end,DATUM)
+        tides_hilo = get_tides_hilo(api_key, lat, lon, start, end, DATUM)
         if "errors" in tides_hilo:
-            return error(tides_hilo['errors'].values()[0])
+            return error(tides_hilo["errors"].values()[0])
         if tides_hilo != None:
-            cache.set(cache_key_hilo,json.encode(tides_hilo), ttl_seconds = 86400) # 24 hours
+            cache.set(cache_key_hilo, json.encode(tides_hilo), ttl_seconds = 86400)  # 24 hours
 
-        tides_graph = get_tides_graph(api_key,lat,lon,start,end,DATUM)
+        tides_graph = get_tides_graph(api_key, lat, lon, start, end, DATUM)
         if tides_graph != None:
-            cache.set(cache_key_graph,json.encode(tides_graph), ttl_seconds = 86400) # 24 hours
+            cache.set(cache_key_graph, json.encode(tides_graph), ttl_seconds = 86400)  # 24 hours
 
     # debug_print(tides_hilo)
     # debug_print(tides_graph)
@@ -186,8 +186,9 @@ def main(config):
     if tides_hilo != None and "data" in tides_hilo:
         debug_print("tide data is present")
         if station_name == None or station_name == "":  # set via config.get at the top
-            station_name = tides_hilo['meta']['station']['name'].split(',')[0].title()
+            station_name = tides_hilo["meta"]["station"]["name"].split(",")[0].title()
             # if station name is short enough we can use tb-8
+
         if len(station_name) < 12:
             lines.append(render.Text(content = station_name, color = color_label, font = "tb-8"))
         else:
@@ -196,18 +197,19 @@ def main(config):
             lines.append(render.Text(content = station_name, color = color_label, font = "tom-thumb"))
         for pred in tides_hilo["data"]:
             _type = "L"
-            if "high" in pred['type']:
+            if "high" in pred["type"]:
                 _type = "H"
             if units_pref == "meters":
                 v = int((float(pred["height"]) + 0.05) * 10) / 10.0  # round to 1 decimal
                 units = "m"
             else:
-                v = int((float(pred["height"]) * 3.28  + 0.05 ) * 10) / 10.0  # round to 1 decimal
+                v = int((float(pred["height"]) * 3.28 + 0.05) * 10) / 10.0  # round to 1 decimal
 
             if y_lim_min == "" or v < y_lim_min:
                 y_lim_min = v  # set the lower level of graph to be the lowest negative
+
             #  probably need to convert back to local here
-            t = utc_to_local(pred["time"],tz)[11:16]  # strip the date from the front = start to first occurence of a space
+            t = utc_to_local(pred["time"], tz)[11:16]  # strip the date from the front = start to first occurence of a space
             if time_format == "AMPM":
                 m = "A"
                 hr = int(t[0:2])
@@ -264,7 +266,7 @@ def main(config):
             tides_graph = tides_hilo
         x = 0
         for height_at_time in tides_graph["data"]:
-            points.append((x, float(height_at_time["sg"]*3.3)))
+            points.append((x, float(height_at_time["sg"] * 3.3)))
             x = x + 1
 
     else:  # append error message to lines, return it down below
@@ -283,6 +285,7 @@ def main(config):
             children = lines,
         ),
     )
+    data_graph = None
     if len(points) > 0:
         if y_lim_max == "":
             y_lim_max = None
@@ -347,7 +350,7 @@ def get_schema():
             name = "Location",
             desc = "Location for which to display tide.",
             icon = "locationDot",
-        )
+        ),
     )
 
     fields.append(
