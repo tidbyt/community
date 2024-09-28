@@ -262,11 +262,13 @@ def main(config):
             )
 
         # Create the graph points list and populate it
+        height_key = "sg"
         if tides_graph == None or "data" not in tides_graph:
             tides_graph = tides_hilo
+            height_key = "height"
         x = 0
         for height_at_time in tides_graph["data"]:
-            points.append((x, float(height_at_time["sg"] * 3.3)))
+            points.append((x, float(height_at_time[height_key] * 3.3)))
             x = x + 1
 
     else:  # append error message to lines, return it down below
