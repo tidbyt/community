@@ -5,9 +5,9 @@ Description: It displays the status of the battery, the generated energy and the
 Author: raven-rwho
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 DEFAULT_FENECON_IP = "192.168.x.x"
@@ -27,9 +27,22 @@ SQ4DkCaKYgEWzBSlAxRD0JIS0SkR5hVGpMT4/xMDRioEqcNIicguGHgD
 yM6NuLI4NnEAmfVdEYopENsAAAAASUVORK5CYII=
 """)
 
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Text(
+                id = "ip",
+                name = "Local IP?",
+                desc = "The local IP of your Fenecon solar systems - something like 192.168.2.100",
+                icon = "networkWired",
+            ),
+        ],
+    )
+
 def battery(local_ip):
     BATTERY_URL = "http://" + local_ip + ":" + FENECON_LOCAL_PORT + "/rest/channel/_sum/EssSoc"
-    bat = http.get(BATTERY_URL, auth=("x","user"), ttl_seconds = 120) # cache for 2 minutes
+    bat = http.get(BATTERY_URL, auth = ("x", "user"), ttl_seconds = 120)  # cache for 2 minutes
     if bat.status_code != 200:
         fail("Fenecon request to the battery state failed with status %d", bat.status_code)
     bat_rate = bat.json()["value"]
@@ -37,7 +50,7 @@ def battery(local_ip):
 
 def production(local_ip):
     PRODUCTION_URL = "http://" + local_ip + ":" + FENECON_LOCAL_PORT + "/rest/channel/_sum/ProductionActivePower"
-    prod = http.get(PRODUCTION_URL, auth=("x","user"), ttl_seconds = 120) # cache for 2 minutes
+    prod = http.get(PRODUCTION_URL, auth = ("x", "user"), ttl_seconds = 120)  # cache for 2 minutes
     if prod.status_code != 200:
         fail("Fenecon request to the production endpoint failed with status %d", prod.status_code)
     prod_rate = prod.json()["value"]
@@ -45,7 +58,7 @@ def production(local_ip):
 
 def consumption(local_ip):
     CONSUMPTION_URL = "http://" + local_ip + ":" + FENECON_LOCAL_PORT + "/rest/channel/_sum/ConsumptionActivePower"
-    con = http.get(CONSUMPTION_URL, auth=("x","user"), ttl_seconds = 120) # cache for 2 minutes
+    con = http.get(CONSUMPTION_URL, auth = ("x", "user"), ttl_seconds = 120)  # cache for 2 minutes
     if con.status_code != 200:
         fail("Fenecon request the consumption endpoint failed with status %d", con.status_code)
     con_rate = con.json()["value"]
@@ -58,59 +71,46 @@ def main(config):
         return render.Root(
             child = render.Box(
                 render.Row(
-                    expanded=True,
-                    main_align="space_evenly",
-                    cross_align="center",
+                    expanded = True,
+                    main_align = "space_evenly",
+                    cross_align = "center",
                     children = [
                         render.Column(
-                            expanded=True,
-                            main_align="space_evenly",
-                            cross_align="center",
+                            expanded = True,
+                            main_align = "space_evenly",
+                            cross_align = "center",
                             children = [
                                 render.PieChart(
-                                colors = [ "#fff", "#0f0"],
-                                weights  = [ 100-battery(local_ip), battery(local_ip)],
-                                diameter = 19,
+                                    colors = ["#fff", "#0f0"],
+                                    weights = [100 - battery(local_ip), battery(local_ip)],
+                                    diameter = 19,
                                 ),
-                                render.Text(content = "%d" % battery(local_ip) + "%", color="#099", font = "CG-pixel-4x5-mono")
-                            ]
+                                render.Text(content = "%d" % battery(local_ip) + "%", color = "#099", font = "CG-pixel-4x5-mono"),
+                            ],
                         ),
                         render.Column(
                             children = [
                                 render.Row(
-                                    cross_align="center",
+                                    cross_align = "center",
                                     children = [
-                                        render.Image(src=SOLAR_ICON),
-                                        render.Text("%d W" % production(local_ip), font = "CG-pixel-4x5-mono")
-                                    ]
+                                        render.Image(src = SOLAR_ICON),
+                                        render.Text("%d W" % production(local_ip), font = "CG-pixel-4x5-mono"),
+                                    ],
                                 ),
                                 render.Row(
-                                        cross_align="center",
+                                    cross_align = "center",
                                     children = [
-                                        render.Image(src=BULB_ICON),
-                                        render.Text(content = "%d W" % consumption(local_ip), font = "CG-pixel-4x5-mono")
-                                    ]
+                                        render.Image(src = BULB_ICON),
+                                        render.Text(content = "%d W" % consumption(local_ip), font = "CG-pixel-4x5-mono"),
+                                    ],
                                 ),
-                            ]  
-                        )
+                            ],
+                        ),
                     ],
                 ),
             ),
         )
     else:
         return render.Root(
-            render.Text("No Connection", color="#099", font = "CG-pixel-4x5-mono")
-        )
-
-    def get_schema():
-        return schema.Schema(
-            version = "1",
-            fields = [
-                schema.Text(
-                    id = "ip",
-                    name = "Local IP?",
-                    desc = "The local IP of your Fenecon solar systems - something like 192.168.2.100",
-                    icon = "networkWired",
-                ),
-            ],
+            render.Text("No Connection", color = "#099", font = "CG-pixel-4x5-mono"),
         )
