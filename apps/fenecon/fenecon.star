@@ -10,7 +10,7 @@ load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("schema.star", "schema")
 
-DEFAULT_FENECON_IP = "192.168.2.100"
+DEFAULT_FENECON_IP = "192.168.x.x"
 FENECON_LOCAL_PORT = "80"
 
 SOLAR_ICON = base64.decode("""
@@ -54,48 +54,53 @@ def consumption(local_ip):
 def main(config):
     local_ip = config.str("ip", DEFAULT_FENECON_IP)
 
-    return render.Root(
-        child = render.Box(
-            render.Row(
-                expanded=True,
-                main_align="space_evenly",
-                cross_align="center",
-                children = [
-                    render.Column(
-                        expanded=True,
-                        main_align="space_evenly",
-                        cross_align="center",
-                        children = [
-                            render.PieChart(
-                            colors = [ "#fff", "#0f0"],
-                            weights  = [ 100-battery(local_ip), battery(local_ip)],
-                            diameter = 19,
-                            ),
-                            render.Text(content = "%d" % battery(local_ip) + "%", color="#099", font = "CG-pixel-4x5-mono")
-                        ]
-                    ),
-                    render.Column(
-                        children = [
-                            render.Row(
+    if (local_ip != DEFAULT_FENECON_IP):
+        return render.Root(
+            child = render.Box(
+                render.Row(
+                    expanded=True,
+                    main_align="space_evenly",
+                    cross_align="center",
+                    children = [
+                        render.Column(
+                            expanded=True,
+                            main_align="space_evenly",
+                            cross_align="center",
+                            children = [
+                                render.PieChart(
+                                colors = [ "#fff", "#0f0"],
+                                weights  = [ 100-battery(local_ip), battery(local_ip)],
+                                diameter = 19,
+                                ),
+                                render.Text(content = "%d" % battery(local_ip) + "%", color="#099", font = "CG-pixel-4x5-mono")
+                            ]
+                        ),
+                        render.Column(
+                            children = [
+                                render.Row(
                                     cross_align="center",
-                                children = [
-                                    render.Image(src=SOLAR_ICON),
-                                    render.Text("%d W" % production(local_ip), font = "CG-pixel-4x5-mono")
-                                ]
-                            ),
-                            render.Row(
-                                    cross_align="center",
-                                children = [
-                                    render.Image(src=BULB_ICON),
-                                    render.Text(content = "%d W" % consumption(local_ip), font = "CG-pixel-4x5-mono")
-                                ]
-                            ),
-                        ]  
-                    )
-                ],
+                                    children = [
+                                        render.Image(src=SOLAR_ICON),
+                                        render.Text("%d W" % production(local_ip), font = "CG-pixel-4x5-mono")
+                                    ]
+                                ),
+                                render.Row(
+                                        cross_align="center",
+                                    children = [
+                                        render.Image(src=BULB_ICON),
+                                        render.Text(content = "%d W" % consumption(local_ip), font = "CG-pixel-4x5-mono")
+                                    ]
+                                ),
+                            ]  
+                        )
+                    ],
+                ),
             ),
-        ),
-    )
+        )
+    else:
+        return render.Root(
+            render.Text("No Connection", color="#099", font = "CG-pixel-4x5-mono")
+        )
 
     def get_schema():
         return schema.Schema(
