@@ -179,8 +179,6 @@ def main(config):
         #print("Using cached XML")
         number_of_listed_sightings = iss_xml_body.count("<item>")
 
-    print(iss_xml_body)
-
     if iss_xml_body == None:
         row1 = "Invalid Data from spotthestation.nasa.gov. You should have entered an RSS feed URL that looks like this: https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
         description = None
@@ -224,7 +222,6 @@ def main(config):
                     break
                 else:
                     found_sighting_to_display = False
-                    print("skipped")
 
         #Only past events are in the XML, so we'll need to give an appropriate message
         if (item_number_to_display == 0):
