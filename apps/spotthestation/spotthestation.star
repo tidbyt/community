@@ -142,7 +142,7 @@ def main(config):
         The display inforamtion for the Tidbyt
     """
 
-    show_instructions = config.bool("instructions", True)
+    show_instructions = config.bool("instructions", False)
     if show_instructions:
         return display_instructions()
 
@@ -161,7 +161,7 @@ def main(config):
     #Get Station Selected By User
     ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
 
-    #cache is saved to the tidbyt server, not locally, so we need a unique key per location which is equivelent to the Flyby XML URL
+    #cache is saved to the tidbyt server, not locally, so we need a unique key per location which so we can use the XML Url to distinguish
     iss_xml_body = cache.get(ISS_FLYBY_XML_URL)
     set_cache = False
     if iss_xml_body == None:
@@ -179,6 +179,8 @@ def main(config):
         #print("Using cached XML")
         number_of_listed_sightings = iss_xml_body.count("<item>")
 
+    print(iss_xml_body)
+
     if iss_xml_body == None:
         row1 = "Invalid Data from spotthestation.nasa.gov. You should have entered an RSS feed URL that looks like this: https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
         description = None
@@ -187,7 +189,7 @@ def main(config):
         description = ""
         location = xpath.loads(iss_xml_body).query("/rss/channel/description").replace("Satellite Sightings Information for ", "")
     else:
-        #Find the next pass, and skip past times
+        #Find the next pass, but skip past times
         for i in range(1, number_of_listed_sightings + 1):
             current_query = "//item[" + str(i) + "]/description"
             current_description = xpath.loads(iss_xml_body).query(current_query)
@@ -200,16 +202,13 @@ def main(config):
 
             duration_pattern = "Duration: (.+?) minute"
             duration_match = re.match(duration_pattern, current_description)
-            duration = 0
+            duration_in_minutes = 0
             if duration_match:
                 duration_string = duration_match[0][1]
                 if duration_string.isdigit():
-                    duration = int(duration_string)
+                    duration_in_minutes = int(duration_string)
 
-            duration = time.parse_duration("%sm" % duration)
-
-            print(current_item_time)
-            print(current_local_time)
+            duration = time.parse_duration("%sm" % duration_in_minutes)
 
             if current_item_time + duration > current_local_time:
                 item_number_to_display = i
@@ -218,11 +217,14 @@ def main(config):
                 # This is the next sighting, let's check to see if they want it displayed based on settings
                 hours_notice = int(config.get("notice_period", 0))
                 hours_until_sighting = (current_item_time - current_local_time).hours
-                if (hours_notice == 0 or hours_notice > hours_until_sighting):
+
+                minimum_duration = int(config.get("minimum_duration", 0))
+                if ((hours_notice == 0 or hours_notice > hours_until_sighting) and duration_in_minutes >= minimum_duration):
                     found_sighting_to_display = True
+                    break
                 else:
                     found_sighting_to_display = False
-                break
+                    print("skipped")
 
         #Only past events are in the XML, so we'll need to give an appropriate message
         if (item_number_to_display == 0):
@@ -403,6 +405,20 @@ def get_schema():
         schema.Option(value = "0", display = "Always Display Next Sighting if known"),
     ]
 
+    minimum_duration_options = [
+        schema.Option(value = "1", display = "1 minute"),
+        schema.Option(value = "2", display = "2 minutes"),
+        schema.Option(value = "3", display = "3 minutes"),
+        schema.Option(value = "4", display = "4 minutes"),
+        schema.Option(value = "5", display = "5 minutes"),
+        schema.Option(value = "6", display = "6 minutes"),
+        schema.Option(value = "7", display = "7 minutes"),
+        schema.Option(value = "8", display = "8 minutes"),
+        schema.Option(value = "9", display = "9 minutes"),
+        schema.Option(value = "10", display = "10 minutes"),
+        schema.Option(value = "0", display = "Display regardless of duration"),
+    ]
+
     scroll_speed_options = [
         schema.Option(
             display = "Slow Scroll",
@@ -439,15 +455,23 @@ def get_schema():
                 desc = "Display when sighting is within...",
                 icon = "userClock",
                 options = period_options,
-                default = period_options[0].value,
+                default = period_options[len(period_options) - 1].value,
+            ),
+            schema.Dropdown(
+                id = "minimum_duration",
+                name = "Minimum Duration",
+                desc = "Display sightings that are at least...",
+                icon = "stopwatch",
+                options = minimum_duration_options,
+                default = minimum_duration_options[len(minimum_duration_options) - 1].value,
             ),
             schema.Dropdown(
                 id = "scroll",
                 name = "Scroll",
                 desc = "Scroll Speed",
-                icon = "stopwatch",
+                icon = "scroll",
                 options = scroll_speed_options,
-                default = scroll_speed_options[0].value,
+                default = scroll_speed_options[1].value,
             ),
             schema.Toggle(
                 id = "instructions",
