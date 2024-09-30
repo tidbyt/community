@@ -2,7 +2,7 @@
 Applet: ESPN FF Standings
 Summary: Fantasy Football Standings
 Description: Displays the ordered standings with team name and team record.
-Author: George Matthews
+Author: gmatthews1182
 """
 
 load("http.star", "http")
