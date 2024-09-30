@@ -101,7 +101,7 @@ def main(config):
                 render.Box(
                     width = 64,
                     height = 8,
-                    color = "#000000",  # Black background for team boxes
+                    color = "#000000",
                     child = render.Row(
                         main_align = "start",
                         cross_align = "center",
@@ -140,7 +140,7 @@ def main(config):
         child = render.Column(
             children = [
                 title,
-                render.Animation(children = render_category),  # Animated team display below
+                render.Animation(children = render_category),
             ],
         ),
     )
