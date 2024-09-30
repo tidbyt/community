@@ -15,7 +15,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-APP_VERSION = "2.1.0"
+APP_VERSION = "2.2.0"
 
 # Constants
 DEFAULT_LOCATION = """
@@ -356,7 +356,7 @@ def get_live_game_update(game_info, config):
 
     if game_stats == None:
         print("  - CACHE: No LiveUpdate found for gameid %s" % str(game_info["gameId"]))
-        url = BASE_API_URL + "/v1/gamecenter/" + game_info["gameId"] + "/landing"
+        url = BASE_API_URL + "/v1/gamecenter/" + game_info["gameId"] + "/right-rail"
         print("  - HTTP.GET: %s" % url)
 
         response = http.get(url)
@@ -366,7 +366,7 @@ def get_live_game_update(game_info, config):
             game = response.json()
 
             # Reformat our game stats a bit
-            for stat in game["summary"]["teamGameStats"]:
+            for stat in game["teamGameStats"]:
                 if stat["category"] == "faceoffWinningPctg":
                     stat["category"] = "fo"
                     stat["awayValue"] = str(int(math.round(stat["awayValue"] * 100))) + "%"
