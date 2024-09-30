@@ -49,6 +49,7 @@ ALL_MATCH_CACHE = 2 * 3600  # 2 hours
 STANDINGS_CACHE = 6 * 3600  # 6 hours
 
 def main(config):
+    # temporarily disable this app, as API 403s are blocking CI pipe
     if 12 * 3 < 100:
         return []
 
