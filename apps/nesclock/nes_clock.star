@@ -587,6 +587,7 @@ def main(config):
             break
 
     return render.Root(
+        max_age = 120,
         delay = delay.milliseconds,
         child = render.Animation(all_frames),
     )
