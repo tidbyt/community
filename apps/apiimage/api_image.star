@@ -151,11 +151,13 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                             )
 
                         return render.Root(
-                            render.Row(
-                                expanded = True,
-                                main_align = "space_evenly",
-                                cross_align = "center",
-                                children = [imgRender],
+                            child = render.Box(
+                                render.Row(
+                                    expanded = True,
+                                    main_align = "space_evenly",
+                                    cross_align = "center",
+                                    children = [imgRender],
+                                ),
                             ),
                         )
 
