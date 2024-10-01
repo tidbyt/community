@@ -37,7 +37,7 @@ def main(config):
     game_info = [game for game in games if game["HomeTeamCode"] == target_team_id or game["VisitingTeamCode"] == target_team_id][0]
 
     child = None
-    if game_info["GameStatus"] == 1:
+    if game_info["GameStatus"] == 1 or game_info["GameStatus"] == 4:
         child = render_upcoming_game(game_info)
     elif game_info["GameStatus"] == 2 or game_info["GameStatus"] == 8:
         child = render_live_game(game_info)
@@ -199,7 +199,7 @@ def render_live_game(game_info):
             "FirstBase": "",
             "SecondBase": "",
             "ThirdBase": "",
-            "VisitingHomeType": 1,
+            "VisitingHomeType": "1",
             "InningSeq": 1,
             "BallCnt": 0,
             "StrikeCnt": 0,
@@ -284,7 +284,7 @@ def render_live_game(game_info):
                                         children = [
                                             render.Padding(
                                                 pad = (0, 2, 0, 0),
-                                                child = render_inning_symbol(game_info["CurtBatting"]["VisitingHomeType"] == 1),
+                                                child = render_inning_symbol(game_info["CurtBatting"]["VisitingHomeType"] == "1"),
                                             ),
                                             render.Padding(
                                                 pad = (1, 0, 0, 0),
