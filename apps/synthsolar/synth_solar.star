@@ -178,7 +178,7 @@ def get_todays_generation(url, mode):
 
     max_width = 64
 
-    total_energy = math.ceil(data["total_energy"])
+    total_energy = math.floor(data["total_energy"] * 10) / 10
     power_generation_history = data["power_generation_history"]
     power_generation_history_tuple = [tuple(lst) for lst in power_generation_history]
 
@@ -194,7 +194,7 @@ def get_todays_generation(url, mode):
                         render.Text(content = "TODAY", color = "#FFFF", font = "6x10-rounded"),
                     ],
                 ),
-                render.Text(content = padd_number(str(total_energy), 2) + ".0 kWh", color = "#FFFF" if mode == "digital" else "#FF3F00", font = "6x10-rounded"),
+                render.Text(content = padd_number(str(total_energy), 2), color = "#FFFF" if mode == "digital" else "#FF3F00", font = "6x10-rounded"),
                 render.Plot(
                     data = power_generation_history_tuple,
                     width = max_width - 1,
@@ -563,9 +563,23 @@ def get_schema():
     )
 
 def padd_number(number, padd_by = 3):
-    zeros_needed = padd_by - len(number)
+    # * Convert the number to a string if it's not already
+    number_str = str(number)
 
-    padded_number = "0" * zeros_needed + number
+    # * Check if the number has a decimal point
+    if "." in number_str:
+        # * Split into integer and decimal parts
+        integer_part, decimal_part = number_str.split(".")
+
+        # * Pad the integer part
+        zeros_needed = padd_by - len(integer_part)
+        padded_integer_part = "0" * zeros_needed + integer_part
+
+        # * Recombine the integer and decimal parts
+        padded_number = padded_integer_part + "." + decimal_part
+    else:
+        zeros_needed = padd_by - len(number_str)
+        padded_number = "0" * zeros_needed + number_str
 
     return padded_number
 
