@@ -194,7 +194,7 @@ def get_todays_generation(url, mode):
                         render.Text(content = "TODAY", color = "#FFFF", font = "6x10-rounded"),
                     ],
                 ),
-                render.Text(content = padd_number(str(total_energy), 2), color = "#FFFF" if mode == "digital" else "#FF3F00", font = "6x10-rounded"),
+                render.Text(content = padd_number(str(total_energy), 2) + "kWh", color = "#FFFF" if mode == "digital" else "#FF3F00", font = "6x10-rounded"),
                 render.Plot(
                     data = power_generation_history_tuple,
                     width = max_width - 1,
@@ -525,7 +525,7 @@ def build_keyframe(offset, pct):
 def get_schema():
     mode_options = [
         schema.Option(
-            display = "Digital",
+            display = "Classic",
             value = "digital",
         ),
         schema.Option(
@@ -554,7 +554,7 @@ def get_schema():
             schema.Dropdown(
                 id = "mode",
                 name = "Mode",
-                desc = "Digital or 8-bit mode",
+                desc = "Classic or 8-bit mode",
                 icon = "brush",
                 default = mode_options[0].value,
                 options = mode_options,
