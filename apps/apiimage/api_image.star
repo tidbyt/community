@@ -157,8 +157,8 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                                     main_align = "space_evenly",
                                     cross_align = "center",
                                     children = [imgRender],
-                                )
-                            )
+                                ),
+                            ),
                         )
 
             else:
