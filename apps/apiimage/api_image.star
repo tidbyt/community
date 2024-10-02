@@ -157,8 +157,8 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                                     main_align = "space_evenly",
                                     cross_align = "center",
                                     children = [imgRender],
-                                ),
-                            ),
+                                )
+                            )
                         )
 
             else:
@@ -210,7 +210,7 @@ def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
     if headers != None and headers.get("content-type") != None:
         contentType = headers.get("content-type")
 
-        if contentType.find("json") != -1 or contentType.find("image") != -1:
+        if contentType.find("json") != -1 or contentType.find("image") != -1 and (contentType.find("xml") == -1 and contentType.find("html") == -1):
             isValidContentType = True
 
     if debug_output:
