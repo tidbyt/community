@@ -238,7 +238,10 @@ def get_current_load_widget(data, mode):
         # * Convert float to int
         scale = math.ceil(scale)
 
-    print("Icon scale", scale, "Total Load", total_load, "Total load raw", data["load_kw"], round_to_one_decimal_str(data["load_kw"]) + "kW")
+    print("Icon scale", scale, "Total Load", total_load, "Total load raw", data["load_kw"], round_to_one_decimal_str(data["load_kw"]) + "kW", "Inverter power", data["inverter_power_kw"])
+
+    if data["inverter_power_kw"] < 0:
+        data["inverter_power_kw"] = 0.0
 
     return render.Box(
         width = max_width,
