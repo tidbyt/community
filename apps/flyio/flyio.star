@@ -64,18 +64,41 @@ def get_status_img(machine):
     """
       Gets the status indicator based on the machine state
     """
-    if machine["state"] == "started":
-        status_img = render.Circle(color = "#34D399", diameter = DOT_DIAMETER)
-    elif machine["state"] == "stopped" or machine["state"] == "suspended":
-        status_img = render.Circle(color = "#94A3B8", diameter = DOT_DIAMETER)
-    elif machine["state"] == "starting" or machine["state"] == "replacing" or machine["state"] == "suspending" or machine["state"] == "stopping":
-        status_img = render.Circle(color = "#FFD700", diameter = DOT_DIAMETER)
-    elif machine["state"] == "preview":
-        status_img = render.Circle(color = "#0057B7", diameter = DOT_DIAMETER)
-    else:
-        status_img = render.Circle(color = "#FF0000", diameter = DOT_DIAMETER)
+    green = "#34D399"
+    yellow = "#FFD700"
+    red = "#FF0000"
+    gray = "#94A3B8"
+    blue = "#0057B7"
 
-    return render.Padding(child = status_img, pad = IMG_PAD)
+    status_color = red
+    state = machine["state"]
+
+    # Split if's for readability, no switch in starlark
+    if state == "created":
+        status_color = blue
+    elif state == "starting":
+        status_color = yellow
+    elif state == "started":
+        status_color = green
+    elif state == "stopping":
+        status_color = yellow
+    elif state == "stopped":
+        status_color = gray
+    elif state == "suspending":
+        status_color = yellow
+    elif state == "suspended":
+        status_color = gray
+    elif state == "replacing":
+        status_color = yellow
+    elif state == "destroying":
+        status_color = red
+    elif state == "destroyed":
+        status_color = red
+    elif state == "preview":
+        # custom state for preview in Tidbyt App
+        status_color = blue
+
+    return render.Padding(child = render.Circle(color = status_color, diameter = DOT_DIAMETER), pad = IMG_PAD)
 
 def render_header(app_name):
     """

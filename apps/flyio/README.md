@@ -18,16 +18,16 @@ Right now all statuses [defined by Fly.io](https://fly.io/docs/machines/machine-
 
 > | Color | Status     | Description                                                            |
 > | ----- | ---------- | ---------------------------------------------------------------------- |
-> | 🟢    | created    | Initial status                                                         |
+> | 🔵    | created    | Initial status                                                         |
 > | 🟡    | starting   | Transitioning from stopped or suspended to started                     |
 > | 🟢    | started    | Running and network-accessible                                         |
 > | 🟡    | stopping   | Transitioning from started to stopped                                  |
-> | 🔴    | stopped    | Exited, either on its own or explicitly stopped                        |
+> | ⚪    | stopped    | Exited, either on its own or explicitly stopped                        |
 > | 🟡    | suspending | Transitioning from started to suspended                                |
 > | ⚪    | suspended  | Suspended to disk; will attempt to resume on next start                |
 > | 🟡    | replacing  | User-initiated configuration change (image, VM size, etc.) in progress |
-> | 🟡    | destroying | User asked for the Machine to be completely removed                    |
-> | ⚪    | destroyed  | No longer exists                                                       |
+> | 🔴    | destroying | User asked for the Machine to be completely removed                    |
+> | 🔴    | destroyed  | No longer exists                                                       |
 
 ## Examples
 
