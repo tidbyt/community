@@ -33,16 +33,16 @@ Right now all statuses [defined by Fly.io](https://fly.io/docs/machines/machine-
 
 ### Machines in Started/Starting states
 
-![Started/Starting](screenshots/started-starting.png)
+![Started/Starting](started-starting.png)
 
 ### Machines in Stopped/Destroyed states
 
-![Stopped/Destroyed](screenshots/stopped-destroyed.png)
+![Stopped/Destroyed](stopped-destroyed.png)
 
 ### No Machines were found
 
-![No Machines](screenshots/no-machines.png)
+![No Machines](no-machines.png)
 
 ### Error occured when fetching
 
-![Error Fetching](screenshots/error.png)
+![Error Fetching](error.png)
