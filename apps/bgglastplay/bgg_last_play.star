@@ -190,7 +190,7 @@ def get_schema():
                 name = "Label",
                 desc = "Label to display above the game name",
                 default = label_options[0].value,
-                icon = "label",
+                icon = "tag",
                 options = label_options,
             ),
         ],
