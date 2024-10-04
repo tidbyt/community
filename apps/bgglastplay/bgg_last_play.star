@@ -20,6 +20,7 @@ DEFAULT_TIMEZONE = "America/New_York"
 DEMO_GAME_ID = 13
 DEMO_GAME_NAME = "Catan"
 HTTP_CACHE_TTL = 3 * 60 * 60  # 3 hours
+
 # Used for fetching game images, which are cached for longer
 HTTP_CACHE_TTL_LONG = 72 * 60 * 60  # 72 hours
 
