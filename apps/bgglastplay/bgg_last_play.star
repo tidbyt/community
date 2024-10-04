@@ -20,6 +20,8 @@ DEFAULT_TIMEZONE = "America/New_York"
 DEMO_GAME_ID = 13
 DEMO_GAME_NAME = "Catan"
 HTTP_CACHE_TTL = 3 * 60 * 60  # 3 hours
+# Used for fetching game images, which are cached for longer
+HTTP_CACHE_TTL_LONG = 72 * 60 * 60  # 72 hours
 
 def main(config):
     bgg_username = config.str("bgg_username")
@@ -55,13 +57,13 @@ def get_image(game_id):
     if game_id == None:
         game_id = DEMO_GAME_ID
 
-    resp = http.get(BGG_THING_API_URL.format(game_id), ttl_seconds = HTTP_CACHE_TTL)
+    resp = http.get(BGG_THING_API_URL.format(game_id), ttl_seconds = HTTP_CACHE_TTL_LONG)
 
     if resp.status_code == 200:
         xml_content = xpath.loads(resp.body())
         image_url = xml_content.query("//item/image")
 
-        response = http.get(image_url)
+        response = http.get(image_url, ttl_seconds = HTTP_CACHE_TTL_LONG)
         return response.body()
     else:
         return None
