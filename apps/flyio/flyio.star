@@ -66,9 +66,9 @@ def get_status_img(machine):
     """
     if machine["state"] == "started":
         status_img = render.Circle(color = "#34D399", diameter = DOT_DIAMETER)
-    elif machine["state"] == "stopped":
+    elif machine["state"] == "stopped" or machine["state"] == "suspended":
         status_img = render.Circle(color = "#94A3B8", diameter = DOT_DIAMETER)
-    elif machine["state"] == "starting":
+    elif machine["state"] == "starting" or machine["state"] == "replacing" or machine["state"] == "suspending" or machine["state"] == "stopping":
         status_img = render.Circle(color = "#FFD700", diameter = DOT_DIAMETER)
     elif machine["state"] == "preview":
         status_img = render.Circle(color = "#0057B7", diameter = DOT_DIAMETER)
