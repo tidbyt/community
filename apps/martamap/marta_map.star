@@ -21,7 +21,6 @@ DEAFULT_DIRECTION = "No Direction Filter"
 FONT = "CG-pixel-4x5-mono"
 
 def main(config):
-    # MARTA_API_URL = secret.decrypt("AV6+xWcEqpLr4r5xWHL+ENipBzxVuOwqPhBwALkpo2ySIP8LvhyYYjsLoSq484C+X+Q91GmnTkRZBVPcITGvJJRJxmomJAwy4ejsRATXKIMmJHQy29u3IXDATDXbDuMXDx2wLeQXtfpuwWf5qHNh5VLrnE3d3ZJTfP6mS9xBxo+CwffQNt3YGa3pkQTpI5ikAKotOr95vcBPQzw22E3yY7iMqjR72wsE8s730m9pLnFolxbNmyMKZ6DNh+XFqNiNNer02eodGjhvLRR74xk8A1Q72Q==") #Original API no longer working
     MARTA_API_URL = "http://labs.itsmarta.com/signpost/trains"  #New data source due to old one failing
     trains = get_trains(MARTA_API_URL)
     arrivals = config.bool("arrivals") or DEFAULT_ARRIVALS
@@ -313,7 +312,8 @@ def render_arrivals(config):
     rendered_arrivals = []
     user_station_arrivals = []
 
-    all_arrivals = get_chachable_json("https://developer.itsmarta.com/RealtimeTrain/RestServiceNextTrain/GetRealtimeArrivals", 10)
+    ARRIVALS_API_URL = secret.decrypt("AV6+xWcEQxQfv1XKxy315mB3rkAAyvapVmSYYIssFBWCQknnG+hKfqtw0ZJn3h1OOg9j9JZKftlcXElJKlHCBp5VG6F/WH75BJidH5eZVFgKv7D0sBcNn5M95Nn5uz4T0wRedwlJGiGAfTZj373NGRUx6ciLQcVtXm4gdsSV24r6SVOKO/8ANxtL5qj308Y1V47c+AguyiUHmVpmxR2ibhLIq4Gmuz6Vvg9nYnv5v4/eW6ERfWyYF6BytcHzzCh+wkKGb9m3kEh2WClVg6pDFUY2WE/rBkHaKO16VWAadfqtidpDQb0=")
+    all_arrivals = get_chachable_json(ARRIVALS_API_URL, 10)
 
     user_station = STATIONS_MAP[config.get("station") or DEFAULT_STATION]
     direction_filter = DIRECTION_MAP[config.get("direction") or DEAFULT_DIRECTION]
@@ -791,6 +791,8 @@ STATIONS_MAP = {
 }
 
 HEAD_SIGN_MAP = {
+    "Edgewood-Candler Park": "EDGEWOOD ",
+    "Hamilton E. Holmes": "HE HOLMES",
     "North Springs": "N SPRING ",
     "Doraville": "DORAVILLE",
     "Edgewood Candler Park": "EDGEWOOD ",
