@@ -312,11 +312,19 @@ def render_arrivals(config):
     rendered_arrivals = []
     user_station_arrivals = []
 
-    ARRIVALS_API_URL = secret.decrypt("AV6+xWcEQxQfv1XKxy315mB3rkAAyvapVmSYYIssFBWCQknnG+hKfqtw0ZJn3h1OOg9j9JZKftlcXElJKlHCBp5VG6F/WH75BJidH5eZVFgKv7D0sBcNn5M95Nn5uz4T0wRedwlJGiGAfTZj373NGRUx6ciLQcVtXm4gdsSV24r6SVOKO/8ANxtL5qj308Y1V47c+AguyiUHmVpmxR2ibhLIq4Gmuz6Vvg9nYnv5v4/eW6ERfWyYF6BytcHzzCh+wkKGb9m3kEh2WClVg6pDFUY2WE/rBkHaKO16VWAadfqtidpDQb0=")
-    all_arrivals = get_chachable_json(ARRIVALS_API_URL, 10)
+    ARRIVALS_API_URL = "https://developerservices.itsmarta.com:18096/itsmarta/railrealtimearrivals/traindata"
+    API_KEY = ""
+    API_KEY_ENCRYPTED = "AV6+xWcE7DuYYEVwcZYWZKjl58uv5cacFumB2xlPBOcfQJjypotuykP8EzpmX1ap10XA7v/txa8cujef8ToRAg6UvtconQ+DSJ14Krz8bTvxVhj165hvEGDhYjt89Chd0Vz6JF1rW4aLnJ5YFVt6FAShLWpBRP91ZvTQrMR0EvVcmXs+YutWg0xnjJ4JurKkoUQ="
+    api_key = secret.decrypt(API_KEY_ENCRYPTED) or API_KEY
+
+    all_arrivals = get_chachable_json(ARRIVALS_API_URL + api_key, 10)
 
     user_station = STATIONS_MAP[config.get("station") or DEFAULT_STATION]
     direction_filter = DIRECTION_MAP[config.get("direction") or DEAFULT_DIRECTION]
+
+    #Check for api error and, if so, skip arrival renders. Ex. error {"ErrorCode": "400", "ErrorMessage": "Invalid APIKey"}
+    if len(all_arrivals) < 3 and type(all_arrivals) == "dict":
+        return render.Text("", font = FONT, color = "#000")
 
     #Filter all_arrivals for the user's station
     for arrival in all_arrivals:
