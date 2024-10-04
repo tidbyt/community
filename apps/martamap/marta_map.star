@@ -8,7 +8,7 @@ Author: InTheDaylight14
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-# load("secret.star", "secret")
+load("secret.star", "secret")
 
 DEFAULT_TEXT_COLOR = "#aaaaaa"
 DEFAULT_ORIENTATION_BOOL = False  #Default to horizontal
