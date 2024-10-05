@@ -7,10 +7,14 @@ Author: Michael Yagi
 
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 def main(config):
+    random.seed(time.now().unix // 10)
+
     base_url = config.str("base_url", "")
     api_url = config.str("api_url", "")
     response_path = config.get("response_path", "")
@@ -86,7 +90,13 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
 
                                 for item in responsePathArray:
                                     item = item.strip()
-                                    if item.isdigit():
+
+                                    if type(output) == "list" and item == "[rand]":
+                                        item = random.number(0, len(output) - 1)
+                                        if debug_output:
+                                            print("Random index chosen " + str(item))
+
+                                    if type(item) != "int" and item.isdigit():
                                         item = int(item)
 
                                     if debug_output:
@@ -276,7 +286,7 @@ def get_schema():
             schema.Text(
                 id = "response_path",
                 name = "JSON response path",
-                desc = "A comma separated path to the image URL in the response JSON. eg. `json_key_1, 2, json_key_to_image_url`",
+                desc = "A comma separated path to the image URL in the response JSON. Use `[rand]` to choose a random index. eg. `json_key_1, 0, [rand], json_key_to_image_url`",
                 icon = "",
                 default = "",
                 # default = "message",
