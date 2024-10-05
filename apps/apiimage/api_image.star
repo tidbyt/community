@@ -91,10 +91,17 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                                 for item in responsePathArray:
                                     item = item.strip()
 
-                                    if type(output) == "list" and item == "[rand]":
-                                        item = random.number(0, len(output) - 1)
-                                        if debug_output:
-                                            print("Random index chosen " + str(item))
+                                    if item == "[rand]":
+                                        if type(output) == "list":
+                                            item = random.number(0, len(output) - 1)
+                                            if debug_output:
+                                                print("Random index chosen " + str(item))
+                                        else:
+                                            failure = True
+                                            message = "Response path invalid. Use of [rand] only allowable in lists."
+                                            if debug_output:
+                                                print("responsePathArray invalid. Use of [rand] only allowable in lists.")
+                                            break
 
                                     if type(item) != "int" and item.isdigit():
                                         item = int(item)
