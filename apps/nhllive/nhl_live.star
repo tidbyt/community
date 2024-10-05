@@ -300,8 +300,9 @@ def get_games(teamId, currDate, game_info):
     teamId_away = None
     teamId_home = None
     gameId = None
+    game_state = None
 
-    if games:
+    if len(games["games"]) > 0:
         print("  - Games found for week")
         game_info["gameId"] = str(int(games["games"][0]["id"]))
         game_info["game_date"] = str(games["games"][0]["gameDate"])
@@ -317,11 +318,11 @@ def get_games(teamId, currDate, game_info):
 
         # If games set game_live, game_over, teamId_away, teamId_home, start_time
         if games:
-            teamId_away, teamId_home, start_time, gameId = get_next_game(currDate, games)
+            teamId_away, teamId_home, start_time, gameId, game_state = get_next_game(currDate, games)
 
         game_info["teamId_away"] = teamId_away
         game_info["teamId_home"] = teamId_home
-        game_info["game_update"] = start_time
+        game_info["game_state"] = game_state
         game_info["gameId"] = gameId
         game_info["start_time"] = start_time
 
@@ -565,8 +566,8 @@ def is_game_over(games):
 def get_next_game(currDate, games):
     for game in games["games"]:
         if game["gameDate"] >= currDate and game["gameState"] in ["FUT", "PRE"]:
-            return int(game["awayTeam"]["id"]), int(game["homeTeam"]["id"]), game["startTimeUTC"], game["id"]
-    return None, None, None
+            return int(game["awayTeam"]["id"]), int(game["homeTeam"]["id"]), game["startTimeUTC"], game["id"], game["gameState"]
+    return None, None, None, None, None
 
 def get_current_date(config):
     timezone = get_timezone(config)
