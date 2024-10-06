@@ -10,8 +10,6 @@ dev: http://127.0.0.1:8080/?stop_id=F04039
 
 TODO:
 - add error return to meta
-- add failure screen to app
-- add secrets feature and hide api key
 
 publish: https://tidbyt.dev/docs/publish/publishing-apps
 """
