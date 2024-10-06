@@ -115,9 +115,9 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                                         output = output[item]
                                     else:
                                         failure = True
-                                        message = "Response path invalid. " + str(item) + " does not exist"
+                                        message = "Response path invalid. " + str(item) + " does not exist or value is null"
                                         if debug_output:
-                                            print("responsePathArray invalid. " + str(item) + " does not exist")
+                                            print("responsePathArray invalid. " + str(item) + " does not exist or value is null")
                                         break
 
                             if debug_output:
