@@ -5,24 +5,19 @@ Description: Public transit display for Budapest, show upcoming BKK departures f
 Author: tomzorz
 """
 
-"""
-dev: http://127.0.0.1:8080/?stop_id=F04039
+# dev: http://127.0.0.1:8080/?stop_id=F04039
 
-TODO:
-- add error return to meta
-
-publish: https://tidbyt.dev/docs/publish/publishing-apps
-"""
+# TODO:
+# - add error return to meta
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("render.star", "render")
 load("math.star", "math")
+load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
-load("humanize.star", "humanize")
 load("secret.star", "secret")
+load("time.star", "time")
 
 # stop ID examples
 # margit hid budai hidfo pesti iranyba: F00189
@@ -33,13 +28,10 @@ DEFAULT_STOP_ID = "F00189"
 CACHE_TIMEOUT = 60  # will display inaccurate on-time performance if not 60 seconds.
 WEEK_CACHE_TIMEOUT = 60 * 60 * 24 * 7
 
-"""
-https://editor.swagger.io/?url=https://opendata.bkk.hu/docs/futar-openapi.yaml
-https://futar.bkk.hu/stop/BKK_F04039?routeIds=%7CBKK_3420
-https://opendata.bkk.hu/data-sources
-https://github.com/tidbyt/community/blob/main/apps/mtatraintime/mtatraintime.star
-https://tidbyt.dev/docs/build/clock-app
-"""
+# https://editor.swagger.io/?url=https://opendata.bkk.hu/docs/futar-openapi.yaml
+# https://futar.bkk.hu/stop/BKK_F04039?routeIds=%7CBKK_3420
+# https://opendata.bkk.hu/data-sources
+# https://github.com/tidbyt/community/blob/main/apps/mtatraintime/mtatraintime.star
 
 request_headers = {
     "user-agent": "bkk-tidbyt-service",
@@ -122,6 +114,9 @@ def main(config):
     API_KEY = secret.decrypt(
         "AV6+xWcEIQHsKyCnPiVb5c4FBJEyGIGmHfqd7Y+zBfEds9TJH93h6MYU3irY2FhMkvZmlLmqR5nEIF+VOH4RZSPHtH4YPDVh+lg2FZwYAFgIt2OmvdRhD2b789q9OXjQFQCSpQHWWTnFx2hTxxe9q1jn/6bPHtK5HpqAhnepjjXn532Syei6+AzI",
     )  # or config.get("dev_api_key") # UNCOMMENT FOR DEV
+
+    if API_KEY == None or API_KEY == "":
+        return render.Root(child = render.Text(content = "No API Key provided."))
 
     config_stop = "BKK_" + config.get("stop_id", DEFAULT_STOP_ID)
 
