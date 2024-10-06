@@ -121,7 +121,7 @@ def get_meta(api_key, trip_id):
 def main(config):
     API_KEY = secret.decrypt(
         "AV6+xWcEIQHsKyCnPiVb5c4FBJEyGIGmHfqd7Y+zBfEds9TJH93h6MYU3irY2FhMkvZmlLmqR5nEIF+VOH4RZSPHtH4YPDVh+lg2FZwYAFgIt2OmvdRhD2b789q9OXjQFQCSpQHWWTnFx2hTxxe9q1jn/6bPHtK5HpqAhnepjjXn532Syei6+AzI",
-    ) # or config.get("dev_api_key") # UNCOMMENT FOR DEV
+    )  # or config.get("dev_api_key") # UNCOMMENT FOR DEV
 
     config_stop = "BKK_" + config.get("stop_id", DEFAULT_STOP_ID)
 
