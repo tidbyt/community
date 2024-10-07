@@ -39,6 +39,12 @@ request_headers = {
     "accept-language": "en-US,en;q=0.9",
 }
 
+def to_hex(i):
+    hex = "%x" % i
+    if len(hex) == 1:
+        hex = "0" + hex
+    return hex
+
 def get_meta(api_key, trip_id):
     route_cache_key = trip_id + "_route"
     route_color_cache_key = trip_id + "_color_route"
@@ -201,7 +207,28 @@ def main(config):
             ),
         )
 
-    return render.Root(child = render.Column(children = column_children))
+    final_child = render.Column(children = column_children)
+
+    if not column_children:
+        # there are no listed departures in the next 60 minutes
+        animation_children = []
+        for i in range(10):
+            for _ in range(7):
+                animation_children.append(
+                    render.WrappedText(
+                        content = "No scheduled departures in the next 60 minutes.",
+                        width = 62,
+                        color = "#ff" + to_hex(i * 20) + to_hex(i * 10),
+                        font = "5x8",
+                    ),
+                )
+        animation_children.extend(animation_children[::-1])
+        final_child = render.Padding(
+            pad = (1, 0, 0, 0),
+            child = render.Animation(children = animation_children),
+        )
+
+    return render.Root(child = final_child)
 
 def get_schema():
     return schema.Schema(
