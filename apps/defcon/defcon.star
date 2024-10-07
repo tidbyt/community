@@ -154,7 +154,7 @@ def get_schema():
                 name = "Defcon List",
                 desc = "Defcon Level",
                 icon = "list",
-                default = display_options[0].value,
+                default = display_options[1].value,
                 options = display_options,
             ),
         ],
