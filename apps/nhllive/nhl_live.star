@@ -15,7 +15,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-APP_VERSION = "2.1.0"
+APP_VERSION = "2.2.0"
 
 # Constants
 DEFAULT_LOCATION = """
@@ -300,8 +300,9 @@ def get_games(teamId, currDate, game_info):
     teamId_away = None
     teamId_home = None
     gameId = None
+    game_state = None
 
-    if games:
+    if len(games["games"]) > 0:
         print("  - Games found for week")
         game_info["gameId"] = str(int(games["games"][0]["id"]))
         game_info["game_date"] = str(games["games"][0]["gameDate"])
@@ -317,17 +318,18 @@ def get_games(teamId, currDate, game_info):
 
         # If games set game_live, game_over, teamId_away, teamId_home, start_time
         if games:
-            teamId_away, teamId_home, start_time, gameId = get_next_game(currDate, games)
+            teamId_away, teamId_home, start_time, gameId, game_state = get_next_game(currDate, games)
 
         game_info["teamId_away"] = teamId_away
         game_info["teamId_home"] = teamId_home
-        game_info["game_update"] = start_time
+        game_info["game_state"] = game_state
         game_info["gameId"] = gameId
         game_info["start_time"] = start_time
 
     return game_info
 
 def get_game_status(game_info, games, currDate):
+    # Check if game is today
     if game_info["game_date"] == str(currDate):
         game_info["is_game_today"] = True
 
@@ -355,7 +357,7 @@ def get_live_game_update(game_info, config):
 
     if game_stats == None:
         print("  - CACHE: No LiveUpdate found for gameid %s" % str(game_info["gameId"]))
-        url = BASE_API_URL + "/v1/gamecenter/" + game_info["gameId"] + "/landing"
+        url = BASE_API_URL + "/v1/gamecenter/" + game_info["gameId"] + "/right-rail"
         print("  - HTTP.GET: %s" % url)
 
         response = http.get(url)
@@ -365,7 +367,7 @@ def get_live_game_update(game_info, config):
             game = response.json()
 
             # Reformat our game stats a bit
-            for stat in game["summary"]["teamGameStats"]:
+            for stat in game["teamGameStats"]:
                 if stat["category"] == "faceoffWinningPctg":
                     stat["category"] = "fo"
                     stat["awayValue"] = str(int(math.round(stat["awayValue"] * 100))) + "%"
@@ -564,13 +566,13 @@ def is_game_over(games):
 def get_next_game(currDate, games):
     for game in games["games"]:
         if game["gameDate"] >= currDate and game["gameState"] in ["FUT", "PRE"]:
-            return int(game["awayTeam"]["id"]), int(game["homeTeam"]["id"]), game["startTimeUTC"], game["id"]
-    return None, None, None
+            return int(game["awayTeam"]["id"]), int(game["homeTeam"]["id"]), game["startTimeUTC"], game["id"], game["gameState"]
+    return None, None, None, None, None
 
 def get_current_date(config):
     timezone = get_timezone(config)
     now = time.now().in_location(timezone)
-    today = now.format("2006-1-2").upper()
+    today = now.format("2006-01-02").upper()
     return today
 
 def get_team(config):

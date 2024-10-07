@@ -17,6 +17,9 @@ Added NWSL to selection of leagues to choose from
 v2
 Added ability to show rank, pts and goal difference rather than W-D-L record, this is now the default option
 Teams in positions for European qualification, league promotion, playoffs or relegation are colored differently to make them stand out
+
+v2.1
+Added Champions League, Europa League and Europa Conference League
 """
 
 load("encoding/json.star", "json")
@@ -139,6 +142,18 @@ LeagueOptions = [
     schema.Option(
         display = "Belgian Pro League",
         value = "bel.1",
+    ),
+    schema.Option(
+        display = "UEFA Champions League",
+        value = "uefa.champions",
+    ),
+    schema.Option(
+        display = "UEFA Europa League",
+        value = "uefa.europa",
+    ),
+    schema.Option(
+        display = "UEFA Europa Conference League",
+        value = "uefa.europa.conf",
     ),
     schema.Option(
         display = "Major League Soccer",
@@ -452,6 +467,18 @@ def getRankColor(teamRank, LeagueName):
         else:
             rankColor = "#fff"
 
+    elif LeagueName == "Champs League" or LeagueName == "Europa League" or LeagueName == "Conf League":
+        if teamRank < 9:
+            rankColor = "#5ff55f"
+        elif teamRank < 17:
+            rankColor = "#4093e6"
+        elif teamRank < 25:
+            rankColor = "#fcfc6d"
+        elif teamRank > 24:
+            rankColor = "#f75252"
+        else:
+            rankColor = "#fff"
+
     elif LeagueName.startswith("MLS"):
         if teamRank < 8:
             rankColor = "#5ff55f"
@@ -496,6 +523,12 @@ def getLeagueName(selectedLeague):
         return ("Primeira Liga")
     elif selectedLeague == "bel.1":
         return ("Belgian Div 1")
+    elif selectedLeague == "uefa.champions":
+        return ("Champs League")
+    elif selectedLeague == "uefa.europa":
+        return ("Europa League")
+    elif selectedLeague == "uefa.europa.conf":
+        return ("Conf League")
     elif selectedLeague == "usa.1":
         return ("MLS")
     elif selectedLeague == "mex.1":
