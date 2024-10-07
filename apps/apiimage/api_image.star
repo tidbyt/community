@@ -7,11 +7,14 @@ Author: Michael Yagi
 
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 def main(config):
-    base_url = config.str("base_url", "")
+    random.seed(time.now().unix // 10)
+
     api_url = config.str("api_url", "")
     response_path = config.get("response_path", "")
     request_headers = config.get("request_headers", "")
@@ -23,16 +26,16 @@ def main(config):
     if debug_output:
         print("------------------------------")
         print("CONFIG - api_url: " + api_url)
-        print("CONFIG - base_url: " + base_url)
         print("CONFIG - response_path: " + response_path)
         print("CONFIG - request_headers: " + request_headers)
         print("CONFIG - debug_output: " + str(debug_output))
         print("CONFIG - fit_screen: " + str(fit_screen))
         print("CONFIG - ttl_seconds: " + str(ttl_seconds))
 
-    return get_image(base_url, api_url, response_path, request_headers, debug_output, fit_screen, ttl_seconds)
+    return get_image(api_url, response_path, request_headers, debug_output, fit_screen, ttl_seconds)
 
-def get_image(base_url, api_url, response_path, request_headers, debug_output, fit_screen, ttl_seconds):
+def get_image(api_url, response_path, request_headers, debug_output, fit_screen, ttl_seconds):
+    base_url = ""
     failure = False
     message = ""
 
@@ -86,7 +89,20 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
 
                                 for item in responsePathArray:
                                     item = item.strip()
-                                    if item.isdigit():
+
+                                    if item == "[rand]":
+                                        if type(output) == "list":
+                                            item = random.number(0, len(output) - 1)
+                                            if debug_output:
+                                                print("Random index chosen " + str(item))
+                                        else:
+                                            failure = True
+                                            message = "Response path invalid. Use of [rand] only allowable in lists."
+                                            if debug_output:
+                                                print("responsePathArray invalid. Use of [rand] only allowable in lists.")
+                                            break
+
+                                    if type(item) != "int" and item.isdigit():
                                         item = int(item)
 
                                     if debug_output:
@@ -98,13 +114,17 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                                         output = output[item]
                                     else:
                                         failure = True
-                                        message = "Response path invalid. " + str(item) + " does not exist"
+                                        message = "Response path invalid. " + str(item) + " does not exist or value is null"
                                         if debug_output:
-                                            print("responsePathArray invalid. " + str(item) + " does not exist")
+                                            print("responsePathArray invalid. " + str(item) + " does not exist or value is null")
                                         break
 
                             if debug_output:
                                 print("Response content type JSON")
+
+                            api_url_array = api_url.split("/")
+                            if len(api_url_array) > 2:
+                                base_url = api_url_array[0] + "//" + api_url_array[2]
 
                             if type(output) == "string" and output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
                                 failure = True
@@ -113,7 +133,10 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                                     print("Invalid URL. Requires a base_url")
                             elif type(output) == "string":
                                 if output.startswith("http") == False and base_url != "":
-                                    url = base_url + output
+                                    if output.startswith("/"):
+                                        url = base_url + output
+                                    else:
+                                        url = base_url + "/" + output
                                 else:
                                     url = output
 
@@ -151,11 +174,13 @@ def get_image(base_url, api_url, response_path, request_headers, debug_output, f
                             )
 
                         return render.Root(
-                            render.Row(
-                                expanded = True,
-                                main_align = "space_evenly",
-                                cross_align = "center",
-                                children = [imgRender],
+                            child = render.Box(
+                                render.Row(
+                                    expanded = True,
+                                    main_align = "space_evenly",
+                                    cross_align = "center",
+                                    children = [imgRender],
+                                ),
                             ),
                         )
 
@@ -265,16 +290,9 @@ def get_schema():
                 # default = "https://dog.ceo/api/breeds/image/random",
             ),
             schema.Text(
-                id = "base_url",
-                name = "Base URL",
-                desc = "The base URL if response JSON contains relative paths.",
-                icon = "",
-                default = "",
-            ),
-            schema.Text(
                 id = "response_path",
                 name = "JSON response path",
-                desc = "A comma separated path to the image URL in the response JSON. eg. `json_key_1, 2, json_key_to_image_url`",
+                desc = "A comma separated path to the image URL in the response JSON. Use `[rand]` to choose a random index. eg. `json_key_1, 0, [rand], json_key_to_image_url`",
                 icon = "",
                 default = "",
                 # default = "message",
