@@ -1,8 +1,8 @@
 """
-Applet: Synth Solar
-Summary: Synth Solar monitor
-Description: Connect to your solar system by putting in the serial number of your inverter. \n This will be in your Synth Handover Pack. Screen description - 1) Sun - % of your full potential generation; 2) Lightning - current load from your property right now; 3) Battery - your battery level right now; 4) Piggy bank - today's savings from solar; 5) Panel - today's energy from solar.
-Author: SynthSolar
+Applet: Synth SunDial
+Summary: Synth Solar SunDial
+Description: Connect to your Synth Solar system by putting in the serial number of your inverter, which is in your Synth Handover Pack. For more information, please go to synth.solar/introduction-to-the-new-synth-sundial/ Any questions please contact max@synth.solar
+Author: Synth Solar
 """
 
 load("animation.star", "animation")
