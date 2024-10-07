@@ -12,7 +12,7 @@ load("schema.star", "schema")
 load("xpath.star", "xpath")
 
 NEWS_ICON = base64.decode("""
-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
+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
 """)
 
 def main(config):
@@ -67,12 +67,12 @@ def render_article_larger(news):
 
     for article in news:
         news_text.append(render.Image(width = 64, height = 32, src = NEWS_ICON))
-        news_text.append(render.WrappedText("%s" % article[0], color = "#FAE24C", font = "tb-8", linespacing = 1, width = 64, align = "left"))
+        news_text.append(render.WrappedText("%s" % article[0], color = "#FFFFFF", font = "tb-8", linespacing = 1, width = 64, align = "left"))
 
         # news_text.append(render.Box(width = 64, height = 2))
         # news_text.append(render.WrappedText("%s" % article[1], font = "tb-8", color = "#ffffff", linespacing = 1, width = 64, align = "left"))
         news_text.append(render.Box(width = 64, height = 2))
-        news_text.append(render.WrappedText("More at bigblagger .co.uk", font = "tb-8", color = "#EA37A5", linespacing = 1, width = 64, align = "left"))
+        news_text.append(render.WrappedText("More at bigblagger .co.uk", font = "tb-8", color = "#faa708", linespacing = 1, width = 64, align = "left"))
 
     return (news_text)
 
@@ -82,12 +82,12 @@ def render_article_smaller(news):
 
     for article in news:
         news_text.append(render.Image(width = 64, height = 32, src = NEWS_ICON))
-        news_text.append(render.WrappedText("%s" % article[0], color = "#FAE24C", font = "tom-thumb", linespacing = 1, width = 64, align = "left"))
+        news_text.append(render.WrappedText("%s" % article[0], color = "#FFFFFF", font = "tom-thumb", linespacing = 1, width = 64, align = "left"))
 
         # news_text.append(render.Box(width = 64, height = 2))
         # news_text.append(render.WrappedText("%s" % article[1], font = "tom-thumb", color = "#ffffff", linespacing = 1, width = 64, align = "left"))
         news_text.append(render.Box(width = 64, height = 2))
-        news_text.append(render.WrappedText("More at bigblagger .co.uk", font = "tom-thumb", color = "#EA37A5", linespacing = 1, width = 64, align = "left"))
+        news_text.append(render.WrappedText("More at bigblagger .co.uk", font = "tom-thumb", color = "#faa708", linespacing = 1, width = 64, align = "left"))
 
     return (news_text)
 
@@ -106,9 +106,9 @@ def connectionError(config):
                 main_align = "start",
                 children = [
                     render.Image(width = 64, height = 32, src = NEWS_ICON),
-                    render.WrappedText(content = errorHead, width = 64, color = "#FAE24C", font = fontsize, linespacing = 1, align = "left"),
+                    render.WrappedText(content = errorHead, width = 64, color = "#FFFFFF", font = fontsize, linespacing = 1, align = "left"),
                     render.Box(width = 64, height = 2),
-                    render.WrappedText(content = errorBlurb, width = 64, color = "#EA37A5", font = fontsize, linespacing = 1, align = "left"),
+                    render.WrappedText(content = errorBlurb, width = 64, color = "#faa708", font = fontsize, linespacing = 1, align = "left"),
                 ],
             ),
         ),
