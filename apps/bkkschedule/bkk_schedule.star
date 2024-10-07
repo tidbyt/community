@@ -181,11 +181,17 @@ def main(config):
                     render.Box(
                         child = render.Text(
                             content = departure["number"],
-                            font = "tb-8",
+                            font = "tom-thumb",
                             color = "#" + departure["secondaryColor"],
+                            offset = -1,
                         ),
                         color = "#" + departure["color"],
                         width = 16,
+                        height = 8,
+                    ),
+                    render.Box(
+                        color = "#309030",
+                        width = 1,
                         height = 8,
                     ),
                     render.Box(
@@ -193,15 +199,16 @@ def main(config):
                             content = departure["time"] + "'",
                             font = "tb-8",
                             color = "#ffffff",
+                            offset = 0,
                         ),
                         color = "#309030",
-                        width = 14,
+                        width = 12,
                         height = 8,
                     ),
                     render.Box(width = 1, height = 8),
                     render.Marquee(
                         child = render.Text(content = departure["name"], font = "5x8"),
-                        width = 33,
+                        width = 34,
                     ),
                 ],
             ),
