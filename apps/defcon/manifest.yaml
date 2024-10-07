@@ -2,5 +2,5 @@
 id: defcon
 name: DefCon
 summary: Displays DefCon Status
-desc: The source for this app is defconlevel.com which uses Open Source Intelligence to estimate the DEFCON level.  Default is to use the actual estimated DefCon level, but you can pick a level if you want. 
+desc: Source defconlevel.com.
 author: Robert Ison
