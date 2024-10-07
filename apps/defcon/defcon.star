@@ -15,12 +15,12 @@ FONT = "6x13"
 DEF_CON_COLORS = ["#fff", "#e13426", "#ff0", "#21a650", "#298cc1"]
 
 display_options = [
-    schema.Option(value = "0", display = "Actual Defcon Level"),
-    schema.Option(value = "1", display = "Defcon 1"),
-    schema.Option(value = "2", display = "Defcon 2"),
-    schema.Option(value = "3", display = "Defcon 3"),
-    schema.Option(value = "4", display = "Defcon 4"),
     schema.Option(value = "5", display = "Defcon 5"),
+    schema.Option(value = "4", display = "Defcon 4"),
+    schema.Option(value = "3", display = "Defcon 3"),
+    schema.Option(value = "2", display = "Defcon 2"),
+    schema.Option(value = "1", display = "Defcon 1"),
+    schema.Option(value = "0", display = "Actual Defcon Level"),
 ]
 
 def main(config):
@@ -31,7 +31,7 @@ def main(config):
     position = config.get("list", display_options[0].value)
 
     if position == "0":
-        res = http.get(url = DEF_CON_URL, ttl_seconds = CACHE_TTL_SECONDS)
+        res = http.get(url = DEF_CON_URL, ttl_seconds = CACHE_TTL_SECONDS, headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36", "Accept": "text/html"})
         if res.status_code != 200:
             fail("request to %s failed with status code: %d - %s" % (DEF_CON_URL, res.status_code, res.body()))
 
@@ -154,7 +154,7 @@ def get_schema():
                 name = "Defcon List",
                 desc = "Defcon Level",
                 icon = "list",
-                default = display_options[len(display_options)-1].value,
+                default = display_options[0].value,
                 options = display_options,
             ),
         ],
