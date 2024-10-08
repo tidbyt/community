@@ -181,37 +181,42 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     if debug_output:
                         print("Total number of lines: " + str(total_lines))
 
-                    children_content = [
-                        # render.Marquee(
-                        #     offset_start = 32,
-                        #     offset_end = 32,
-                        #     height = 32,
-                        #     scroll_direction = "vertical",
-                        #     width = 64,
-                        #     child = render.Column(
-                        #         children = children,
-                        #     ),
-                        # ),
-                        animation.Transformation(
-                            duration = total_lines * 4,  # Scroll speed
-                            height = total_lines * 3,
-                            child = render.Column(
-                                children = children,
+                    children_content = []
+                    if img == None:
+                        children_content = [
+                            render.Marquee(
+                                offset_start = 32,
+                                offset_end = 32,
+                                height = 32,
+                                scroll_direction = "vertical",
+                                width = 64,
+                                child = render.Column(
+                                    children = children,
+                                ),
                             ),
-                            keyframes = [
-                                animation.Keyframe(
-                                    percentage = 0,
-                                    transforms = [animation.Translate(0, 32)],
-                                    curve = "linear",
+                        ]
+                    else:
+                        children_content = [
+                            animation.Transformation(
+                                duration = total_lines * 4,  # Scroll speed
+                                height = total_lines * 4,
+                                child = render.Column(
+                                    children = children,
                                 ),
-                                animation.Keyframe(
-                                    percentage = 1,
-                                    transforms = [animation.Translate(0, -total_lines - total_lines)],
-                                    curve = "linear",
-                                ),
-                            ],
-                        ),
-                    ]
+                                keyframes = [
+                                    animation.Keyframe(
+                                        percentage = 0,
+                                        transforms = [animation.Translate(0, 32)],
+                                        curve = "linear",
+                                    ),
+                                    animation.Keyframe(
+                                        percentage = 1,
+                                        transforms = [animation.Translate(0, -total_lines - total_lines - 32)],
+                                        curve = "linear",
+                                    ),
+                                ],
+                            ),
+                        ]
 
                     return render.Root(
                         # delay = 100,
