@@ -235,7 +235,7 @@ def main(config):
             child = render.Animation(children = animation_children),
         )
 
-    return render.Root(child = final_child)
+    return render.Root(child = final_child, max_age = 60)
 
 def get_schema():
     return schema.Schema(
