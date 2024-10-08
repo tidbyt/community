@@ -1,7 +1,7 @@
 """
 Applet: DefCon
 Summary: Displays DefCon Status
-Description: Displays current DefCon status.
+Description: Displays the estimated DefCon (Defense Condition) alert level for the U.S. The source of this is DefConLevel.com.
 Author: Robert Ison
 """
 
@@ -15,11 +15,11 @@ FONT = "6x13"
 DEF_CON_COLORS = ["#fff", "#e13426", "#ff0", "#21a650", "#298cc1"]
 
 display_options = [
-    schema.Option(value = "5", display = "Defcon 5"),
-    schema.Option(value = "4", display = "Defcon 4"),
-    schema.Option(value = "3", display = "Defcon 3"),
-    schema.Option(value = "2", display = "Defcon 2"),
-    schema.Option(value = "1", display = "Defcon 1"),
+    schema.Option(value = "5", display = "Defcon 5 - Maximum Readiness"),
+    schema.Option(value = "4", display = "Defcon 4 - Risk of Impending Attack"),
+    schema.Option(value = "3", display = "Defcon 3 - High Caution"),
+    schema.Option(value = "2", display = "Defcon 2 - Above Normal Readiness"),
+    schema.Option(value = "1", display = "Defcon 1 - Normal Readiness"),
     schema.Option(value = "0", display = "Actual Defcon Level"),
 ]
 
@@ -56,13 +56,19 @@ def main(config):
                         render.Box(width = 64, height = 1, color = "#000"),
                     ],
                 ),
-                render.Animation(
-                    children = get_defcon_display(position),
-                ),
+                render_defcon_display(config.bool("animate", True), position),
             ],
         ),
         delay = 1000,
     )
+
+def render_defcon_display(animate, position):
+    print(animate)
+    print(position)
+    if animate:
+        return render.Animation(children = get_defcon_display(position))
+    else:
+        return render.Stack(children = get_defcon_display(position))
 
 def add_padding_to_child_element(element, left = 0, top = 0, right = 0, bottom = 0):
     padded_element = render.Padding(
@@ -117,38 +123,32 @@ def display_instructions():
             children = [
                 render.Marquee(
                     width = 64,
-                    child = render.Text("DEFCON", color = "#65d0e6", font = "5x8"),
+                    child = render.Text("DEFCON", color = DEF_CON_COLORS[0], font = "5x8"),
                 ),
                 render.Marquee(
                     width = 64,
-                    child = render.Text(instructions_1, color = "#f4a306"),
+                    child = render.Text(instructions_1, color = DEF_CON_COLORS[1]),
                 ),
                 render.Marquee(
                     offset_start = len(instructions_1) * 5,
                     width = 64,
-                    child = render.Text(instructions_2, color = "#f4a306"),
+                    child = render.Text(instructions_2, color = DEF_CON_COLORS[2]),
                 ),
                 render.Marquee(
                     offset_start = (len(instructions_2) + len(instructions_1)) * 5,
                     width = 64,
-                    child = render.Text(instructions_3, color = "#f4a306"),
+                    child = render.Text(instructions_3, color = DEF_CON_COLORS[3]),
                 ),
             ],
         ),
         show_full_animation = True,
+        delay = 45,
     )
 
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Toggle(
-                id = "instructions",
-                name = "Display Instructions",
-                desc = "",
-                icon = "book",  #"info",
-                default = False,
-            ),
             schema.Dropdown(
                 id = "list",
                 name = "Defcon List",
@@ -156,6 +156,20 @@ def get_schema():
                 icon = "list",
                 default = display_options[0].value,
                 options = display_options,
+            ),
+            schema.Toggle(
+                id = "animate",
+                name = "Animate Display",
+                desc = "Do you want to see the display go from 5 to the current level or simply have a static display of the current level?",
+                icon = "play",  #"info",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "instructions",
+                name = "Display Instructions",
+                desc = "",
+                icon = "book",  #"info",
+                default = False,
             ),
         ],
     )
