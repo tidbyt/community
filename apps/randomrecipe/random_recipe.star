@@ -12,7 +12,7 @@ SAMPLE_RESPONSE = {"meals": [{"idMeal": "53064", "strMeal": "Fettuccine Alfredo"
 TITLE = "d95b52"
 BLUE = "52c3d9"
 
-REFRESH_TIME = 60
+REFRESH_TIME = 600
 
 def request():
     res = http.get("https://www.themealdb.com/api/json/v1/1/random.php", ttl_seconds = REFRESH_TIME)
@@ -39,7 +39,7 @@ def main():
                         cross_align = "center",
                         expanded = True,
                         children = [
-                            render.WrappedText(align = "center", content = data["strMeal"], color = TITLE) if len(data["strMeal"]) < 16 else render.Marquee(
+                            render.WrappedText(align = "center", content = data["strMeal"], color = TITLE) if len(data["strMeal"]) < 8 else render.Marquee(
                                 offset_start = 32,
                                 offset_end = 32,
                                 width = 32,
@@ -47,14 +47,14 @@ def main():
                                 child = render.Text(data["strMeal"], color = TITLE),
                             ),
                             render.Box(width = 32, height = 1, color = "ffffff"),
-                            render.WrappedText(align = "center", content = data["strCategory"], font = "tom-thumb", color = BLUE) if len(data["strCategory"]) < 14 else render.Marquee(
+                            render.WrappedText(align = "center", content = data["strCategory"], font = "tom-thumb", color = BLUE) if len(data["strCategory"]) < 8 else render.Marquee(
                                 offset_start = 32,
                                 offset_end = 32,
                                 width = 32,
                                 height = 6,
                                 child = render.Text(data["strCategory"], font = "tom-thumb", color = BLUE),
                             ),
-                            render.WrappedText(align = "center", content = data["strArea"], font = "tom-thumb") if len(data["strArea"]) < 16 else render.Marquee(
+                            render.WrappedText(align = "center", content = data["strArea"], font = "tom-thumb") if len(data["strArea"]) < 8 else render.Marquee(
                                 offset_start = 32,
                                 offset_end = 32,
                                 width = 32,
