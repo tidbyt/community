@@ -5,6 +5,7 @@ Description: Display an image from an API endpoint.
 Author: Michael Yagi
 """
 
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
@@ -92,7 +93,7 @@ def get_image(api_url, response_path, request_headers, debug_output, fit_screen,
 
                                     if item == "[rand]":
                                         if type(output) == "list":
-                                            item = random.number(0, len(output) - 1)
+                                            item = get_random_index(output, ttl_seconds)
                                             if debug_output:
                                                 print("Random index chosen " + str(item))
                                         else:
@@ -216,6 +217,15 @@ def get_image(api_url, response_path, request_headers, debug_output, fit_screen,
             row,
         ),
     )
+
+def get_random_index(a_list, ttl_seconds):
+    random_index = random.number(0, len(a_list) - 1)
+    cached_index = cache.get("random_index")
+    if cached_index:
+        return cached_index
+    else:
+        cache.set("random_index", str(random_index), ttl_seconds = ttl_seconds)
+        return random_index
 
 def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
     if headerMap == {}:
