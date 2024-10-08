@@ -156,7 +156,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     # Insert image according to placement
                     image_lines = 0
                     if img != None:
-                        image_lines = 64
+                        image_lines = 32
                         row = render.Row(
                             expanded = True,
                             children = [render.Image(src = img, width = 64)],
