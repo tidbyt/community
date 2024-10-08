@@ -13,7 +13,7 @@ def main():
     tweet = data["rmvString"]
 
     return render.Root(
-        delay = int(config.get("scroll", 10)),
+        delay = int(config.get("scroll", 25)),
         child = render.Column(
             children = [
                 render.Text("  FredScanner", color = "#00FFFF"),

@@ -1,0 +1,8 @@
+---
+id: solar-powerwall
+name: Solar Powerwall
+summary: Tesla Solar Powerwall Mon
+desc: Display the whole energy flow for solar panels, powerwall, grid and house.
+author: lcervo
+filename: solar-powerwall.star
+packageName: solar-powerwall

@@ -1,0 +1,8 @@
+---
+id: spectro-cloud-clock
+name: Spectro Cloud
+summary: Spectro Cloud images
+desc: A collection of Spectro Cloud images with a clock.
+author: Karl Cardenas
+fileName: spectro_cloud.star
+packageName: spectrocloudclock

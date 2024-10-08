@@ -5,7 +5,6 @@ Description: Close to realtime precious metal prices and a graph comparing the p
 Author: Aaron Brace
 """
 
-load("cache.star", "cache")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
@@ -97,7 +96,6 @@ def main(config):
     # This means our graph will be for an X axis of 30 hours. When it starts over at midnight it will start with 7 hours of data
 
     HistoricalPrices = {}
-    is_cached = True
 
     ClosingPrice = 0
     CurrentTime = time.now().in_location("America/New_York")
@@ -119,98 +117,79 @@ def main(config):
         print("Using " + NextSessionStartTime.format("January 2, 15:04:05, 2006 TZ Z07:00") + " As Precious Metal session start time")
 
     ClosingTimeMili = int(ClosingTime.unix_nano) / 1000000
+    NextSessionStartMili = int(NextSessionStartTime.unix_nano) / 1000000
+
+    sessionstart_price_period = NextSessionStartMili / 1000 / (20 * 60)
+    if (GRAPH_PERIOD == "30day" or GRAPH_PERIOD == "90day" or GRAPH_PERIOD == "1year"):
+        sessionstart_price_period = NextSessionStartMili / 1000 / (360 * 60)
 
     if (is_debug == True):
         print("%d" % (ClosingTimeMili))
 
-    closing_cache_key = "%d" % (ClosingTimeMili) + PRECIOUS_METAL + GRAPH_PERIOD
-    closing_cache = cache.get(closing_cache_key)
-    graphstart_cache = cache.get(PRECIOUS_METAL + GRAPH_PERIOD + ":GRAPHSTART")
-    graphend_cache = cache.get(PRECIOUS_METAL + GRAPH_PERIOD + ":GRAPHEND")
+    if (is_debug == True):
+        print("Fetching " + GRAPH_PERIOD + " price history for " + PRECIOUS_METAL)
 
-    if (graphstart_cache == None or graphstart_cache == "" or graphend_cache == None or graphend_cache == "" or closing_cache == None):
-        is_cached = False
+    httpresponse = http.get(PRICE_HISTORY_URL + GRAPH_PERIOD + "/" + PRECIOUS_METAL + "?API_KEY=" + API_KEY, ttl_seconds = (20 * 60))
 
-    if (is_cached == False):
-        if (is_debug == True):
-            print("Fetching " + GRAPH_PERIOD + " price history for " + PRECIOUS_METAL)
+    if (httpresponse.status_code == 401):
+        return render.Root(
+            child = render.Marquee(
+                child = render.Text("API Key Invalid"),
+                width = 64,
+            ),
+        )
+    if httpresponse.status_code != 200:
+        fail("Could not fetch " + GRAPH_PERIOD + " spot price history for URL " + PRICE_HISTORY_URL + GRAPH_PERIOD + "/" + PRECIOUS_METAL + " Error code %d" % (httpresponse.status_code))
 
-        httpresponse = http.get(PRICE_HISTORY_URL + GRAPH_PERIOD + "/" + PRECIOUS_METAL + "?API_KEY=" + API_KEY, ttl_seconds = 600)
+    if (is_debug == True):
+        print("Fetch complete")
 
-        if (httpresponse.status_code == 401):
-            return render.Root(
-                child = render.Marquee(
-                    child = render.Text("API Key Invalid"),
-                    width = 64,
-                ),
-            )
-        if httpresponse.status_code != 200:
-            fail("Could not fetch " + GRAPH_PERIOD + " spot price history for URL " + PRICE_HISTORY_URL + GRAPH_PERIOD + "/" + PRECIOUS_METAL + " Error code %d" % (httpresponse.status_code))
+    #We need to read the entire json and look for the entry closest to our target time. Dont assume its sorted
 
-        if (is_debug == True):
-            print("Fetch complete")
+    last_matched_time_delta = -1
 
-        #We need to read the entire json and look for the entry closest to our target time. Dont assume its sorted
+    for json_entry in httpresponse.json():
+        # Lets put this value in the historical prices dictionary, but lets do it in 20 minute chunks and not miliseconds to reduce entries
+        # We may have more than one match in 20 minutes, but this isn't perfect. One price over a 20 minute period is enough.
+        # Afterall the tidbit only has 64 pixels width
 
-        last_matched_time_delta = -1
+        ChunkTimestamp = int(int(json_entry["timestamp"]) / 1000 / (20 * 60))
 
-        for json_entry in httpresponse.json():
-            # Lets put this value in the historical prices dictionary, but lets do it in 20 minute chunks and not miliseconds to reduce entries
-            # We may have more than one match in 20 minutes, but this isn't perfect. One price over a 20 minute period is enough.
-            # Afterall the tidbit only has 64 pixels width
+        #If its a 30 day chart, lets do 6 hours (360 minutes)
+        if (GRAPH_PERIOD == "30day" or GRAPH_PERIOD == "90day" or GRAPH_PERIOD == "1year"):
+            ChunkTimestamp = int(int(json_entry["timestamp"]) / 1000 / (360 * 60))
 
-            ChunkTimestamp = int(int(json_entry["timestamp"]) / 1000 / (20 * 60))
+        HistoricalPrices[ChunkTimestamp] = float(json_entry["price"])
+        print("Setting price %f" % ChunkTimestamp + "to %f" % float(json_entry["price"]))
 
-            #If its a 30 day chart, lets do 6 hours (360 minutes)
-            if (GRAPH_PERIOD == "30day" or GRAPH_PERIOD == "90day" or GRAPH_PERIOD == "1year"):
-                ChunkTimestamp = int(int(json_entry["timestamp"]) / 1000 / (360 * 60))
-
-            HistoricalPrices[ChunkTimestamp] = float(json_entry["price"])
-            print("Setting price %f" % ChunkTimestamp + "to %f" % float(json_entry["price"]))
-
-            if (last_matched_time_delta != -1 and abs(int(json_entry["timestamp"]) - ClosingTimeMili) > last_matched_time_delta):
-                # We should ignore this value, our current closing price is closer to 5PM
-                continue
-            ClosingPrice = float(json_entry["price"])
-            last_matched_time_delta = abs(int(json_entry["timestamp"]) - ClosingTimeMili)
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(closing_cache_key, "%f" % (ClosingPrice), ttl_seconds = (60 * 60))  #We will stretch this one since its really graphstart that handles state of cache
-
-    else:
-        ClosingPrice = float(closing_cache)
+        if (last_matched_time_delta != -1 and abs(int(json_entry["timestamp"]) - ClosingTimeMili) > last_matched_time_delta):
+            # We should ignore this value, our current closing price is closer to 5PM
+            continue
+        ClosingPrice = float(json_entry["price"])
+        last_matched_time_delta = abs(int(json_entry["timestamp"]) - ClosingTimeMili)
 
     if (is_debug == True):
         print("Closing Price %f" % (ClosingPrice))
 
-    realtime_cache = cache.get(PRECIOUS_METAL)
+    # Now lets get the current realtime price
 
-    if (realtime_cache == None):
-        # Now lets get the current realtime price
+    if (is_debug == True):
+        print("Fetching realtime price")
+
+    httpresponse = http.get(REALTIME_QUOTE + "?API_KEY=" + API_KEY, ttl_seconds = 180)
+    if httpresponse.status_code != 200:
+        fail("Could not fetch realtime spot price for URL " + REALTIME_QUOTE + " Error code %d" % (httpresponse.status_code))
+
+    for json_entry in httpresponse.json():
+        if (json_entry.get(PRECIOUS_METAL) == None):
+            continue
+        RealtimePrice = float(json_entry[PRECIOUS_METAL])
 
         if (is_debug == True):
-            print("Fetching realtime price")
-
-        httpresponse = http.get(REALTIME_QUOTE + "?API_KEY=" + API_KEY, ttl_seconds = 600)
-
-        if httpresponse.status_code != 200:
-            fail("Could not fetch realtime spot price for URL " + REALTIME_QUOTE + " Error code %d" % (httpresponse.status_code))
-
-        for json_entry in httpresponse.json():
-            if (json_entry.get(PRECIOUS_METAL) == None):
-                continue
-            RealtimePrice = float(json_entry[PRECIOUS_METAL])
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(PRECIOUS_METAL, json_entry[PRECIOUS_METAL], ttl_seconds = 180)
-            if (is_debug == True):
-                print("Fetching realtime price completed")
-            break
-        if (RealtimePrice == 0):
-            fail("Could not parse out spot price for " + PRECIOUS_METAL)
-
-    else:
-        RealtimePrice = float(realtime_cache)
+            print("Fetching realtime price completed")
+        break
+    if (RealtimePrice == 0):
+        fail("Could not parse out spot price for " + PRECIOUS_METAL)
 
     PercentageChange = ((RealtimePrice / ClosingPrice) - 1) * 100
     AmountChange = RealtimePrice - ClosingPrice
@@ -222,9 +201,46 @@ def main(config):
         PercentageColor = red_color
         NumPrefix = ""
 
+    plot_array = []
+
+    last_timekey = 0
+    last_timekey_value = 0
     mingraph = 0
     maxgraph = 0
-    plot_array = [(mingraph, 0), (maxgraph, 0)]
+
+    for timekey in sorted(HistoricalPrices):
+        if (int(timekey) < sessionstart_price_period):
+            # This entry is from before our established session start time of 6PM, not part of graph
+            print("Discarding")
+            continue
+        if ((int(timekey) != last_timekey + 1) and last_timekey != 0):
+            for x in range(last_timekey + 1, int(timekey)):
+                plot_array.append((x, last_timekey_value))
+                if (is_debug == True):
+                    print("%d %f" % (x, last_timekey_value))
+
+        PercentageChange_hist = (float(HistoricalPrices[timekey]) / ClosingPrice - 1) * 100
+        last_timekey_value = PercentageChange_hist
+        last_timekey = int(timekey)
+        plot_array.append((int(timekey), PercentageChange_hist))
+
+        if (is_debug == True):
+            print("%d %f" % (int(timekey), float(PercentageChange_hist)))
+
+        if (mingraph == 0):
+            mingraph = int(timekey)
+
+            maxgraph = mingraph + (30 * 3)  # 20 minute intervals means 3 per hour, a total of 30 hours between 6PM and Midnight the next night
+            if (GRAPH_PERIOD == "30day"):
+                maxgraph = mingraph + (4 * 30)  # 6 hour intervals for 30day, which is 4 per day or 120 positions
+            if (GRAPH_PERIOD == "90day"):
+                maxgraph = mingraph + (4 * 90)  # 6 hour intervals for 90day, which is 4 per day or 360 positions
+            if (GRAPH_PERIOD == "1year"):
+                maxgraph = mingraph + (4 * 365)  # 6 hour intervals for 365day, which is 4 per day or 1460 positions
+
+    if (is_debug == True):
+        print(PRECIOUS_METAL + ":GRAPHSTART=" + "%d" % (mingraph))
+        print(PRECIOUS_METAL + ":GRAPHEND=" + "%d" % (last_timekey))
 
     PLOT_SECTION = ""
 

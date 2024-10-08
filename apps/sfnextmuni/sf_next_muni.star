@@ -282,7 +282,7 @@ def fetch_cached(url, ttl):
     else:
         res = http.get(url)
         if res.status_code != 200:
-            print("511.org request to %s failed with status %d", (url, res.status_code))
+            print("511.org request to %s failed with status %d", (sanitize(url), res.status_code))
             return (time.now().unix, res.body().lstrip("\ufeff"))
 
         # Trim off the UTF-8 byte-order mark
@@ -440,6 +440,9 @@ def getMessages(api_key, config, routes, stopId):
 
     return messages
 
+def sanitize(txt):
+    return txt.replace(API_KEY, "API_KEY") if API_KEY else txt
+
 def renderOutput(stopTitle, output, messages, config):
     lines = 4
     height = 32
@@ -458,7 +461,7 @@ def renderOutput(stopTitle, output, messages, config):
                 children = [
                     render.Marquee(
                         width = 64,
-                        child = render.Text(stopTitle),
+                        child = render.Text(sanitize(stopTitle)),
                     ),
                     render.Box(
                         width = 64,
@@ -503,7 +506,7 @@ def renderOutput(stopTitle, output, messages, config):
                     ),
                     render.Marquee(
                         width = 64,
-                        child = render.Text("      ".join(messages), font = "tom-thumb"),
+                        child = render.Text(sanitize("      ".join(messages)), font = "tom-thumb"),
                     ),
                 ],
                 main_align = "end",
@@ -565,7 +568,7 @@ def shortPredictions(output, lines):
                                         color = MUNI_COLORS[routeTag[0]] if routeTag[0] in MUNI_COLORS else "#000000",
                                     ),
                                     render.Text(" "),
-                                    render.Text(",".join(predictions[:2]), font = "tom-thumb"),
+                                    render.Text(sanitize(",".join(predictions[:2])), font = "tom-thumb"),
                                     render.Text(" "),
                                 ],
                                 main_align = "space_around",
@@ -615,20 +618,20 @@ def getLongRow(routeTag, destination, predictions, config):
     if "xlong" == config.get("prediction_format", DEFAULT_CONFIG["prediction_format"]):
         row.append(
             render.Marquee(
-                child = render.Text(destination, font = "tom-thumb"),
+                child = render.Text(sanitize(destination), font = "tom-thumb"),
                 width = 40,
             ),
         )
         row.append(
             render.Marquee(
-                child = render.Text((" " if len(predictions[0]) < 2 else "") + predictions[0], font = "tom-thumb"),
+                child = render.Text(sanitize((" " if len(predictions[0]) < 2 else "") + predictions[0]), font = "tom-thumb"),
                 width = 10,
             ),
         )
     elif "long" == config.get("prediction_format", DEFAULT_CONFIG["prediction_format"]):
         row.append(
             render.Marquee(
-                child = render.Text(destination, font = "tom-thumb"),
+                child = render.Text(sanitize(destination), font = "tom-thumb"),
                 width = 30,
             ),
         )
@@ -636,7 +639,7 @@ def getLongRow(routeTag, destination, predictions, config):
         nextTwoPredictions = " " * (5 - len(nextTwoPredictions)) + nextTwoPredictions
         row.append(
             render.Marquee(
-                child = render.Text(nextTwoPredictions, font = "tom-thumb"),
+                child = render.Text(sanitize(nextTwoPredictions), font = "tom-thumb"),
                 width = 20,
             ),
         )
@@ -646,7 +649,7 @@ def getLongRow(routeTag, destination, predictions, config):
         if "two_line_dest" == config.get("prediction_format", DEFAULT_CONFIG["prediction_format"]):
             row.append(
                 render.Marquee(
-                    child = render.Text(destination),
+                    child = render.Text(sanitize(destination)),
                     width = 25,
                 ),
             )
@@ -655,14 +658,14 @@ def getLongRow(routeTag, destination, predictions, config):
 
         row.append(
             render.Marquee(
-                child = render.Text(",".join([prediction for prediction in predictions[:max_predictions]])),
+                child = render.Text(sanitize(",".join([prediction for prediction in predictions[:max_predictions]]))),
                 width = max_width,
             ),
         )
     else:
         row.append(
             render.Marquee(
-                child = render.Text("%s min" % " & ".join([prediction for prediction in predictions[:2]]), font = "tom-thumb"),
+                child = render.Text(sanitize("%s min" % " & ".join([prediction for prediction in predictions[:2]])), font = "tom-thumb"),
                 width = 50,
             ),
         )
