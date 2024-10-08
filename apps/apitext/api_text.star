@@ -182,12 +182,12 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         print("Total number of lines: " + str(total_lines))
 
                     children_content = []
-                    if img == None:
+                    if output_type != "gif":
                         children_content = [
                             render.Marquee(
                                 offset_start = 32,
                                 offset_end = 32,
-                                height = 32,
+                                height = 32 * len(children),
                                 scroll_direction = "vertical",
                                 width = 64,
                                 child = render.Column(
@@ -198,8 +198,8 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     else:
                         children_content = [
                             animation.Transformation(
-                                duration = total_lines * 4,  # Scroll speed
-                                height = total_lines * 4,
+                                duration = total_lines * (len(children) + 1),  # Scroll speed
+                                height = total_lines * (len(children) + 1),
                                 child = render.Column(
                                     children = children,
                                 ),
@@ -211,7 +211,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                                     ),
                                     animation.Keyframe(
                                         percentage = 1,
-                                        transforms = [animation.Translate(0, -total_lines - total_lines - 32)],
+                                        transforms = [animation.Translate(0, -total_lines * (len(children) + 1))],
                                         curve = "linear",
                                     ),
                                 ],
@@ -219,7 +219,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         ]
 
                     return render.Root(
-                        # delay = 100,
+                        delay = 100,
                         show_full_animation = True,
                         child = render.Row(
                             children = children_content,
@@ -329,9 +329,11 @@ def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
     if headers != None and headers.get("content-type") != None:
         contentType = headers.get("content-type")
 
-        if contentType.find("json") != -1 or contentType.find("text/plain") != -1 or contentType.find("image") != -1:
+        if contentType.find("gif") != -1 or contentType.find("json") != -1 or contentType.find("text/plain") != -1 or contentType.find("image") != -1:
             if contentType.find("json") != -1:
                 contentType = "json"
+            elif contentType.find("gif") != -1:
+                contentType = "gif"
             elif contentType.find("image") != -1:
                 contentType = "image"
             else:
