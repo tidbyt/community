@@ -5,6 +5,7 @@ Description: Display text from an API endpoint.
 Author: Michael Yagi
 """
 
+load("animation.star", "animation")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -139,16 +140,23 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         if img == None and debug_output:
                             print("Could not retrieve image")
 
-                    # Append heading
+                    # Append
+                    # Get length of heading with 16 chars across
+                    heading_lines = 0
                     if output_heading != None and type(output_heading) == "string":
+                        heading_lines = len(output_heading) / 14
                         children.append(render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color))
 
                     # Append body
+                    body_lines = 0
                     if output_body != None and type(output_body) == "string":
+                        body_lines = len(output_body) / 14
                         children.append(render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color))
 
                     # Insert image according to placement
+                    image_lines = 0
                     if img != None:
+                        image_lines = 64
                         row = render.Row(
                             expanded = True,
                             children = [render.Image(src = img, width = 64)],
@@ -168,21 +176,45 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         else:
                             print("No image URL found")
 
+                    total_lines = image_lines + heading_lines + body_lines
+                    total_lines = int(total_lines) + 32
+                    if debug_output:
+                        print("Total number of lines: " + str(total_lines))
+
                     children_content = [
-                        render.Marquee(
-                            offset_start = 32,
-                            offset_end = 32,
-                            height = 32,
-                            scroll_direction = "vertical",
-                            width = 64,
+                        # render.Marquee(
+                        #     offset_start = 32,
+                        #     offset_end = 32,
+                        #     height = 32,
+                        #     scroll_direction = "vertical",
+                        #     width = 64,
+                        #     child = render.Column(
+                        #         children = children,
+                        #     ),
+                        # ),
+                        animation.Transformation(
+                            duration = 300,  # Scroll speed
+                            height = 340,
                             child = render.Column(
                                 children = children,
                             ),
+                            keyframes = [
+                                animation.Keyframe(
+                                    percentage = 0,
+                                    transforms = [animation.Translate(0, 32)],
+                                    curve = "linear",
+                                ),
+                                animation.Keyframe(
+                                    percentage = 1,
+                                    transforms = [animation.Translate(0, -170 - total_lines)],
+                                    curve = "linear",
+                                ),
+                            ],
                         ),
                     ]
 
                     return render.Root(
-                        delay = 100,
+                        # delay = 100,
                         show_full_animation = True,
                         child = render.Row(
                             children = children_content,
