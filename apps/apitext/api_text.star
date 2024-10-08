@@ -68,7 +68,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
         output_content = output_map["data"]
         output_type = output_map["type"]
 
-        if (output_type == "json" or output_type == "text") and (len(heading_response_path) > 0 or len(body_response_path) > 0 or len(image_response_path) > 0):
+        if output_type == "text" or (output_type == "json" and (len(heading_response_path) > 0 or len(body_response_path) > 0 or len(image_response_path) > 0)):
             api_url_array = api_url.split("/")
             if len(api_url_array) > 2:
                 base_url = api_url_array[0] + "//" + api_url_array[2]
@@ -193,8 +193,8 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         #     ),
                         # ),
                         animation.Transformation(
-                            duration = 300,  # Scroll speed
-                            height = 340,
+                            duration = total_lines * 4,  # Scroll speed
+                            height = total_lines * 3,
                             child = render.Column(
                                 children = children,
                             ),
@@ -206,7 +206,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                                 ),
                                 animation.Keyframe(
                                     percentage = 1,
-                                    transforms = [animation.Translate(0, -170 - total_lines)],
+                                    transforms = [animation.Translate(0, -total_lines - total_lines)],
                                     curve = "linear",
                                 ),
                             ],
