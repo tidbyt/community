@@ -42,11 +42,9 @@ def main(config):
 
 def get_text(api_url, heading_response_path, body_response_path, image_response_path, request_headers, debug_output, ttl_seconds, heading_font_color, body_font_color, image_placement):
     base_url = ""
-    failure = False
     message = ""
 
     if api_url == "":
-        failure = True
         message = "API URL must not be blank"
 
         if debug_output:
@@ -92,7 +90,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         print("Decoded JSON: " + outputStr)
 
                 # Parse response path for JSON
-                response_path_data_body = parse_response_path(output, body_response_path, failure, debug_output)
+                response_path_data_body = parse_response_path(output, body_response_path, debug_output)
                 output_body = response_path_data_body["output"]
                 body_parse_failure = response_path_data_body["failure"]
                 message = response_path_data_body["message"]
@@ -100,7 +98,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     print("Getting text body. Pass: " + str(body_parse_failure == False))
 
                 # Get heading
-                response_path_data_heading = parse_response_path(output, heading_response_path, failure, debug_output)
+                response_path_data_heading = parse_response_path(output, heading_response_path, debug_output)
                 output_heading = response_path_data_heading["output"]
                 heading_parse_failure = response_path_data_heading["failure"]
                 message = response_path_data_heading["message"]
@@ -108,14 +106,14 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     print("Getting text heading. Pass: " + str(heading_parse_failure == False))
 
                 # Get image
-                response_path_data_image = parse_response_path(output, image_response_path, failure, debug_output)
+                response_path_data_image = parse_response_path(output, image_response_path, debug_output)
                 output_image = response_path_data_image["output"]
                 image_parse_failure = response_path_data_image["failure"]
                 message = response_path_data_image["message"]
                 if debug_output:
                     print("Getting image. Pass: " + str(image_parse_failure == False))
 
-                if body_parse_failure == False or heading_parse_failure == False or image_parse_failure == False:
+                if (body_parse_failure == False and output_body != None) or (heading_parse_failure == False and output_heading != None) or (image_parse_failure == False and output_image != None):
                     if type(output_body) == "string":
                         output_body = output_body.replace("\n", "").replace("\\", "")
                     if type(output_heading) == "string":
@@ -247,7 +245,6 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
             message = "Oops! Check URL and header values. URL must return JSON or text."
             if debug_output:
                 print(message)
-            failure = True
 
     if message == "":
         message = "Could not get text"
@@ -268,8 +265,9 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
         ),
     )
 
-def parse_response_path(output, responsePathStr, failure, debug_output):
+def parse_response_path(output, responsePathStr, debug_output):
     message = ""
+    failure = False
 
     if (len(responsePathStr) > 0):
         responsePathArray = responsePathStr.split(",")
