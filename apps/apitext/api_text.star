@@ -126,6 +126,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     image_endpoint = ""
 
                     # Process image data
+                    # output_image_type = ""
                     if output_image != None and type(output_image) == "string" and base_url.startswith("http"):
                         if output_image.startswith("http") == False:
                             if output_image.startswith("/"):
@@ -135,7 +136,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         image_endpoint = output_image
                         output_image_map = get_data(image_endpoint, debug_output, {}, ttl_seconds)
                         img = output_image_map["data"]
-                        output_type = output_image_map["type"]
+                        # output_image_type = output_image_map["type"]
 
                         if img == None and debug_output:
                             print("Could not retrieve image")
@@ -181,42 +182,42 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     if debug_output:
                         print("Total number of lines: " + str(total_lines))
 
-                    children_content = []
-                    if output_type != "gif":
-                        children_content = [
-                            render.Marquee(
-                                offset_start = 32,
-                                offset_end = 32,
-                                height = 32 * len(children),
-                                scroll_direction = "vertical",
-                                width = 64,
-                                child = render.Column(
-                                    children = children,
-                                ),
+                    # children_content = []
+                    # if output_image_type != "gif":
+                    #     children_content = [
+                    #         render.Marquee(
+                    #             offset_start = 32,
+                    #             offset_end = 32,
+                    #             height = 32 * len(children),
+                    #             scroll_direction = "vertical",
+                    #             width = 64,
+                    #             child = render.Column(
+                    #                 children = children,
+                    #             ),
+                    #         ),
+                    #     ]
+                    # else:
+                    children_content = [
+                        animation.Transformation(
+                            duration = total_lines * (len(children) + 1),  # Scroll speed
+                            height = total_lines * (len(children) + 1),
+                            child = render.Column(
+                                children = children,
                             ),
-                        ]
-                    else:
-                        children_content = [
-                            animation.Transformation(
-                                duration = total_lines * (len(children) + 1),  # Scroll speed
-                                height = total_lines * (len(children) + 1),
-                                child = render.Column(
-                                    children = children,
+                            keyframes = [
+                                animation.Keyframe(
+                                    percentage = 0,
+                                    transforms = [animation.Translate(0, 32)],
+                                    curve = "linear",
                                 ),
-                                keyframes = [
-                                    animation.Keyframe(
-                                        percentage = 0,
-                                        transforms = [animation.Translate(0, 32)],
-                                        curve = "linear",
-                                    ),
-                                    animation.Keyframe(
-                                        percentage = 1,
-                                        transforms = [animation.Translate(0, -total_lines * (len(children) + 1))],
-                                        curve = "linear",
-                                    ),
-                                ],
-                            ),
-                        ]
+                                animation.Keyframe(
+                                    percentage = 1,
+                                    transforms = [animation.Translate(0, -total_lines * (len(children) + 1))],
+                                    curve = "linear",
+                                ),
+                            ],
+                        ),
+                    ]
 
                     return render.Root(
                         delay = 100,
