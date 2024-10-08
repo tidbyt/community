@@ -398,10 +398,20 @@ def round_to_two_decimals_str(x):
     if math.fabs(x) < 0.005:
         return "0.00"
 
-    v = str(int(math.round(x * 100)))
-    v = (v[0:-2] + "." + v[-2:])
+    rounded_value = math.round(x * 100) / 100.0
+
+    whole, fraction = str(rounded_value).split(".")
+
+    # Ensure the fraction has exactly two digits
+    if len(fraction) == 1:
+        fraction += "0"
+    elif len(fraction) == 0:
+        fraction = "00"
+
+    v = whole + "." + fraction
 
     if math.fabs(x) < 1:
+        # Add leading zero for values less than 1
         v = "0" + v.lstrip("0") if x >= 0 else "-0" + v[1:].lstrip("0")
 
     return v
