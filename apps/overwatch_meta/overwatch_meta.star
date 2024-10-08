@@ -84,7 +84,7 @@ SKILL_TIERS = struct(
 SHORT_HERO_NAME_MAP = {
     "Wrecking Ball": "Ball",
     "Widowmaker": "Widow",
-    "Reinhard": "Rein",
+    "Reinhardt": "Rein",
     "Soldier: 76": "Soldier",
     "Zenyatta": "Zen",
     "Baptiste": "Bap",
