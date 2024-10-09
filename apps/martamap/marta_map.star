@@ -8,7 +8,7 @@ Author: InTheDaylight14
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-# load("secret.star", "secret")
+load("secret.star", "secret")
 
 DEFAULT_TEXT_COLOR = "#aaaaaa"
 DEFAULT_ORIENTATION_BOOL = False  #Default to horizontal
@@ -21,7 +21,6 @@ DEAFULT_DIRECTION = "No Direction Filter"
 FONT = "CG-pixel-4x5-mono"
 
 def main(config):
-    # MARTA_API_URL = secret.decrypt("AV6+xWcEqpLr4r5xWHL+ENipBzxVuOwqPhBwALkpo2ySIP8LvhyYYjsLoSq484C+X+Q91GmnTkRZBVPcITGvJJRJxmomJAwy4ejsRATXKIMmJHQy29u3IXDATDXbDuMXDx2wLeQXtfpuwWf5qHNh5VLrnE3d3ZJTfP6mS9xBxo+CwffQNt3YGa3pkQTpI5ikAKotOr95vcBPQzw22E3yY7iMqjR72wsE8s730m9pLnFolxbNmyMKZ6DNh+XFqNiNNer02eodGjhvLRR74xk8A1Q72Q==") #Original API no longer working
     MARTA_API_URL = "http://labs.itsmarta.com/signpost/trains"  #New data source due to old one failing
     trains = get_trains(MARTA_API_URL)
     arrivals = config.bool("arrivals") or DEFAULT_ARRIVALS
@@ -313,10 +312,19 @@ def render_arrivals(config):
     rendered_arrivals = []
     user_station_arrivals = []
 
-    all_arrivals = get_chachable_json("https://developer.itsmarta.com/RealtimeTrain/RestServiceNextTrain/GetRealtimeArrivals", 10)
+    ARRIVALS_API_URL = "https://developerservices.itsmarta.com:18096/itsmarta/railrealtimearrivals/traindata"
+    API_KEY = ""
+    API_KEY_ENCRYPTED = "AV6+xWcE7DuYYEVwcZYWZKjl58uv5cacFumB2xlPBOcfQJjypotuykP8EzpmX1ap10XA7v/txa8cujef8ToRAg6UvtconQ+DSJ14Krz8bTvxVhj165hvEGDhYjt89Chd0Vz6JF1rW4aLnJ5YFVt6FAShLWpBRP91ZvTQrMR0EvVcmXs+YutWg0xnjJ4JurKkoUQ="
+    api_key = secret.decrypt(API_KEY_ENCRYPTED) or API_KEY
+
+    all_arrivals = get_chachable_json(ARRIVALS_API_URL + api_key, 10)
 
     user_station = STATIONS_MAP[config.get("station") or DEFAULT_STATION]
     direction_filter = DIRECTION_MAP[config.get("direction") or DEAFULT_DIRECTION]
+
+    #Check for api error and, if so, skip arrival renders. Ex. error {"ErrorCode": "400", "ErrorMessage": "Invalid APIKey"}
+    if len(all_arrivals) < 3 and type(all_arrivals) == "dict":
+        return render.Text("", font = FONT, color = "#000")
 
     #Filter all_arrivals for the user's station
     for arrival in all_arrivals:
@@ -791,6 +799,8 @@ STATIONS_MAP = {
 }
 
 HEAD_SIGN_MAP = {
+    "Edgewood-Candler Park": "EDGEWOOD ",
+    "Hamilton E. Holmes": "HE HOLMES",
     "North Springs": "N SPRING ",
     "Doraville": "DORAVILLE",
     "Edgewood Candler Park": "EDGEWOOD ",

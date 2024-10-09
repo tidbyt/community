@@ -1,0 +1,8 @@
+---
+id: tilt-hydrometer
+name: Tilt Hydrometer
+summary: Shows Tilt hydrometer data
+desc: The Tilt hydrometer tracks brewing stats (specific gravity, temperature, attenuation, ABV, etc.) and logs to a Google Sheet. This app displays pertinent information from the logs. To generate your Google API key for accessing Sheets, visit https://cloud.google.com/docs/authentication/api-keys#create.
+author: DSUmjham
+fileName: tilt_hydrometer.star
+packageName: tilthydrometer
