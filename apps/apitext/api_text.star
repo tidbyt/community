@@ -141,28 +141,34 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
 
                     # Append
                     # Get length of heading with 16 chars across
-                    heading_lines = 0
+                    heading_length = 0
                     if output_heading != None and type(output_heading) == "string":
-                        heading_lines = len(output_heading) / 14
+                        heading_length = len(output_heading)
                         children.append(render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color))
                     elif debug_output and heading_parse_failure == True:
-                        children.append(render.WrappedText(content = "Heading " + heading_parse_message, font = "tom-thumb", color = "#FF0000"))
+                        message = "Heading " + heading_parse_message
+                        heading_length = len(message)
+                        children.append(render.WrappedText(content = message, font = "tom-thumb", color = "#FF0000"))
 
                     # Append body
-                    body_lines = 0
+                    body_length = 0
                     if output_body != None and type(output_body) == "string":
-                        body_lines = len(output_body) / 14
+                        body_length = len(output_body)
                         children.append(render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color))
                     elif debug_output and body_parse_failure == True:
-                        children.append(render.WrappedText(content = "Body " + body_parse_message, font = "tom-thumb", color = "#FF0000"))
+                        message = "Body " + body_parse_message
+                        body_length = len(message)
+                        children.append(render.WrappedText(content = message, font = "tom-thumb", color = "#FF0000"))
 
                     # Insert image according to placement
-                    image_lines = 0
+                    image_height = 0
                     if img != None:
-                        image_lines = 32
+                        image_height = 32
                         row = render.Row(
                             expanded = True,
-                            children = [render.Image(src = img, width = 64)],
+                            main_align = "space_evenly",
+                            cross_align = "center",
+                            children = [render.Image(src = img, height = 32)],
                         )
 
                         if image_placement == 1:
@@ -182,8 +188,8 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         if image_parse_failure == True:
                             children.append(render.WrappedText(content = "Image " + image_parse_message, font = "tom-thumb", color = "#FF0000"))
 
-                    total_lines = image_lines + heading_lines + body_lines
-                    total_lines = int(total_lines) + 32
+                    total_lines = image_height + heading_length + body_length
+                    total_lines = int(total_lines)
                     if debug_output:
                         print("Total number of lines: " + str(total_lines))
 
@@ -204,8 +210,8 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     # else:
                     children_content = [
                         animation.Transformation(
-                            duration = total_lines * (len(children) + 1),  # Scroll speed
-                            height = total_lines * (len(children) + 1),
+                            duration = int(total_lines / 1.5),  # Scroll speed
+                            height = int(total_lines / 1.3),
                             child = render.Column(
                                 children = children,
                             ),
@@ -217,7 +223,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                                 ),
                                 animation.Keyframe(
                                     percentage = 1,
-                                    transforms = [animation.Translate(0, -total_lines * (len(children) + 1))],
+                                    transforms = [animation.Translate(0, -int(total_lines / 1.5) - 32)],
                                     curve = "linear",
                                 ),
                             ],
