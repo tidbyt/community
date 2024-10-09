@@ -146,7 +146,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         heading_lines = len(output_heading) / 14
                         children.append(render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color))
                     elif debug_output and heading_parse_failure == True:
-                        children.append(render.WrappedText(content = "Error parsing heading path. " + heading_parse_message, font = "tom-thumb", color = "#FF0000"))
+                        children.append(render.WrappedText(content = "Heading " + heading_parse_message, font = "tom-thumb", color = "#FF0000"))
 
                     # Append body
                     body_lines = 0
@@ -154,7 +154,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         body_lines = len(output_body) / 14
                         children.append(render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color))
                     elif debug_output and body_parse_failure == True:
-                        children.append(render.WrappedText(content = "Error parsing body path. " + body_parse_message, font = "tom-thumb", color = "#FF0000"))
+                        children.append(render.WrappedText(content = "Body " + body_parse_message, font = "tom-thumb", color = "#FF0000"))
 
                     # Insert image according to placement
                     image_lines = 0
@@ -180,7 +180,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                             print("No image URL found")
 
                         if image_parse_failure == True:
-                            children.append(render.WrappedText(content = "Error parsing image path. " + image_parse_message, font = "tom-thumb", color = "#FF0000"))
+                            children.append(render.WrappedText(content = "Image " + image_parse_message, font = "tom-thumb", color = "#FF0000"))
 
                     total_lines = image_lines + heading_lines + body_lines
                     total_lines = int(total_lines) + 32
