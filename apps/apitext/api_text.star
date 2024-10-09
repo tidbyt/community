@@ -179,7 +179,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         else:
                             print("No image URL found")
 
-                        if debug_output and image_parse_failure == True:
+                        if image_parse_failure == True:
                             children.append(render.WrappedText(content = "Error: Could not parse image.", font = "tom-thumb", color = "#FF0000"))
 
                     total_lines = image_lines + heading_lines + body_lines
@@ -305,6 +305,7 @@ def parse_response_path(output, responsePathStr, debug_output):
                     message = "Response path invalid. " + str(item) + " does not exist"
                     if debug_output:
                         print("responsePathArray invalid. " + str(item) + " does not exist")
+                    output = None
                     break
             elif output != None and type(output) == "list" and type(item) == "int" and item <= len(output) - 1:
                 output = output[item]
@@ -313,6 +314,7 @@ def parse_response_path(output, responsePathStr, debug_output):
                 message = "Response path invalid. " + str(item) + " does not exist"
                 if debug_output:
                     print("responsePathArray invalid. " + str(item) + " does not exist")
+                output = None
                 break
     else:
         output = None
