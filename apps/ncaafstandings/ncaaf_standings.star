@@ -137,6 +137,12 @@ def main(config):
     elif conferenceType == "0":
         apiURL = API
     else:
+        if (conferenceType == "5&0") or (conferenceType == "5&1"):
+            conferenceType = "5"
+        elif (conferenceType == "8&0") or (conferenceType == "8&1"):
+            conferenceType = "8"
+        elif (conferenceType == "15&0") or (conferenceType == "15&1"):
+            conferenceType = "15"
         apiURL = API + "?group=" + conferenceType
     league = {LEAGUE: apiURL}
     standings = get_standings(league)
