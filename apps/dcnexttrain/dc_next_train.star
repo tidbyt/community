@@ -9,444 +9,402 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 
 WMATA_BASE_URL = "https://api.wmata.com/StationPrediction.svc/json/GetPrediction/"
 CACHE_TTL = 30
 
 def main(config):
+    # Get options from schemas
+    selectedGroup = config.get("groupCode")
+    selectedStop = config.get("stationCode") or "A01"  #I think there is a race condition happening between this and the API call.  This prevents an error on first opening of the file
+    selectedLine = config.get("metroLine")
+    selectedCars = config.bool("displayCars")
+    selectedView = config.get("viewOption")
 
-  # Get options from schemas
-  selectedGroup = config.get("groupCode")
-  selectedStop = config.get("stationCode") or "A01" #I think there is a race condition happening between this and the API call.  This prevents an error on first opening of the file
-  selectedLine = config.get("metroLine")
-  selectedCars = config.bool("displayCars")
-  selectedView = config.get("viewOption")
+    API_KEY = config.get("userAPI")
+    if API_KEY == None:
+        API_KEY = "e13626d03d8e4c03ac07f95541b3091b"  #this is the public test API key
 
-  API_KEY = config.get("userAPI")
-  if API_KEY == None:
-    API_KEY = "e13626d03d8e4c03ac07f95541b3091b" #this is the public test API key
+    # Call the WMATA API
+    WMATA_URL = WMATA_BASE_URL + selectedStop
 
+    response = http.get(WMATA_URL, headers = {"api_key": API_KEY}, ttl_seconds = CACHE_TTL)
+    if response.status_code != 200:
+        return render.Root(
+            child = render.Text("Error!"),
+        )
 
-  # Call the WMATA API
-  WMATA_URL = WMATA_BASE_URL + selectedStop
+    trainListing = response.json()["Trains"]
 
-  response = http.get(WMATA_URL, headers = {"api_key": API_KEY}, ttl_seconds = CACHE_TTL)
-  if response.status_code != 200:
-      return render.Root(
-          child = render.Text("Error!"),
-      )
+    # Filter data to user constraints
+    trainDestination = []
+    trainArrival = []
+    trainCars = []
+    trainLine = []
 
-  trainListing = response.json()["Trains"]
+    for train in trainListing:
+        if train["Group"] == selectedGroup or selectedGroup == "ALL":
+            if train["Line"] == selectedLine or selectedLine == "ALL":
+                #TODO:  Add a filter here for minimum time to arrive
+                trainDestination.append(train["Destination"])  #"DestinationName" Is the long form
 
-  # Filter data to user constraints
-  trainDestination = []
-  trainArrival = []
-  trainCars = []
-  trainLine = []
+                #Make the string the same number of characters since api returns "ARR","BRD","XX","X"
+                if train["Min"].count("") == 4:
+                    trainArrival.append(train["Min"])
+                elif train["Min"].count("") == 3:
+                    trainArrival.append(" " + train["Min"])
+                elif train["Min"].count("") == 2:
+                    trainArrival.append("  " + train["Min"])
 
-  for train in trainListing:
-    if train["Group"] == selectedGroup or selectedGroup == "ALL":
-      if train["Line"] == selectedLine or selectedLine == "ALL":
-        #TODO:  Add a filter here for minimum time to arrive
-        trainDestination.append(train["Destination"]) #"DestinationName" Is the long form
+                #Setting this to be "" was easier than having two rendering variants.  It adds an extra padding, but it's fine.
+                if selectedCars == True:
+                    trainCars.append(train["Car"])
+                else:
+                    trainCars.append("")
 
-        #Make the string the same number of characters since api returns "ARR","BRD","XX","X"
-        if train["Min"].count("") == 4:
-          trainArrival.append(train["Min"])
-        elif train["Min"].count("") == 3:
-          trainArrival.append(" " + train["Min"])
-        elif train["Min"].count("") == 2:
-          trainArrival.append("  " + train["Min"])
+                trainLine.append(train["Line"])
 
-        #Setting this to be "" was easier than having two rendering variants.  It adds an extra padding, but it's fine.
-        if selectedCars == True:
-          trainCars.append(train["Car"])
-        else:
-          trainCars.append("")
+    selectedFont = "5x8"  # 5x8 or tom-thumb
 
-        trainLine.append(train["Line"])
+    # Select which view to create
+    if selectedView == "5":
+        finishedDisplay = generateDisplay5(trainDestination, trainArrival, trainCars, trainLine, selectedCars)
+    elif selectedView == "4":
+        finishedDisplay = generateDisplay4(trainDestination, trainArrival, trainCars, trainLine, selectedCars)
+    elif selectedView == "3":
+        selectedFont = "tom-thumb"
+        finishedDisplay = generateDisplay3(trainDestination, trainArrival, trainCars, trainLine, selectedCars, selectedFont)
+    elif selectedView == "3a":
+        selectedFont = "5x8"
+        finishedDisplay = generateDisplay3(trainDestination, trainArrival, trainCars, trainLine, selectedCars, selectedFont)
+    elif selectedView == "2":
+        finishedDisplay = generateDisplay2(trainDestination, trainArrival, trainCars, trainLine, selectedCars)
+    else:
+        finishedDisplay = render.Text("Hello")
 
-  selectedFont = "5x8" # 5x8 or tom-thumb
-
-  # Select which view to create
-  if selectedView == "5":
-    finishedDisplay = generateDisplay5(trainDestination, trainArrival, trainCars, trainLine, selectedCars)
-  elif selectedView == "4":
-    finishedDisplay = generateDisplay4(trainDestination, trainArrival, trainCars, trainLine, selectedCars)
-  elif selectedView == "3":
-    selectedFont = "tom-thumb"
-    finishedDisplay = generateDisplay3(trainDestination, trainArrival, trainCars, trainLine, selectedCars, selectedFont)
-  elif selectedView == "3a":
-    selectedFont = "5x8"
-    finishedDisplay = generateDisplay3(trainDestination, trainArrival, trainCars, trainLine, selectedCars, selectedFont)
-  elif selectedView == "2":
-    finishedDisplay = generateDisplay2(trainDestination, trainArrival, trainCars, trainLine, selectedCars)
-  else:
-    finishedDisplay = render.Text("Hello")
-
-  return render.Root(child=finishedDisplay)
+    return render.Root(child = finishedDisplay)
 
 def generateDisplay2(trainDestination, trainArrival, trainCars, trainLine, selectedCars):
-  trainRows = 2
-  circleDiameter = 11
+    trainRows = 2
+    circleDiameter = 11
 
-  ColorMapping = json.decode(LINE_COLORS)
-  TextColorMapping = json.decode(TEXT_COLORS)
-  displayFont = "5x8" # 5x8 or tom-thumb
+    ColorMapping = json.decode(LINE_COLORS)
+    TextColorMapping = json.decode(TEXT_COLORS)
+    displayFont = "5x8"  # 5x8 or tom-thumb
 
-  if displayFont == "tom-thumb" and selectedCars == True:
-    displayOffset = -1
-    marqueeWidth = 32
-  elif displayFont == "tom-thumb" and selectedCars != True:
-    displayOffset = -1
-    marqueeWidth = 40
-  elif displayFont != "tom-thumb" and selectedCars == True:
     displayOffset = 0
     marqueeWidth = 32
-  elif displayFont != "tom-thumb" and selectedCars != True:
-    displayOffset = 0
-    marqueeWidth = 34
+    TextColor = "#000000"
 
-  if trainRows > len(trainArrival):
-    trainRows = len(trainArrival)
+    if displayFont == "tom-thumb" and selectedCars == True:
+        displayOffset = -1
+        marqueeWidth = 32
+    elif displayFont == "tom-thumb" and selectedCars != True:
+        displayOffset = -1
+        marqueeWidth = 40
+    elif displayFont != "tom-thumb" and selectedCars == True:
+        displayOffset = 0
+        marqueeWidth = 32
+    elif displayFont != "tom-thumb" and selectedCars != True:
+        displayOffset = 0
+        marqueeWidth = 34
 
-  # List to hold the Box objects for the current column
-  rows = []
+    if trainRows > len(trainArrival):
+        trainRows = len(trainArrival)
 
-  #Title Row
-  #if selectedCars == True:
-  #  rows.append(render.Row(
-  #    children=[
-  #      render.Text("Car Dest     MIN", font = "CG-pixel-3x5-mono")
-  #      ],
-  #  ))
-  #else:
-  #  rows.append(render.Row(
-  #    children=[
-  #      render.Text("  Dest       MIN", font = "CG-pixel-3x5-mono")
-  #      ],
-  #  ))
+    # List to hold the Box objects for the current column
+    rows = []
 
-  #rows.append(render.Row(
-  #  expanded=True,
-  #  main_align="space_between",
-  #  cross_align="center",
-  #  children=[
-  #    render.Box(height=1, width=64, color="#aa0"),
-  #  ],
-  #))
-  #rows.append(render.Row(
-  #  expanded=True,
-  #  main_align="space_between",
-  #  cross_align="center",
-  #  children=[
-  #    render.Box(height=1, width=64, color="#000"),
-  #  ],
-  #))
-
-  # Loop through each row
-  for row in range(trainRows):
-
-    Destination = trainDestination[row]
-    Arrival = trainArrival[row]
-    Cars = trainCars[row]
-    Line = trainLine[row]
-
-    if Line in LINE_COLORS:
-      LineColor = ColorMapping[Line]
-      TextColor = TextColorMapping[Line]
-    else:
-      LineColor = "#bf5abc"
-      TextColor = "#000000"
-
-
-    rows.append(render.Row(
-      expanded=True,
-      main_align="space_between",
-      cross_align="center",
-      children=[
-        render.Circle(
-            color=LineColor,
-            diameter=circleDiameter,
-            child = render.Text(
-                Line,
-                font = "tom-thumb",
-                color = TextColor
-                ),
-            ),
-
-        render.Text("%s" % Cars, font = displayFont, offset = displayOffset),
-
-        #render.Text(Destination, font = displayFont, offset = displayOffset),
-
-        render.Marquee(
-            width = marqueeWidth,
-            child = render.Text(Destination, font = displayFont, offset = displayOffset)
-            ),
-        render.Text(Arrival, font = displayFont, offset = displayOffset), #"%d" % test
-      ],
-    ))
-
-  # Create the column object with all the rows
-  display2 = render.Column(
-    expanded=True,
-    main_align="space_evenly",
-    cross_align="center",
-        children=rows,
-    )
-
-  return display2
-
-def generateDisplay3(trainDestination, trainArrival, trainCars, trainLine, selectedCars, displayFont):
-  trainRows = 3
-
-  ColorMapping = json.decode(LINE_COLORS)
-  TextColorMapping = json.decode(TEXT_COLORS)
-  #displayFont = "tom-thumb" # 5x8 or tom-thumb
-
-  if displayFont == "tom-thumb" and selectedCars == True:
-    displayOffset = -1
-    marqueeWidth = 32
-  elif displayFont == "tom-thumb" and selectedCars != True:
-    displayOffset = -1
-    marqueeWidth = 40
-  elif displayFont != "tom-thumb" and selectedCars == True:
-    displayOffset = 0
-    marqueeWidth = 32
-  elif displayFont != "tom-thumb" and selectedCars != True:
-    displayOffset = 0
-    marqueeWidth = 34
-
-  if trainRows > len(trainArrival):
-    trainRows = len(trainArrival)
-
-  # List to hold the Box objects for the current column
-  rows = []
+    #Title Row
+    #if selectedCars == True:
 
     # Loop through each row
-  for row in range(trainRows):
+    for row in range(trainRows):
+        Destination = trainDestination[row]
+        Arrival = trainArrival[row]
+        Cars = trainCars[row]
+        Line = trainLine[row]
 
-    Destination = trainDestination[row]
-    Arrival = trainArrival[row]
-    Cars = trainCars[row]
-    Line = trainLine[row]
+        if Line in LINE_COLORS:
+            LineColor = ColorMapping[Line]
+            TextColor = TextColorMapping[Line]
+        else:
+            LineColor = "#bf5abc"
+            TextColor = "#000000"
 
-    if Line in LINE_COLORS:
-      LineColor = ColorMapping[Line]
-      TextColor = TextColorMapping[Line]
-    else:
-      LineColor = "#bf5abc"
-      TextColor = "#000000"
-
-
-    rows.append(render.Row(
-      expanded=True,
-      main_align="space_between",
-      cross_align="center",
-      children=[
-        render.Circle(
-            color=LineColor,
-            diameter=9,  #Also works with 9
-            child = render.Text(
-                Line,
-                font = "tom-thumb",
-                color = TextColor
+        rows.append(render.Row(
+            expanded = True,
+            main_align = "space_between",
+            cross_align = "center",
+            children = [
+                render.Circle(
+                    color = LineColor,
+                    diameter = circleDiameter,
+                    child = render.Text(
+                        Line,
+                        font = "tom-thumb",
+                        color = TextColor,
+                    ),
                 ),
-            ),
+                render.Text("%s" % Cars, font = displayFont, offset = displayOffset),
 
-        render.Text("%s" % Cars, font = displayFont, offset = displayOffset),
+                #render.Text(Destination, font = displayFont, offset = displayOffset),
+                render.Marquee(
+                    width = marqueeWidth,
+                    child = render.Text(Destination, font = displayFont, offset = displayOffset),
+                ),
+                render.Text(Arrival, font = displayFont, offset = displayOffset),  #"%d" % test
+            ],
+        ))
 
-        #render.Text(Destination, font = displayFont, offset = displayOffset),
-
-        render.Marquee(
-            width = marqueeWidth,
-            child = render.Text(Destination, font = displayFont, offset = displayOffset)
-            ),
-        render.Text(Arrival, font = displayFont, offset = displayOffset), #"%d" % test
-      ],
-    ))
-
-  # Create the column object with all the rows
-  display3 = render.Column(
-    expanded=True,
-    main_align="space_evenly",
-    cross_align="center",
-        children=rows,
+    # Create the column object with all the rows
+    display2 = render.Column(
+        expanded = True,
+        main_align = "space_evenly",
+        cross_align = "center",
+        children = rows,
     )
 
-  return display3
+    return display2
+
+def generateDisplay3(trainDestination, trainArrival, trainCars, trainLine, selectedCars, displayFont):
+    trainRows = 3
+
+    ColorMapping = json.decode(LINE_COLORS)
+    TextColorMapping = json.decode(TEXT_COLORS)
+    #displayFont = "tom-thumb" # 5x8 or tom-thumb
+
+    displayOffset = 0
+    marqueeWidth = 32
+    TextColor = "#000000"
+
+    if displayFont == "tom-thumb" and selectedCars == True:
+        displayOffset = -1
+        marqueeWidth = 32
+    elif displayFont == "tom-thumb" and selectedCars != True:
+        displayOffset = -1
+        marqueeWidth = 40
+    elif displayFont != "tom-thumb" and selectedCars == True:
+        displayOffset = 0
+        marqueeWidth = 32
+    elif displayFont != "tom-thumb" and selectedCars != True:
+        displayOffset = 0
+        marqueeWidth = 34
+
+    if trainRows > len(trainArrival):
+        trainRows = len(trainArrival)
+
+    # List to hold the Box objects for the current column
+    rows = []
+
+    # Loop through each row
+    for row in range(trainRows):
+        Destination = trainDestination[row]
+        Arrival = trainArrival[row]
+        Cars = trainCars[row]
+        Line = trainLine[row]
+
+        if Line in LINE_COLORS:
+            LineColor = ColorMapping[Line]
+            TextColor = TextColorMapping[Line]
+        else:
+            LineColor = "#bf5abc"
+            TextColor = "#000000"
+
+        rows.append(render.Row(
+            expanded = True,
+            main_align = "space_between",
+            cross_align = "center",
+            children = [
+                render.Circle(
+                    color = LineColor,
+                    diameter = 9,  #Also works with 9
+                    child = render.Text(
+                        Line,
+                        font = "tom-thumb",
+                        color = TextColor,
+                    ),
+                ),
+                render.Text("%s" % Cars, font = displayFont, offset = displayOffset),
+
+                #render.Text(Destination, font = displayFont, offset = displayOffset),
+                render.Marquee(
+                    width = marqueeWidth,
+                    child = render.Text(Destination, font = displayFont, offset = displayOffset),
+                ),
+                render.Text(Arrival, font = displayFont, offset = displayOffset),  #"%d" % test
+            ],
+        ))
+
+    # Create the column object with all the rows
+    display3 = render.Column(
+        expanded = True,
+        main_align = "space_evenly",
+        cross_align = "center",
+        children = rows,
+    )
+
+    return display3
 
 def generateDisplay4(trainDestination, trainArrival, trainCars, trainLine, selectedCars):
-  trainRows = 4
-  boxHeight = 5
-  boxWidth = 4
+    trainRows = 4
+    boxHeight = 5
+    boxWidth = 4
 
-  ColorMapping = json.decode(LINE_COLORS)
-  TextColorMapping = json.decode(TEXT_COLORS)
-  displayFont = "tom-thumb" # tb-8 or tom-thumb
-  displayOffset = 0
+    ColorMapping = json.decode(LINE_COLORS)
+    displayFont = "tom-thumb"  # tb-8 or tom-thumb
+    displayOffset = 0
 
-  if selectedCars == True:
-    marqueeWidth = 40
-  else:
-    marqueeWidth = 45
+    marqueeWidth = 32
 
-  if trainRows > len(trainArrival):
-    trainRows = len(trainArrival)
-
-  # List to hold the Box objects for the current column
-  rows = []
-
-  #Title Row
-  if selectedCars == True:
-    rows.append(render.Row(
-      children=[
-        render.Text("Car Dest     MIN", font = "CG-pixel-3x5-mono")
-        ],
-    ))
-  else:
-    rows.append(render.Row(
-      children=[
-        render.Text("  Dest       MIN", font = "CG-pixel-3x5-mono")
-        ],
-    ))
-
-  rows.append(render.Row(
-    expanded=True,
-    main_align="space_between",
-    cross_align="center",
-    children=[
-      render.Box(height=1, width=64, color="#aa0"),
-    ],
-  ))
-  rows.append(render.Row(
-    expanded=True,
-    main_align="space_between",
-    cross_align="center",
-    children=[
-      render.Box(height=2, width=64, color="#000"),
-    ],
-  ))
-
-  # Loop through each row
-  for row in range(trainRows):
-
-    Destination = trainDestination[row]
-    Arrival = trainArrival[row]
-    Cars = trainCars[row]
-    Line = trainLine[row]
-
-    if Line in LINE_COLORS:
-      LineColor = ColorMapping[Line]
-      TextColor = TextColorMapping[Line]
+    if selectedCars == True:
+        marqueeWidth = 40
     else:
-      LineColor = "#bf5abc"
-      TextColor = "#000000"
+        marqueeWidth = 45
 
+    if trainRows > len(trainArrival):
+        trainRows = len(trainArrival)
+
+    # List to hold the Box objects for the current column
+    rows = []
+
+    #Title Row
+    if selectedCars == True:
+        rows.append(render.Row(
+            children = [
+                render.Text("Car Dest     MIN", font = "CG-pixel-3x5-mono"),
+            ],
+        ))
+    else:
+        rows.append(render.Row(
+            children = [
+                render.Text("  Dest       MIN", font = "CG-pixel-3x5-mono"),
+            ],
+        ))
 
     rows.append(render.Row(
-      expanded=True,
-      main_align="space_between",
-      cross_align="center",
-      children=[
-        render.Box(height=boxHeight, width=boxWidth, color= LineColor),
-
-        render.Text("%s" % Cars, font = displayFont, offset = displayOffset),
-
-        #render.Text(Destination, font = displayFont, offset = displayOffset),
-
-        render.Marquee(
-            width = marqueeWidth,
-            child = render.Text(Destination, font = displayFont, offset = displayOffset)
-            ),
-        render.Text(Arrival, font = displayFont, offset = displayOffset), #"%d" % test
-      ],
+        expanded = True,
+        main_align = "space_between",
+        cross_align = "center",
+        children = [
+            render.Box(height = 1, width = 64, color = "#aa0"),
+        ],
+    ))
+    rows.append(render.Row(
+        expanded = True,
+        main_align = "space_between",
+        cross_align = "center",
+        children = [
+            render.Box(height = 2, width = 64, color = "#000"),
+        ],
     ))
 
-  # Create the column object with all the rows
-  display4 = render.Column(
-    #expanded=True,
-    #main_align="space_between",
-    cross_align="center",
-        children=rows,
+    # Loop through each row
+    for row in range(trainRows):
+        Destination = trainDestination[row]
+        Arrival = trainArrival[row]
+        Cars = trainCars[row]
+        Line = trainLine[row]
+
+        if Line in LINE_COLORS:
+            LineColor = ColorMapping[Line]
+        else:
+            LineColor = "#bf5abc"
+
+        rows.append(render.Row(
+            expanded = True,
+            main_align = "space_between",
+            cross_align = "center",
+            children = [
+                render.Box(height = boxHeight, width = boxWidth, color = LineColor),
+                render.Text("%s" % Cars, font = displayFont, offset = displayOffset),
+
+                #render.Text(Destination, font = displayFont, offset = displayOffset),
+                render.Marquee(
+                    width = marqueeWidth,
+                    child = render.Text(Destination, font = displayFont, offset = displayOffset),
+                ),
+                render.Text(Arrival, font = displayFont, offset = displayOffset),  #"%d" % test
+            ],
+        ))
+
+    # Create the column object with all the rows
+    display4 = render.Column(
+        #expanded=True,
+        #main_align="space_between",
+        cross_align = "center",
+        children = rows,
     )
 
-  return display4
+    return display4
 
 def generateDisplay5(trainDestination, trainArrival, trainCars, trainLine, selectedCars):
-  trainRows = 5
-  boxHeight = 5
-  boxWidth = 4
+    trainRows = 5
+    boxHeight = 5
+    boxWidth = 4
 
-  ColorMapping = json.decode(LINE_COLORS)
-  TextColorMapping = json.decode(TEXT_COLORS)
-  displayFont = "tom-thumb"
-  displayOffset = 0
+    ColorMapping = json.decode(LINE_COLORS)
+    displayFont = "tom-thumb"
+    displayOffset = 0
+    marqueeWidth = 32
 
-  if selectedCars == True:
-    marqueeWidth = 40
-  else:
-    marqueeWidth = 45
-
-  if trainRows > len(trainArrival):
-    trainRows = len(trainArrival)
-
-  # List to hold the Box objects for the current column
-  rows = []
-
-  #Title row to give some padding
-  rows.append(render.Row(
-    expanded=True,
-    main_align="space_between",
-    cross_align="center",
-    children=[
-      render.Box(height=2, width=64, color="#000"),
-    ],
-  ))
-
-  # Loop through each row
-  for row in range(trainRows):
-
-    Destination = trainDestination[row]
-    Arrival = trainArrival[row]
-    Cars = trainCars[row]
-    Line = trainLine[row]
-
-    if Line in LINE_COLORS:
-      LineColor = ColorMapping[Line]
-      TextColor = TextColorMapping[Line]
+    if selectedCars == True:
+        marqueeWidth = 40
     else:
-      LineColor = "#bf5abc"
-      TextColor = "#000000"
+        marqueeWidth = 45
 
+    if trainRows > len(trainArrival):
+        trainRows = len(trainArrival)
 
+    # List to hold the Box objects for the current column
+    rows = []
+
+    #Title row to give some padding
     rows.append(render.Row(
-      expanded=True,
-      main_align="space_between",
-      cross_align="center",
-      children=[
-        render.Box(height=boxHeight, width=boxWidth, color= LineColor),
-
-        render.Text("%s" % Cars, font = displayFont, offset = displayOffset),
-
-        #render.Text(Destination, font = displayFont, offset = displayOffset),
-
-        render.Marquee(
-            width = marqueeWidth,
-            child = render.Text(Destination, font = displayFont, offset = displayOffset)
-            ),
-        render.Text(Arrival, font = displayFont, offset = displayOffset), #"%d" % test
-      ],
+        expanded = True,
+        main_align = "space_between",
+        cross_align = "center",
+        children = [
+            render.Box(height = 2, width = 64, color = "#000"),
+        ],
     ))
 
-  # Create the column object with all the rows
-  display5 = render.Column(
-      cross_align="center",
-      children=rows,
+    # Loop through each row
+    for row in range(trainRows):
+        Destination = trainDestination[row]
+        Arrival = trainArrival[row]
+        Cars = trainCars[row]
+        Line = trainLine[row]
+
+        if Line in LINE_COLORS:
+            LineColor = ColorMapping[Line]
+        else:
+            LineColor = "#bf5abc"
+
+        rows.append(render.Row(
+            expanded = True,
+            main_align = "space_between",
+            cross_align = "center",
+            children = [
+                render.Box(height = boxHeight, width = boxWidth, color = LineColor),
+                render.Text("%s" % Cars, font = displayFont, offset = displayOffset),
+
+                #render.Text(Destination, font = displayFont, offset = displayOffset),
+                render.Marquee(
+                    width = marqueeWidth,
+                    child = render.Text(Destination, font = displayFont, offset = displayOffset),
+                ),
+                render.Text(Arrival, font = displayFont, offset = displayOffset),  #"%d" % test
+            ],
+        ))
+
+    # Create the column object with all the rows
+    display5 = render.Column(
+        cross_align = "center",
+        children = rows,
     )
 
-  return display5
+    return display5
 
 def get_schema():
     return schema.Schema(
@@ -460,7 +418,6 @@ def get_schema():
                 default = StationsOptions[59].value,
                 options = StationsOptions,
             ),
-
             schema.Dropdown(
                 id = "viewOption",
                 name = "Display Options",
@@ -469,7 +426,6 @@ def get_schema():
                 default = DisplayOptions[1].value,
                 options = DisplayOptions,
             ),
-
             schema.Dropdown(
                 id = "groupCode",
                 name = "Select Direction",
@@ -478,7 +434,6 @@ def get_schema():
                 default = GroupOptions[0].value,
                 options = GroupOptions,
             ),
-
             schema.Dropdown(
                 id = "metroLine",
                 name = "Select rail line",
@@ -487,7 +442,6 @@ def get_schema():
                 default = LineOptions[0].value,
                 options = LineOptions,
             ),
-
             schema.Toggle(
                 id = "displayCars",
                 name = "Display Cars",
@@ -495,14 +449,12 @@ def get_schema():
                 icon = "compress",
                 default = True,
             ),
-
             schema.Text(
                 id = "userAPI",
                 name = "WMATA API Key",
                 desc = "Enter API key",
                 icon = "certificate",
             ),
-
         ],
     )
 
