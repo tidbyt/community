@@ -95,7 +95,11 @@ def get_image(api_url, response_path, request_headers, debug_output, fit_screen,
                                             if len(output) > 0:
                                                 item = random.number(0, len(output) - 1)
                                             else:
-                                                item = 0
+                                                failure = True
+                                                message = "Response path has empty list."
+                                                if debug_output:
+                                                    print("responsePathArray invalid. Response path has empty list.")
+                                                break
 
                                             if debug_output:
                                                 print("Random index chosen " + str(item))
