@@ -46,7 +46,7 @@ DISPLAY_Y_SIZE = 32
 
 HTTP_STATUS_OK = 200
 
-API_CACHE_TTL = 60  # seconds
+API_CACHE_TTL = 60 * 15  # seconds
 
 EARTHQUAKES_LAST_30_DAYS_URL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson"
 
@@ -122,7 +122,7 @@ def get_usgs_data(magnitude_filter = None, time_filter = None, type_filter = Non
         time_filter = duration_calc(30, "days")
     time_filter = time.parse_duration("{}s".format(time_filter))
 
-    api_reply = http.get(EARTHQUAKES_LAST_30_DAYS_URL, ttl_seconds = 60)
+    api_reply = http.get(EARTHQUAKES_LAST_30_DAYS_URL, ttl_seconds = API_CACHE_TTL)
     if api_reply.status_code == HTTP_STATUS_OK:
         geojson_raw = api_reply.body()
     else:
