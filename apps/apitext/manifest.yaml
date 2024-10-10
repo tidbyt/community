@@ -1,0 +1,6 @@
+---
+id: api-text
+name: API Text
+summary: Pull text from an API
+desc: Configure a URL, headers and the response path to the text to display.
+author: MichaelYagi
