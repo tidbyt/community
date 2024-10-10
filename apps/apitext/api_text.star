@@ -499,8 +499,8 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "rand_static",
-                name = "Keep same random number",
-                desc = "Keep the same random number across paths when using the `[rand]` keyword in response paths.",
+                name = "Keep same random number across paths",
+                desc = "Keep the same random number across response paths when using the `[rand]` keyword.",
                 icon = "",
                 default = True,
             ),
