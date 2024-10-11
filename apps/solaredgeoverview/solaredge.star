@@ -174,7 +174,7 @@ def v1api(config):
         if response.status_code != 200:
             if response.status_code == 403:
                 message = "Key or Site ID Error"
-            else if response.status_code == 500:
+            elif response.status_code == 500:
                 message = "SolarEdge API Server problem"
             return 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, status_code, message
         else:
@@ -193,9 +193,9 @@ def v1api(config):
 def convertFromWatts(value):
     if value > 1000000000:
         return toGW(value), "G"
-    else if value > 1000000:
+    elif value > 1000000:
         return toMW(value), "M"
-    else if value > 1000:
+    elif value > 1000:
         return toKW(value), "K"
 
     return value, ""
