@@ -82,10 +82,10 @@ def main(config):
                     children = [
                         render.Text("please"),
                         render.Text("set variable"),
-                        render.Text("OW_DEV_API_KEY", color = "#0f0", font = "tom-thumb")
-                    ]
-                )
-            )
+                        render.Text("OW_DEV_API_KEY", color = "#0f0", font = "tom-thumb"),
+                    ],
+                ),
+            ),
         )
 
     # try to load from cache
@@ -169,7 +169,7 @@ def main(config):
                             ),
                         ),
                         # conditional separator bar when display_type is pollutants
-                        (render.Box(width = 1 , height = 24, color = "#3b3b3b") if display_type == "pollutants" else None),
+                        (render.Box(width = 1, height = 24, color = "#3b3b3b") if display_type == "pollutants" else None),
                         render.Padding(
                             pad = 2,
                             child = render.Column(
