@@ -34,7 +34,7 @@ SLIDE_DURATION = 99
 DATA_BOX_WIDTH = 64
 DATA_BOX_HEIGHT = 20
 TITLE_BOX_WIDTH = 64
-TITLE_BOX_HEIGHT = 7
+TITLE_BOX_HEIGHT = 6
 
 
 def main(config):
@@ -58,10 +58,16 @@ def main(config):
 	
 	# convert to kWh already
 	last_day_energy = math.round(json_data["overview"]["lastDayData"]["energy"] / 100) / 10
-	lastMonthData = json_data["overview"]["lastMonthData"]["energy"]
+	lastMonthData = math.round(int(json_data["overview"]["lastMonthData"]["energy"]) / 10000) / 10
 	# convert to MWh
 	lastYearData = math.round(int(json_data["overview"]["lastYearData"]["energy"]) / 100000) / 10
-	lifeTimeData = math.round(int(json_data["overview"]["lifeTimeData"]["energy"]) / 100000) / 10
+	lifeTimeData = int(math.round(int(json_data["overview"]["lifeTimeData"]["energy"]) / 1000000))
+
+	lifeTime_unit = "MWh"
+	if lifeTimeData > 1000:
+		lifeTimeData = math.round(int(lifeTimeData) / 100) / 10
+		lifeTime_unit = "GWh"
+
 
 	print(int(lifeTimeData))
 	lastupdate = time.parse_time(json_data["overview"]["lastUpdateTime"], format = "2006-01-02 15:04:05") 
@@ -78,33 +84,50 @@ def main(config):
             			child = render.Text("solarEdge", font = REGULAR_FONT),
         		    )
 				),
-				render.Box(
-        			width = 64,
-        			height = 6,
-        			color = "#000",
-        			child = render.Padding(
-            			pad = (0, 0, 0, 0),
-            			child = render.Text("Now : {} {}".format(str(current_power), current_power_unit), font = REGULAR_FONT),
-        		    )
+				# Basic Option 1
+				# render.Box(
+        		# 	width = 64,
+        		# 	height = 6,
+        		# 	color = "#000",
+        		# 	child = render.Padding(
+            	# 		pad = (0, 0, 0, 0),
+            	# 		child = render.Text("Now : {} {}".format(str(current_power), current_power_unit), font = REGULAR_FONT),
+        		#     )
+				# ),
+				# render.Box(
+        		# 	width = 64,
+        		# 	height = 6,
+        		# 	color = "#000",
+        		# 	child = render.Padding(
+            	# 		pad = (0, 0, 0, 0),
+            	# 		child = render.Text("Day : {} kWh".format(str(last_day_energy)), font = REGULAR_FONT),
+        		#     )
+				# ),
+				# render.Box(
+        		# 	width = 64,
+        		# 	height = 6,
+        		# 	color = "#000",
+        		# 	child = render.Padding(
+            	# 		pad = (0, 0, 0, 0),
+            	# 		child = render.Text("Life: {} MWh".format(str(lifeTimeData)), font = REGULAR_FONT),
+        		#     )
+				# ),
+				# end of basic option 1
+				# begin option 2 - with 2 columns and animation of 2nd colum to swap back & forth between the measurement options
+				render.Box(width = 64, height = 1, color = "#000"),
+				render.Row(expanded = True, 
+					children = [
+						render.Column(main_align = "center", cross_align = "center", expanded = False, children = [render.WrappedText(content = "{}".format(current_power), font = "6x13", color = "#00ff00", align = "center", width = 27), render.WrappedText(content = "{} now".format(current_power_unit), font = REGULAR_FONT, color = "#fff", align = "center", width = 27)]),
+						#render.Box(width = 27, height = 20, child = render.WrappedText("{}\n{} now".format(current_power, current_power_unit), font = REGULAR_FONT, align = "center", width = 27)),
+						render.Box(width = 1, height = 19, color = "#333"),
+						#render.Box(width = 36, height = 20, child = render.WrappedText("{}\nkWh year".format(last_day_energy), font = REGULAR_FONT, align = "center", width = 36)),
+						#render.Box(width = 1, height = 19, color = "#333"),
+						#render.Box(width = 21, height = 20, child = render.WrappedText("Life\n{}\nMWh".format(lifeTimeData), font = REGULAR_FONT, align = "center", width = 21))
+						fade_child(last_day_energy, "KWh", lastMonthData, lastYearData, lifeTimeData, lifeTime_unit)
+					]
 				),
-				render.Box(
-        			width = 64,
-        			height = 6,
-        			color = "#000",
-        			child = render.Padding(
-            			pad = (0, 0, 0, 0),
-            			child = render.Text("Day : {} kWh".format(str(last_day_energy)), font = REGULAR_FONT),
-        		    )
-				),
-				render.Box(
-        			width = 64,
-        			height = 6,
-        			color = "#000",
-        			child = render.Padding(
-            			pad = (0, 0, 0, 0),
-            			child = render.Text("Life: {} MWh".format(str(lifeTimeData)), font = REGULAR_FONT),
-        		    )
-				),
+				#end of option 2
+				# This will be at bottom for all formats - shows last time the data was sent to the API back-end
 				render.Box(
         			width = 64,
         			height = 6,
@@ -117,6 +140,35 @@ def main(config):
 			]
 		)
 	)
+
+def fade_child(day_power, day_unit, month_power, year_power, life_power, life_power_unit):
+    return render.Animation(
+        children =
+            createfadelist(day_power, "{} day".format(day_unit), ANIMATION_HOLD_FRAMES, REGULAR_FONT, "#dddddd") +
+            createfadelist(month_power, "MWh month", ANIMATION_HOLD_FRAMES, REGULAR_FONT, "#dddddd") +
+            createfadelist(year_power, "MWh year", ANIMATION_HOLD_FRAMES, REGULAR_FONT, "#dddddd") +
+			createfadelist(life_power, "{} life".format(life_power_unit), ANIMATION_HOLD_FRAMES, REGULAR_FONT, "#dddddd"),
+    )
+
+def createfadelist(text, textline2, cycles, text_font, text_color):
+    alpha_values = ["00", "33", "66", "99", "CC", "FF"]
+    cycle_list = []
+
+    # use alpha channel to fade in and out
+
+    # go from none to full color
+    for x in alpha_values:
+        cycle_list.append(fadelistchildcolumn(text, textline2, text_font, text_color + x))
+    for x in range(cycles):
+        cycle_list.append(fadelistchildcolumn(text, textline2, text_font, text_color))
+
+    # go from full color back to none
+    for x in alpha_values[5:0]:
+        cycle_list.append(fadelistchildcolumn(text, textline2, text_font, text_color + x))
+    return cycle_list
+
+def fadelistchildcolumn(text, textline2, font, color):
+    return render.Column(main_align = "center", cross_align = "center", expanded = False, children = [render.WrappedText(content = "{}".format(text), font = "6x13", color = "#00ff00", align = "center", width = 27), render.WrappedText(content = "{}".format(textline2), font = REGULAR_FONT, color = "#fff", align = "center", width = 36)])
 
 
 
