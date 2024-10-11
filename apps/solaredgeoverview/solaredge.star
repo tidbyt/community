@@ -38,27 +38,28 @@ WATT = "W"
 
 V1DEMO_DATA = {
     "overview": {
-        "lastUpdateTime": "2024-10-11 12:19:42", 
+        "lastUpdateTime": "2024-10-11 12:19:42",
         "lifeTimeData": {
-            "energy": 7.01093E10
-        }, 
-        "lastYearData": {
-            "energy": 8447192.0
-        }, 
-        "lastMonthData": {
-            "energy": 240889.0
-        }, 
-        "lastDayData": {
-            "energy": 999918.0
-        }, 
-        "currentPower": {
-            "power": 999218.0
+            "energy": 7.01093E10,
         },
-        "measuredBy": "INVERTER"
-    }
+        "lastYearData": {
+            "energy": 8447192.0,
+        },
+        "lastMonthData": {
+            "energy": 240889.0,
+        },
+        "lastDayData": {
+            "energy": 59918.0,
+        },
+        "currentPower": {
+            "power": 9218.0,
+        },
+        "measuredBy": "INVERTER",
+    },
 }
 
 def main(config):
+    data = []
     if int(config.get("apiversion", "1")) == 1:
         data = v1api(config)
 
@@ -73,16 +74,16 @@ def main(config):
                     dataBox(data, widgetMode),
                     footerBox(data[10], data[12]),
                 ],
-            )
+            ),
         )
     else:
         return render.Root(
             child = render.Column(
                 children = [
                     titleBox(),
-                    render.WrappedText("{} ({})".format(data[11], data[12]))
-                ]
-            )
+                    render.WrappedText("{} ({})".format(data[11], data[12])),
+                ],
+            ),
         )
 
 def titleBox():
@@ -146,8 +147,8 @@ def createfadelist(text, textline2, cycles, text_font, text_color, text_color2):
         cycle_list.append(fadelistchildcolumn(text, textline2, text_font, text_color + x, text_color2 + x))
     return cycle_list
 
-def fadelistchildcolumn(text, textline2, font, color, color2):
-    return render.Column(main_align = "center", cross_align = "center", expanded = False, children = [render.WrappedText(content = "{}".format(text), font = MEASURE_FONT, color = color2, align = "center", width = RIGHT_COL_SIZE), render.WrappedText(content = "{}".format(textline2), font = REGULAR_FONT, color = color, align = "center", width = RIGHT_COL_SIZE)])
+def fadelistchildcolumn(text, textline2, text_font, color, color2):
+    return render.Column(main_align = "center", cross_align = "center", expanded = False, children = [render.WrappedText(content = "{}".format(text), font = MEASURE_FONT, color = color2, align = "center", width = RIGHT_COL_SIZE), render.WrappedText(content = "{}".format(textline2), font = text_font, color = color, align = "center", width = RIGHT_COL_SIZE)])
 
 def v1api(config):
     #v1 api return codes
@@ -155,7 +156,9 @@ def v1api(config):
     #403 security issue - key or site invalid
     #500 solaredge server issue
     #200 OK
-  
+
+    message = ""
+
     #before we go get the data - let's make sure we have an API key & Site ID
     if (config.get("apikey", "") == "" or config.get("siteid", "") == ""):
         # we don't have a key - so we're going to use the demo data
@@ -172,7 +175,7 @@ def v1api(config):
                 message = "Key or Site ID Error"
             if response.status_code == 500:
                 message = "SolarEdge API Server problem"
-            return 0,0,0,0,0,0,0,0,0,0,0,status_code,message 
+            return 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, status_code, message
         else:
             json_data = response.json()
             message = "OK"
@@ -193,9 +196,8 @@ def convertFromWatts(value):
         return toMW(value), "M"
     if value > 1000:
         return toKW(value), "K"
-    
-    return value, ""
 
+    return value, ""
 
 def toKW(value):
     # 1 decimal point only
