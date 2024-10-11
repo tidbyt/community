@@ -11,7 +11,8 @@ load("time.star", "time")
 #SITE_ID = "XXXX"
 
 # TODO: DEMO ONLY - Remove before PR
-
+#API_KEY = "ILSBQFQM9XCKJ56TPU7SH05YWRFYM8PH"
+#SITE_ID = "474077"
 
 # to-do:
 # handle missing key
