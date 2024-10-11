@@ -209,7 +209,7 @@ def toMW(value):
     return (math.round(value / 100000) / 10)
 
 def toGW(value):
-    # no decimal points
+    # 1 decimal points
     return (math.round(value / 100000000) / 10)
 
 def get_schema():
