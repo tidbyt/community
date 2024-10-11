@@ -65,13 +65,36 @@ def main(config):
     timezone = location["timezone"]
     pollutant_code = config.str("pollutant", "")
 
+    # load api key
+    apikey = secret.decrypt(OW_API_KEY) or OW_DEV_API_KEY
+
+    # validate if api key was provided
+    if apikey in (None, ""):
+        dprint("No API Key provided in variable OW_DEV_API_KEY")
+        return render.Root(
+            render.Box(
+                width = 64,
+                height = 32,
+                child = render.Column(
+                    main_align = "space_around",
+                    cross_align = "center",
+                    expanded = True,
+                    children = [
+                        render.Text("please"),
+                        render.Text("set variable"),
+                        render.Text("OW_DEV_API_KEY", color = "#0f0", font = "tom-thumb")
+                    ]
+                )
+            )
+        )
+
     # try to load from cache
     cache_key = "%s#%s" % (location["lat"], location["lng"])
     data = cache.get(cache_key)
 
     if data == None:
         dprint("Data not found in cache")
-        data = get_data(location)
+        data = get_data(location, apikey)
     else:
         dprint("Data loaded from cache")
         data = json.decode(data)
@@ -280,16 +303,10 @@ def handle_display_type(display_type):
     else:
         return []
 
-def get_data(location):
+def get_data(location, apikey):
     # round coordinates to avoid exposing user's precise location
     lat = get_rounded_coord(location["lat"])
     lon = get_rounded_coord(location["lng"])
-
-    apikey = secret.decrypt(OW_API_KEY) or OW_DEV_API_KEY
-
-    # validate if api key was provided
-    if apikey in (None, ""):
-        fail("Please provide an API key in the OW_DEV_API_KEY variable!")
 
     dprint("Requesting data from API")
 
