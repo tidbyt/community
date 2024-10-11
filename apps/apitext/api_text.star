@@ -454,7 +454,7 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "image_placement",
-                name = "Set the image placement.",
+                name = "Set the image placement",
                 desc = "Determine where you see the image during scrolling.",
                 icon = "",
                 default = image_placement_options[1].value,
@@ -462,7 +462,7 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "rand_static",
-                name = "Keep same random number across paths",
+                name = "Random number same across paths",
                 desc = "Keep the same random number across response paths when using the `[rand]` keyword.",
                 icon = "",
                 default = True,
