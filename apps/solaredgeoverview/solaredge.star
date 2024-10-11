@@ -67,6 +67,7 @@ def main(config):
 
     if data[11] == 200:
         return render.Root(
+            max_age = CACHE_TTL_SECONDS * 2,
             show_full_animation = True,
             child = render.Column(
                 children = [
