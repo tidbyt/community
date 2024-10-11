@@ -46,6 +46,7 @@ def main(config):
     if config.get("clocktype") == "roman":
         clock = render_roman_clock(current_time)
     return render.Root(
+        max_age = 120,
         delay = 500,
         child = clock,
     )
