@@ -31,11 +31,12 @@ def add_padding_to_child_element(element, left = 0, top = 0, right = 0, bottom =
     )
     return padded_element
 
-def display_variables(*args):
-    i = 0
-    for var in args:
-        i = i + 1
-        print("%s: %s" % (i, var))
+#handy little function that let's you print out a bunch of variables
+#def display_variables(*args):
+#    i = 0
+#    for var in args:
+#        i = i + 1
+#        print("%s: %s" % (i, var))
 
 def main(config):
     base = config.get("base", base_options[len(base_options) - 1].value)
