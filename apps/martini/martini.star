@@ -94,7 +94,7 @@ def main(config):
         article = article + " "
 
     message = "%s%s%s%s%s%s%s%s%s" % (article, dirty.lower(), vermouth_type.lower(), base.lower(), spacer, drink.lower(), vermouth_description.lower(), preparation.lower(), garnish_description.lower())
-    message = "     " + PHRASES[random.number(0,len(PHRASES)-1)] % message
+    message = "     " + PHRASES[random.number(0, len(PHRASES) - 1)] % message
 
     return render.Root(
         render.Stack(
@@ -180,14 +180,14 @@ def get_schema():
                 id = "oldschool",
                 name = "Old School Bartender?",
                 desc = "Is your bartender an experience 'old school' mixologist?",
-                icon = "personChalkboard", #"user", #"person",
+                icon = "personChalkboard",  #"user", #"person",
                 default = True,
             ),
             schema.Dropdown(
                 id = "base",
                 name = "Base Spirit",
                 desc = "Choose your base spirit for your Martini.",
-                icon = "flask", #"martiniGlassEmpty",
+                icon = "flask",  #"martiniGlassEmpty",
                 default = base_options[0].value,
                 options = base_options,
             ),
