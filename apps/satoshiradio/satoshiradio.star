@@ -22,8 +22,8 @@ DEFAULT_SHOW_POOL_WORKERS = False
 
 def main(config):
     address = config.str("address", DEFAULT_ADDRESS)
-    show_pool_hashrate = config.str("show_pool_hashrate", DEFAULT_SHOW_POOL_HASHRATE)
-    show_pool_workers = config.str("show_pool_workers", DEFAULT_SHOW_POOL_WORKERS)
+    show_pool_hashrate = config.bool("show_pool_hashrate", DEFAULT_SHOW_POOL_HASHRATE)
+    show_pool_workers = config.bool("show_pool_workers", DEFAULT_SHOW_POOL_WORKERS)
 
     info = []
 
@@ -45,7 +45,11 @@ def main(config):
                 hashrate = pool.get("hashrate1m", "0")
                 render_info(info, (address == ""), re.sub(r"\D", "", hashrate), hash_unit(re.sub(r"\d", "", hashrate)))
             if show_pool_workers:
-                render_info(info, False, humanize.ftoa(pool["Workers"]), "wrks")
+                render_info(info, False, humanize.ftoa(pool["Workers"]), "W")
+
+    if not address and not show_pool_hashrate and not show_pool_workers:
+        render_info(info, False, "Satoshi", "")
+        render_info(info, False, "", "Radio")
 
     return render.Root(
         child = render.Row(
@@ -132,7 +136,7 @@ def get_schema():
                 name = "Pool workers",
                 desc = "Show pool workers",
                 icon = "microchip",
-                default = True,
+                default = False,
             ),
         ],
     )
