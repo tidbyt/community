@@ -1,9 +1,7 @@
 # Satoshi Radio
-
 This app shows stats from the Satoshi Radio mining pool.
 
 Displayed:
-
 - Actual pool hashrate
 - Pool active workers
 - User hash rate
