@@ -5,28 +5,20 @@ Description: Looping geometric animations from animated GIF artist Mr. Div, desi
 Author: imnotdannorton
 """
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
 load("time.star", "time")
 
 def main():
-    random.seed(time.now().unix // 10)
+    random.seed(time.now().unix // 60)
 
     # now = time.now()
 
     # timestring = str(now.unix)
     listUrl = "https://us-central1-divgifs.cloudfunctions.net/giflist/"
 
-    # WIP RANDOM DIV AS A SERVICE
-    # url = "https://us-central1-divgifs.cloudfunctions.net/giflist/random?t=" + timestring
-    # base = "https://storage.googleapis.com/"
-    randNum = get_random(listUrl)
-    file = get_feed(listUrl)[randNum]
-    path = file["public"]
-    imgSrc = get_cached(path)
+    imgSrc = get_random_file(listUrl)
     children = []
     children.append(
         render.Row(
@@ -50,46 +42,15 @@ def main():
         ),
     )
 
-def get_random(feed):
-    # check if feed length available
-    feedData = get_feed(feed)
+def get_random_file(feed):
+    res = http.get(feed, ttl_seconds = 600)
+    if res.status_code != 200:
+        fail("status %d from %s: %s" % (res.status_code, feed, res.body()))
+    feedData = res.json()
 
-    # check if random
-    randomIndex = random.number(0, len(feedData) - 1)
-    cachedIndex = cache.get("random")
-    if cachedIndex:
-        if int(cachedIndex) == randomIndex:
-            # try again if the rand num is the existing one
-            return get_random(feed)
-        else:
-            cache.set("random", str(randomIndex), ttl_seconds = 60)
-            return randomIndex
-    else:
-        cache.set("random", str(randomIndex), ttl_seconds = 60)
-        return randomIndex
+    url = feedData["files"][random.number(0, len(feedData["files"]) - 1)]["public"]
 
-def get_feed(url):
-    # return the files array from the feed JSON
-    data = cache.get(url)
-    if data:
-        return json.decode(data)["files"]
-    res = http.get(url)
+    res = http.get(url, ttl_seconds = 5 * 3600)
     if res.status_code != 200:
         fail("status %d from %s: %s" % (res.status_code, url, res.body()))
-    data = res.body()
-    feed = json.decode(data)
-    cache.set(url, data, ttl_seconds = 15)
-    return feed["files"]
-
-def get_cached(url, ttl_seconds = 20):
-    data = cache.get(url)
-    if data:
-        return data
-
-    res = http.get(url)
-    if res.status_code != 200:
-        fail("status %d from %s: %s" % (res.status_code, url, res.body()))
-
-    data = res.body()
-    cache.set(url, data, ttl_seconds = ttl_seconds)
-    return data
+    return res.body()

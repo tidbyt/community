@@ -3,7 +3,7 @@ Applet: Nightscout
 Summary: Displays Nightscout CGM Data
 Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data (BG, Trend, Delta, IOB, COB) from Nightscout. Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock.
 For support, join the Nightscout for Tidbyt Facebook group.
-(v2.6.1)
+(v2.6.2)
 Authors: Paul Murphy, Jason Hanson, Jeremy Tavener
 """
 
@@ -70,8 +70,6 @@ DEFAULT_LOCATION = """
 }
 """
 
-DEFAULT_NSID = ""
-DEFAULT_NSHOST = ""
 DEFAULT_NSURL = ""
 DEFAULT_NSTOKEN = ""
 
@@ -84,8 +82,6 @@ def main(config):
     lat, lng = float(loc["lat"]), float(loc["lng"])
     sun_rise = sunrise.sunrise(lat, lng, now)
     sun_set = sunrise.sunset(lat, lng, now)
-    nightscout_id = config.get("nightscout_id", DEFAULT_NSID)
-    nightscout_host = config.get("nightscout_host", DEFAULT_NSHOST)
     nightscout_url = config.get("nightscout_url", DEFAULT_NSURL)
     nightscout_token = config.get("nightscout_token", DEFAULT_NSTOKEN)
     show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
@@ -118,21 +114,13 @@ def main(config):
     nightscout_iob = "n/a"
     nightscout_cob = "n/a"
 
-    if nightscout_url == "" and nightscout_id != "" and nightscout_host != "":
-        nightscout_url = nightscout_id + "." + nightscout_host
-
-    print(nightscout_url)
-
     if nightscout_url != "":
         sample_data = False
 
         nightscout_data, status_code = get_nightscout_data(nightscout_url, nightscout_token, show_graph, display_unit)
 
-        if status_code == 503:
-            print("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
-            return display_failure("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
-        elif status_code > 200:
-            return display_failure("Nightscout Error: " + str(status_code))
+        if status_code > 200:
+            return display_failure("Nightscout Error: " + str(status_code) + " " + HTTPstatusMessages[str(status_code)])
     else:
         nightscout_data, status_code = {
             "api_version": "n/a",
@@ -1548,15 +1536,6 @@ def get_nightscout_data_v1(nightscout_url, nightscout_token, display_unit):
     # Request latest entries from the Nightscout URL
     resp = http.get(json_url, headers = headers)
     if resp.status_code != 200:
-        # If Error, Get the JSON object from the cache
-        nightscout_data_cached = cache.get(key)
-        if nightscout_data_cached != None:
-            print("NS Error - displaying cached data")
-            return json.decode(nightscout_data_cached), 0
-
-        # If it's not in the cache, return the NS error.
-        print("NS Error - Display Error")
-
         return {}, resp.status_code
 
     latest_reading = resp.json()[0]
@@ -1605,11 +1584,22 @@ def mgdl_to_mmol(mgdl):
 def display_failure(msg):
     return render.Root(
         max_age = 120,
-        child = render.WrappedText(
+        child = render.Box(
+            color = COLOR_RED,
             width = 64,
-            content = msg,
-            color = COLOR_NIGHT,
-            font = "tom-thumb",
+            height = 32,
+            child = render.Box(
+                color = "#000",
+                width = 62,
+                height = 30,
+                child = render.WrappedText(
+                    width = 60,
+                    content = msg,
+                    color = COLOR_NIGHT,
+                    font = "tom-thumb",
+                    align = "center",
+                ),
+            ),
         ),
     )
 
@@ -1626,4 +1616,73 @@ ARROWS = {
     "Error": "?",
     "Dash": "-",
     "NOT COMPUTABLE": "?",
+}
+
+HTTPstatusMessages = {
+    "200": "OK",
+    "201": "Created",
+    "202": "Accepted",
+    "203": "Non-Authoritative Information",
+    "204": "No Content",
+    "205": "Reset Content",
+    "206": "Partial Content",
+    "207": "Multi-Status (WebDAV)",
+    "208": "Already Reported (WebDAV)",
+    "226": "IM Used",
+    "300": "Multiple Choices",
+    "301": "Moved Permanently",
+    "302": "Found",
+    "303": "See Other",
+    "304": "Not Modified",
+    "305": "Use Proxy",
+    "306": "(Unused)",
+    "307": "Temporary Redirect",
+    "308": "Permanent Redirect (experimental)",
+    "400": "Bad Request",
+    "401": "Unauthorized",
+    "402": "Payment Required",
+    "403": "Forbidden",
+    "404": "Not Found",
+    "405": "Method Not Allowed",
+    "406": "Not Acceptable",
+    "407": "Proxy Authentication Required",
+    "408": "Request Timeout",
+    "409": "Conflict",
+    "410": "Gone",
+    "411": "Length Required",
+    "412": "Precondition Failed",
+    "413": "Request Entity Too Large",
+    "414": "Request-URI Too Long",
+    "415": "Unsupported Media Type",
+    "416": "Requested Range Not Satisfiable",
+    "417": "Expectation Failed",
+    "418": "I'm a teapot (RFC 2324)",
+    "420": "Enhance Your Calm (Twitter)",
+    "422": "Unprocessable Entity (WebDAV)",
+    "423": "Locked (WebDAV)",
+    "424": "Failed Dependency (WebDAV)",
+    "425": "Reserved for WebDAV",
+    "426": "Upgrade Required",
+    "428": "Precondition Required",
+    "429": "Too Many Requests",
+    "431": "Request Header Fields Too Large",
+    "444": "No Response (Nginx)",
+    "449": "Retry With (Microsoft)",
+    "450": "Blocked by Windows Parental Controls (Microsoft)",
+    "451": "Unavailable For Legal Reasons",
+    "499": "Client Closed Request (Nginx)",
+    "500": "Internal Server Error",
+    "501": "Not Implemented",
+    "502": "Bad Gateway",
+    "503": "Service Unavailable",
+    "504": "Gateway Timeout",
+    "505": "HTTP Version Not Supported",
+    "506": "Variant Also Negotiates (Experimental)",
+    "507": "Insufficient Storage (WebDAV)",
+    "508": "Loop Detected (WebDAV)",
+    "509": "Bandwidth Limit Exceeded (Apache)",
+    "510": "Not Extended",
+    "511": "Network Authentication Required",
+    "598": "Network read timeout error",
+    "599": "Network connect timeout error",
 }
