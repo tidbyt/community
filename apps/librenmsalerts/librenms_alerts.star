@@ -13,6 +13,7 @@ load("schema.star", "schema")
 
 ENDPOINT_ALERTS = "/api/v0/alerts"
 ENDPOINT_DEVICES = "/api/v0/devices"
+FRAME_DELAY_MS = 25
 CACHE_TTL_SECONDS = 30
 LIBRENMS_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAiklEQVQoU42SQRLAEAxF6wws
@@ -60,8 +61,8 @@ def get_librenms_alerts(config):
         config: The configuration object passed to main()
 
     Returns:
-        A dict containing either an 'alerts' key of alert data, or an
-        'error' key containing the HTTP status code if the request fails.
+        A dict containing the alert count and alert data, or if the request
+        fails, an 'error' key containing the HTTP status code.
 
     """
     headers = {"X-Auth-Token": config["api_key"]}
@@ -72,7 +73,7 @@ def get_librenms_alerts(config):
         return {"error": r.status_code}
 
     else:
-        return {"alerts": r.json()["alerts"]}
+        return r.json()
 
 def print_logo():
     return render.Row(
@@ -92,6 +93,7 @@ def print_line(color):
 
 def render_error(error_msg):
     return render.Root(
+        delay = FRAME_DELAY_MS,
         child = render.Box(
             child = render.Column(
                 expanded = True,
@@ -169,7 +171,7 @@ def get_device_friendly_name(hostname, config):
     return device_config["display"] or device_config["sysName"]
 
 def render_output(alert_count, alerting_devices):
-    # Add the LibreNMS logo header
+    # Build a list containing the output, starting with the LibreNMS logo
     children = [print_logo()]
 
     # Add the alert count and list of the alerting devices if alerts > 0
@@ -177,6 +179,7 @@ def render_output(alert_count, alerting_devices):
 
     # Render the output
     return render.Root(
+        delay = FRAME_DELAY_MS,
         child = render.Box(
             height = 32,
             child = render.Column(
@@ -194,7 +197,7 @@ def main(config):
     """ Display a count of LibreNMS alerts and a list of the alerting hosts.
 
     Args:
-        config: The config object provided to main*( at runtime.
+        config: The config object provided to main() at runtime.
 
     Returns:
         Renders output to the Tidbyt display.
@@ -220,4 +223,4 @@ def main(config):
     else:
         return render_error("Data missing in server response.")
 
-    return render_output(len(alert_results["alerts"]), ", ".join(alerting_devices))
+    return render_output(int(alert_results["count"]), ", ".join(alerting_devices))

@@ -27,6 +27,8 @@ DEFAULT_APP_KEY = None
 DEFAULT_API_KEY = None
 
 def main(config):
+    DD_SITE = config.get("dd_site") or "datadoghq.com"
+    DD_API_URL = "https://api.{}/api/v1".format(DD_SITE)
     DD_API_KEY = config.get("api_key") or DEFAULT_API_KEY
     DD_APP_KEY = config.get("app_key") or DEFAULT_APP_KEY
 
@@ -39,7 +41,7 @@ def main(config):
         data = json.decode(monitors_cached)
     elif DD_API_KEY != None and DD_APP_KEY != None:
         data = http.get(
-            "https://api.datadoghq.com/api/v1/monitor/search",
+            "{}/monitor/search".format(DD_API_URL),
             params = {"query": monitors_query},
             headers = {"DD-API-KEY": DD_API_KEY, "DD-APPLICATION-KEY": DD_APP_KEY, "Accept": "application/json"},
         ).json()
@@ -119,9 +121,44 @@ def main(config):
     return render.Root(child = child)
 
 def get_schema():
+    dd_site_options = [
+        schema.Option(
+            display = "US1",
+            value = "datadoghq.com",
+        ),
+        schema.Option(
+            display = "US3",
+            value = "us3.datadoghq.com",
+        ),
+        schema.Option(
+            display = "US5",
+            value = "us5.datadoghq.com",
+        ),
+        schema.Option(
+            display = "EU",
+            value = "datadoghq.eu",
+        ),
+        schema.Option(
+            display = "Gov",
+            value = "ddog-gov.com",
+        ),
+        schema.Option(
+            display = "Japan",
+            value = "ap1.datadoghq.com",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Dropdown(
+                id = "dd_site",
+                name = "Datadog Site",
+                desc = "Datadog Site",
+                icon = "globe",
+                default = dd_site_options[0].value,
+                options = dd_site_options,
+            ),
             schema.Text(
                 id = "api_key",
                 name = "DataDog API Key",
