@@ -196,7 +196,7 @@ def convertFromWatts(value):
     elif value > 1000000:
         return toMW(value), "M"
     elif value > 1000:
-        return toKW(value), "K"
+        return toKW(value), "k"
 
     return value, ""
 
