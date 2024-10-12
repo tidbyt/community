@@ -145,16 +145,19 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         if img == None and debug_output:
                             print("Could not retrieve image")
 
-                    # Append
-                    # Get length of heading with 16 chars across
+                    # Append heading
+                    heading_lines = 0
                     if output_heading != None and type(output_heading) == "string":
+                        heading_lines = calculate_lines(output_heading)
                         children.append(render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color))
                     elif debug_output and heading_parse_failure == True:
                         message = "Heading " + heading_parse_message
                         children.append(render.WrappedText(content = message, font = "tom-thumb", color = "#FF0000"))
 
                     # Append body
+                    body_lines = 0
                     if output_body != None and type(output_body) == "string":
+                        body_lines = calculate_lines(output_body)
                         children.append(render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color))
                     elif debug_output and body_parse_failure == True:
                         message = "Body " + body_parse_message
@@ -162,11 +165,12 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
 
                     # Insert image according to placement
                     if img != None:
+                        test = render.Image(src = img, width = 64)
                         row = render.Row(
                             expanded = True,
                             main_align = "space_evenly",
                             cross_align = "center",
-                            children = [render.Image(src = img, width = 64)],
+                            children = [test],
                         )
 
                         if image_placement == 1:
@@ -186,11 +190,20 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         if image_parse_failure == True:
                             children.append(render.WrappedText(content = "Image " + image_parse_message, font = "tom-thumb", color = "#FF0000"))
 
+                    height = 32
+                    if heading_lines + body_lines > 32:
+                        height = 64
+
+                    if debug_output:
+                        print("heading_lines: " + str(heading_lines))
+                        print("body_lines: " + str(body_lines))
+                        print("Marquee height: " + str(height))
+
                     children_content = [
                         render.Marquee(
                             offset_start = 32,
                             offset_end = 32,
-                            height = 32,
+                            height = height,
                             scroll_direction = "vertical",
                             width = 64,
                             child = render.Column(
@@ -246,6 +259,20 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
             row,
         ),
     )
+
+def calculate_lines(text):
+    words = text.split(" ")
+    length = 17
+    currentlength = 0
+    breaks = 0
+
+    for word in words:
+        if len(word) + currentlength >= length:
+            breaks = breaks + 1
+            currentlength = 0
+        currentlength = currentlength + len(word) + 1
+
+    return breaks + 1
 
 def parse_response_path(output, responsePathStr, debug_output, rand_static, ttl_seconds):
     message = ""
