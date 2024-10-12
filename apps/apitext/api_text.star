@@ -190,9 +190,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         if image_parse_failure == True:
                             children.append(render.WrappedText(content = "Image " + image_parse_message, font = "tom-thumb", color = "#FF0000"))
 
-                    height = 32
-                    if heading_lines + body_lines > 32:
-                        height = 64
+                    height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
 
                     if debug_output:
                         print("heading_lines: " + str(heading_lines))
@@ -203,7 +201,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         render.Marquee(
                             offset_start = 32,
                             offset_end = 32,
-                            height = height,
+                            height = int(height),
                             scroll_direction = "vertical",
                             width = 64,
                             child = render.Column(
