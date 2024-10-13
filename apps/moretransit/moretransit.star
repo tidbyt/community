@@ -132,7 +132,7 @@ def main(config):
 
         for (eta, color, name) in all_arrivals_to_stop:
             min_minutes = config.get("minTime")
-            if min_minutes is None or not min_minutes.isdigit():
+            if min_minutes == None or not min_minutes.isdigit():
                 min_minutes = MIN_MINUTES
             else:
                 min_minutes = int(min_minutes)
