@@ -54,7 +54,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
         "[rand6]": -1,
         "[rand7]": -1,
         "[rand8]": -1,
-        "[rand9]": -1,
+        "[rand9]": -1
     }
 
     base_url = ""
@@ -122,7 +122,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     print("Getting text heading. Pass: " + str(heading_parse_failure == False))
 
                 # Get image
-                response_path_data_image = parse_response_path(output, image_response_path, random_indexes, debug_output)
+                response_path_data_image = parse_response_path(output, image_response_path, random_indexes,debug_output)
                 output_image = response_path_data_image["output"]
                 image_parse_failure = response_path_data_image["failure"]
                 image_parse_message = response_path_data_image["message"]
@@ -198,7 +198,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         if image_parse_failure == True:
                             children.append(render.WrappedText(content = "Image " + image_parse_message, font = "tom-thumb", color = "#FF0000"))
 
-                    height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
+                    height = 32 + ((heading_lines + body_lines)-((heading_lines + body_lines)*0.52))
 
                     if debug_output:
                         print("heading_lines: " + str(heading_lines))
@@ -278,7 +278,7 @@ def calculate_lines(text):
             currentlength = 0
         currentlength = currentlength + len(word) + 1
 
-    return breaks + 1
+    return breaks+1
 
 def parse_response_path(output, responsePathStr, random_indexes, debug_output):
     message = ""
@@ -293,9 +293,9 @@ def parse_response_path(output, responsePathStr, random_indexes, debug_output):
             valid_rand = False
             if item == "[rand]":
                 valid_rand = True
-
+                
             for x in range(10):
-                if item == "[rand" + str(x) + "]":
+                if item == "[rand"+str(x)+"]":
                     valid_rand = True
                     break
 
@@ -304,25 +304,25 @@ def parse_response_path(output, responsePathStr, random_indexes, debug_output):
                     if len(output) > 0:
                         if item == "[rand]":
                             item = random.number(0, len(output) - 1)
-                        elif random_indexes[item] == -1:  # Not set
+                        elif random_indexes[item] == -1: # Not set
                             random_indexes[item] = random.number(0, len(output) - 1)
                             item = random_indexes[item]
-                        elif random_indexes[item] > -1:  # Already set
+                        elif random_indexes[item] > -1: # Already set
                             item = random_indexes[item]
                     else:
                         failure = True
-                        message = "Response path has empty list for " + item + "."
+                        message = "Response path has empty list for "+item+"."
                         if debug_output:
-                            print("responsePathArray for " + item + " invalid. Response path has empty list.")
+                            print("responsePathArray for "+item+" invalid. Response path has empty list.")
                         break
 
                     if debug_output:
                         print("Random index chosen " + str(item))
                 else:
                     failure = True
-                    message = "Response path invalid for " + item + ". Use of [rand] only allowable in lists."
+                    message = "Response path invalid for "+item+". Use of [rand] only allowable in lists."
                     if debug_output:
-                        print("responsePathArray for " + item + " invalid. Use of [rand] only allowable in lists.")
+                        print("responsePathArray for "+item+" invalid. Use of [rand] only allowable in lists.")
                     break
 
             if type(item) != "int" and item.isdigit():

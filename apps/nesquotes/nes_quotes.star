@@ -5,7 +5,6 @@ Description: Displays random quotes from Nintendo Entertainment System games.
 Author: Mark McIntyre
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/csv.star", "csv")
 load("http.star", "http")
@@ -44,20 +43,12 @@ def slug(str):
 # GET DATA
 # --------
 def get_data():
-    # Check our cache
-    nes_quotes = cache.get("nes_quotes")
+    request = http.get(CSV_ENDPOINT, ttl_seconds = CACHE_TTL)
+    if request.status_code != 200:
+        print("Unexpected status code: " + request.status_code)
+        return []
 
-    # If we don't have a cached version, fetch the data now
-    if nes_quotes == None:
-        request = http.get(CSV_ENDPOINT)
-        if request.status_code != 200:
-            print("Unexpected status code: " + request.status_code)
-            return []
-
-        nes_quotes = request.body()
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set("nes_quotes", nes_quotes, ttl_seconds = CACHE_TTL)
+    nes_quotes = request.body()
 
     # Return our quotes, except for the header line
     return csv.read_all(nes_quotes, skip = 1)
