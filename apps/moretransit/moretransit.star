@@ -131,7 +131,9 @@ def main(config):
         all_arrivals_to_stop = sorted(all_arrivals_to_stop, key = lambda x: x[0])
 
         for (eta, color, name) in all_arrivals_to_stop:
-            if eta > MIN_MINUTES and len(renderable_subways) < MAX_SUBWAYS:
+            min_minutes = config.get("minTime")
+            min_minutes = int(min_minutes) if min_minutes.isdigit() else MIN_MINUTES
+            if eta > min_minutes and len(renderable_subways) < MAX_SUBWAYS:
                 renderer = overlay_subway
                 if config.bool("useStacked"):
                     renderer = stack_subway
