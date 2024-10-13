@@ -17,11 +17,13 @@ UklGRi4EAABXRUJQVlA4WAoAAAAwAAAAGwAAHwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZ
 """)
 
 DEFAULT_ADDRESS = ""
+DEFAULT_TIMEFRAME = "hashrate5m"
 DEFAULT_SHOW_POOL_HASHRATE = True
 DEFAULT_SHOW_POOL_WORKERS = False
 
 def main(config):
     address = config.str("address", DEFAULT_ADDRESS)
+    timeframe = config.get("timeframe", DEFAULT_TIMEFRAME)
     show_pool_hashrate = config.bool("show_pool_hashrate", DEFAULT_SHOW_POOL_HASHRATE)
     show_pool_workers = config.bool("show_pool_workers", DEFAULT_SHOW_POOL_WORKERS)
 
@@ -32,8 +34,8 @@ def main(config):
         if user.get("error"):
             render_info(info, False, "", user.get("error"))
         else:
-            hashrate = user.get("hashrate1m", "0")
-            render_info(info, True, re.sub(r"\D", "", hashrate), hash_unit(re.sub(r"\d", "", hashrate)))
+            hashrate = user.get(timeframe, "0")
+            render_info(info, True, humanize.ftoa(float(re.sub(r"([A-Za-z])", "", hashrate)), 1), re.sub(r"(\d|\.)", "", hashrate) + "H")
 
     if show_pool_hashrate or show_pool_workers:
         pool = pool_data()
@@ -42,8 +44,8 @@ def main(config):
             render_info(info, False, "", pool.get("error"))
         else:
             if show_pool_hashrate:
-                hashrate = pool.get("hashrate1m", "0")
-                render_info(info, (address == ""), re.sub(r"\D", "", hashrate), hash_unit(re.sub(r"\d", "", hashrate)))
+                hashrate = pool.get(timeframe, "0")
+                render_info(info, (address == ""), humanize.ftoa(float(re.sub(r"([A-Za-z])", "", hashrate)), 1), re.sub(r"(\d|\.)", "", hashrate) + "H")
             if show_pool_workers:
                 render_info(info, False, humanize.ftoa(pool["Workers"]), "W")
 
@@ -102,18 +104,30 @@ def user_data(address):
         return {"error": "no user"}
     return res.json()
 
-def hash_unit(val):
-    if val == "M":
-        return "MH"
-    if val == "G":
-        return "GH"
-    if val == "T":
-        return "TH"
-    if val == "E":
-        return "EH"
-    return "KH"
-
 def get_schema():
+    options = [
+        schema.Option(
+            display = "1 minute",
+            value = "hashrate1m",
+        ),
+        schema.Option(
+            display = "5 minutes",
+            value = "hashrate5m",
+        ),
+        schema.Option(
+            display = "1 hour",
+            value = "hashrate1hr",
+        ),
+        schema.Option(
+            display = "1 day",
+            value = "hashrate1d",
+        ),
+        schema.Option(
+            display = "7 days",
+            value = "hashrate7d",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -123,6 +137,14 @@ def get_schema():
                 desc = "Leave empty for pool only",
                 icon = "bitcoin",
                 default = "",
+            ),
+            schema.Dropdown(
+                id = "timeframe",
+                name = "Stats timeframe",
+                desc = "Timeframe to use for hashrate stats.",
+                icon = "clock",
+                default = options[1].value,
+                options = options,
             ),
             schema.Toggle(
                 id = "show_pool_hashrate",
