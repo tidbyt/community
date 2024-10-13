@@ -132,7 +132,10 @@ def main(config):
 
         for (eta, color, name) in all_arrivals_to_stop:
             min_minutes = config.get("minTime")
-            min_minutes = int(min_minutes) if min_minutes is not None and min_minutes.isdigit() else MIN_MINUTES
+            if min_minutes is None or not min_minutes.isdigit():
+                min_minutes = MIN_MINUTES
+            else:
+                min_minutes = int(min_minutes)
             if eta > min_minutes and len(renderable_subways) < MAX_SUBWAYS:
                 renderer = overlay_subway
                 if config.bool("useStacked"):
