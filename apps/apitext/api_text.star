@@ -306,7 +306,7 @@ def parse_response_path(output, responsePathStr, random_indexes, debug_output, t
                         if item == "[rand]":
                             item = random.number(0, len(output) - 1)
                         else:
-                            item = get_random_index(item, random_indexes, output, ttl_seconds)
+                            item = get_random_index(item, random_indexes, output, debug_output, ttl_seconds)
                     else:
                         failure = True
                         message = "Response path has empty list for " + item + "."
@@ -363,17 +363,23 @@ def parse_response_path(output, responsePathStr, random_indexes, debug_output, t
 
     return {"output": output, "failure": failure, "message": message}
 
-def get_random_index(item, random_indexes, a_list, ttl_seconds):
-    random_index = random.number(0, len(a_list) - 1)
+def get_random_index(item, random_indexes, a_list, debug_output, ttl_seconds):
     cached_index = cache.get(item)
 
     if cached_index:
+        if debug_output:
+            print("Using cached value: " + str(cached_index))
         return cached_index
     elif random_indexes[item] == -1:  # Not set
+        random_index = random.number(0, len(a_list) - 1)
+        if debug_output:
+            print("Setting cached value: " + str(random_index))
         random_indexes[item] = random_index
         cache.set(item, str(random_indexes[item]), ttl_seconds = ttl_seconds)
         return random_index
     else:
+        if debug_output:
+            print("Using index map for " + item + ": " + str(random_indexes[item]))
         return random_indexes[item]
 
 def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
