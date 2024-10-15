@@ -192,7 +192,7 @@ def get_schema():
                 default = DEFAULT_FONT_NAME,
                 options = [
                     schema.Option(display = "Small", value = "tom-thumb"),
-                    schema.Option(display = "Medium", value = "tb-8"),
+                    schema.Option(display = "Medium", value = DEFAULT_FONT_NAME),
                     schema.Option(display = "Large", value = "Dina_r400-6"),
                 ],
             ),
@@ -275,6 +275,7 @@ def album_search(album_name):
     dprint("Calling %s" % url)
     res = http.get(url, headers = {
         "Authorization": "Bearer %s" % access_token,
+        "User-Agent": DEFAULT_USER_AGENT,
     })
     dprint("Response: %d" % res.status_code)
 
