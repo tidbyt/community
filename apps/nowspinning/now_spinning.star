@@ -17,6 +17,7 @@ UklGRrYLAABXRUJQVlA4WAoAAAASAAAAHQAAHQAAQU5JTQYAAAAAAAAAAABBTk1GXAEAAAAAAAAAAB0A
 """)
 
 DEFAULT_ALBUM = json.encode({"display": "none", "value": "none"})
+DEFAULT_FONT_NAME = "tb-8"
 DEFAULT_HEADER_COLOR = "#1db954"
 DEFAULT_ALBUM_COLOR = "#e833f2"
 DEFAULT_ARTIST_COLOR = "#ffffff"
@@ -39,6 +40,7 @@ def main(config):
         widget: Root widget tree.
     """
 
+    font_name = config.str("font_name", DEFAULT_FONT_NAME)
     header_color = config.str("header_color", DEFAULT_HEADER_COLOR)
     album_color = config.str("album_color", DEFAULT_ALBUM_COLOR)
     artist_color = config.str("artist_color", DEFAULT_ARTIST_COLOR)
@@ -52,11 +54,11 @@ def main(config):
 
     # if user has not selected an album yet, render default view
     if album["value"] == "none":
-        return render_app(RECORD_ICON, "Select", "#fff", "album!", "#fff", header_color)
+        return render_app(RECORD_ICON, "Select", "#fff", "album!", "#fff", header_color, DEFAULT_FONT_NAME)
 
     # if there was an error, render default view
     if album["value"] == "error":
-        return render_app(RECORD_ICON, "Error", "#f00", "try again", "#ff0", header_color)
+        return render_app(RECORD_ICON, "Error", "#f00", "try again", "#ff0", header_color, DEFAULT_FONT_NAME)
 
     # split album, artist and cover url from config value
     album_name = album["value"].split("|")[0]
@@ -71,7 +73,7 @@ def main(config):
     if cover == None:
         cover = RECORD_ICON
 
-    return render_app(cover, album_name, album_color, artist_name, artist_color, header_color)
+    return render_app(cover, album_name, album_color, artist_name, artist_color, header_color, font_name)
 
 def get_cover(cover_url):
     """Retrieves the cover image for an album.
@@ -117,7 +119,7 @@ def render_header(header_color):
         child = render.Text("now spinning", font = "tom-thumb", color = header_color),
     )
 
-def render_app(cover, album, album_color, artist, artist_color, header_color):
+def render_app(cover, album, album_color, artist, artist_color, header_color, font_name):
     """Renders the app widget structure.
 
     Args:
@@ -149,11 +151,11 @@ def render_app(cover, album, album_color, artist, artist_color, header_color):
                                     children = [
                                         render.Marquee(
                                             width = 39,
-                                            child = render.Text(album, color = album_color),
+                                            child = render.Text(album, color = album_color, font = font_name),
                                         ),
                                         render.Marquee(
                                             width = 39,
-                                            child = render.Text(artist, color = artist_color),
+                                            child = render.Text(artist, color = artist_color, font = font_name),
                                         ),
                                     ],
                                 ),
@@ -181,6 +183,18 @@ def get_schema():
                 desc = "Name of the album (add artist to refine).",
                 icon = "compactDisc",
                 handler = album_search,
+            ),
+            schema.Dropdown(
+                id = "font_name",
+                name = "Text size",
+                desc = "Size of the album and artist names.",
+                icon = "font",
+                default = DEFAULT_FONT_NAME,
+                options = [
+                    schema.Option(display = "Small", value = "tom-thumb"),
+                    schema.Option(display = "Medium", value = "tb-8"),
+                    schema.Option(display = "Large", value = "Dina_r400-6"),
+                ],
             ),
             schema.Color(
                 id = "header_color",
