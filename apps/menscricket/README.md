@@ -6,5 +6,8 @@
 ### Example: Scorecard of a recently completed game
 ![](past_result.gif)
 
+### Example: Scorecard of a game in progress
+![](live_match.gif)
+
 ### Example: Schedule of an upcoming game
 ![](next_match.gif)
