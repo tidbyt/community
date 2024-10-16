@@ -1,7 +1,7 @@
 """
 Applet: OctoWatts
 Summary: Live Energy Monitor
-Description: Octopus Energy live consumption monitor with one minute energy trend. Requires an Octopus Home Mini device.
+Description: Octopus Energy live consumption monitor, diplays your current usage and one minute energy trend. Requires an Octopus Home Mini device.
 Author: TomForeman86
 """
 
