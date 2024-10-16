@@ -69,7 +69,7 @@ DEFAULT_LOCATION = """
 }
 """
 DEFAULT_MAGNITUDE = "3"
-DEFAULT_RADIUS = "250"
+DEFAULT_RADIUS = "0"
 DEFAULT_DAYS = "30"
 
 ICON = base64.decode("""
@@ -255,11 +255,6 @@ def fetch_earthquakes(lat, lng, radius, magnitude, start_time):
         return None
 
     features = resp.json().get("features")
-
-    #2024-09-27# if not features:
-    # buildifier: disable=print
-    #2024-09-27#    print("missing features: %s" + resp.body())
-    #2024-09-27#    return None
 
     # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, json.encode(features), CACHE_TTL)
