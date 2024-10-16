@@ -11,7 +11,6 @@ load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("humanize.star", "humanize")
 
 # ICONS --------------------------------- https://easy64.org/icons/material-ui-filled/
 #POWER_ICON = base64.decode("""PHN2ZyBmaWxsPSIjZmZmZjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTEgMjFoLTFsMS03SDcuNWMtLjU4IDAtLjU3LS4zMi0uMzgtLjY2LjE5LS4zNC4wNS0uMDguMDctLjEyQzguNDggMTAuOTQgMTAuNDIgNy41NCAxMyAzaDFsLTEgN2gzLjVjLjQ5IDAgLjU2LjMzLjQ3LjUxbC0uMDcuMTVDMTIuOTYgMTcuNTUgMTEgMjEgMTEgMjF6Ii8+PC9zdmc+""")
@@ -36,8 +35,8 @@ CACHE_TTL = 300
 # END API ENDPOINTS
 
 def main(config):
-    api_key = "78IJF13RCZREMHW0ZQ2MEDOJ6AHRQYZ1"  #config.str("api_key")
-    site_id = "540914"  #humanize.url_encode(config.str("site_id", ""))
+    api_key = "78IJF13RCZREMHW0ZQ2MEDOJ6AHRQYZ1"
+    site_id = "540914" 
     headers = {"X-API-Key": api_key, "content-type": "application/json"}
 
     # API CALLS ----------------------------------------
@@ -54,9 +53,8 @@ def main(config):
         fail("SolarEdge Monitoring: Overview request failed with status %d", res_overview.status_code)
 
     #   PARSE Time and Timezone for use in Power call ----
-    # timezone = config.get("timezone") or "America/Los_Angeles"
     tz = res_details.json()["details"]["location"]["timeZone"]
-    timezone = tz  #config.get("timezone") or "America/Los_Angeles"
+    timezone = tz
     startTime = time.now().in_location(timezone).format("2006-01-02 00:00:00")
     endTime = time.now().in_location(timezone).format("2006-01-02") + " 23:59:59"
 
