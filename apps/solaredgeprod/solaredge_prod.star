@@ -34,9 +34,9 @@ CACHE_TTL = 300
 
 # END API ENDPOINTS
 
-def main(config):
-    api_key = "78IJF13RCZREMHW0ZQ2MEDOJ6AHRQYZ1"
-    site_id = "540914" 
+def main():
+    api_key = "78IJF13RCZREMHW0ZQ2MEDOJ6AHRQYZ1"  #config.str("api_key")
+    site_id = "540914"  #humanize.url_encode(config.str("site_id", ""))
     headers = {"X-API-Key": api_key, "content-type": "application/json"}
 
     # API CALLS ----------------------------------------
