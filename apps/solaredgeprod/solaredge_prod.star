@@ -36,8 +36,8 @@ CACHE_TTL = 300
 # END API ENDPOINTS
 
 def main(config):
-    api_key = config.str("api_key")
-    site_id = humanize.url_encode(config.str("site_id", ""))
+    api_key = "78IJF13RCZREMHW0ZQ2MEDOJ6AHRQYZ1"  #config.str("api_key")
+    site_id = "540914"  #humanize.url_encode(config.str("site_id", ""))
     headers = {"X-API-Key": api_key, "content-type": "application/json"}
 
     # API CALLS ----------------------------------------
@@ -164,12 +164,14 @@ def get_schema():
                 name = "API key",
                 desc = "API key for the SolarEdge monitoring API.",
                 icon = "key",
+                default = "78IJF13RCZREMHW0ZQ2MEDOJ6AHRQYZ1",
             ),
             schema.Text(
                 id = "site_id",
                 name = "Site ID",
                 desc = "The site ID, available from the monitoring portal.",
                 icon = "solarPanel",
+                default = "540914",
             ),
         ],
     )
