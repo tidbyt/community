@@ -24,6 +24,7 @@ def main(config):
     heading_font_color = config.get("heading_font_color", "#FFA500")
     body_font_color = config.get("body_font_color", "#FFFFFF")
     debug_output = config.bool("debug_output", False)
+    base_url = config.str("base_url", "")
     image_placement = config.get("image_placement", 2)
     image_placement = int(image_placement)
     ttl_seconds = config.get("ttl_seconds", 20)
@@ -32,6 +33,7 @@ def main(config):
     if debug_output:
         print("------------------------------")
         print("CONFIG - api_url: " + api_url)
+        print("CONFIG - base_url: " + base_url)
         print("CONFIG - heading_response_path: " + heading_response_path)
         print("CONFIG - body_response_path: " + body_response_path)
         print("CONFIG - image_response_path: " + image_response_path)
@@ -42,10 +44,9 @@ def main(config):
         print("CONFIG - debug_output: " + str(debug_output))
         print("CONFIG - ttl_seconds: " + str(ttl_seconds))
 
-    return get_text(api_url, heading_response_path, body_response_path, image_response_path, request_headers, debug_output, ttl_seconds, heading_font_color, body_font_color, image_placement)
+    return get_text(api_url, base_url, heading_response_path, body_response_path, image_response_path, request_headers, debug_output, ttl_seconds, heading_font_color, body_font_color, image_placement)
 
-def get_text(api_url, heading_response_path, body_response_path, image_response_path, request_headers, debug_output, ttl_seconds, heading_font_color, body_font_color, image_placement):
-    base_url = ""
+def get_text(api_url, base_url, heading_response_path, body_response_path, image_response_path, request_headers, debug_output, ttl_seconds, heading_font_color, body_font_color, image_placement):
     message = ""
 
     if api_url == "":
@@ -71,9 +72,9 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
         output_type = output_map["type"]
 
         if output_content != None and (output_type == "text" or (output_type == "json" and (len(heading_response_path) > 0 or len(body_response_path) > 0 or len(image_response_path) > 0))):
-            api_url_array = api_url.split("/")
-            if len(api_url_array) > 2:
-                base_url = api_url_array[0] + "//" + api_url_array[2]
+            # api_url_array = api_url.split("/")
+            # if len(api_url_array) > 2:
+            #     base_url = api_url_array[0] + "//" + api_url_array[2]
             output = json.decode(output_content, None)
             output_body = None
             output_heading = None
@@ -128,18 +129,23 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     image_endpoint = ""
 
                     # Process image data
-                    if output_image != None and type(output_image) == "string" and base_url.startswith("http"):
-                        if output_image.startswith("http") == False:
-                            if output_image.startswith("/"):
-                                output_image = base_url + output_image
-                            else:
-                                output_image = base_url + "/" + output_image
-                        image_endpoint = output_image
-                        output_image_map = get_data(image_endpoint, debug_output, {}, ttl_seconds)
-                        img = output_image_map["data"]
+                    if output_image != None and type(output_image) == "string":
+                        if output_image.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
+                            message = "Base URL required"
+                            if debug_output:
+                                print("Invalid URL. Requires a base_url")
+                        else:
+                            if output_image.startswith("http") == False:
+                                if output_image.startswith("/"):
+                                    output_image = base_url + output_image
+                                else:
+                                    output_image = base_url + "/" + output_image
+                            image_endpoint = output_image
+                            output_image_map = get_data(image_endpoint, debug_output, {}, ttl_seconds)
+                            img = output_image_map["data"]
 
-                        if img == None and debug_output:
-                            print("Could not retrieve image")
+                            if img == None and debug_output:
+                                print("Could not retrieve image")
 
                     # Insert image according to placement
                     image = None
@@ -550,6 +556,13 @@ def get_schema():
                 icon = "",
                 default = ttl_options[1].value,
                 options = ttl_options,
+            ),
+            schema.Text(
+                id = "base_url",
+                name = "Base URL",
+                desc = "The base URL if needed",
+                icon = "",
+                default = "",
             ),
             schema.Toggle(
                 id = "debug_output",
