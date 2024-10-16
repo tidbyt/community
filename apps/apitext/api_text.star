@@ -200,7 +200,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         children.append(render.WrappedText(content = message, font = "tom-thumb", color = "#FF0000"))
 
                     if image != None:
-                        height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.1))
+                        height = 32 + ((heading_lines + body_lines) * 2)
                     else:
                         height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
 
