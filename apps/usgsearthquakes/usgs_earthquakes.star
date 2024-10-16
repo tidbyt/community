@@ -255,10 +255,9 @@ def fetch_earthquakes(lat, lng, radius, magnitude, start_time):
         return None
 
     features = resp.json().get("features")
-    
 
     #2024-09-27# if not features:
-        # buildifier: disable=print
+    # buildifier: disable=print
     #2024-09-27#    print("missing features: %s" + resp.body())
     #2024-09-27#    return None
 
