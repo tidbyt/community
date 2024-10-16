@@ -45,19 +45,6 @@ def main(config):
     return get_text(api_url, heading_response_path, body_response_path, image_response_path, request_headers, debug_output, ttl_seconds, heading_font_color, body_font_color, image_placement)
 
 def get_text(api_url, heading_response_path, body_response_path, image_response_path, request_headers, debug_output, ttl_seconds, heading_font_color, body_font_color, image_placement):
-    random_indexes = {
-        "[rand0]": -1,
-        "[rand1]": -1,
-        "[rand2]": -1,
-        "[rand3]": -1,
-        "[rand4]": -1,
-        "[rand5]": -1,
-        "[rand6]": -1,
-        "[rand7]": -1,
-        "[rand8]": -1,
-        "[rand9]": -1,
-    }
-
     base_url = ""
     message = ""
 
@@ -107,7 +94,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         print("Decoded JSON: " + outputStr)
 
                 # Parse response path for JSON
-                response_path_data_body = parse_response_path(output, body_response_path, random_indexes, debug_output, ttl_seconds)
+                response_path_data_body = parse_response_path(output, body_response_path, debug_output, ttl_seconds)
                 output_body = response_path_data_body["output"]
                 body_parse_failure = response_path_data_body["failure"]
                 body_parse_message = response_path_data_body["message"]
@@ -115,7 +102,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     print("Getting text body. Pass: " + str(body_parse_failure == False))
 
                 # Get heading
-                response_path_data_heading = parse_response_path(output, heading_response_path, random_indexes, debug_output, ttl_seconds)
+                response_path_data_heading = parse_response_path(output, heading_response_path, debug_output, ttl_seconds)
                 output_heading = response_path_data_heading["output"]
                 heading_parse_failure = response_path_data_heading["failure"]
                 heading_parse_message = response_path_data_heading["message"]
@@ -123,7 +110,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                     print("Getting text heading. Pass: " + str(heading_parse_failure == False))
 
                 # Get image
-                response_path_data_image = parse_response_path(output, image_response_path, random_indexes, debug_output, ttl_seconds)
+                response_path_data_image = parse_response_path(output, image_response_path, debug_output, ttl_seconds)
                 output_image = response_path_data_image["output"]
                 image_parse_failure = response_path_data_image["failure"]
                 image_parse_message = response_path_data_image["message"]
@@ -173,6 +160,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         children.append(render.WrappedText(content = message, font = "tom-thumb", color = "#FF0000"))
 
                     # Insert image according to placement
+                    image = None
                     if img != None:
                         test = render.Image(src = img, width = 64)
                         row = render.Row(
@@ -182,7 +170,16 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                             children = [test],
                         )
 
-                        if image_placement == 1:
+                        if image_parse_failure == True:
+                            children.append(render.WrappedText(content = "Image " + image_parse_message, font = "tom-thumb", color = "#FF0000"))
+                        elif len(image_response_path) > 0 and output_image == None and debug_output:
+                            if len(image_endpoint) > 0:
+                                print("Image URL found but failed to render URL " + image_endpoint)
+                            else:
+                                print("No image URL found")
+                        elif image_placement == 4:
+                            image = render.Image(src = img, width = 23)
+                        elif image_placement == 1:
                             children.insert(0, row)
                         elif image_placement == 3:
                             children.append(row)
@@ -196,9 +193,6 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                             else:
                                 print("No image URL found")
 
-                        if image_parse_failure == True:
-                            children.append(render.WrappedText(content = "Image " + image_parse_message, font = "tom-thumb", color = "#FF0000"))
-
                     height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
 
                     if debug_output:
@@ -206,18 +200,33 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         print("body_lines: " + str(body_lines))
                         print("Marquee height: " + str(height))
 
-                    children_content = [
-                        render.Marquee(
-                            offset_start = 32,
-                            offset_end = 32,
-                            height = int(height),
-                            scroll_direction = "vertical",
-                            width = 64,
-                            child = render.Column(
-                                children = children,
+                    if image != None and image_placement == 4:
+                        children_content = [
+                            render.Image(src = img, width = 23),
+                            render.Marquee(
+                                offset_start = 32,
+                                offset_end = 32,
+                                height = int(height),
+                                scroll_direction = "vertical",
+                                width = 41,
+                                child = render.Column(
+                                    children = children,
+                                ),
                             ),
-                        ),
-                    ]
+                        ]
+                    else:
+                        children_content = [
+                            render.Marquee(
+                                offset_start = 32,
+                                offset_end = 32,
+                                height = int(height),
+                                scroll_direction = "vertical",
+                                width = 64,
+                                child = render.Column(
+                                    children = children,
+                                ),
+                            ),
+                        ]
 
                     return render.Root(
                         delay = 100,
@@ -281,7 +290,7 @@ def calculate_lines(text):
 
     return breaks + 1
 
-def parse_response_path(output, responsePathStr, random_indexes, debug_output, ttl_seconds):
+def parse_response_path(output, responsePathStr, debug_output, ttl_seconds):
     message = ""
     failure = False
 
@@ -306,7 +315,7 @@ def parse_response_path(output, responsePathStr, random_indexes, debug_output, t
                         if item == "[rand]":
                             item = random.number(0, len(output) - 1)
                         else:
-                            item = get_random_index(item, random_indexes, output, ttl_seconds)
+                            item = get_random_index(item, output, debug_output, ttl_seconds)
                     else:
                         failure = True
                         message = "Response path has empty list for " + item + "."
@@ -363,18 +372,19 @@ def parse_response_path(output, responsePathStr, random_indexes, debug_output, t
 
     return {"output": output, "failure": failure, "message": message}
 
-def get_random_index(item, random_indexes, a_list, ttl_seconds):
-    random_index = random.number(0, len(a_list) - 1)
+def get_random_index(item, a_list, debug_output, ttl_seconds):
     cached_index = cache.get(item)
 
     if cached_index:
+        if debug_output:
+            print("Using cached value: " + str(cached_index))
         return cached_index
-    elif random_indexes[item] == -1:  # Not set
-        random_indexes[item] = random_index
-        cache.set(item, str(random_indexes[item]), ttl_seconds = ttl_seconds)
-        return random_index
     else:
-        return random_indexes[item]
+        random_index = random.number(0, len(a_list) - 1)
+        if debug_output:
+            print("Setting cached value for item " + item + ": " + str(random_index))
+        cache.set(item, str(random_index), ttl_seconds = ttl_seconds)
+        return random_index
 
 def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
     if headerMap == {}:
@@ -458,6 +468,10 @@ def get_schema():
         schema.Option(
             display = "Last",
             value = "3",
+        ),
+        schema.Option(
+            display = "Left",
+            value = "4",
         ),
     ]
 
