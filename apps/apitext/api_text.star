@@ -70,7 +70,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
         output_content = output_map["data"]
         output_type = output_map["type"]
 
-        if output_type == "text" or (output_type == "json" and (len(heading_response_path) > 0 or len(body_response_path) > 0 or len(image_response_path) > 0)):
+        if output_content != None and (output_type == "text" or (output_type == "json" and (len(heading_response_path) > 0 or len(body_response_path) > 0 or len(image_response_path) > 0))):
             api_url_array = api_url.split("/")
             if len(api_url_array) > 2:
                 base_url = api_url_array[0] + "//" + api_url_array[2]
@@ -200,14 +200,14 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                         children.append(render.WrappedText(content = message, font = "tom-thumb", color = "#FF0000"))
 
                     if image != None:
-                        height = 32 + ((heading_lines + body_lines) * 2)
+                        height = 32 + ((heading_lines + body_lines) * 2.1)
                     else:
                         height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
 
                     if debug_output:
                         print("heading_lines: " + str(heading_lines))
                         print("body_lines: " + str(body_lines))
-                        print("Marquee height: " + str(height))
+                        print("Marquee height: " + str(int(height)))
 
                     if image != None and image_placement == 4:
                         children_content = [
