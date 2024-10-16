@@ -11,6 +11,7 @@ load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("humanize.star", "humanize")
 
 # ICONS --------------------------------- https://easy64.org/icons/material-ui-filled/
 #POWER_ICON = base64.decode("""PHN2ZyBmaWxsPSIjZmZmZjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTEgMjFoLTFsMS03SDcuNWMtLjU4IDAtLjU3LS4zMi0uMzgtLjY2LjE5LS4zNC4wNS0uMDguMDctLjEyQzguNDggMTAuOTQgMTAuNDIgNy41NCAxMyAzaDFsLTEgN2gzLjVjLjQ5IDAgLjU2LjMzLjQ3LjUxbC0uMDcuMTVDMTIuOTYgMTcuNTUgMTEgMjEgMTEgMjF6Ii8+PC9zdmc+""")
@@ -34,9 +35,9 @@ CACHE_TTL = 300
 
 # END API ENDPOINTS
 
-def main():
-    api_key = "78IJF13RCZREMHW0ZQ2MEDOJ6AHRQYZ1"  #config.str("api_key")
-    site_id = "540914"  #humanize.url_encode(config.str("site_id", ""))
+def main(config):
+    api_key = config.str("api_key")
+    site_id = humanize.url_encode(config.str("site_id", ""))
     headers = {"X-API-Key": api_key, "content-type": "application/json"}
 
     # API CALLS ----------------------------------------
