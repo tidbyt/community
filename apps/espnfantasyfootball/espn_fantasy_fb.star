@@ -22,12 +22,21 @@ DEFAULT_YEAR = "2024"
 DEFAULT_ESPN_S2 = "AEBNW6lF76hmygYwDoVCeLE0eiLYeQk0CkodwxI4bkai3oUFqXytKGYSz6tK24XYAl0pzWWA81wta%2B6qSzSsrHah1%2Fw7Z4No1Ab6xNIrtJAn58VuzDXgpfD7kYFHTFvURXcZ6%2BYqaWkfnRWK9Resmsi%2FpKrNEO7mAh3s%2BvssEoBp4ZISJhzugizeeKFhm4QfPtopPYgp%2BTrMJBbNra6SVOjPrHOAvQTc4JCxL8oyUfMINUS2EHCykNO8CayEaSHVMzkt6M3w%2B%2BDd8NxvuDqRsmYh%2F%2F%2FmpQgx1429twDdK1cvrg%3D%3D"
 DEFAULT_SWID = "{ED2E7200-9E5C-43DE-AE72-009E5C23DE71}"
 
+# There is no team ID 0, so use 0 as random. However
+# ESPN makes this a float for some odd reason. User
+# will enter an integer so we cast it later.
+#DEFAULT_TEAM_ID = "0.0"
+DEFAULT_TEAM_ID = "5"
+
 def main(config):
     # Get user config values
     league_id = config.str("fantasy_league_id", DEFAULT_LEAGUE_ID)
     year = config.get("year", DEFAULT_YEAR)
     espn_s2 = config.str("schema_espn_s2", DEFAULT_ESPN_S2)
     swid = config.get("schema_swid", DEFAULT_SWID)
+
+    # team_id needs to be a float for some odd reason
+    team_id = float(config.get("schema_team", DEFAULT_TEAM_ID))
 
     # Initialize base league data with values from user
     LEAGUE_DATA = init_base_league(league_id, int(year), "nfl", espn_s2, swid)  #add args)
@@ -44,8 +53,11 @@ def main(config):
     # Get actual box score data to use in render
     BOX_SCORE_DATA = box_scores(LEAGUE_DATA, LEAGUE_DATA["current_week"])
 
-    # Choose a random matchup
-    matchup_string = "matchup_" + random_matchup(BOX_SCORE_DATA)
+    if team_id == 0.0:
+        # Choose a random matchup
+        matchup_string = "matchup_" + random_matchup(BOX_SCORE_DATA)
+    else: 
+        matchup_string = "matchup_" + find_matchup(BOX_SCORE_DATA, team_id)
 
     return render.Root(
         child = render.Row(
@@ -170,6 +182,12 @@ def get_schema():
                 icon = "user",
             ),
             schema.Text(
+                id = "team_id",
+                name = "Team Id to show scores for, leave blank for Random matchup.",
+                desc = "To find your team Id, click on 'My Team' in a browser and look at the URL. The teamId should be at the end of the URL in the format &teamId=N. Take the value N and put it here. It should be a number between 1 and the number of teams in your league (for example 3 or 8).",
+                icon = "user",
+            ),
+            schema.Text(
                 id = "schema_espn_s2",
                 name = "Cookie: espn_s2",
                 desc = "[NOT NEEDED FOR PUBLIC LEAGUES; MUST BE FOUND FROM COMPUTER BROWSER] To find your espn_s2 cookie value, log in to https://fantasy.espn.com/football. Once you're at your team's home page, right click anywhere on the page and click 'Inspect'. Once the inspector menu appears, in the top bar of the menu, select 'Application'. In the 'Application' page, on the right bar under 'Cookies', click https://fantasy.espn.com. The espn_s2 value should then displayed in the cookie list. Email your espn_s2 to yourself so you are able to copy it from your mobile device.",
@@ -189,6 +207,24 @@ def random_matchup(box_data):
     i = len(box_data)
     num = random.number(1, i)
     return str(num)
+
+# Find a matchup for a specific team_id
+def find_matchup(box_data, team_id):
+    if team_id < 1 or team_id > len(box_data):
+        print("Team ID is out of range, this isn't going to work. Picking a random matchup.")
+        return random_matchup(box_data)
+
+    for i in range(1,len(box_data)+1):
+        matchup = box_data["matchup_"+str(i)]
+#        print("%d: HT: %d" % (i, matchup["home_team"]["team_id"]))
+#        print("%d: AT: %d" % (i, matchup["away_team"]["team_id"]))
+       
+        if matchup["home_team"]["team_id"] == team_id or \
+           matchup["away_team"]["team_id"] == team_id:
+            return str(i)
+
+    print("Team ID %d not found. Picking a random matchup." % int(team_id))
+    return random_matchup(box_data)
 
 # Initialize a dict for holding all league data
 def init_base_league(league_id, year, sport, espn_s2, swid):
