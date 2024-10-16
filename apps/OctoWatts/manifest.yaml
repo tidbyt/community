@@ -1,0 +1,6 @@
+---
+id: octowatts
+name: OctoWatts
+summary: Live energy monitoring
+desc: Octopus Energy live consumption monitor with one minute energy trend. Requires an Octopus Home Mini device.
+author: TomForeman86
