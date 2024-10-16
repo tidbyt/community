@@ -179,20 +179,19 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                                 print("No image URL found")
                         elif image_placement == 4:
                             image = render.Image(src = img, width = 23)
-                        else:
-                            if image_placement == 1:
-                                children.insert(0, row)
-                            elif image_placement == 3:
-                                children.append(row)
-                            elif len(children) > 0:
-                                children.insert(len(children) - 1, row)
-                            elif len(children) == 0:
-                                children.append(row)
-                            elif len(image_response_path) > 0 and output_image == None and debug_output:
-                                if len(image_endpoint) > 0:
-                                    print("Image URL found but failed to render URL " + image_endpoint)
-                                else:
-                                    print("No image URL found")  
+                        elif image_placement == 1:
+                            children.insert(0, row)
+                        elif image_placement == 3:
+                            children.append(row)
+                        elif len(children) > 0:
+                            children.insert(len(children) - 1, row)
+                        elif len(children) == 0:
+                            children.append(row)
+                        elif len(image_response_path) > 0 and output_image == None and debug_output:
+                            if len(image_endpoint) > 0:
+                                print("Image URL found but failed to render URL " + image_endpoint)
+                            else:
+                                print("No image URL found")
 
                     height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
 
@@ -213,7 +212,7 @@ def get_text(api_url, heading_response_path, body_response_path, image_response_
                                 child = render.Column(
                                     children = children,
                                 ),
-                            )
+                            ),
                         ]
                     else:
                         children_content = [
