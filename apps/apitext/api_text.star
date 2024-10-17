@@ -147,8 +147,8 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                             if img == None and debug_output:
                                 print("Could not retrieve image")
 
-                    # Insert image according to placement
-                    image = None
+                    # Insert image according to placement if image on left
+                    rendered_image = None
                     if img != None:
                         if image_parse_failure == True:
                             children.append(render.WrappedText(content = "Image " + image_parse_message, font = "tom-thumb", color = "#FF0000"))
@@ -158,12 +158,12 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                             else:
                                 print("No image URL found")
                         elif image_placement == 4:
-                            image = render.Image(src = img, width = 23)
+                            rendered_image = render.Image(src = img, width = 22)
 
                     # Append heading
                     heading_lines = 0
                     if output_heading != None and type(output_heading) == "string":
-                        if image != None:
+                        if rendered_image != None:
                             heading_lines = calculate_lines(output_heading, 10)
                         else:
                             heading_lines = calculate_lines(output_heading, 17)
@@ -175,7 +175,7 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                     # Append body
                     body_lines = 0
                     if output_body != None and type(output_body) == "string":
-                        if image != None:
+                        if rendered_image != None:
                             body_lines = calculate_lines(output_body, 10)
                         else:
                             body_lines = calculate_lines(output_body, 17)
@@ -184,6 +184,7 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                         message = "Body " + body_parse_message
                         children.append(render.WrappedText(content = message, font = "tom-thumb", color = "#FF0000"))
 
+                    # If images are stacked
                     if img != None and image_placement != 4:
                         image_render = render.Image(src = img, width = 64)
                         row = render.Row(
@@ -207,7 +208,7 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                             else:
                                 print("No image URL found")
 
-                    if image != None:
+                    if rendered_image != None:
                         height = 32 + ((heading_lines + body_lines) * 2.4)
                     else:
                         height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
@@ -217,17 +218,24 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                         print("body_lines: " + str(body_lines))
                         print("Marquee height: " + str(int(height)))
 
-                    if image != None and image_placement == 4:
+                    if rendered_image != None and image_placement == 4:
                         children_content = [
-                            render.Image(src = img, width = 23),
-                            render.Marquee(
-                                offset_start = 32,
-                                offset_end = 32,
-                                height = int(height),
-                                scroll_direction = "vertical",
-                                width = 41,
+                            rendered_image,
+                            render.Padding(
+                                pad = (1, 0, 0, 0),
                                 child = render.Column(
-                                    children = children,
+                                    children = [
+                                        render.Marquee(
+                                            offset_start = 32,
+                                            offset_end = 32,
+                                            height = int(height),
+                                            scroll_direction = "vertical",
+                                            width = 41,
+                                            child = render.Column(
+                                                children = children,
+                                            ),
+                                        ),
+                                    ],
                                 ),
                             ),
                         ]
