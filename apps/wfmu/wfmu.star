@@ -1,7 +1,7 @@
 """
 Applet: WFMU
 Summary: WFMU Now Playing
-Description: Displays what's currently playing on WFMU. WFMU-FM 91.1/Jersey City, NJ; 90.1/Hudson Valley.
+Description: Displays what's currently playing on the WFMU radio station. WFMU-FM 91.1/Jersey City, NJ; 90.1/Hudson Valley.
 Author: Tom O'Dea
 """
 
@@ -26,7 +26,6 @@ def get_schema():
                 default = DEFAULT_COLOR,
                 palette = [
                     DEFAULT_COLOR,
-                    "#6699FF",
                     "#FFFFFF",
                     "#FF00FF",
                     "#33FFFF",
