@@ -165,9 +165,11 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                     if output_heading != None and type(output_heading) == "string":
                         if rendered_image != None:
                             heading_lines = calculate_lines(output_heading, 10)
+                            children.append(render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color, width = 41))
                         else:
                             heading_lines = calculate_lines(output_heading, 17)
-                        children.append(render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color))
+                            children.append(render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color))
+
                     elif debug_output and heading_parse_failure == True:
                         message = "Heading " + heading_parse_message
                         children.append(render.WrappedText(content = message, font = "tom-thumb", color = "#FF0000"))
@@ -177,9 +179,10 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                     if output_body != None and type(output_body) == "string":
                         if rendered_image != None:
                             body_lines = calculate_lines(output_body, 10)
+                            children.append(render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color, width = 41))
                         else:
                             body_lines = calculate_lines(output_body, 17)
-                        children.append(render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color))
+                            children.append(render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color))
                     elif debug_output and body_parse_failure == True:
                         message = "Body " + body_parse_message
                         children.append(render.WrappedText(content = message, font = "tom-thumb", color = "#FF0000"))
@@ -208,10 +211,7 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                             else:
                                 print("No image URL found")
 
-                    if rendered_image != None:
-                        height = 32 + ((heading_lines + body_lines) * 2.4)
-                    else:
-                        height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
+                    height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
 
                     if debug_output:
                         print("heading_lines: " + str(heading_lines))
