@@ -292,7 +292,10 @@ def get_color(percentage):
 
 def format_demand_text(demand_value):
     demand_text = "{}w".format(demand_value)
-    return demand_text.replace(" w", "w")
+    if demand_value > 0:
+      return demand_text.replace(" w", "w")
+    else:
+      return demand_text.replace(" w", "w")
 
 def draw_arrow(demand_value, demand_prev_value):
     demand_value, demand_prev_value = float(demand_value), float(demand_prev_value)
