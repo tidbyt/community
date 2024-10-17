@@ -208,7 +208,7 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                                 print("No image URL found")
 
                     if image != None:
-                        height = 32 + ((heading_lines + body_lines) * 2.1)
+                        height = 32 + ((heading_lines + body_lines) * 2.4)
                     else:
                         height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
 
