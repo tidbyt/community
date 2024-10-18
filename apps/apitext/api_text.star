@@ -168,7 +168,12 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                             children.append(render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color, width = 41))
                         else:
                             heading_lines = calculate_lines(output_heading, 17)
-                            children.append(render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color))
+                            children.append(render.Padding(
+                                pad = (0, 1, 0, 0),
+                                child = render.Column(
+                                    [render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color)],
+                                ),
+                            ))
 
                     elif debug_output and heading_parse_failure == True:
                         message = "Heading " + heading_parse_message
@@ -182,7 +187,12 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                             children.append(render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color, width = 41))
                         else:
                             body_lines = calculate_lines(output_body, 17)
-                            children.append(render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color))
+                            children.append(render.Padding(
+                                pad = (0, 1, 0, 0),
+                                child = render.Column(
+                                    [render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color)],
+                                ),
+                            ))
                     elif debug_output and body_parse_failure == True:
                         message = "Body " + body_parse_message
                         children.append(render.WrappedText(content = message, font = "tom-thumb", color = "#FF0000"))
