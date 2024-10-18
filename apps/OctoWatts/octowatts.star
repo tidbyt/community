@@ -1,7 +1,7 @@
 """
 Applet: OctoWatts
 Summary: Live Energy Monitor
-Description: Octopus Energy live consumption monitor, diplays your current usage and one minute energy trend. Requires an Octopus Home Mini device.
+Description: Octopus Energy live consumption monitor, displays your current usage and one minute energy trend. Requires an Octopus Home Mini device.
 Author: TomForeman86
 """
 
@@ -14,7 +14,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 API_KEY = ""  # Replace with your Octopus Energy API key
-DEVICE_ID = ""  # Replace with your actual device ID, You can find your device id on your smart meter or by using thwe FIND_MY_DEVICE config, it will look like this 12-34-AB-CD-56-78-90-EF, there is more than one ID like this on your meters, take care to use the right one
+DEVICE_ID = ""  # Replace with your actual device ID, You can find your device id on your smart meter it will look like this 12-34-AB-CD-56-78-90-EF, there is more than one ID like this on your meters, take care to use the right one
 
 GRAPHQL_URL = "https://api.octopus.energy/v1/graphql/"
 
@@ -22,7 +22,7 @@ RANGE_MIN = -2000
 RANGE_MAX = 2000
 CHART_TYPE = "pie"
 
-DEMO_MODE = False
+DEMO_MODE = False  #Change to True for Demo Mode
 
 COLOR_SCALE_POS = ["#FFFB5E", "#FCE013", "#FCB913", "#FD3900", "#D01A0F", "#7C0A01"]
 COLOR_SCALE_NEG = ["#b7ffbf", "#95f985", "#4ded30", "#26d701", "#00c301", "#00ab08"]
@@ -38,14 +38,15 @@ def main(config):
     DEMO = bool(config.str("DEMO_MODE", DEMO_MODE) or DEMO_MODE)
 
     if config.bool("DEMO_MODE"):
-        DEMO = True
+        DEMO = bool(True)
 
     # Ensure RANGEMIN and RANGEMAX are not zero
     RANGEMIN = RANGEMIN if RANGEMIN != 0 else -1
     RANGEMAX = RANGEMAX if RANGEMAX != 0 else 1
 
-    if not DEMO:
+    if not bool(DEMO):
         if not APIKEY or APIKEY.strip() == "":
+            print(DEMO)
             return render_content("error", None, None, "SETUP", "!", "#7C0A01", None, "ENTER API KEY", "Please provide a valid API KEY.", "Obtain API KEY from Octopus Energy", " ")
 
         if not DEVICEID or DEVICEID.strip() == "":
@@ -79,9 +80,6 @@ def main(config):
         if demand_value % 2 == 0:
             demand_value = -abs(demand_value)
             demand_average = -abs(demand_average)
-
-        print(demand_value)
-        print(demand_average)
 
     # Calculate percentages
     percentage = calculate_percentage(demand_value, RANGEMIN, RANGEMAX)
@@ -293,9 +291,9 @@ def get_color(percentage):
 def format_demand_text(demand_value):
     demand_text = "{}w".format(demand_value)
     if demand_value > 0:
-      return demand_text.replace(" w", "w")
+        return demand_text.replace(" w", "w ")
     else:
-      return demand_text.replace(" w", "w")
+        return demand_text.replace(" w", "w")
 
 def draw_arrow(demand_value, demand_prev_value):
     demand_value, demand_prev_value = float(demand_value), float(demand_prev_value)
@@ -446,7 +444,7 @@ def get_schema():
                 icon = "key",
             ),
             schema.Text(
-                id = "API_KEY",
+                id = "DEVICE_ID",
                 name = "DEVICE_ID",
                 desc = "You can find your device id on your smart meter, it will look like this 12-34-AB-CD-56-78-90-EF, there is more than one ID like this on your meters, take care to use the right one",
                 icon = "fingerprint",
