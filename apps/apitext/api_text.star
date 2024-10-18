@@ -22,7 +22,11 @@ def main(config):
     image_response_path = config.get("image_response_path", "")
     request_headers = config.get("request_headers", "")
     heading_font_color = config.get("heading_font_color", "#FFA500")
+    if heading_font_color == "":
+        heading_font_color = "#FFA500"
     body_font_color = config.get("body_font_color", "#FFFFFF")
+    if body_font_color == "":
+        body_font_color = "#FFFFFF"
     debug_output = config.bool("debug_output", False)
     base_url = config.str("base_url", "")
     image_placement = config.get("image_placement", 2)
