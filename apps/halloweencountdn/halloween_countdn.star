@@ -24,6 +24,14 @@ def main(config):
     halloween = time.time(year = halloween_year, month = 10, day = 31, hour = 0, minute = 0, location = timezone)
     days_til_halloween = math.ceil(time.parse_duration(halloween - now).seconds / 86400)
 
+    display_content = ""
+    font_size = "6x13"
+    if days_til_halloween == 0:
+        display_content = "HALL\n-O-\nWEEN!"
+        font_size = "5x8"
+    else:
+        display_content = "%s\ndays" % days_til_halloween
+
     return render.Root(
         delay = 500,
         child = render.Row(
@@ -37,8 +45,8 @@ def main(config):
                     height = 35,
                 ),
                 render.WrappedText(
-                    content = "%s\ndays" % days_til_halloween,
-                    font = "6x13",
+                    content = display_content,
+                    font = font_size,
                     color = "#ff751a",
                     align = "center",
                 ),
