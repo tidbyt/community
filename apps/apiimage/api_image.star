@@ -149,7 +149,7 @@ def get_image(api_url, base_url, response_path, request_headers, debug_output, f
                                 else:
                                     url = output
 
-                                img = get_data(url, debug_output, {}, ttl_seconds)
+                                img = get_data(url, debug_output, headerMap, ttl_seconds)
 
                                 if debug_output:
                                     print("Image URL: " + url)
