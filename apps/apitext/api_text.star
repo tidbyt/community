@@ -162,7 +162,14 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                             else:
                                 print("No image URL found")
                         elif image_placement == 4:
-                            rendered_image = render.Image(src = img, width = 22)
+                            rendered_image = render.Column(
+                                expanded = True,
+                                main_align = "space_evenly",
+                                cross_align = "center",
+                                children = [
+                                    render.Image(src = img, width = 22),
+                                ],
+                            )
 
                     # Append heading
                     heading_lines = 0
