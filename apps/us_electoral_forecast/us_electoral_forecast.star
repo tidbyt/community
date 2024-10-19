@@ -32,7 +32,7 @@ PARTY_COLORS = {
 
 PARTY_LEADERS = {
     "DEM": "HARRIS",
-    "REP": "TRUMP"
+    "REP": "TRUMP",
 }
 
 def main(config):
