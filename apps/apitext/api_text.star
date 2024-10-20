@@ -175,6 +175,7 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                     heading_lines = 0
                     if output_heading != None and type(output_heading) == "string":
                         if rendered_image != None:
+                            output_heading = wrap(output_heading, 10)
                             heading_lines = calculate_lines(output_heading, 10)
                             children.append(render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color, width = 41))
                         else:
@@ -194,6 +195,7 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                     body_lines = 0
                     if output_body != None and type(output_body) == "string":
                         if rendered_image != None:
+                            output_body = wrap(output_body, 10)
                             body_lines = calculate_lines(output_body, 10)
                             children.append(render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color, width = 41))
                         else:
@@ -334,6 +336,63 @@ def calculate_lines(text, length):
         currentlength = currentlength + len(word) + 1
 
     return breaks + 1
+
+def wrap(string, line_length):
+    lines = string.split("\n")
+
+    b = ""
+    for line in lines:
+        b = b + wrap_line(line, line_length)
+
+    return b
+
+def wrap_line(line, line_length):
+    if len(line) == 0:
+        return "\n"
+
+    if len(line) <= line_length:
+        return line + "\n"
+
+    words = line.split(" ")
+    cur_line_length = 0
+    str_builder = ""
+
+    for word in words:
+        # If adding the new word to the current line would be too long,
+        # then put it on a new line (and split it up if it's too long).
+        if (cur_line_length + len(word)) > line_length:
+            # Only move down to a new line if we have text on the current line.
+            # Avoids situation where
+            # wrapped whitespace causes emptylines in text.
+            if cur_line_length > 0:
+                str_builder = str_builder + "\n"
+                cur_line_length = 0
+
+            # If the current word is too long
+            # to fit on a line (even on its own),
+            # then split the word up.
+            for _ in range(5000):
+                if len(word) <= line_length:
+                    word = word + " "
+                    break
+                else:
+                    str_builder = str_builder + word[0:line_length - 1]
+                    if word.strip().rfind("-") == -1:
+                        str_builder = str_builder + "-"
+                    word = word[line_length - 1:len(word) - 1]
+                    str_builder = str_builder + "\n"
+
+            # Remove leading whitespace from the word,
+            # so the new line starts flush to the left.
+            word = word.lstrip(" ")
+
+        if word.rfind(" ") == -1:
+            str_builder = str_builder + " " + word.strip()
+        else:
+            str_builder = str_builder + word.strip()
+        cur_line_length = cur_line_length + len(word)
+
+    return str_builder
 
 def parse_response_path(output, responsePathStr, debug_output, ttl_seconds):
     message = ""
