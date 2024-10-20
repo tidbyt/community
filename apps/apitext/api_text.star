@@ -379,7 +379,7 @@ def wrap_line(line, line_length):
                     str_builder = str_builder + word[0:line_length - 1]
                     if word.strip().rfind("-") == -1:
                         str_builder = str_builder + "-"
-                    word = word[line_length - 1:len(word) - 1]
+                    word = word[line_length - 1:len(word)]
                     str_builder = str_builder + "\n"
 
             # Remove leading whitespace from the word,
