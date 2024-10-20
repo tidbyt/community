@@ -64,6 +64,9 @@ Updated Player Name Mapping logic to stop partial ID matches
 v2.7
 Bug fix - During play, the completed round scores were showing the previous round's score
 
+v2.8
+Fixed situation that when play is suspended, "state" value = "post" (round is complete) and does not show in progress scores for the suspended round,
+Also, updated title bar to show that play is suspended 
 """
 
 load("encoding/json.star", "json")
@@ -199,6 +202,9 @@ def main(config):
             # Noted situation that when play is suspended, "state" value = "post" (round is complete) and does not show in progress scores for the suspended round
             if leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["name"] == "STATUS_SUSPENDED":
                 state = "in"
+                ProgressTitle = "PLAY SUSP"
+            else:
+                ProgressTitle = TournamentName
 
             # shortening status messages
             stage = stage.replace("Final", "F")
@@ -227,7 +233,7 @@ def main(config):
                             render.Column(
                                 children = [
                                     render.Column(
-                                        children = getPlayerProgress(x, entries, entries2, TournamentName, TitleColor, ColorGradient, stage, state, timezone, PlayerMapping),
+                                        children = getPlayerProgress(x, entries, entries2, ProgressTitle, TitleColor, ColorGradient, stage, state, timezone, PlayerMapping),
                                     ),
                                 ],
                             ),
