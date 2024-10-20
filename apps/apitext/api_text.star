@@ -175,7 +175,7 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                     heading_lines = 0
                     if output_heading != None and type(output_heading) == "string":
                         if rendered_image != None:
-                            output_heading = wrap(output_heading, 10)
+                            output_heading = wrap(output_heading, 9)
                             heading_lines = calculate_lines(output_heading, 10)
                             children.append(render.WrappedText(content = output_heading, font = "tom-thumb", color = heading_font_color, width = 41))
                         else:
@@ -195,7 +195,7 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                     body_lines = 0
                     if output_body != None and type(output_body) == "string":
                         if rendered_image != None:
-                            output_body = wrap(output_body, 10)
+                            output_body = wrap(output_body, 9)
                             body_lines = calculate_lines(output_body, 10)
                             children.append(render.WrappedText(content = output_body, font = "tom-thumb", color = body_font_color, width = 41))
                         else:
@@ -245,7 +245,7 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                         children_content = [
                             rendered_image,
                             render.Padding(
-                                pad = (1, 0, 0, 0),
+                                pad = (2, 0, 0, 0),
                                 child = render.Column(
                                     children = [
                                         render.Marquee(
@@ -390,6 +390,7 @@ def wrap_line(line, line_length):
             str_builder = str_builder + " " + word.strip()
         else:
             str_builder = str_builder + word.strip()
+
         cur_line_length = cur_line_length + len(word)
 
     return str_builder
