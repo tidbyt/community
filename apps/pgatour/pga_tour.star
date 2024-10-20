@@ -64,9 +64,6 @@ Updated Player Name Mapping logic to stop partial ID matches
 v2.7
 Bug fix - During play, the completed round scores were showing the previous round's score
 
-IDEAS
-Different title bar colors for signature, playoff and Fall Series events
-
 """
 
 load("encoding/json.star", "json")
