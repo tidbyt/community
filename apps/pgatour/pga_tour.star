@@ -63,6 +63,10 @@ Updated Player Name Mapping logic to stop partial ID matches
 
 v2.7
 Bug fix - During play, the completed round scores were showing the previous round's score
+
+IDEAS
+Different title bar colors for signature, playoff and Fall Series events
+
 """
 
 load("encoding/json.star", "json")
@@ -194,6 +198,10 @@ def main(config):
             entries2 = leaderboard2["events"][i]["competitions"][0]["competitors"]
             stage = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["detail"]
             state = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["state"]
+
+            # Noted situation that when play is suspended, "state" value = "post" (round is complete) and does not show in progress scores for the suspended round
+            if leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["name"] == "STATUS_SUSPENDED":
+                state = "in"
 
             # shortening status messages
             stage = stage.replace("Final", "F")
@@ -447,9 +455,6 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
                                 RoundScore = t[i]["linescores"][RoundNumber]["value"]
                                 ProgressStr = str(int(RoundScore))
 
-                            # print(playerName)
-                            # print(ProgressStr)
-
                 else:
                     ProgressStr = "PO"
 
@@ -467,7 +472,6 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
                     if playerID == t[i]["id"]:
                         CompletedRound = len(t[i]["linescores"]) - 2
 
-                        #print(CompletedRound)
                         RoundScore = t[i]["linescores"][CompletedRound]["value"]
                         ProgressStr = str(int(RoundScore))
 
