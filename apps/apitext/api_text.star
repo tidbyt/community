@@ -245,7 +245,7 @@ def get_text(api_url, base_url, heading_response_path, body_response_path, image
                         children_content = [
                             rendered_image,
                             render.Padding(
-                                pad = (2, 0, 0, 0),
+                                pad = (1, 0, 0, 0),
                                 child = render.Column(
                                     children = [
                                         render.Marquee(
@@ -377,7 +377,7 @@ def wrap_line(line, line_length):
                     break
                 else:
                     str_builder = str_builder + word[0:line_length - 1]
-                    if word.strip().rfind("-") == -1:
+                    if word.strip().rfind("-") == -1 and word.strip().rfind("'") == -1:
                         str_builder = str_builder + "-"
                     word = word[line_length - 1:len(word)]
                     str_builder = str_builder + "\n"
