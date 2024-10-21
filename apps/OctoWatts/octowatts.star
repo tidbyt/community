@@ -149,7 +149,7 @@ def process_telemetry(telemetry):
 
 def fetch_telemetry(access_token, device_id, ttl):
     # Check cache so we don't make requests more than every 10 seconds
-    cached_telemetry = cache.get("telemetry".format(device_id))
+    cached_telemetry = cache.get("telemetry" + device_id)
     if cached_telemetry:
         print("Using cached telemetry data.")
         return json.decode(cached_telemetry), None
@@ -187,7 +187,7 @@ def fetch_telemetry(access_token, device_id, ttl):
 
     telemetry = response_data.get("data", {}).get("smartMeterTelemetry", [])
     if telemetry:
-        cache.set("telemetry".format(device_id), json.encode(telemetry), ttl_seconds = 10)
+        cache.set("telemetry" + device_id, json.encode(telemetry), ttl_seconds = 10)
         return telemetry, None
 
     return None, "No telemetry data found"
