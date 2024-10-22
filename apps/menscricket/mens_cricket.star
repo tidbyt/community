@@ -20,7 +20,8 @@ load("time.star", "time")
 # API
 TEAM_SCHEDULE_URL = "https://www.cricbuzz.com/cricket-team/{team_name}/{team_id}/schedule"
 TEAM_RESULTS_URL = "https://www.cricbuzz.com/cricket-team/{team_name}/{team_id}/results"
-MATCH_SCORE_URL = "https://www.cricbuzz.com/api/cricket-match/{match_id}/full-commentary/0"
+MATCH_COMM_URL = "https://www.cricbuzz.com/api/cricket-match/{match_id}/full-commentary/0"
+LIVE_SCORE_URL = "https://www.cricbuzz.com/api/cricket-match/commentary/{match_id}"
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
 
 # Timings
@@ -59,7 +60,7 @@ def main(config):
     scheduled_match_ids = get_cached_scheduled_match_ids(team_settings.id, team_settings.name)
     current_match, past_match, next_match = None, None, None
     for match_id in result_match_ids:
-        match_api_resp = fetch_match_scorecard(match_id)
+        match_api_resp = fetch_match_comm(match_id)
         if not match_api_resp or "matchHeader" not in match_api_resp:
             continue
         if str(match_api_resp["matchHeader"]["team1"]["id"]) not in team_settings_by_id:
@@ -69,7 +70,7 @@ def main(config):
         past_match = match_api_resp
         break
     for match_id in scheduled_match_ids:
-        match_api_resp = fetch_match_scorecard(match_id)
+        match_api_resp = fetch_match_comm(match_id)
         if not match_api_resp:
             continue
         if "matchHeader" not in match_api_resp:
@@ -90,9 +91,9 @@ def main(config):
     if current_match:
         match_to_render, render_fn = current_match, render_current_match
     if past_match and not match_to_render:
-        match_end = time.from_timestamp(int(past_match["matchHeader"]["matchCompleteTimestamp"] / 1000)).in_location(tz)
+        match_time = time.from_timestamp(int(past_match["matchHeader"]["matchCompleteTimestamp"] / 1000)).in_location(tz)
         result_days_duration = time.parse_duration("{}h".format(result_days * 24))
-        if now <= match_end + result_days_duration:
+        if now <= match_time + result_days_duration:
             match_to_render, render_fn = past_match, render_past_match
     if next_match and not match_to_render:
         if fixture_days == ALWAYS_SHOW_FIXTURES_SCHEMA_KEY:
@@ -108,8 +109,9 @@ def main(config):
     print("rendering match id {} at {} with state {}".format(match_to_render["matchHeader"]["matchId"], now, match_to_render["matchHeader"]["state"]))
     return render_fn(match_to_render, tz)
 
-def render_current_match(match_data, tz):
+def render_current_match(match, tz):
     print(tz)
+    match_data = fetch_live_score(match["matchHeader"]["matchId"])
     details, scorecard = match_data["matchHeader"], match_data["miniscore"]
     is_test_match = details["matchFormat"].lower() == "test"
     team_scores = [
@@ -150,7 +152,7 @@ def render_current_match(match_data, tz):
     for ts in team_scores:
         ts["team_settings"] = team_settings_by_id[str(ts["id"])]
 
-    for ing in scorecard["matchScoreDetails"]["inningsScoreList"]:
+    for ing in reversed(scorecard["matchScoreDetails"]["inningsScoreList"]):
         ts = team_scores[0] if ing["batTeamId"] == team_scores[0]["id"] else team_scores[1]
         if is_test_match:
             in_score = str(ing["score"])
@@ -170,6 +172,9 @@ def render_current_match(match_data, tz):
             name = scorecard[k]["batName"]
             runs = scorecard[k]["batRuns"]
             balls = scorecard[k]["batBalls"]
+            if not name:
+                name = " ".join(scorecard.get("lastWicket", "Wicket Out").split(" ")[:2])
+                runs = "out"
             ts = team_scores[0] if scorecard["batTeam"]["teamId"] == team_scores[0]["id"] else team_scores[1]
             ts[m] = render_batsmen_row(name, runs, balls, ts["team_settings"].fg_color)
 
@@ -179,13 +184,15 @@ def render_current_match(match_data, tz):
     default_match_status = ""
     if is_test_match:
         day_number, match_state = details.get("dayNumber", 0), details["state"].lower()
-        default_match_status = "Day {} - {}".format(day_number, match_state)
+        default_match_status = "Day {} {}".format(day_number, match_state)
         overs_rem = scorecard.get("oversRem", 0)
         if overs_rem > 0:
             statuses[2] = "Overs rem - {}".format(humanize.float("#.#", float(overs_rem)))
         else:
             statuses[2] = "{} Innings".format(humanize.ordinal(int(live_inning)))
         need_runs = scorecard.get("remRunsToWin", 0)
+        if need_runs == 0 and scorecard.get("target", 0) > 0:
+            need_runs = scorecard.get("target", 0) - scorecard["batTeam"]["teamScore"]
         if need_runs > 0:
             statuses[0] = "{} runs to win".format(need_runs)
     else:
@@ -333,7 +340,7 @@ def render_past_match(match, tz):
     for ts in team_scores:
         ts["team_settings"] = team_settings_by_id[str(ts["id"])]
 
-    for ing in scorecard["matchScoreDetails"]["inningsScoreList"]:
+    for ing in reversed(scorecard["matchScoreDetails"]["inningsScoreList"]):
         ts = team_scores[0] if ing["batTeamId"] == team_scores[0]["id"] else team_scores[1]
         if is_test_match:
             in_score = str(ing["score"])
@@ -669,7 +676,7 @@ def _get_cached_match_ids(url, span_id):
         print("---HIT for {}".format(url))
         return json.decode(cached_data)
     print("--MISS for {}".format(url))
-    res = fetch_html(url)
+    res = fetch_url(url)
     page = bsoup.parseHtml(res)
     spans = page.find_all("span")
     result_span = None
@@ -693,8 +700,8 @@ def _get_cached_match_ids(url, span_id):
     cache.set(url, json.encode(match_ids), ONE_HOUR)
     return match_ids
 
-def fetch_match_scorecard(match_id):
-    url = MATCH_SCORE_URL.format(match_id = match_id)
+def fetch_match_comm(match_id):
+    url = MATCH_COMM_URL.format(match_id = match_id)
     json_resp = {}
     cached_data = cache.get(url)
     if cached_data:
@@ -703,15 +710,9 @@ def fetch_match_scorecard(match_id):
         return json_resp.get("matchDetails")
 
     print("--MISS for {}".format(url))
-    res = http.get(url = url, headers = {"User-Agent": USER_AGENT})
-    if res.status_code == 204:
-        cache.set(url, json.encode(json_resp), 5 * ONE_MINUTE)
-        return json_resp
-    if res.status_code != 200:
-        return fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-    json_resp = json.decode(res.body())
+    json_resp = json.decode(fetch_url(url))
 
-    cache_ttl = ONE_MINUTE
+    cache_ttl = 5 * ONE_MINUTE
     match_state = json_resp.get("matchDetails", {}).get("matchHeader", {}).get("state", "Preview").lower()
     if match_state in ["complete", "abandon", "upcoming"]:
         # completed/way in future matches can be cached for longer as they are less likely to change now
@@ -719,16 +720,26 @@ def fetch_match_scorecard(match_id):
     if match_state in ["preview"]:
         # matches about to start within next 1 day
         cache_ttl = ONE_HOUR
-    if match_state in ["toss", "stumps", "rain", "delay"]:
-        # matches about to have live scores within 1 hour
-        cache_ttl = 5 * ONE_MINUTE
 
     cache.set(url, json.encode(json_resp), cache_ttl)
     return json_resp.get("matchDetails")
 
-def fetch_html(url):
+def fetch_live_score(match_id):
+    url = LIVE_SCORE_URL.format(match_id = match_id)
+    cached_data = cache.get(url)
+    if cached_data:
+        print("---HIT for {}".format(url))
+        return json.decode(cached_data)
+    print("--MISS for {}".format(url))
+    json_resp = json.decode(fetch_url(url))
+    cache.set(url, json.encode(json_resp), ONE_MINUTE)
+    return json_resp
+
+def fetch_url(url):
     res = http.get(url = url, headers = {"User-Agent": USER_AGENT})
 
+    if res.status_code == 204:
+        cache.set(url, json.encode({}), 5 * ONE_MINUTE)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
