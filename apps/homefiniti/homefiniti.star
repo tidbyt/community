@@ -13,7 +13,8 @@ load("schema.star", "schema")
 
 TTL_SECONDS = 60
 
-ONEIL_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBI
+# 24x24
+ONEIL_ICON = """iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBI
 WXMAAC4jAAAuIwF4pT92AAAEq0lEQVRIx52VW4iVVRSAv7X3PsczpzxSRPUQDoLlocvkLXMG02Iq
 U4kepBIE07LoPHR5KIig20NQ9hAVcYhGK5woiyLKW1mTll3EmQgNm6QXLYyoh5jR6Thn77V6+P+Z
 OZpktZ82//rX+va6w2nO8NZl04e3LysDHPvsusdHvuh+EuD4N/PbRr+9Ysbp9OWfhEPvL5uDo18c
@@ -36,7 +37,7 @@ p0lwJuErXNh85tr+EYChjde04/wuvG/HO3DSUVm+df8J+6BRr/YCK4FRoAgcAlaUaoNf/+PG29A5
 +MOcDE+59cNDp9xojXr1wjxUJ58E7Mt6wi4zkWASMClgrgAuYOI6Kmt2729Vcqcw1ADeyJYMt7d8
 98AsYJYgIZtbCbHmfYJeiqVNYjr0n5Z+Xl39wIvARuCDvPOvA1tu8KCJzC3fPTjA/z2NerWjUa+W
 8/tzjXr1pfxebtRnzD6d/l+EVGcqps4DawAAAABJRU5ErkJggg==
-""")
+"""
 PERSON_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAHCAYAAADAp4fuAAAAAXNSR0IArs4c6QAAADRJREFUGFd1jMEKAEAQQfn/j57tKTVzWAckWNIImpFtrOCEGwlpFbRNguk8+v08Leb93BcPLuwk/neqrrgAAAAASUVORK5CYII=")
 ENVELOPE_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAGCAYAAAD+Bd/7AAAAAXNSR0IArs4c6QAAADdJREFUGFd9jtEKACAMAr3//2jDoLGC5ZNMuYlt6yMkjR1AJI15Qee2C/nQS5fv/ARRpxVh2rkAha0m8k92rkgAAAAASUVORK5CYII=")
 
@@ -54,18 +55,22 @@ def get_real_data(config):
     visits_today = response_json["stats"]["visits_today"]["value"]
     visits_60_minutes = response_json["stats"]["visits_60_minutes"]["value"]
     leads_today = response_json["stats"]["leads_today"]["value"]
+    logo = response_json["ui"].get("logo", None) or ONEIL_ICON
 
-    return (visits_today, visits_60_minutes, leads_today)
+    return (visits_today, visits_60_minutes, leads_today, logo)
 
 def main(config):
     api_key = config.str("api_key")
 
     if api_key:
-        (visits_today, visits_60_minutes, leads_today) = get_real_data(config)
+        (visits_today, visits_60_minutes, leads_today, logo) = get_real_data(config)
     else:
         visits_today = config.str("visits_today", "99999")
         visits_60_minutes = config.str("visits_60_minutes", "999")
         leads_today = config.str("leads_today", "999")
+        logo = ONEIL_ICON
+
+    logo_decoded = base64.decode(logo)
 
     return render.Root(
         child = render.Row(
@@ -98,7 +103,7 @@ def main(config):
                 ),
                 render.Column(
                     children = [
-                        render.Image(src = ONEIL_ICON),
+                        render.Image(src = logo_decoded),
                         render.Box(width = 2, height = 1),  # spacer
                         render.Row(
                             cross_align = "center",
