@@ -55,7 +55,7 @@ SHORTENED_WORDS = """
 ALT_COLOR = """
 {
     "NSH": "#041E42",
-    "BUF": "#003087"
+    "WSH": "#041E42"
 }
 """
 ALT_LOGO = """
@@ -510,10 +510,6 @@ teamOptions = [
         value = "ANA",
     ),
     schema.Option(
-        display = "Arizona Coyotes",
-        value = "ARI",
-    ),
-    schema.Option(
         display = "Boston Bruins",
         value = "BOS",
     ),
@@ -616,6 +612,10 @@ teamOptions = [
     schema.Option(
         display = "Toronto Maple Leafs",
         value = "TOR",
+    ),
+    schema.Option(
+        display = "Utah Hockey Club",
+        value = "UTAH",
     ),
     schema.Option(
         display = "Vancouver Canucks",
