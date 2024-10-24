@@ -1,0 +1,106 @@
+"""
+Applet: CandyStatus
+Summary: Trick-Or-Treat Status
+Description: Shows trick-or-treaters whether you still have candy or not!
+Author: nbohling
+"""
+
+load("animation.star", "animation")
+load("encoding/base64.star", "base64")
+load("render.star", "render")
+load("schema.star", "schema")
+
+DEFAULT_MESSAGE = "BoOoOoO! Trick-or-treat if you dare!"
+
+BAN_ICON = base64.decode("""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""")
+CANDY_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAxXpUWHRSYXcgcHJvZmlsZSB0eXBlIGV4aWYAAHjabVBbDsMgDPvPKXYESFIIx6FrJ+0GO/4MSat2miWch5EJof3zftFjgLOSLtVKKyUB2rRxR2LJ0SfnpJMnNCTUtz6dAqMliOKllbh/9PNp4KEjWy5G9gxhvQstXmD7MWIPMiYa+RZGLYyEXchh0P1bqTSr1y+se7rD/NCgVd2X41u/tVZsb1vwjjDvkiWBRcwHkHGUpA8BzIKhkNeZK1iFYxIs5N+eDtAXQWdZ1uTLVXUAAAGEaUNDUElDQyBwcm9maWxlAAB4nH2RPUjDQBiG36ZKpVQcLCjikKE6WQQr4lirUIQKoVZo1cHk+gtNGpIUF0fBteDgz2LVwcVZVwdXQRD8AXF2cFJ0kRK/SwotYrzjuIf3vvfl7jtAaFaZavbEAVWzjHQyIWZzq2LgFUEM0YxhUmamPidJKXiOr3v4+H4X5VnedX+O/nzBZIBPJI4z3bCIN4hnNi2d8z5xmJXlPPE58YRBFyR+5Lri8hvnksMCzwwbmfQ8cZhYLHWx0sWsbKjE08SRvKpRvpB1Oc95i7NarbP2PfkLQwVtZZnrtEaRxCKWIEGEgjoqqMJClHaNFBNpOk94+Eccv0QuhVwVMHIsoAYVsuMH/4PfvTWLsSk3KZQAel9s+2MMCOwCrYZtfx/bdusE8D8DV1rHX2sCs5+kNzpa5AgY2AYurjuasgdc7gDDT7psyI7kpyUUi8D7GX1TDhi8BYJrbt/a5zh9ADLUq9QNcHAIjJcoe93j3X3dffu3pt2/Hx6IcutW3whDAAANemlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIgogICAgeG1sbnM6R0lNUD0iaHR0cDovL3d3dy5naW1wLm9yZy94bXAvIgogICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iCiAgICB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iCiAgIHhtcE1NOkRvY3VtZW50SUQ9ImdpbXA6ZG9jaWQ6Z2ltcDoyYTc5MDM4Ni02NGM4LTQwMTYtOWQwMC0zZjY2MjNhMTg4YjciCiAgIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6M2QwZDg3ZGYtMWUxOS00YTQxLWFkYmYtZDM4YWU1ZGI3MWJiIgogICB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ZDc5ZDA2YTctY2JmYi00MjAzLWFmYjktNjY3ZWQ1MjU1NjBmIgogICBHSU1QOkFQST0iMi4wIgogICBHSU1QOlBsYXRmb3JtPSJNYWMgT1MiCiAgIEdJTVA6VGltZVN0YW1wPSIxNzI5NzI5NDg0NjMzMTg0IgogICBHSU1QOlZlcnNpb249IjIuMTAuMzgiCiAgIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIgogICB0aWZmOk9yaWVudGF0aW9uPSIxIgogICB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCIKICAgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNDoxMDoyM1QxNzoyNDo0Mi0wNzowMCIKICAgeG1wOk1vZGlmeURhdGU9IjIwMjQ6MTA6MjNUMTc6MjQ6NDItMDc6MDAiPgogICA8eG1wTU06SGlzdG9yeT4KICAgIDxyZGY6U2VxPgogICAgIDxyZGY6bGkKICAgICAgc3RFdnQ6YWN0aW9uPSJzYXZlZCIKICAgICAgc3RFdnQ6Y2hhbmdlZD0iLyIKICAgICAgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoyYTkwN2YwOC02NTM3LTRjNmMtOTk1Zi1iZWI5ZDgyOTViYzkiCiAgICAgIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkdpbXAgMi4xMCAoTWFjIE9TKSIKICAgICAgc3RFdnQ6d2hlbj0iMjAyNC0xMC0yM1QxNzoyNDo0NC0wNzowMCIvPgogICAgPC9yZGY6U2VxPgogICA8L3htcE1NOkhpc3Rvcnk+CiAgPC9yZGY6RGVzY3JpcHRpb24+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgCjw/eHBhY2tldCBlbmQ9InciPz7m57/TAAAABmJLR0QA9gD2APbboEbJAAAACXBIWXMAAA9qAAAPagEhDI5hAAAAB3RJTUUH6AoYABgsWR2gJAAABSJJREFUeNrtW09sFFUY/327s1srSFpI6e4WSGpsgA7YIKRBWkNSjYZ4UgyJB6LGROOBePCoiZ482Yt/0MhBD8R4IOFgSDRaGuNu659SI+kgEEM0rTttkS7QlG13t30elt3O7Px782Zmu5P2O+1Mv/dmfr/v33vfmwIbsiGhFpZVGMsqTHR8JNTgVeVDr3NEwm1+nFq3BHhx+9ATwNiwpL2mlEzrywPU7UW/poqE0PWzfoZDGD0gCQCUZvhmrhoEY6JlkkJm/XsAmisEAADr10EoABgFcNQA1CJPhI0ApgVfvd9vD8MuSVLYwEfSDE4Bv7uZcPUgX4WQ6ghgCkAHl3IsuoXa9sybJTmebFcBj2R31ElXqpflXElx+S7LKkZ3TbubiohW1oQAxsZiUJsLTno3Fqfw8AM71jS0pEAsrlpYJC3zzdGveHqHEgMkKr+LUw6gerk7L3hdJPRdhkRRoTAwVIYInqSEfDEwAvwGb+cRUgZYZs5EDO0jDLQ45AnfweduAa3bfANvRULrKMPtZf7xX3YRXmoPIAcYLD8yDDz7gu+AayX3OImHg2Z94G8SvHCupl/hrmw93XIE3+07Y69UWALiTVVgdiTYAffFA3TWrwEPAJ+qX/tm8arcB1+RRByY1hTcJgIW+wzAVyglR4Mrg0MXTG8n4m3C4F/7i+HM9Or1gU3A+AGjRdVewmwR2B4z2zd2R4iIBbIO0Fl/MW+q8/y2p1yD3/Er8G/B+M6/L5RL4JGHgEyPnoha8G46RN49YGxEeOjhLT2667ZfGP5z6PWMzJeJ4InvwBoiTL3yRvViJitMwOijX1V/X74HR/Ba2fUb8wxevCPE2GneasCb3HrG3VWMySV/CldwLbHxn21J0N77Nif2iLf/0eakieN1IUCX/OZuWiuqUwbAVt5wTLCn+f6kdhydE5mDPBHw0/fA3Tv2A1yuCt3u+bXJsG5JsCpO4Cv5ID3kCpBTj69x+gFNzcBS3lnvTm41MfYNAC1buYhYYUA0wwIlwJsH7O52PyZzsUyGplIoKRlKyrhrjBDwQSc1MAE7O8XHdnYZbpkR8ZZNG7U9rstmH9eFAC8HkTrp7rH8Uy0JVjlhuleTAJPyqTp6gPVRlFsp3ZrjIuHl9oYKAXZItMzVjrm2/wlLtRvHTlR/f9FFDZgDREhwoZv/Q+FrduTQVBcCbE9aeYDV6JhlfqGAlOWC6FiJF7hhpVsAknEbgNcmAMaAPfu5Ylx09QfQO57IswFdAqBrI20eZVjQdGJbJWDusLvYvH5wAEV1hltf1hyRmfUBvFYlicfaVuvzXIn/QbODn+Dm4GlPrp6I+1+SJRHgtTq1VvErtre+8qI+7Hp1z5n3JX+YAT87y3Dyupe49IcEOasEviAjp+Pr4dvAwIT4AYQoEZbgCVlKyh3wScjc/ekowH4U2adbLVvdEGFj+UlKybv8XAg5ulGFnBIDYhlvJFTk7xOvYiG92jKL7ezAI0PnEdm8Kfg9iEhHyOrjJFECXMrnlJJfb8yGCOfOkanKu2B4b012nZ5DgLEo1CslXg/QWP8kpeSz5h418QxAgwBklL/t+4xS8ptYA+HOAXsvMVzNO0+2cp+AelkwUAKcSqTVB4thAW+7G7QA/wOAJbNkp/mdR4hEEk1ILKtcAvDY+b2E5/5kWt0Hw0SAJ1c18ZIZSsmJMBHg69lg2MB7IsBg/WQ+jhCKbx5AdKgYRgLID+uHqez57wGEj7Aexeu/rG7IhjSG/A8Ezx62tsvNEwAAAABJRU5ErkJggg==""")
+
+def main(config):
+    message = config.str("candyMessage") if config.bool("haveCandy", True) else config.str("noCandyMessage")
+    message = message if message else DEFAULT_MESSAGE
+    marquee = render.Marquee(
+        child = render.Text(
+            content = message,
+            font = "6x13",
+            color = "#f94",
+        ),
+        width = 64,
+        offset_start = 0,
+        offset_end = 0,
+    )
+
+    dancing_candy = animation.Transformation(
+        child = render.Image(src = CANDY_ICON, width = 24, height = 24),
+        keyframes = [
+            animation.Keyframe(
+                percentage = 0.0,
+                transforms = [animation.Rotate(-10)],
+            ),
+            animation.Keyframe(
+                percentage = 0.25,
+                transforms = [animation.Rotate(10)],
+            ),
+            animation.Keyframe(
+                percentage = 0.5,
+                transforms = [animation.Rotate(-10)],
+            ),
+            animation.Keyframe(
+                percentage = 0.75,
+                transforms = [animation.Rotate(10)],
+            ),
+            animation.Keyframe(
+                percentage = 1,
+                transforms = [animation.Rotate(-10)],
+            ),
+        ],
+        fill_mode = "forwards",
+        origin = animation.Origin(0.5, 0.5),
+        duration = marquee.frame_count() if marquee.frame_count() > 1 else 60,
+        delay = 0,
+    )
+
+    icon = dancing_candy if config.bool("haveCandy", True) else render.Image(src = BAN_ICON, width = 20, height = 20)
+
+    return render.Root(
+        child = render.Box(
+            child = render.Row(
+                cross_align = "center",
+                expanded = True,
+                children = [
+                    render.Box(
+                        width = 24,
+                        height = 24,
+                        child = icon,
+                    ),
+                    marquee,
+                ],
+            ),
+        ),
+    )
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Toggle(
+                id = "haveCandy",
+                name = "Do you still have candy?",
+                desc = "If you still have candy to give out, enable this. Once you run out, turn it off to show the 'Out of Candy' message.",
+                icon = "ghost",
+            ),
+            schema.Text(
+                id = "candyMessage",
+                name = "Candy Message",
+                desc = "The message to display while you still have candy.",
+                icon = "message",
+                default = DEFAULT_MESSAGE,
+            ),
+            schema.Text(
+                id = "noCandyMessage",
+                name = "No Candy Message",
+                desc = "The message to display when you run out of candy.",
+                icon = "ban",
+                default = "Sorry, Out of Candy!",
+            ),
+        ],
+    )
