@@ -1,7 +1,7 @@
 """
 Applet: This Day History
 Summary: Historical events today
-Description: Display historical events from today including births and deaths (if selected).  Uses Wikipedia information. / Muestra eventos históricos de hoy, incluyendo nacimientos y defunciones (si se selecciona). Usa información de Wikipedia.
+Description: Display historical events from today including births and deaths (if selected).  Uses Wikipedia information.
 Author: jvivona
 """
 
@@ -28,7 +28,6 @@ DEFAULT_TIMEZONE = "America/New_York"
 
 # this data is barely going to change throughout the data - so let's cache for 12 hours (just in case) - each run will get a random item though - but we're saving on network traffic
 CACHE_TTL_SECONDS = 43200
-DEFAULT_LANG = "en"
 ENGLISH = "en"
 
 ES = {
@@ -150,8 +149,7 @@ def get_schema():
 
 def getData(config):
     # go get the data
-    url = "https://api.wikimedia.org/feed/v1/wikipedia/{}/onthisday/all/".format(config.get("displayLanguage", DEFAULT_LANG)) + time.now().in_location(config.get("$tz", DEFAULT_TIMEZONE)).format("1/2")
-    print(url)
+    url = "https://api.wikimedia.org/feed/v1/wikipedia/{}/onthisday/all/".format(config.get("displayLanguage", ENGLISH)) + time.now().in_location(config.get("$tz", DEFAULT_TIMEZONE)).format("1/2")
     response = http.get(url = url, ttl_seconds = CACHE_TTL_SECONDS)
     if response.status_code != 200:
         return -1, "wikipedia error " + str(response.status_code)
