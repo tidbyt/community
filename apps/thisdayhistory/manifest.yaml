@@ -1,0 +1,6 @@
+---
+id: this-day-history
+name: This Day In Hist
+summary: Historical events today
+desc: Display 1 random historical event, 1 random person born and 1 random person who dies (if you select those options) today.  Uses Wikipedia information.
+author: jvivona
