@@ -30,6 +30,9 @@ DEFAULT_TIMEZONE = "America/New_York"
 CACHE_TTL_SECONDS = 43200
 ENGLISH = "en"
 
+# in the old days - we would actually assign resource numbers to phrases, then look up the correct resource number in the appropriate language resource table.  There's not enough here to do that
+# at this time.   But....
+
 ES = {
     "Today in History": "Hoy en Historia",
     "Include Births": "Incluir Nacimientos",
