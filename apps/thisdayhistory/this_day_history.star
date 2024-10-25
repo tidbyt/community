@@ -115,7 +115,7 @@ def get_schema():
         fields = [
             schema.Dropdown(
                 id = "displayLanguage",
-                name = "English / Espanol",
+                name = "English / Español",
                 desc = "",
                 icon = "hashtag",
                 default = ENGLISH,
@@ -125,11 +125,22 @@ def get_schema():
                         value = "en",
                     ),
                     schema.Option(
-                        display = "Espanol",
+                        display = "Español",
                         value = "es",
                     ),
                 ],
             ),
+            schema.Generated(
+                id = "generated",
+                source = "displayLanguage",
+                handler = includeOptions,
+            ),
+        ],
+    )
+
+def includeOptions(language):
+    if language == ENGLISH:
+        return [
             schema.Toggle(
                 id = "incl_births",
                 name = "Include Births",
@@ -144,8 +155,24 @@ def get_schema():
                 icon = "bookSkull",
                 default = True,
             ),
-        ],
-    )
+        ]
+    else:
+        return [
+            schema.Toggle(
+                id = "incl_births",
+                name = ES["Include Births"],
+                desc = ES["Include random person who was born on this day."],
+                icon = "baby",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "incl_deaths",
+                name = ES["Include Deaths"],
+                desc = ES["Include random person who died on this day."],
+                icon = "bookSkull",
+                default = True,
+            ),
+        ]
 
 def getData(config):
     # go get the data
