@@ -26,21 +26,32 @@ ARTICLE_AREA_HEIGHT = 24
 
 DEFAULT_TIMEZONE = "America/New_York"
 
-# this data is barely going to change throughout the data - so let's cache for 12 hours (just in case) - each run will get a random item though - but we're saving on network traffic
+# this data is barely going to change throughout the day - so let's cache for 12 hours (just in case) - each run will get a random item though - but we're saving on network traffic
 CACHE_TTL_SECONDS = 43200
 ENGLISH = "en"
 
 # in the old days - we would actually assign resource numbers to phrases, then look up the correct resource number in the appropriate language resource table.  There's not enough here to do that
-# at this time.   But....  there are better ways to do this.  leave as TODO: for joe v
+# at this time.   this is a decent compromise for now.
 
-ES = {
-    "Today in History": "Hoy en Historia",
-    "Include Births": "Incluir Nacimientos",
-    "Include random person who was born on this day.": "Incluir una persona al azar que nació en este día",
-    "Include Deaths": "Incluir Defunciones",
-    "Include random person who died on this day.": "Incluir una persona al azar que falleció en este día",
-    "b": "n. ",
-    "d": "f. ",
+LANG = {
+    "es": {
+        "Today in History": "Hoy en Historia",
+        "Include Births": "Incluir Nacimientos",
+        "Include random person who was born on this day.": "Incluir una persona al azar que nació en este día",
+        "Include Deaths": "Incluir Defunciones",
+        "Include random person who died on this day.": "Incluir una persona al azar que falleció en este día",
+        "b": "n. ",
+        "d": "f. ",
+    },
+    "en": {
+        "Today in History": "Today in History",
+        "Include Births": "Include Births",
+        "Include random person who was born on this day.": "Include random person who was born on this day.",
+        "Include Deaths": "Include Deaths",
+        "Include random person who died on this day.": "Include random person who died on this day.",
+        "b": "b. ",
+        "d": "d. ",
+    },
 }
 
 def main(config):
@@ -58,7 +69,7 @@ def main(config):
                     height = TITLE_HEIGHT,
                     padding = 0,
                     color = TITLE_BKG_COLOR,
-                    child = render.Text("{}".format("Today in History" if language == ENGLISH else ES["Today in History"]), color = TITLE_TEXT_COLOR, font = TITLE_FONT, offset = -1),
+                    child = render.Text("{}".format(LANG[language]["Today in History"]), color = TITLE_TEXT_COLOR, font = TITLE_FONT, offset = -1),
                 ),
                 render.Marquee(
                     height = ARTICLE_AREA_HEIGHT,
@@ -100,9 +111,9 @@ def displayItem(json_data, type, language):
     if (item_len > 0):
         item_number = getRandomItem(item_len)
         if type == "births":
-            prefix = "b. " if language == ENGLISH else ES["b"]
+            prefix = LANG[language]["b"]
         elif type == "deaths":
-            prefix = "d. " if language == ENGLISH else ES["d"]
+            prefix = LANG[language]["d"]
         item.append(render.Text("{}{}".format(prefix, int(json_data[item_number]["year"])), color = ARTICLE_SUB_TITLE_COLOR, font = ARTICLE_SUB_TITLE_FONT))
         item.append(render.WrappedText(json_data[item_number]["text"], font = ARTICLE_SUB_TITLE_FONT, color = ARTICLE_COLOR))
         item.append(render.Box(width = 64, height = 3, color = SPACER_COLOR))
@@ -142,40 +153,22 @@ def get_schema():
     )
 
 def includeOptions(language):
-    if language == ENGLISH:
-        return [
-            schema.Toggle(
-                id = "incl_births",
-                name = "Include Births",
-                desc = "Include random person who was born on this day.",
-                icon = "baby",
-                default = True,
-            ),
-            schema.Toggle(
-                id = "incl_deaths",
-                name = "Include Deaths",
-                desc = "Include random person who died on this day.",
-                icon = "bookSkull",
-                default = True,
-            ),
-        ]
-    else:
-        return [
-            schema.Toggle(
-                id = "incl_births",
-                name = ES["Include Births"],
-                desc = ES["Include random person who was born on this day."],
-                icon = "baby",
-                default = True,
-            ),
-            schema.Toggle(
-                id = "incl_deaths",
-                name = ES["Include Deaths"],
-                desc = ES["Include random person who died on this day."],
-                icon = "bookSkull",
-                default = True,
-            ),
-        ]
+    return [
+        schema.Toggle(
+            id = "incl_births",
+            name = LANG[language]["Include Births"],
+            desc = LANG[language]["Include random person who was born on this day."],
+            icon = "baby",
+            default = True,
+        ),
+        schema.Toggle(
+            id = "incl_deaths",
+            name = LANG[language]["Include Deaths"],
+            desc = LANG[language]["Include random person who died on this day."],
+            icon = "bookSkull",
+            default = True,
+        ),
+    ]
 
 def getData(config):
     # go get the data
