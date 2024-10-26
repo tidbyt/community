@@ -32,9 +32,14 @@ DEFAULT_TIMEZONE = "America/New_York"
 # this data is barely going to change throughout the day - so let's cache for 12 hours (just in case) - each run will get a random item though - but we're saving on network traffic
 CACHE_TTL_SECONDS = 43200
 ENGLISH = "en"
+SPANISH = "es"
 BIRTHS = "births"
 DEATHS = "deaths"
 EVENTS = "events"
+
+OPTBIRTHS = "inch_births"
+OPTDEATHS = "incl_deaths"
+OPTDISPLANG = "displayLanguage"
 
 # in the old days - we would actually assign resource numbers to phrases, then look up the correct resource number in the appropriate language resource table.  There's not enough here to do that
 # at this time.   this is a decent compromise for now.
@@ -64,7 +69,7 @@ LANG = {
 }
 
 def main(config):
-    language = config.get("displayLanguage", ENGLISH)
+    language = config.get(OPTDISPLANG, ENGLISH)
     rc, json_data = getData(language, config.get("$tz", DEFAULT_TIMEZONE))
 
     return render.Root(
@@ -87,7 +92,7 @@ def main(config):
                         render.Column(
                             main_align = "space_between",
                             children =
-                                getItems(json_data, config.bool("incl_births", True), config.bool("incl_deaths", True), language),
+                                getItems(json_data, config.bool(OPTBIRTHS, True), config.bool(OPTDEATHS, True), language),
                         ),
                 ) if rc == 0 else render.WrappedText(json_data, font = ARTICLE_SUB_TITLE_FONT, color = ARTICLE_COLOR),
             ],
@@ -136,7 +141,7 @@ def get_schema():
         version = "1",
         fields = [
             schema.Dropdown(
-                id = "displayLanguage",
+                id = OPTDISPLANG,
                 name = "English / Español",
                 desc = "",
                 icon = "hashtag",
@@ -144,17 +149,17 @@ def get_schema():
                 options = [
                     schema.Option(
                         display = "English",
-                        value = "en",
+                        value = ENGLISH,
                     ),
                     schema.Option(
                         display = "Español",
-                        value = "es",
+                        value = SPANISH,
                     ),
                 ],
             ),
             schema.Generated(
                 id = "generated",
-                source = "displayLanguage",
+                source = OPTDISPLANG,
                 handler = includeOptions,
             ),
         ],
@@ -163,14 +168,14 @@ def get_schema():
 def includeOptions(language):
     return [
         schema.Toggle(
-            id = "incl_births",
+            id = OPTBIRTHS,
             name = LANG[language]["Include Births"],
             desc = LANG[language]["Include random person who was born on this day."],
             icon = "baby",
             default = True,
         ),
         schema.Toggle(
-            id = "incl_deaths",
+            id = OPTDEATHS,
             name = LANG[language]["Include Deaths"],
             desc = LANG[language]["Include random person who died on this day."],
             icon = "bookSkull",
