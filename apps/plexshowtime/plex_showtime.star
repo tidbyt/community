@@ -323,58 +323,26 @@ def find_valid_image(metadata, base_url, debug_output, headerMap, ttl_seconds):
 
     # thumb if art not available
     validated_image = ""
+    valid_keys = []
+    art_found = False
     for key in metadata_keys:
-        if key == "art":
-            art_type = key
-            img_url = base_url + metadata[art_type]
-            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-            if debug_output:
-                print(key + " lookup")
-            if img != None:
-                validated_image = img
+        if key == "art" or key == "parentArt" or key == "grandparentArt" or (key == "thumb" and metadata["thumb"].endswith("/-1") == False) or key == "parentThumb" or key == "grandparentThumb":
+            if key == "art" or key == "parentArt" or key == "grandparentArt":
+                art_found = True
+            valid_keys.append(key)
+
+    for valid_key in valid_keys:
+        if art_found == True:
+            if valid_key == "art" or valid_key == "parentArt" or valid_key == "grandparentArt":
+                art_type = valid_key
+                img_url = base_url + metadata[art_type]
+                img = get_data(img_url, debug_output, headerMap, ttl_seconds)
                 break
-        elif key == "parentArt":
-            art_type = key
+        elif valid_key == "thumb" or valid_key == "parentThumb" or valid_key == "grandparentThumb":
+            art_type = valid_key
             img_url = base_url + metadata[art_type]
             img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-            if debug_output:
-                print(key + " lookup")
-            if img != None:
-                validated_image = img
-                break
-        elif key == "grandparentArt":
-            art_type = key
-            img_url = base_url + metadata[art_type]
-            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-            if debug_output:
-                print(key + " lookup")
-            if img != None:
-                validated_image = img
-                break
-        elif key == "thumb" and metadata["thumb"].endswith("/-1") == False:
-            art_type = key
-            img_url = base_url + metadata[art_type]
-            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-            if debug_output:
-                print(key + " lookup")
-            if img != None:
-                validated_image = img
-        elif key == "parentThumb":
-            art_type = key
-            img_url = base_url + metadata[art_type]
-            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-            if debug_output:
-                print(key + " lookup")
-            if img != None:
-                validated_image = img
-        elif key == "parentThumb":
-            art_type = key
-            img_url = base_url + metadata[art_type]
-            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-            if debug_output:
-                print(key + " lookup")
-            if img != None:
-                validated_image = img
+            break
 
     return {"img": img, "art_type": art_type, "img_url": img_url, "validated_image": validated_image}
 
