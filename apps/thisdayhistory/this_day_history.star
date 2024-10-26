@@ -31,6 +31,9 @@ DEFAULT_TIMEZONE = "America/New_York"
 # this data is barely going to change throughout the day - so let's cache for 12 hours (just in case) - each run will get a random item though - but we're saving on network traffic
 CACHE_TTL_SECONDS = 43200
 ENGLISH = "en"
+BIRTHS = "births"
+DEATHS = "deaths"
+EVENTS = "events"
 
 # in the old days - we would actually assign resource numbers to phrases, then look up the correct resource number in the appropriate language resource table.  There's not enough here to do that
 # at this time.   this is a decent compromise for now.
@@ -82,26 +85,26 @@ def main(config):
                         render.Column(
                             main_align = "space_between",
                             children =
-                                getItems(json_data, config, language),
+                                getItems(json_data, config.bool("incl_births", True), config.bool("incl_deaths", True), language),
                         ),
                 ) if rc == 0 else render.WrappedText(json_data, font = ARTICLE_SUB_TITLE_FONT, color = ARTICLE_COLOR),
             ],
         ),
     )
 
-def getItems(json_data, config, language):
+def getItems(json_data, incl_births, incl_deaths, language):
     this_day = []
 
     # get event
-    this_day = displayItem(json_data["events"], "events", language)
+    this_day = displayItem(json_data[EVENTS], EVENTS, language)
 
     # get birth
-    if config.bool("incl_births", True):
-        this_day += displayItem(json_data["births"], "births", language)
+    if incl_births:
+        this_day += displayItem(json_data[BIRTHS], BIRTHS, language)
 
     # get death
-    if config.bool("incl_deaths", True):
-        this_day += displayItem(json_data["deaths"], "deaths", language)
+    if incl_deaths:
+        this_day += displayItem(json_data[DEATHS], DEATHS, language)
 
     return this_day
 
@@ -113,9 +116,9 @@ def displayItem(json_data, type, language):
 
     if (item_len > 0):
         item_number = getRandomItem(item_len)
-        if type == "births":
+        if type == BIRTHS:
             prefix = LANG[language]["b"]
-        elif type == "deaths":
+        elif type == DEATHS:
             prefix = LANG[language]["d"]
         item.append(render.Text("{}{}".format(prefix, int(json_data[item_number]["year"])), color = ARTICLE_SUB_TITLE_COLOR, font = ARTICLE_SUB_TITLE_FONT))
         item.append(render.WrappedText(json_data[item_number]["text"], font = ARTICLE_SUB_TITLE_FONT, color = ARTICLE_COLOR))
