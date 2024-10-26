@@ -255,7 +255,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                 elif metadata_list[random_index]["type"] == "movie":
                                     media_type = "Movie"
 
-                                header_text = endpoint_map["title"] + " " + media_type
+                                header_text = media_type + " " + endpoint_map["title"]
 
                                 if debug_output:
                                     print(header_text)
