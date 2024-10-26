@@ -12,10 +12,11 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 VERSION = 24300
+# NOTE: trying to determine if there's a widget display option available - but with all the text, I don't see a way at this time
 
 TEXT_COLOR = "#fff"
 TITLE_TEXT_COLOR = "#fff"
-TITLE_BKG_COLOR = "#0000ff"
+TITLE_BKG_COLOR = "#6666ff88"
 TITLE_FONT = "tom-thumb"
 TITLE_HEIGHT = 7
 TITLE_WIDTH = 64
@@ -37,6 +38,7 @@ EVENTS = "events"
 
 # in the old days - we would actually assign resource numbers to phrases, then look up the correct resource number in the appropriate language resource table.  There's not enough here to do that
 # at this time.   this is a decent compromise for now.
+# Wikipedia supports about 10 languages for the "This Day in History" feed - some of them we could never display on a device - may be able to add a couple more with the correct localization info
 
 LANG = {
     "es": {
