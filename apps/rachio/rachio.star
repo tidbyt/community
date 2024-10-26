@@ -89,11 +89,7 @@ def main(config):
 
     # we have a selected device; otherwise, they've already been sent to the display_error_screen
 
-    #Find Past Events and Current Events (as available and as selected)
-    title_display_preference = config.str("title_display", "both")
-
     now = time.now().in_location(tz)
-
 
     # If we use the time to the millisecond, nothing will ever be cached and we'll hit our limit of rachio requests in a day
     # So we'll round off to the nearest X minutes (They provide enough calls to give you 1 per minutes.)
@@ -169,9 +165,8 @@ def display_error_screen(time, line_3, line_4 = "", delay = 45):
     )
 
 def render_rachio(config, device_name, recent_events, current_events, now, delay, skip_when_empty = True):
-
     show_device_name = config.bool("title_display", True)
-    
+
     line_1 = "Rachio"
     line_2 = now.format("Mon Jan 2")
     line_3 = ""
@@ -196,20 +191,20 @@ def render_rachio(config, device_name, recent_events, current_events, now, delay
     if show_recent_events:
         latest_event = recent_events[len(recent_events) - 1]
 
-        #this current event is only relevant if the latest_event 
+        #this current event is only relevant if the latest_event
         if (latest_event["type"] and latest_event["type"] == SCHED_STOP):
-            show_current_events = False 
+            show_current_events = False
 
         preface = "Last"
         if show_current_events:
             preface = "Current"
 
-        readable_date = time.from_timestamp(int(int(latest_event["eventDate"])/1000.0))
+        readable_date = time.from_timestamp(int(int(latest_event["eventDate"]) / 1000.0))
         line_2 = readable_date.format("Mon Jan 2 at 3:04 PM")
         line_3 = "%s: %s - %s" % (preface, latest_event["summary"], readable_date.format("Mon Jan 2 at 3:04 PM"))
 
     if show_current_events:
-        current_event = current_events[len(current_events) -1]
+        current_event = current_events[len(current_events) - 1]
         display = current_event["summary"].strip()
         if len(display) > 0:
             display = "Zone: %s" % display
@@ -231,7 +226,7 @@ def render_rachio(config, device_name, recent_events, current_events, now, delay
                         render.Stack(
                             children = [
                                 render.Marquee(width = 48, child = render.Text(line_1, color = RACHIO_BLUE)),
-                                add_padding_to_child_element(render.Marquee(offset_start = len(line_1) * 5,width = 48, child = render.Text(line_2, color = RACHIO_BLUE)), 0, 8)
+                                add_padding_to_child_element(render.Marquee(offset_start = len(line_1) * 5, width = 48, child = render.Text(line_2, color = RACHIO_BLUE)), 0, 8),
                             ],
                         ),
                     ],
@@ -267,7 +262,6 @@ def get_events(deviceId, api_key, start, end):
     return event_response.json()
 
 def get_selected_events(events, current):
-
     selected_sub_types = []
     if current:
         selected_sub_types = [ZONE_STARTED]
@@ -356,7 +350,7 @@ def generate_option_list_of_devices(api_key):
             id = "device",
             name = "Device",
             desc = "Choose the device to display",
-            icon = "sprayCan", 
+            icon = "sprayCan",
             options = options,
             default = options[0].value,
         ),
@@ -375,17 +369,6 @@ def get_schema():
         schema.Option(
             display = "Fast",
             value = "30",
-        ),
-    ]
-
-    display_options = [
-        schema.Option(
-            display = "Show Current Date",
-            value = "current_date",
-        ),
-        schema.Option(
-            display = "Show Device Name",
-            value = "device_name",
         ),
     ]
 
