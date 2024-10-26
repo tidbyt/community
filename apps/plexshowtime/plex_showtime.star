@@ -476,7 +476,7 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "show_recent",
-                name = "Show recent",
+                name = "Show played",
                 desc = "Show 10 last recently played.",
                 icon = "arrowTrendUp",
                 default = True,
