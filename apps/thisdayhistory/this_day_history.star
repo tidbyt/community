@@ -11,6 +11,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
+VERSION = 24300
+
 TEXT_COLOR = "#fff"
 TITLE_TEXT_COLOR = "#fff"
 TITLE_BKG_COLOR = "#0000ff"
@@ -42,6 +44,7 @@ LANG = {
         "Include random person who died on this day.": "Incluir una persona al azar que falleció en este día",
         "b": "n. ",
         "d": "f. ",
+        "Wikipedia error": "Error {} de Wikipedia",
     },
     "en": {
         "Today in History": "Today in History",
@@ -51,13 +54,13 @@ LANG = {
         "Include random person who died on this day.": "Include random person who died on this day.",
         "b": "b. ",
         "d": "d. ",
+        "Wikipedia error": "Wikipedia {} error.",
     },
 }
 
 def main(config):
-    rc, json_data = getData(config)
-
     language = config.get("displayLanguage", ENGLISH)
+    rc, json_data = getData(language, config.get("$tz", DEFAULT_TIMEZONE))
 
     return render.Root(
         delay = 100,
@@ -170,12 +173,12 @@ def includeOptions(language):
         ),
     ]
 
-def getData(config):
+def getData(language, timezone):
     # go get the data
-    url = "https://api.wikimedia.org/feed/v1/wikipedia/{}/onthisday/all/".format(config.get("displayLanguage", ENGLISH)) + time.now().in_location(config.get("$tz", DEFAULT_TIMEZONE)).format("1/2")
+    url = "https://api.wikimedia.org/feed/v1/wikipedia/{}/onthisday/all/".format(language) + time.now().in_location(timezone).format("1/2")
     response = http.get(url = url, ttl_seconds = CACHE_TTL_SECONDS)
     if response.status_code != 200:
-        return -1, "wikipedia error " + str(response.status_code)
+        return -1, LANG[language]["Wikipedia error"].format(str(response.status_code))
     else:
         json_data = response.json()
 
