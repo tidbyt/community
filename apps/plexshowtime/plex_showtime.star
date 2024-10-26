@@ -14,7 +14,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 PLEX_ICON = "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAAGFBMVEUoKi1uVSCkdxfNkRBHPSfjnw2GZB1COihvAeTOAAAAIElEQVQI12NggADGFDAZBOaoCoBIZ3MECRaByEJUggAAU9YCzwgwGNcAAAAASUVORK5CYII="
-PLEX_BANNER = "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"
+PLEX_BANNER = "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"
 
 def main(config):
     random.seed(time.now().unix)
@@ -79,7 +79,9 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
     if plex_server_url == "" or plex_api_key == "":
         display_message_string = "Plex API URL and Plex API key must not be blank"
     elif endpoint_map["title"] == "Plex":
-        display_message_string = "Select recent, added or played"
+        display_message_string = "Select recent, added, library or playing"
+    elif filter_movie == False and filter_music == False and filter_tv == False:
+        display_message_string = "Select at least 1 filter"
     else:
         headerMap = {
             "Accept": "application/json",
@@ -300,6 +302,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                 print("Full title: " + header_text + " - " + body_text)
                         else:
                             display_message_string = "No results for " + endpoint_map["title"]
+                            return display_message(debug_output, display_message_string)
 
                     if fit_screen == True:
                         rendered_image = render.Image(
@@ -462,8 +465,15 @@ def get_schema():
                 default = False,
             ),
             schema.Toggle(
+                id = "show_library",
+                name = "Show library",
+                desc = "Show Plex library.",
+                icon = "layerGroup",
+                default = True,
+            ),
+            schema.Toggle(
                 id = "show_recent",
-                name = "Show played",
+                name = "Show recent",
                 desc = "Show 10 last recently played.",
                 icon = "arrowTrendUp",
                 default = True,
@@ -481,13 +491,6 @@ def get_schema():
                 desc = "Show now playing.",
                 icon = "play",
                 default = False,
-            ),
-            schema.Toggle(
-                id = "show_library",
-                name = "Show library",
-                desc = "Show Plex library.",
-                icon = "layerGroup",
-                default = True,
             ),
             schema.Toggle(
                 id = "filter_movie",
