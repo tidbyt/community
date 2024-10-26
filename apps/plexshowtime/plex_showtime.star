@@ -143,10 +143,13 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                         metadata_list = library_output["MediaContainer"]["Metadata"]
                                     else:
                                         display_message_string = "Could not get library content"
+                                        return display_message(debug_output, display_message_string)
                                 else:
                                     display_message_string = "Could not get library content"
+                                    return display_message(debug_output, display_message_string)
                             else:
                                 display_message_string = "All filters enabled"
+                                return display_message(debug_output, display_message_string)
                         elif filter_movie and filter_music and filter_tv:
                             metadata_list = output["MediaContainer"]["Metadata"]
                             if endpoint_map["title"] != "Plex Library" and len(metadata_list) > 9:
