@@ -37,18 +37,18 @@ def main(config):
     plex_endpoints = []
 
     if show_playing == True:
-        plex_endpoints.append({"title": "Now Playing", "endpoint": "/status/sessions"})
+        plex_endpoints.append({"title": "Now Playing", "endpoint": "/status/sessions", "id": 1})
 
     if show_added == True:
-        plex_endpoints.append({"title": "Recently Added", "endpoint": "/library/recentlyAdded"})
+        plex_endpoints.append({"title": "Recently Added", "endpoint": "/library/recentlyAdded", "id": 2})
 
     if show_recent == True:
-        plex_endpoints.append({"title": "Recently Played", "endpoint": "/status/sessions/history/all?sort=viewedAt:desc"})
+        plex_endpoints.append({"title": "Recently Played", "endpoint": "/status/sessions/history/all?sort=viewedAt:desc", "id": 3})
 
     if show_library == True:
-        plex_endpoints.append({"title": "Plex Library", "endpoint": "/library/sections"})
+        plex_endpoints.append({"title": "Plex Library", "endpoint": "/library/sections", "id": 4})
 
-    endpoint_map = {"title": "Plex", "endpoint": ""}
+    endpoint_map = {"title": "None", "endpoint": "", "id": 0}
     if len(plex_endpoints) > 0:
         endpoint_map = plex_endpoints[int(get_random_index("rand", plex_endpoints, debug_output))]
 
@@ -78,7 +78,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
     display_message_string = ""
     if plex_server_url == "" or plex_api_key == "":
         display_message_string = "Plex API URL and Plex API key must not be blank"
-    elif endpoint_map["title"] == "Plex":
+    elif endpoint_map["id"] == 0:
         display_message_string = "Select recent, added, library or playing"
     elif filter_movie == False and filter_music == False and filter_tv == False:
         display_message_string = "Select at least 1 filter"
@@ -115,194 +115,206 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                     img = base64.decode(PLEX_BANNER)
 
                     if output["MediaContainer"]["size"] > 0:
-                        metadata_list = []
-                        if endpoint_map["title"] == "Plex Library":
-                            if filter_movie or filter_music or filter_tv:
-                                # Get random library
-                                library_list = output["MediaContainer"]["Directory"]
-                                allowable_media = []
-                                if filter_movie:
-                                    allowable_media.append("movie")
-                                if filter_tv:
-                                    allowable_media.append("show")
-                                if filter_music:
-                                    allowable_media.append("artist")
+                        # Check if has needed keys
+                        valid_media_container_key = False
+                        media_container_keys = output["MediaContainer"].keys()
+                        for media_container_key in media_container_keys:
+                            if endpoint_map["id"] == 4 and media_container_key == "Directory":
+                                valid_media_container_key = True
+                                break
+                            elif (endpoint_map["id"] == 1 or endpoint_map["id"] == 2 or endpoint_map["id"] == 3) and media_container_key == "Metadata":
+                                valid_media_container_key = True
+                                break
 
-                                library_key = 0
-                                if len(allowable_media) > 0:
-                                    allowed_media = allowable_media[random.number(0, len(allowable_media) - 1)]
-                                    for library in library_list:
-                                        if library["type"] == allowed_media:
-                                            library_key = library["key"]
-                                            break
+                        if valid_media_container_key:
+                            metadata_list = []
+                            if endpoint_map["id"] == 4:
+                                if filter_movie or filter_music or filter_tv:
+                                    # Get random library
+                                    library_list = output["MediaContainer"]["Directory"]
+                                    allowable_media = []
+                                    if filter_movie:
+                                        allowable_media.append("movie")
+                                    if filter_tv:
+                                        allowable_media.append("show")
+                                    if filter_music:
+                                        allowable_media.append("artist")
 
-                                    library_url = base_url + "/library/sections/" + library_key + "/all"
-                                    library_content = get_data(library_url, debug_output, headerMap, ttl_seconds)
-                                    library_output = json.decode(library_content, None)
-                                    if library_output != None and library_output["MediaContainer"]["size"] > 0:
-                                        metadata_list = library_output["MediaContainer"]["Metadata"]
+                                    library_key = 0
+                                    if len(allowable_media) > 0:
+                                        allowed_media = allowable_media[random.number(0, len(allowable_media) - 1)]
+                                        for library in library_list:
+                                            if library["type"] == allowed_media:
+                                                library_key = library["key"]
+                                                break
+
+                                        library_url = base_url + "/library/sections/" + library_key + "/all"
+                                        library_content = get_data(library_url, debug_output, headerMap, ttl_seconds)
+                                        library_output = json.decode(library_content, None)
+                                        if library_output != None and library_output["MediaContainer"]["size"] > 0:
+                                            metadata_list = library_output["MediaContainer"]["Metadata"]
+                                        else:
+                                            display_message_string = "Could not get library content"
+                                            return display_message(debug_output, display_message_string)
                                     else:
                                         display_message_string = "Could not get library content"
                                         return display_message(debug_output, display_message_string)
                                 else:
-                                    display_message_string = "Could not get library content"
+                                    display_message_string = "All filters enabled"
                                     return display_message(debug_output, display_message_string)
+                            elif filter_movie and filter_music and filter_tv:
+                                metadata_list = output["MediaContainer"]["Metadata"]
+                                if endpoint_map["id"] != 4 and len(metadata_list) > 9:
+                                    metadata_list = metadata_list[0:9]
                             else:
-                                display_message_string = "All filters enabled"
-                                return display_message(debug_output, display_message_string)
-                        elif filter_movie and filter_music and filter_tv:
-                            metadata_list = output["MediaContainer"]["Metadata"]
-                            if endpoint_map["title"] != "Plex Library" and len(metadata_list) > 9:
-                                metadata_list = metadata_list[0:9]
-                        else:
-                            m_list = output["MediaContainer"]["Metadata"]
-                            for metadata in m_list:
-                                keys = metadata.keys()
+                                m_list = output["MediaContainer"]["Metadata"]
+                                for metadata in m_list:
+                                    keys = metadata.keys()
+                                    is_clip = False
+                                    for key in keys:
+                                        if key == "subtype" and metadata["subtype"] == "clip":
+                                            is_clip = True
+                                            break
+
+                                    if filter_movie and metadata["type"] == "movie" and is_clip == False:
+                                        metadata_list.append(metadata)
+                                    if filter_tv and is_clip:
+                                        metadata_list.append(metadata)
+                                    if filter_music and (metadata["type"] == "album" or metadata["type"] == "track" or metadata["type"] == "artist"):
+                                        metadata_list.append(metadata)
+                                    if filter_tv and (metadata["type"] == "season" or metadata["type"] == "episode" or metadata["type"] == "show"):
+                                        metadata_list.append(metadata)
+                                    if endpoint_map["id"] != 4 and len(metadata_list) > 9:
+                                        break
+
+                            if len(metadata_list) > 0:
+                                random_index = random.number(0, len(metadata_list) - 1)
+                                metadata_keys = metadata_list[random_index].keys()
+
+                                if debug_output:
+                                    print("List size: " + str(len(metadata_list)))
+                                    print("Random index: " + str(random_index))
+
+                                img = None
+                                art_type = ""
+                                img_url = ""
+
                                 is_clip = False
-                                for key in keys:
-                                    if key == "subtype" and metadata["subtype"] == "clip":
+                                for key in metadata_keys:
+                                    if key == "subtype" and metadata_list[random_index]["subtype"] == "clip":
                                         is_clip = True
                                         break
 
-                                if filter_movie and metadata["type"] == "movie" and is_clip == False:
-                                    metadata_list.append(metadata)
-                                if filter_tv and is_clip:
-                                    metadata_list.append(metadata)
-                                if filter_music and (metadata["type"] == "album" or metadata["type"] == "track" or metadata["type"] == "artist"):
-                                    metadata_list.append(metadata)
-                                if filter_tv and (metadata["type"] == "season" or metadata["type"] == "episode" or metadata["type"] == "show"):
-                                    metadata_list.append(metadata)
-                                if endpoint_map["title"] != "Plex Library" and len(metadata_list) > 9:
-                                    break
+                                # thumb if art not available
+                                validated_image = ""
+                                for key in metadata_keys:
+                                    if key == "art":
+                                        art_type = key
+                                        img_url = base_url + metadata_list[random_index][art_type]
+                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+                                        if debug_output:
+                                            print(key + " lookup")
+                                        if img != None:
+                                            validated_image = img
+                                            break
+                                    if key == "parentArt":
+                                        art_type = key
+                                        img_url = base_url + metadata_list[random_index][art_type]
+                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+                                        if debug_output:
+                                            print(key + " lookup")
+                                        if img != None:
+                                            validated_image = img
+                                            break
+                                    if key == "grandparentArt":
+                                        art_type = key
+                                        img_url = base_url + metadata_list[random_index][art_type]
+                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+                                        if debug_output:
+                                            print(key + " lookup")
+                                        if img != None:
+                                            validated_image = img
+                                            break
+                                    elif key == "thumb" and metadata_list[random_index]["thumb"].endswith("/-1") == False:
+                                        art_type = key
+                                        img_url = base_url + metadata_list[random_index][art_type]
+                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+                                        if debug_output:
+                                            print(key + " lookup")
+                                        if img != None:
+                                            validated_image = img
+                                    elif key == "parentThumb":
+                                        art_type = key
+                                        img_url = base_url + metadata_list[random_index][art_type]
+                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+                                        if debug_output:
+                                            print(key + " lookup")
+                                        if img != None:
+                                            validated_image = img
+                                    elif key == "grandparentThumb":
+                                        art_type = key
+                                        img_url = base_url + metadata_list[random_index][art_type]
+                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+                                        if debug_output:
+                                            print(key + " lookup")
+                                        if img != None:
+                                            validated_image = img
 
-                        if len(metadata_list) > 0:
-                            random_index = random.number(0, len(metadata_list) - 1)
-                            metadata_keys = metadata_list[random_index].keys()
+                                if img == None:
+                                    if len(validated_image) > 0:
+                                        img = validated_image
+                                        if debug_output:
+                                            print("Using thumbnail type " + art_type + ": " + img_url)
+                                    else:
+                                        if debug_output:
+                                            print("Media image not detected, using Plex banner")
+                                        img = base64.decode(PLEX_BANNER)
+                                elif debug_output:
+                                    print("Using thumbnail type " + art_type + ": " + img_url)
 
-                            if debug_output:
-                                print("List size: " + str(len(metadata_list)))
-                                print("Random index: " + str(random_index))
-
-                            img = None
-                            art_type = ""
-                            img_url = ""
-
-                            is_clip = False
-                            for key in metadata_keys:
-                                if key == "subtype" and metadata_list[random_index]["subtype"] == "clip":
-                                    is_clip = True
-                                    break
-
-                            # thumb if art not available
-                            validated_image = ""
-                            for key in metadata_keys:
-                                if key == "art":
-                                    art_type = key
-                                    img_url = base_url + metadata_list[random_index][art_type]
-                                    img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                    if debug_output:
-                                        print(key + " lookup")
-                                    if img != None:
-                                        validated_image = img
-                                        break
-                                if key == "parentArt":
-                                    art_type = key
-                                    img_url = base_url + metadata_list[random_index][art_type]
-                                    img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                    if debug_output:
-                                        print(key + " lookup")
-                                    if img != None:
-                                        validated_image = img
-                                        break
-                                if key == "grandparentArt":
-                                    art_type = key
-                                    img_url = base_url + metadata_list[random_index][art_type]
-                                    img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                    if debug_output:
-                                        print(key + " lookup")
-                                    if img != None:
-                                        validated_image = img
-                                        break
-                                elif key == "thumb" and metadata_list[random_index]["thumb"].endswith("/-1") == False:
-                                    art_type = key
-                                    img_url = base_url + metadata_list[random_index][art_type]
-                                    img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                    if debug_output:
-                                        print(key + " lookup")
-                                    if img != None:
-                                        validated_image = img
-                                elif key == "parentThumb":
-                                    art_type = key
-                                    img_url = base_url + metadata_list[random_index][art_type]
-                                    img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                    if debug_output:
-                                        print(key + " lookup")
-                                    if img != None:
-                                        validated_image = img
-                                elif key == "grandparentThumb":
-                                    art_type = key
-                                    img_url = base_url + metadata_list[random_index][art_type]
-                                    img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                    if debug_output:
-                                        print(key + " lookup")
-                                    if img != None:
-                                        validated_image = img
-
-                            if img == None:
-                                if len(validated_image) > 0:
-                                    img = validated_image
-                                    if debug_output:
-                                        print("Using thumbnail type " + art_type + ": " + img_url)
-                                else:
-                                    if debug_output:
-                                        print("Media image not detected, using Plex banner")
-                                    img = base64.decode(PLEX_BANNER)
-                            elif debug_output:
-                                print("Using thumbnail type " + art_type + ": " + img_url)
-
-                            media_type = "Movie"
-                            if is_clip:
-                                media_type = "Clip"
-                            elif metadata_list[random_index]["type"] == "season" or metadata_list[random_index]["type"] == "episode" or metadata_list[random_index]["type"] == "show":
-                                media_type = "Show"
-                            elif metadata_list[random_index]["type"] == "album" or metadata_list[random_index]["type"] == "track" or metadata_list[random_index]["type"] == "artist":
-                                media_type = "Music"
-                            elif metadata_list[random_index]["type"] == "movie":
                                 media_type = "Movie"
+                                if is_clip:
+                                    media_type = "Clip"
+                                elif metadata_list[random_index]["type"] == "season" or metadata_list[random_index]["type"] == "episode" or metadata_list[random_index]["type"] == "show":
+                                    media_type = "Show"
+                                elif metadata_list[random_index]["type"] == "album" or metadata_list[random_index]["type"] == "track" or metadata_list[random_index]["type"] == "artist":
+                                    media_type = "Music"
+                                elif metadata_list[random_index]["type"] == "movie":
+                                    media_type = "Movie"
 
-                            header_text = endpoint_map["title"] + " " + media_type
+                                header_text = endpoint_map["title"] + " " + media_type
 
-                            if debug_output:
-                                print(header_text)
+                                if debug_output:
+                                    print(header_text)
 
-                            title = ""
-                            parent_title = ""
-                            grandparent_title = ""
-                            for key in metadata_keys:
-                                if key == "title":
-                                    title = metadata_list[random_index][key]
-                                elif key == "parentTitle":
-                                    parent_title = metadata_list[random_index][key]
-                                elif key == "grandparentTitle":
-                                    grandparent_title = metadata_list[random_index][key]
+                                title = ""
+                                parent_title = ""
+                                grandparent_title = ""
+                                for key in metadata_keys:
+                                    if key == "title":
+                                        title = metadata_list[random_index][key]
+                                    elif key == "parentTitle":
+                                        parent_title = metadata_list[random_index][key]
+                                    elif key == "grandparentTitle":
+                                        grandparent_title = metadata_list[random_index][key]
 
-                            if len(grandparent_title) > 0:
-                                grandparent_title = grandparent_title + " - "
-                            if len(parent_title) > 0:
-                                parent_title = parent_title + ": "
+                                if len(grandparent_title) > 0:
+                                    grandparent_title = grandparent_title + " - "
+                                if len(parent_title) > 0:
+                                    parent_title = parent_title + ": "
 
-                            body_text = grandparent_title + parent_title + title
+                                body_text = grandparent_title + parent_title + title
 
-                            marquee_text = header_text.strip() + " - " + body_text.strip()
-                            max_length = 59
-                            if len(marquee_text) > max_length:
-                                marquee_text = body_text
+                                marquee_text = header_text.strip() + " - " + body_text.strip()
+                                max_length = 59
                                 if len(marquee_text) > max_length:
-                                    marquee_text = marquee_text[0:max_length - 3] + "..."
+                                    marquee_text = body_text
+                                    if len(marquee_text) > max_length:
+                                        marquee_text = marquee_text[0:max_length - 3] + "..."
 
-                            if debug_output:
-                                print("Marquee text: " + marquee_text)
-                                print("Full title: " + header_text + " - " + body_text)
+                                if debug_output:
+                                    print("Marquee text: " + marquee_text)
+                                    print("Full title: " + header_text + " - " + body_text)
                         else:
                             display_message_string = "No results for " + endpoint_map["title"]
                             return display_message(debug_output, display_message_string)
