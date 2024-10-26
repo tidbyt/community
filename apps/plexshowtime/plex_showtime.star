@@ -109,7 +109,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                         break
 
                 if valid_parent_map == True:
-                    marquee_text = endpoint_map["title"]
+                    marquee_text = endpoint_map["title"] + " - Not Available"
                     img = base64.decode(PLEX_BANNER)
 
                     if output["MediaContainer"]["size"] > 0:
