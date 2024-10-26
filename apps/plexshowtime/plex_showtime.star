@@ -37,16 +37,16 @@ def main(config):
     plex_endpoints = []
 
     if show_playing == True:
-        plex_endpoints.append({"title": "Now Playing", "endpoint": "/status/sessions", "id": 1})
+        plex_endpoints.append({"title": "Playing", "endpoint": "/status/sessions", "id": 1})
 
     if show_added == True:
-        plex_endpoints.append({"title": "Recently Added", "endpoint": "/library/recentlyAdded", "id": 2})
+        plex_endpoints.append({"title": "Added", "endpoint": "/library/recentlyAdded", "id": 2})
 
     if show_recent == True:
-        plex_endpoints.append({"title": "Recently Played", "endpoint": "/status/sessions/history/all?sort=viewedAt:desc", "id": 3})
+        plex_endpoints.append({"title": "Played", "endpoint": "/status/sessions/history/all?sort=viewedAt:desc", "id": 3})
 
     if show_library == True:
-        plex_endpoints.append({"title": "Plex Library", "endpoint": "/library/sections", "id": 4})
+        plex_endpoints.append({"title": "Library", "endpoint": "/library/sections", "id": 4})
 
     endpoint_map = {"title": "None", "endpoint": "", "id": 0}
     if len(plex_endpoints) > 0:
@@ -494,14 +494,14 @@ def get_schema():
             schema.Toggle(
                 id = "show_recent",
                 name = "Show played",
-                desc = "Show 10 last recently played.",
+                desc = "Show last 10 recently played.",
                 icon = "arrowTrendUp",
                 default = True,
             ),
             schema.Toggle(
                 id = "show_added",
                 name = "Show added",
-                desc = "Show 10 last recently added.",
+                desc = "Show last 10 recently added.",
                 icon = "arrowTrendUp",
                 default = True,
             ),
