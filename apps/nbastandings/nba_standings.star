@@ -61,7 +61,7 @@ MAGNIFY_LOGO = """
 def main(config):
     renderCategory = []
     rotationSpeed = config.get("rotationSpeed", "5")
-    divisionType = config.get("divisionType", "5")
+    divisionType = config.get("divisionType", "1")
     teamsToShow = int(config.get("teamsOptions", "3"))
     displayTop = config.get("displayTop", "league")
     timeColor = config.get("displayTimeColor", "#FFA500")
