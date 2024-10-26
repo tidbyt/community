@@ -102,15 +102,13 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
 
             if output != None:
                 output_keys = output.keys()
-                valid_map = False
+                valid_parent_map = False
                 for key in output_keys:
-                    if debug_output:
-                        print("key: " + str(key))
                     if key == "MediaContainer":
-                        valid_map = True
+                        valid_parent_map = True
                         break
 
-                if valid_map == True:
+                if valid_parent_map == True:
                     marquee_text = endpoint_map["title"]
                     img = base64.decode(PLEX_BANNER)
 
@@ -195,70 +193,45 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                     print("List size: " + str(len(metadata_list)))
                                     print("Random index: " + str(random_index))
 
-                                img = None
-                                art_type = ""
-                                img_url = ""
-
                                 is_clip = False
                                 for key in metadata_keys:
                                     if key == "subtype" and metadata_list[random_index]["subtype"] == "clip":
                                         is_clip = True
                                         break
 
-                                # thumb if art not available
-                                validated_image = ""
-                                for key in metadata_keys:
-                                    if key == "art":
-                                        art_type = key
-                                        img_url = base_url + metadata_list[random_index][art_type]
-                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                        if debug_output:
-                                            print(key + " lookup")
-                                        if img != None:
-                                            validated_image = img
-                                            break
-                                    if key == "parentArt":
-                                        art_type = key
-                                        img_url = base_url + metadata_list[random_index][art_type]
-                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                        if debug_output:
-                                            print(key + " lookup")
-                                        if img != None:
-                                            validated_image = img
-                                            break
-                                    if key == "grandparentArt":
-                                        art_type = key
-                                        img_url = base_url + metadata_list[random_index][art_type]
-                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                        if debug_output:
-                                            print(key + " lookup")
-                                        if img != None:
-                                            validated_image = img
-                                            break
-                                    elif key == "thumb" and metadata_list[random_index]["thumb"].endswith("/-1") == False:
-                                        art_type = key
-                                        img_url = base_url + metadata_list[random_index][art_type]
-                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                        if debug_output:
-                                            print(key + " lookup")
-                                        if img != None:
-                                            validated_image = img
-                                    elif key == "parentThumb":
-                                        art_type = key
-                                        img_url = base_url + metadata_list[random_index][art_type]
-                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                        if debug_output:
-                                            print(key + " lookup")
-                                        if img != None:
-                                            validated_image = img
-                                    elif key == "grandparentThumb":
-                                        art_type = key
-                                        img_url = base_url + metadata_list[random_index][art_type]
-                                        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                                        if debug_output:
-                                            print(key + " lookup")
-                                        if img != None:
-                                            validated_image = img
+                                image_map = find_valid_image(metadata_list[random_index], base_url, debug_output, headerMap, ttl_seconds)
+                                img = image_map["img"]
+                                art_type = image_map["art_type"]
+                                img_url = image_map["img_url"]
+                                validated_image = image_map["validated_image"]
+
+                                # If art not found, try to look for specific metadata art
+                                if art_type == "thumb" or art_type == "parentThumb" or art_type == "parentThumb":
+                                    if debug_output:
+                                        print("Only thumbnails found, looking further for art")
+                                    single_metadata = base_url + metadata_list[random_index]["key"]
+                                    single_metadata_json = get_data(single_metadata, debug_output, headerMap, ttl_seconds)
+                                    metadata_output = json.decode(single_metadata_json, None)
+
+                                    if metadata_output != None:
+                                        valid = False
+                                        for m_key in metadata_output.keys():
+                                            if m_key == "MediaContainer":
+                                                valid = True
+                                        if valid and metadata_output["MediaContainer"]["size"] > 0:
+                                            sub_image_map = find_valid_image(metadata_output["MediaContainer"]["Metadata"][0], base_url, debug_output, headerMap, ttl_seconds)
+                                            sub_img = sub_image_map["img"]
+                                            sub_art_type = sub_image_map["art_type"]
+                                            sub_img_url = sub_image_map["img_url"]
+                                            sub_validated_image = sub_image_map["validated_image"]
+
+                                            if sub_art_type == "art" or sub_art_type == "parentArt" or sub_art_type == "grandparentArt":
+                                                if debug_output:
+                                                    print("Identified art in metadata")
+                                                img = sub_img
+                                                art_type = sub_art_type
+                                                img_url = sub_img_url
+                                                validated_image = sub_validated_image
 
                                 if img == None:
                                     if len(validated_image) > 0:
@@ -340,6 +313,70 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
             display_message_string = "Check API URL & key for " + endpoint_map["title"]
 
     return display_message(debug_output, display_message_string)
+
+def find_valid_image(metadata, base_url, debug_output, headerMap, ttl_seconds):
+    img = None
+    art_type = ""
+    img_url = ""
+
+    metadata_keys = metadata.keys()
+
+    # thumb if art not available
+    validated_image = ""
+    for key in metadata_keys:
+        if key == "art":
+            art_type = key
+            img_url = base_url + metadata[art_type]
+            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+            if debug_output:
+                print(key + " lookup")
+            if img != None:
+                validated_image = img
+                break
+        elif key == "parentArt":
+            art_type = key
+            img_url = base_url + metadata[art_type]
+            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+            if debug_output:
+                print(key + " lookup")
+            if img != None:
+                validated_image = img
+                break
+        elif key == "grandparentArt":
+            art_type = key
+            img_url = base_url + metadata[art_type]
+            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+            if debug_output:
+                print(key + " lookup")
+            if img != None:
+                validated_image = img
+                break
+        elif key == "thumb" and metadata["thumb"].endswith("/-1") == False:
+            art_type = key
+            img_url = base_url + metadata[art_type]
+            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+            if debug_output:
+                print(key + " lookup")
+            if img != None:
+                validated_image = img
+        elif key == "parentThumb":
+            art_type = key
+            img_url = base_url + metadata[art_type]
+            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+            if debug_output:
+                print(key + " lookup")
+            if img != None:
+                validated_image = img
+        elif key == "parentThumb":
+            art_type = key
+            img_url = base_url + metadata[art_type]
+            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+            if debug_output:
+                print(key + " lookup")
+            if img != None:
+                validated_image = img
+
+    return {"img": img, "art_type": art_type, "img_url": img_url, "validated_image": validated_image}
 
 def display_message(debug_output, message = ""):
     img = base64.decode(PLEX_BANNER)
