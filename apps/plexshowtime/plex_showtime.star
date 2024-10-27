@@ -21,6 +21,7 @@ def main(config):
 
     plex_server_url = config.str("plex_server_url", "")
     plex_api_key = config.str("plex_api_key", "")
+    heading_color = config.str("heading_color", "#FFA500")
     font_color = config.str("font_color", "#FFFFFF")
     show_recent = config.bool("show_recent", True)
     show_added = config.bool("show_added", True)
@@ -65,12 +66,13 @@ def main(config):
         print("CONFIG - filter_movie: " + str(filter_movie))
         print("CONFIG - filter_tv: " + str(filter_tv))
         print("CONFIG - filter_music: " + str(filter_music))
+        print("CONFIG - heading_color: " + heading_color)
         print("CONFIG - font_color: " + font_color)
         print("CONFIG - fit_screen: " + str(fit_screen))
 
-    return get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, font_color, ttl_seconds)
+    return get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, heading_color, font_color, ttl_seconds)
 
-def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, font_color, ttl_seconds):
+def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, heading_color, font_color, ttl_seconds):
     base_url = plex_server_url
     if base_url.endswith("/"):
         base_url = base_url[0:len(base_url) - 1]
@@ -109,7 +111,11 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                         break
 
                 if valid_parent_map == True:
-                    marquee_text = endpoint_map["title"] + " - Not Available"
+                    marquee_text_array = [
+                        {"message": endpoint_map["title"], "color": heading_color},
+                        {"message": "Not Available", "color": font_color},
+                    ]
+
                     img = base64.decode(PLEX_BANNER)
 
                     if output["MediaContainer"]["size"] > 0:
@@ -153,13 +159,13 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                             metadata_list = library_output["MediaContainer"]["Metadata"]
                                         else:
                                             display_message_string = "Could not get library content"
-                                            return display_message(debug_output, display_message_string)
+                                            return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
                                     else:
                                         display_message_string = "Could not get library content"
-                                        return display_message(debug_output, display_message_string)
+                                        return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
                                 else:
                                     display_message_string = "All filters enabled"
-                                    return display_message(debug_output, display_message_string)
+                                    return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
                             elif filter_movie and filter_music and filter_tv:
                                 metadata_list = output["MediaContainer"]["Metadata"]
                                 if endpoint_map["id"] != 4 and len(metadata_list) > 9:
@@ -278,19 +284,29 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
 
                                 body_text = grandparent_title + parent_title + title
 
-                                marquee_text = header_text.strip() + " - " + body_text.strip()
+                                marquee_text_array = [
+                                    {"message": header_text.strip(), "color": heading_color},
+                                    {"message": body_text.strip(), "color": font_color},
+                                ]
+                                marquee_text = header_text.strip() + " " + body_text.strip()
                                 max_length = 59
-                                if len(marquee_text) > max_length:
-                                    marquee_text = body_text
-                                    if len(marquee_text) > max_length:
-                                        marquee_text = marquee_text[0:max_length - 3] + "..."
+                                if len(header_text.strip() + " " + body_text.strip()) > max_length:
+                                    marquee_text = body_text.strip()
+                                    marquee_text_array = [
+                                        {"message": marquee_text, "color": font_color},
+                                    ]
+                                    if len(body_text.strip()) > max_length:
+                                        marquee_text = body_text.strip()[0:max_length - 3] + "..."
+                                        marquee_text_array = [
+                                            {"message": marquee_text, "color": font_color},
+                                        ]
 
                                 if debug_output:
                                     print("Marquee text: " + marquee_text)
-                                    print("Full title: " + header_text + " - " + body_text)
+                                    print("Full title: " + header_text + " " + body_text)
                         else:
                             display_message_string = "No results for " + endpoint_map["title"]
-                            return display_message(debug_output, display_message_string)
+                            return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
 
                     if fit_screen == True:
                         rendered_image = render.Image(
@@ -303,7 +319,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                             src = img,
                         )
 
-                    return render_marquee(marquee_text, rendered_image, font_color)
+                    return render_marquee(marquee_text_array, rendered_image)
 
                 else:
                     display_message_string = "No valid results for " + endpoint_map["title"]
@@ -312,7 +328,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
         else:
             display_message_string = "Check API URL & key for " + endpoint_map["title"]
 
-    return display_message(debug_output, display_message_string)
+    return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
 
 def find_valid_image(metadata, base_url, debug_output, headerMap, ttl_seconds):
     img = None
@@ -346,7 +362,7 @@ def find_valid_image(metadata, base_url, debug_output, headerMap, ttl_seconds):
 
     return {"img": img, "art_type": art_type, "img_url": img_url, "validated_image": validated_image}
 
-def display_message(debug_output, message = ""):
+def display_message(debug_output, message_array = []):
     img = base64.decode(PLEX_BANNER)
 
     if debug_output == False:
@@ -361,17 +377,26 @@ def display_message(debug_output, message = ""):
             ),
         )
     else:
-        if message == "":
-            message = "Oops, something went wrong"
+        if len(message_array) == 0:
+            message_array.append({"message": "Oops, something went wrong", "color": "#FF0000"})
 
         rendered_image = render.Image(
             width = 64,
             src = img,
         )
-        return render_marquee(message, rendered_image, "#FF0000")
+        return render_marquee(message_array, rendered_image)
 
-def render_marquee(message, image, font_color):
+def render_marquee(message_array, image):
     icon_img = base64.decode(PLEX_ICON)
+
+    text_array = []
+    index = 0
+    for message in message_array:
+        if index == len(message_array) - 1:
+            text_array.append(render.Text(message["message"], color = message["color"], font = "tom-thumb"))
+        else:
+            text_array.append(render.Text(message["message"] + " ", color = message["color"], font = "tom-thumb"))
+        index = index + 1
 
     return render.Root(
         child = render.Column(
@@ -397,7 +422,7 @@ def render_marquee(message, image, font_color):
                                             width = 64,
                                             offset_start = 64,
                                             offset_end = 64,
-                                            child = render.Text(content = message, font = "tom-thumb", color = font_color),
+                                            child = render.Row(text_array),
                                         ),
                                     ],
                                 ),
@@ -464,9 +489,16 @@ def get_schema():
                 default = "",
             ),
             schema.Text(
+                id = "heading_color",
+                name = "Heading color",
+                desc = "Heading color using Hex color codes. eg, `#FFA500`",
+                icon = "paintbrush",
+                default = "#FFA500",
+            ),
+            schema.Text(
                 id = "font_color",
                 name = "Font color",
-                desc = "Font color using Hex color codes. eg, `#FFFFFF`",
+                desc = "Main font color using Hex color codes. eg, `#FFFFFF`",
                 icon = "paintbrush",
                 default = "#FFFFFF",
             ),
