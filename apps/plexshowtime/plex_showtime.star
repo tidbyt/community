@@ -21,6 +21,7 @@ def main(config):
 
     plex_server_url = config.str("plex_server_url", "")
     plex_api_key = config.str("plex_api_key", "")
+    show_heading = config.bool("show_heading", True)
     heading_color = config.str("heading_color", "#FFA500")
     font_color = config.str("font_color", "#FFFFFF")
     show_recent = config.bool("show_recent", True)
@@ -66,13 +67,14 @@ def main(config):
         print("CONFIG - filter_movie: " + str(filter_movie))
         print("CONFIG - filter_tv: " + str(filter_tv))
         print("CONFIG - filter_music: " + str(filter_music))
+        print("CONFIG - show_heading: " + str(show_heading))
         print("CONFIG - heading_color: " + heading_color)
         print("CONFIG - font_color: " + font_color)
         print("CONFIG - fit_screen: " + str(fit_screen))
 
-    return get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, heading_color, font_color, ttl_seconds)
+    return get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, show_heading, heading_color, font_color, ttl_seconds)
 
-def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, heading_color, font_color, ttl_seconds):
+def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, show_heading, heading_color, font_color, ttl_seconds):
     base_url = plex_server_url
     if base_url.endswith("/"):
         base_url = base_url[0:len(base_url) - 1]
@@ -261,7 +263,9 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                 elif metadata_list[random_index]["type"] == "movie":
                                     media_type = "Movie"
 
-                                header_text = media_type + " " + endpoint_map["title"]
+                                header_text = ""
+                                if show_heading:
+                                    header_text = media_type + " " + endpoint_map["title"]
 
                                 if debug_output:
                                     print(header_text)
@@ -394,7 +398,7 @@ def render_marquee(message_array, image):
     for message in message_array:
         if index == len(message_array) - 1:
             text_array.append(render.Text(message["message"], color = message["color"], font = "tom-thumb"))
-        else:
+        elif len(message["message"]) > 0:
             text_array.append(render.Text(message["message"] + " ", color = message["color"], font = "tom-thumb"))
         index = index + 1
 
@@ -419,9 +423,9 @@ def render_marquee(message_array, image):
                                     children = [
                                         render.Marquee(
                                             scroll_direction = "horizontal",
-                                            width = 64,
+                                            width = 57,
                                             offset_start = 64,
-                                            offset_end = 64,
+                                            offset_end = 57,
                                             child = render.Row(text_array),
                                         ),
                                     ],
@@ -487,6 +491,13 @@ def get_schema():
                 desc = "Your Plex API key.",
                 icon = "key",
                 default = "",
+            ),
+            schema.Toggle(
+                id = "show_heading",
+                name = "Show heading",
+                desc = "Show the heading with title",
+                icon = "eye",
+                default = True,
             ),
             schema.Text(
                 id = "heading_color",
