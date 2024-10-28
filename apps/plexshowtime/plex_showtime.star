@@ -267,6 +267,8 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                 if show_heading:
                                     header_text = media_type + " " + endpoint_map["title"]
 
+                                header_text = header_text.strip()
+
                                 if debug_output:
                                     print("header_text: " + header_text)
 
@@ -287,28 +289,16 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                     parent_title = parent_title + ": "
 
                                 body_text = grandparent_title + parent_title + title
+                                body_text = body_text.strip()
                                 if debug_output:
                                     print("body_text: " + body_text)
 
                                 marquee_text_array = [
-                                    {"message": header_text.strip(), "color": heading_color},
-                                    {"message": body_text.strip(), "color": font_color},
+                                    {"message": header_text, "color": heading_color},
+                                    {"message": body_text, "color": font_color},
                                 ]
-                                marquee_text = header_text.strip() + " " + body_text.strip()
-                                max_length = 59
-                                if len(header_text.strip() + " " + body_text.strip()) > max_length:
-                                    marquee_text = body_text.strip()
-                                    marquee_text_array = [
-                                        {"message": marquee_text, "color": font_color},
-                                    ]
-                                    if len(body_text.strip()) > max_length:
-                                        marquee_text = body_text.strip()[0:max_length - 3] + "..."
-                                        marquee_text_array = [
-                                            {"message": marquee_text, "color": font_color},
-                                        ]
 
                                 if debug_output:
-                                    print("Marquee text: " + marquee_text)
                                     print("Full title: " + header_text + " " + body_text)
                         else:
                             display_message_string = "No results for " + endpoint_map["title"]
@@ -397,12 +387,37 @@ def render_marquee(message_array, image):
 
     text_array = []
     index = 0
+    max_length = 59
+    string_length = 0
+    full_message = ""
+    for_break = False
     for message in message_array:
-        if index == len(message_array) - 1:
-            text_array.append(render.Text(message["message"], color = message["color"], font = "tom-thumb"))
-        elif len(message["message"]) > 0:
-            text_array.append(render.Text(message["message"] + " ", color = message["color"], font = "tom-thumb"))
+        if index == len(message_array) - 1 or len(message["message"]) > 0:
+            marquee_message = message["message"]
+            local_length = len(marquee_message)
+            if local_length > 0:
+                local_length = local_length + 1
+
+            string_length = string_length + local_length
+
+            if index == len(message_array) - 1 and string_length > max_length:
+                marquee_message = marquee_message[0:local_length - (string_length - max_length + 3)] + "..."
+                for_break = True
+            elif index == len(message_array) - 1 and string_length <= max_length:
+                marquee_message = marquee_message[0:string_length - 3] + "..."
+                for_break = True
+            elif len(message["message"]) > 0:
+                # Heading
+                marquee_message = marquee_message + " "
+
+            full_message = full_message + marquee_message
+            text_array.append(render.Text(marquee_message, color = message["color"], font = "tom-thumb"))
+            if for_break:
+                break
+
         index = index + 1
+
+    print("Marquee text: " + full_message)
 
     return render.Root(
         child = render.Column(
