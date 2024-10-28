@@ -1,3 +1,8 @@
+"""
+Zmanim app for Tidbyt displays Jewish prayer times.
+Data provided by Chabad.org's Zmanim API.
+"""
+
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -20,23 +25,24 @@ ZMANIM_MAP = {
     "Midnight": "Midnight",
 }
 
-def clean_title(title):
-    # Get the original title
-    original = title.split(" - ")[0].split(" (")[0]
+def get_url(zip_code):
+    """Creates the URL for the Chabad.org Zmanim API."""
+    return "https://www.chabad.org/tools/rss/zmanim.xml?locationid=" + zip_code + "&locationtype=2"
 
-    # Find the matching display name
+def clean_title(title):
+    """Extracts and maps the display title from the full title."""
+    original = title.split(" - ")[0].split(" (")[0]
     for display_name, match_text in ZMANIM_MAP.items():
         if original.startswith(match_text):
             return display_name
     return original
 
 def clean_time(time):
+    """Extracts the time from the full time string."""
     return time.split(" - ")[1].split(" --")[0].strip()
 
-def get_url(zip_code):
-    return "https://www.chabad.org/tools/rss/zmanim.xml?locationid=" + zip_code + "&locationtype=2"
-
 def main(config):
+    """Main function to create the Zmanim display."""
     font = "tb-8"  # Side font
     title_font = "tom-thumb"  # Clearer font for titles
     time_font = "CG-pixel-4x5-mono"  # Original font for times
@@ -77,58 +83,34 @@ def main(config):
                 for match_text in ZMANIM_MAP.values():
                     if original_title.startswith(match_text):
                         time = clean_time(full_title)
-                        if first:
-                            # First entry has no top padding
-                            display_rows.append(
-                                render.Column(
-                                    children = [
-                                        render.Text(
-                                            content = clean_title(full_title) + ":",
-                                            font = title_font,
-                                        ),
-                                        render.Box(height = 1),  # Small space between title and time
-                                        render.Text(
-                                            content = time,
-                                            font = time_font,
-                                            color = "#ff0",
-                                        ),
-                                    ],
-                                ),
-                            )
-                            first = False
-                        else:
-                            # Subsequent entries have padding at the top
-                            display_rows.append(
-                                render.Column(
-                                    children = [
-                                        render.Box(
-                                            height = 4,
-                                            width = 1,
-                                        ),
-                                        render.Text(
-                                            content = clean_title(full_title) + ":",
-                                            font = title_font,
-                                        ),
-                                        render.Box(height = 1),  # Small space between title and time
-                                        render.Text(
-                                            content = time,
-                                            font = time_font,
-                                            color = "#ff0",
-                                        ),
-                                    ],
-                                ),
-                            )
+                        
+                        row_children = [
+                            render.Text(
+                                content = clean_title(full_title) + ":",
+                                font = title_font,
+                            ),
+                            render.Box(height = 1),  # Small space between title and time
+                            render.Text(
+                                content = time,
+                                font = time_font,
+                                color = "#ff0",
+                            ),
+                        ]
+
+                        if not first:
+                            row_children.insert(0, render.Box(height = 4, width = 1))
+
+                        display_rows.append(render.Column(children = row_children))
+                        first = False
                         break
 
-        times_display = render.Marquee(
-            height = 32,
-            scroll_direction = "vertical",
-            child = render.Column(
-                children = display_rows,
-            ),
-            offset_start = 32,
-            offset_end = 32,
-        )
+    times_display = render.Marquee(
+        height = 32,
+        scroll_direction = "vertical",
+        child = render.Column(children = display_rows),
+        offset_start = 32,
+        offset_end = 32,
+    )
 
     return render.Root(
         delay = int(config.str("speed", "30")),
@@ -150,6 +132,7 @@ def main(config):
     )
 
 def get_schema():
+    """Defines the configuration schema for the app."""
     scroll_speed = [
         schema.Option(display = "Slower", value = "100"),
         schema.Option(display = "Slow", value = "70"),
