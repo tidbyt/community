@@ -178,6 +178,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                                 media_type = "Show"
                                             elif library_type == "artist":
                                                 media_type = "Music"
+                                                endpoint_map["title"] = "Unplayed"
                                             display_message_string = "No results for " + endpoint_map["title"] + " " + media_type
                                             return display_message(debug_output, [{"message": display_message_string, "color": font_color}])
                                     else:
