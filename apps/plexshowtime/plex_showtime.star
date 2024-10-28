@@ -24,6 +24,7 @@ def main(config):
     show_heading = config.bool("show_heading", True)
     heading_color = config.str("heading_color", "#FFA500")
     font_color = config.str("font_color", "#FFFFFF")
+    show_unwatched = config.bool("show_unwatched", True)
     show_recent = config.bool("show_recent", True)
     show_added = config.bool("show_added", True)
     show_library = config.bool("show_library", True)
@@ -50,6 +51,9 @@ def main(config):
     if show_library == True:
         plex_endpoints.append({"title": "Library", "endpoint": "/library/sections", "id": 4})
 
+    if show_unwatched == True:
+        plex_endpoints.append({"title": "Unwatched", "endpoint": "/library/sections", "id": 5})
+
     endpoint_map = {"title": "None", "endpoint": "", "id": 0}
     if len(plex_endpoints) > 0:
         endpoint_map = plex_endpoints[int(get_random_index("rand", plex_endpoints, debug_output))]
@@ -61,6 +65,7 @@ def main(config):
         print("CONFIG - ttl_seconds: " + str(ttl_seconds))
         print("CONFIG - debug_output: " + str(debug_output))
         print("CONFIG - endpoint_map: " + str(endpoint_map))
+        print("CONFIG - show_unwatched: " + str(show_unwatched))
         print("CONFIG - show_recent: " + str(show_recent))
         print("CONFIG - show_added: " + str(show_added))
         print("CONFIG - show_playing: " + str(show_playing))
@@ -125,7 +130,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                         valid_media_container_key = False
                         media_container_keys = output["MediaContainer"].keys()
                         for media_container_key in media_container_keys:
-                            if endpoint_map["id"] == 4 and media_container_key == "Directory":
+                            if (endpoint_map["id"] == 4 or endpoint_map["id"] == 5) and media_container_key == "Directory":
                                 valid_media_container_key = True
                                 break
                             elif (endpoint_map["id"] == 1 or endpoint_map["id"] == 2 or endpoint_map["id"] == 3) and media_container_key == "Metadata":
@@ -134,7 +139,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
 
                         if valid_media_container_key:
                             metadata_list = []
-                            if endpoint_map["id"] == 4:
+                            if endpoint_map["id"] == 4 or endpoint_map["id"] == 5:
                                 if filter_movie or filter_music or filter_tv:
                                     # Get random library
                                     library_list = output["MediaContainer"]["Directory"]
@@ -147,30 +152,43 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                         allowable_media.append("artist")
 
                                     library_key = 0
+                                    library_type = ""
                                     if len(allowable_media) > 0:
                                         allowed_media = allowable_media[random.number(0, len(allowable_media) - 1)]
                                         for library in library_list:
                                             if library["type"] == allowed_media:
+                                                library_type = library["type"]
                                                 library_key = library["key"]
                                                 break
 
                                         library_url = base_url + "/library/sections/" + library_key + "/all"
+                                        if endpoint_map["id"] == 4:
+                                            library_url = base_url + "/library/sections/" + library_key + "/all"
+                                        if endpoint_map["id"] == 5:
+                                            library_url = base_url + "/library/sections/" + library_key + "/unwatched"
                                         library_content = get_data(library_url, debug_output, headerMap, ttl_seconds)
                                         library_output = json.decode(library_content, None)
                                         if library_output != None and library_output["MediaContainer"]["size"] > 0:
                                             metadata_list = library_output["MediaContainer"]["Metadata"]
                                         else:
-                                            display_message_string = "Could not get library content"
-                                            return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
+                                            media_type = ""
+                                            if library_type == "movie":
+                                                media_type = "Movie"
+                                            elif library_type == "show":
+                                                media_type = "Show"
+                                            elif library_type == "artist":
+                                                media_type = "Music"
+                                            display_message_string = "No results for " + endpoint_map["title"] + " " + media_type
+                                            return display_message(debug_output, [{"message": display_message_string, "color": font_color}])
                                     else:
-                                        display_message_string = "Could not get library content"
+                                        display_message_string = "No results for " + endpoint_map["title"]
                                         return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
                                 else:
                                     display_message_string = "All filters enabled"
                                     return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
                             elif filter_movie and filter_music and filter_tv:
                                 metadata_list = output["MediaContainer"]["Metadata"]
-                                if endpoint_map["id"] != 4 and len(metadata_list) > 9:
+                                if endpoint_map["id"] != 4 and endpoint_map["id"] != 5 and len(metadata_list) > 9:
                                     metadata_list = metadata_list[0:9]
                             else:
                                 m_list = output["MediaContainer"]["Metadata"]
@@ -190,7 +208,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                         metadata_list.append(metadata)
                                     if filter_tv and (metadata["type"] == "season" or metadata["type"] == "episode" or metadata["type"] == "show"):
                                         metadata_list.append(metadata)
-                                    if endpoint_map["id"] != 4 and len(metadata_list) > 9:
+                                    if endpoint_map["id"] != 4 and endpoint_map["id"] != 5 and len(metadata_list) > 9:
                                         break
 
                             if len(metadata_list) > 0:
@@ -315,7 +333,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                             src = img,
                         )
 
-                    return render_marquee(marquee_text_array, rendered_image)
+                    return render_marquee(marquee_text_array, rendered_image, debug_output)
 
                 else:
                     display_message_string = "No valid results for " + endpoint_map["title"]
@@ -380,9 +398,9 @@ def display_message(debug_output, message_array = []):
             width = 64,
             src = img,
         )
-        return render_marquee(message_array, rendered_image)
+        return render_marquee(message_array, rendered_image, debug_output)
 
-def render_marquee(message_array, image):
+def render_marquee(message_array, image, debug_output):
     icon_img = base64.decode(PLEX_ICON)
 
     text_array = []
@@ -417,7 +435,8 @@ def render_marquee(message_array, image):
 
         index = index + 1
 
-    print("Marquee text: " + full_message)
+    if debug_output:
+        print("Marquee text: " + full_message)
 
     return render.Root(
         child = render.Column(
@@ -548,6 +567,13 @@ def get_schema():
                 id = "show_library",
                 name = "Show library",
                 desc = "Show Plex library.",
+                icon = "layerGroup",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "show_unwatched",
+                name = "Show unwatched",
+                desc = "Show unwatched media.",
                 icon = "layerGroup",
                 default = True,
             ),
