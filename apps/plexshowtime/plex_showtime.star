@@ -404,7 +404,7 @@ def render_marquee(message_array, image):
                 marquee_message = marquee_message[0:local_length - (string_length - max_length + 3)] + "..."
                 for_break = True
             elif index == len(message_array) - 1 and string_length <= max_length:
-                marquee_message = marquee_message[0:string_length]
+                marquee_message = marquee_message[0:local_length]
                 for_break = True
             elif len(message["message"]) > 0:
                 # Heading
