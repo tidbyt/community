@@ -268,7 +268,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                     header_text = media_type + " " + endpoint_map["title"]
 
                                 if debug_output:
-                                    print(header_text)
+                                    print("header_text: " + header_text)
 
                                 title = ""
                                 parent_title = ""
@@ -287,6 +287,8 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                     parent_title = parent_title + ": "
 
                                 body_text = grandparent_title + parent_title + title
+                                if debug_output:
+                                    print("body_text: " + body_text)
 
                                 marquee_text_array = [
                                     {"message": header_text.strip(), "color": heading_color},
