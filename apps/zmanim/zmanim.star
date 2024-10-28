@@ -9,7 +9,6 @@ load("schema.star", "schema")
 
 DEFAULT_ZIP = "11367"
 
-# Maps the desired display name to the part of the title we'll match against
 ZMANIM_MAP = {
     "Dawn": "Dawn (Alot",
     "Misheyakir": "Earliest Tallit",
@@ -43,14 +42,10 @@ def clean_time(time):
 
 def main(config):
     """Main function to create the Zmanim display."""
-    font = "tb-8"  # Side font
-    title_font = "tom-thumb"  # Clearer font for titles
-    time_font = "CG-pixel-4x5-mono"  # Original font for times
-
-    # Get zip code from config or use default
+    font = "tb-8"
+    title_font = "tom-thumb"
+    time_font = "CG-pixel-4x5-mono"
     zip_code = config.str("zip_code", DEFAULT_ZIP)
-
-    # Get zmanim data
     rep = http.get(
         url = get_url(zip_code),
         ttl_seconds = 14400,
@@ -58,7 +53,6 @@ def main(config):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
         },
     )
-
     if rep.status_code != 200:
         display_rows = [
             render.Text("Error", font = title_font),
@@ -68,8 +62,6 @@ def main(config):
     else:
         body = rep.body()
         items = body.split("<item>")[1:]
-
-        # Parse items
         display_rows = []
         first = True
         for item in items:
@@ -78,28 +70,23 @@ def main(config):
             if title_start > 6 and title_end > 0:
                 full_title = item[title_start:title_end].strip()
                 original_title = full_title.split(" - ")[0]
-
-                # Check if this is one of our mapped zmanim
                 for match_text in ZMANIM_MAP.values():
                     if original_title.startswith(match_text):
                         time = clean_time(full_title)
-                        
                         row_children = [
                             render.Text(
                                 content = clean_title(full_title) + ":",
                                 font = title_font,
                             ),
-                            render.Box(height = 1),  # Small space between title and time
+                            render.Box(height = 1),
                             render.Text(
                                 content = time,
                                 font = time_font,
                                 color = "#ff0",
                             ),
                         ]
-
                         if not first:
                             row_children.insert(0, render.Box(height = 4, width = 1))
-
                         display_rows.append(render.Column(children = row_children))
                         first = False
                         break
@@ -139,7 +126,6 @@ def get_schema():
         schema.Option(display = "Normal", value = "50"),
         schema.Option(display = "Fast (Default)", value = "30"),
     ]
-
     return schema.Schema(
         version = "1",
         fields = [
