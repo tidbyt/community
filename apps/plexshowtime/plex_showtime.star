@@ -362,53 +362,51 @@ def find_valid_image(metadata, base_url, debug_output, headerMap, ttl_seconds):
 
     # thumb if art not available
     img = None
-    validated_image = ""
-    valid_keys = []
+    valid_image = {
+        "art": False,
+        "parentArt": False,
+        "grandparentArt": False,
+        "thumb": False,
+        "parentThumb": False,
+        "grandparentThumb": False,
+    }
     for key in metadata_keys:
         if key == "art" or key == "parentArt" or key == "grandparentArt" or (key == "thumb" and metadata["thumb"].endswith("/-1") == False) or key == "parentThumb" or key == "grandparentThumb":
-            valid_keys.append(key)
+            valid_image[key] = True
 
-    for valid_key in valid_keys:
-        if valid_key == "art":
-            art_type = valid_key
-            img_url = base_url + metadata[art_type]
-            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-            break
-    if img == None:
-        for valid_key in valid_keys:
-            if valid_key == "parentArt":
-                art_type = valid_key
-                img_url = base_url + metadata[art_type]
-                img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                break
-    if img == None:
-        for valid_key in valid_keys:
-            if valid_key == "grandparentArt":
-                art_type = valid_key
-                img_url = base_url + metadata[art_type]
-                img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                break
-    if img == None:
-        for valid_key in valid_keys:
-            if valid_key == "thumb":
-                art_type = valid_key
-                img_url = base_url + metadata[art_type]
-                img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                break
-    if img == None:
-        for valid_key in valid_keys:
-            if valid_key == "parentThumb":
-                art_type = valid_key
-                img_url = base_url + metadata[art_type]
-                img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                break
-    if img == None:
-        for valid_key in valid_keys:
-            if valid_key == "grandparentThumb":
-                art_type = valid_key
-                img_url = base_url + metadata[art_type]
-                img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-                break
+    if valid_image["art"] == True:
+        art_type = "art"
+        img_url = base_url + metadata[art_type]
+        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+
+    if valid_image["parentArt"] == True and img == None:
+        art_type = "parentArt"
+        img_url = base_url + metadata[art_type]
+        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+
+    if valid_image["grandparentArt"] == True and img == None:
+        art_type = "grandparentArt"
+        img_url = base_url + metadata[art_type]
+        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+
+    if valid_image["thumb"] == True and img == None:
+        art_type = "thumb"
+        img_url = base_url + metadata[art_type]
+        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+
+    if valid_image["parentThumb"] == True and img == None:
+        art_type = "parentThumb"
+        img_url = base_url + metadata[art_type]
+        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+
+    if valid_image["grandparentThumb"] == True and img == None:
+        art_type = "grandparentThumb"
+        img_url = base_url + metadata[art_type]
+        img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+
+    validated_image = ""
+    if img != None:
+        validated_image = img
 
     return {"img": img, "art_type": art_type, "img_url": img_url, "validated_image": validated_image}
 
