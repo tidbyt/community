@@ -53,7 +53,8 @@ def main(config):
 
     endpoint_map = {"title": "None", "endpoint": "", "id": 0}
     if len(plex_endpoints) > 0:
-        endpoint_map = plex_endpoints[int(get_random_index("rand", plex_endpoints, debug_output))]
+        random_endpoint_index = random.number(0, len(plex_endpoints) - 1)
+        endpoint_map = plex_endpoints[random_endpoint_index]
 
     if debug_output:
         print("------------------------------")
@@ -163,6 +164,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                         if library_type == "movie":
                                             media_type = "Movie"
                                         elif library_type == "show":
+                                            # Try to find episodes
                                             library_type_enum = 4
                                             media_type = "Show"
                                         elif library_type == "artist":
@@ -213,7 +215,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                             if len(metadata_list) > 0:
                                 random_index = random.number(0, len(metadata_list) - 1)
                                 if library_type == "artist":
-                                    # Pick an album if available
+                                    # Try to find albums
                                     library_content = get_data(base_url + metadata_list[random_index]["key"], debug_output, headerMap, ttl_seconds)
                                     library_output = json.decode(library_content, None)
                                     if library_output != None and library_output["MediaContainer"]["size"] > 0:
@@ -270,13 +272,13 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                     if len(validated_image) > 0:
                                         img = validated_image
                                         if debug_output:
-                                            print("Using thumbnail type " + art_type + ": " + img_url)
+                                            print("Using image type " + art_type + ": " + img_url)
                                     else:
                                         if debug_output:
                                             print("Media image not detected, using Plex banner")
                                         img = base64.decode(PLEX_BANNER)
                                 elif debug_output:
-                                    print("Using thumbnail type " + art_type + ": " + img_url)
+                                    print("Using image type " + art_type + ": " + img_url)
 
                                 media_type = "Movie"
                                 if is_clip:
@@ -359,6 +361,7 @@ def find_valid_image(metadata, base_url, debug_output, headerMap, ttl_seconds):
     metadata_keys = metadata.keys()
 
     # thumb if art not available
+    img = None
     validated_image = ""
     valid_keys = []
     art_found = False
@@ -369,17 +372,22 @@ def find_valid_image(metadata, base_url, debug_output, headerMap, ttl_seconds):
             valid_keys.append(key)
 
     for valid_key in valid_keys:
-        if art_found == True:
-            if valid_key == "art" or valid_key == "parentArt" or valid_key == "grandparentArt":
-                art_type = valid_key
-                img_url = base_url + metadata[art_type]
-                img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+        if art_found == True and (valid_key == "art" or valid_key == "parentArt" or valid_key == "grandparentArt"):
+            art_type = valid_key
+            img_url = base_url + metadata[art_type]
+            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+            if img != None:
                 break
+
+    for valid_key in valid_keys:
+        if img != None:
+            break
         elif valid_key == "thumb" or valid_key == "parentThumb" or valid_key == "grandparentThumb":
             art_type = valid_key
             img_url = base_url + metadata[art_type]
             img = get_data(img_url, debug_output, headerMap, ttl_seconds)
-            break
+            if img != None:
+                break
 
     return {"img": img, "art_type": art_type, "img_url": img_url, "validated_image": validated_image}
 
@@ -489,12 +497,6 @@ def render_marquee(message_array, image, debug_output):
             ],
         ),
     )
-
-def get_random_index(item, a_list, debug_output):
-    random_index = random.number(0, len(a_list) - 1)
-    if debug_output:
-        print("Random number for item " + item + ": " + str(random_index))
-    return random_index
 
 def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
     res = None
