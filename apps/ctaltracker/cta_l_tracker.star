@@ -35,11 +35,24 @@ COLOR_MAP = {
     "Y": "#f9e300",  # Yellow line
 }
 
+DESTINATION_STATIONS = ["No Destination", "Loop", "Kimball", "Linden", "Howard", "95th/Dan Ryan", "O'Hare", "Forest Park", "Harlem/Lake",
+    "Ashland/63rd-Cottage Grove", "Midway", "54th/Cermak", "Skokie"]
+
 # Default station is 18th (Pink Line)
 DEFAULT_STATION = "40830"
+DEFAULT_DESTINATION_STATION = "No Destination"
 
 def get_schema():
     options = get_station_options()
+    time_delay_options = [schema.Option(
+        display = str(time),
+        value = str(time),
+    ) for time in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]]
+    destination_station_options = [schema.Option(
+        display = destination,
+        value = destination,
+    ) for destination in DESTINATION_STATIONS]
+
 
     return schema.Schema(
         version = "1",
@@ -47,19 +60,37 @@ def get_schema():
             schema.Dropdown(
                 id = "station",
                 name = "Departing Station",
-                desc = "The CTA \"L\" Station to get departure schedule for.",
+                desc = "The CTA \"L\" Station to you would depart from",
                 icon = "train",
                 default = options[0].value,
                 options = options,
             ),
-        ],
+            schema.Dropdown(
+                id = "destination_station",
+                name = "Destination Station",
+                desc = "The CTA \"L\" Station that indicates the direction of the train",
+                icon = "train",
+                default = destination_station_options[0].value,
+                options = destination_station_options,
+            ),
+            schema.Dropdown(
+                id = "time_delay",
+                name = "Your estiamted time to station",
+                desc = "Set a estimated time for you to get to the station",
+                icon = "stopwatch",
+                default = time_delay_options[0].value,
+                options = time_delay_options,
+            ),
+        ]
     )
 
 def main(config):
     widgetMode = config.bool("$widget")
     selected_station = config.get("station", DEFAULT_STATION)
-
-    arrivals = get_journeys(selected_station)
+    destination_station = config.get("destination_station", DEFAULT_DESTINATION_STATION)
+    time_delay = int(config.get("time_delay", "0"))
+    
+    arrivals = get_journeys(selected_station, destination_station, time_delay)
 
     rendered_rows = render_arrival_list(arrivals, widgetMode)
 
@@ -217,7 +248,7 @@ def get_station_options():
         ]
     return station_options
 
-def get_journeys(station_code):
+def get_journeys(station_code, config):
     """
     Gets top 2 arrivals scheduled for the selected station
     from CTA Arrivals API
@@ -248,12 +279,17 @@ def get_journeys(station_code):
         print("No trains found in response from API!")
         print(response.json()["ctatt"])
         journeys = []
+    
+    next_arrivals = [build_journey(prediction) for prediction in journeys]
+    filtered_arrivals = []
 
-    next_arrivals = [build_journey(prediction) for prediction in journeys[:2]]
+    for prediction in next_arrivals:
+        if (destination_station == prediction["destination_name"] or destination_station == DEFAULT_DESTINATION_STATION) and (int(prediction["eta"]) > time_delay): 
+            filtered_arrivals.append(prediction) 
 
     # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(station_cache_key, json.encode(next_arrivals), ttl_seconds = 60)
-    return next_arrivals
+    cache.set(station_cache_key, json.encode(filtered_arrivals[:2]), ttl_seconds = 60)
+    return filtered_arrivals[:2]
 
 def build_journey(prediction):
     """
@@ -275,5 +311,6 @@ def build_journey(prediction):
         "line": line,
         "color_hex": color_hex,
         "eta_text": eta_text,
+        "eta": diff_minutes,
         "is_scheduled": is_scheduled,
     }
