@@ -1,0 +1,6 @@
+---
+id: mandelbrot
+name: Mandelbrot
+summary: Mandelbrot Viewer
+desc: Displays a randomized mandelbrot or julia set.
+author: scriptorum
