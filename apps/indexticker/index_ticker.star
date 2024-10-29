@@ -29,12 +29,12 @@ INDEX_SUFFIX = "?metrics=high?&interval="
 INDEX_MAP = {
     "axjo": "ASX 200",
     "dji": "Dow Jones",
-    # "speup": "Europe 350",
+    "speup": "Europe 350",
     "spg100": "Global 100",
     "spg1200": "Global 1200",
     "ixic": "NASDAQ",
-    # "n225": "NIKKEI",
-    # "nz50": "NZX 50",
+    "n225": "NIKKEI",
+    "nz50": "NZX 50",
     "ftse": "FTSE",
     "gspc": "S&P 500",
     "BSESN": "BSE",
@@ -117,19 +117,20 @@ def print_chart(INDEX_JSON, TotalTicks, LastClose, Interval):
     TickIndex = []
     Data = []
 
-    for i in range(0, TotalTicks, 1):
-        # handle multiple Nones in a row
-        # loop until you dont find one and break
+    previous_tick = LastClose
 
+    for i in range(TotalTicks):
         CurrentTick = INDEX_JSON["chart"]["result"][0]["indicators"]["quote"][0]["close"][i]
+
         if CurrentTick == None:
-            CurrentTick = INDEX_JSON["chart"]["result"][0]["indicators"]["quote"][0]["close"][i - 1]
+            CurrentTick = previous_tick
+        else:
+            previous_tick = CurrentTick
 
         TickList.append(CurrentTick)
         TickIndex.append(i)
-        Percentage_Change = TickList[i] - LastClose
-        Percentage_Change = Percentage_Change / LastClose
-        Percentage_Change = Percentage_Change * 100
+
+        Percentage_Change = (CurrentTick - LastClose) / LastClose * 100
         DataElement = TickIndex[i], Percentage_Change
         Data.append(DataElement)
 
