@@ -134,10 +134,7 @@ def print_chart(INDEX_JSON, TotalTicks, LastClose, Interval):
         DataElement = TickIndex[i], Percentage_Change
         Data.append(DataElement)
 
-    ChartWidth = len(Data)
-
-    if ChartWidth > 64:
-        ChartWidth = 64
+    ChartWidth = min(len(Data), 64)
 
     if Interval == "YTD":
         ChartWidth = int(ChartWidth * 1.23)
