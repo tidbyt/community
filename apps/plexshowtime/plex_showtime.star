@@ -135,6 +135,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
 
                         if valid_media_container_key:
                             metadata_list = []
+                            library_type = ""
                             if endpoint_map["id"] == 4:
                                 if filter_movie or filter_music or filter_tv:
                                     # Get random library
@@ -148,7 +149,6 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                         allowable_media.append("artist")
 
                                     library_key = 0
-                                    library_type = ""
                                     if len(allowable_media) > 0:
                                         allowed_media = allowable_media[random.number(0, len(allowable_media) - 1)]
                                         for library in library_list:
@@ -175,15 +175,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                         library_content = get_data(library_url, debug_output, headerMap, ttl_seconds)
                                         library_output = json.decode(library_content, None)
                                         if library_output != None and library_output["MediaContainer"]["size"] > 0:
-                                            if library_type == "artist":
-                                                metadata_list = library_output["MediaContainer"]["Metadata"]
-                                                random_metadata_index = random.number(0, len(metadata_list) - 1)
-                                                library_content = get_data(base_url + metadata_list[random_metadata_index]["key"], debug_output, headerMap, ttl_seconds)
-                                                library_output = json.decode(library_content, None)
-                                                if library_output != None and library_output["MediaContainer"]["size"] > 0:
-                                                    metadata_list = library_output["MediaContainer"]["Metadata"]
-                                            else:
-                                                metadata_list = library_output["MediaContainer"]["Metadata"]
+                                            metadata_list = library_output["MediaContainer"]["Metadata"]
                                         else:
                                             display_message_string = "No results for " + endpoint_map["title"] + " " + media_type
                                             return display_message(debug_output, [{"message": display_message_string, "color": font_color}])
@@ -220,6 +212,14 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
 
                             if len(metadata_list) > 0:
                                 random_index = random.number(0, len(metadata_list) - 1)
+                                if library_type == "artist":
+                                    # Pick an album if available
+                                    library_content = get_data(base_url + metadata_list[random_index]["key"], debug_output, headerMap, ttl_seconds)
+                                    library_output = json.decode(library_content, None)
+                                    if library_output != None and library_output["MediaContainer"]["size"] > 0:
+                                        metadata_list = library_output["MediaContainer"]["Metadata"]
+                                        random_index = random.number(0, len(metadata_list) - 1)
+
                                 metadata_keys = metadata_list[random_index].keys()
 
                                 if debug_output:
