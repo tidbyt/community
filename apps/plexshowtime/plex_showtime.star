@@ -241,7 +241,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                 validated_image = image_map["validated_image"]
 
                                 # If art not found, try to look for specific metadata art
-                                if art_type == "thumb" or art_type == "parentThumb" or art_type == "parentThumb":
+                                if art_type == "thumb" or art_type == "parentThumb" or art_type == "grandparentThumb":
                                     if debug_output:
                                         print("Only thumbnails found, looking further for art")
                                     single_metadata = base_url + metadata_list[random_index]["key"]
