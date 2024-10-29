@@ -157,20 +157,34 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                                 library_key = library["key"]
                                                 break
 
+                                        #  1 = movie 2 = show 3 = season 4 = episode
+                                        media_type = ""
+                                        library_type_enum = 0
+                                        if library_type == "movie":
+                                            media_type = "Movie"
+                                        elif library_type == "show":
+                                            library_type_enum = 4
+                                            media_type = "Show"
+                                        elif library_type == "artist":
+                                            media_type = "Music"
+
                                         library_url = base_url + "/library/sections/" + library_key + "/all"
+                                        if library_type_enum > 0:
+                                            library_url = base_url + "/library/sections/" + library_key + "/all?type=" + library_type_enum
+
                                         library_content = get_data(library_url, debug_output, headerMap, ttl_seconds)
                                         library_output = json.decode(library_content, None)
                                         if library_output != None and library_output["MediaContainer"]["size"] > 0:
-                                            metadata_list = library_output["MediaContainer"]["Metadata"]
+                                            if library_type == "artist":
+                                                metadata_list = library_output["MediaContainer"]["Metadata"]
+                                                random_metadata_index = random.number(0, len(metadata_list) - 1)
+                                                library_content = get_data(base_url + metadata_list[random_metadata_index]["key"], debug_output, headerMap, ttl_seconds)
+                                                library_output = json.decode(library_content, None)
+                                                if library_output != None and library_output["MediaContainer"]["size"] > 0:
+                                                    metadata_list = library_output["MediaContainer"]["Metadata"]
+                                            else:
+                                                metadata_list = library_output["MediaContainer"]["Metadata"]
                                         else:
-                                            media_type = ""
-                                            if library_type == "movie":
-                                                media_type = "Movie"
-                                            elif library_type == "show":
-                                                media_type = "Show"
-                                            elif library_type == "artist":
-                                                media_type = "Music"
-                                                endpoint_map["title"] = "Unplayed"
                                             display_message_string = "No results for " + endpoint_map["title"] + " " + media_type
                                             return display_message(debug_output, [{"message": display_message_string, "color": font_color}])
                                     else:
