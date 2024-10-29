@@ -5,8 +5,8 @@ Description: Display ticker and stats for stock indices.
 Author: M0ntyP
 
 v1.1 - Added BSE and NIFTY indices
-
 v1.2 - Added toggle for showing % change or pts change
+v1.3 - Added NIKKEI, Europe 350, Global 100, Global 1200, NZX50 indices; support null indicator values in chart
 """
 
 load("animation.star", "animation")
