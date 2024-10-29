@@ -26,6 +26,17 @@ FONT = "tom-thumb"
 INDEX_PREFIX = "https://query1.finance.yahoo.com/v8/finance/chart/%5E"
 INDEX_SUFFIX = "?metrics=high?&interval="
 
+INDEX_MAP = {
+    "axjo": "ASX 200",
+    "dji": "Dow Jones",
+    "ixic": "NASDAQ",
+    "n225": "NIKKEI",
+    "ftse": "FTSE",
+    "gspc": "S&P 500",
+    "BSESN": "BSE",
+    "NSEI": "NIFTY",
+}
+
 def main(config):
     IndexSelection = config.get("Index", "axjo")
     RangeSelection = config.get("Range", "5m&range=1d")
@@ -205,23 +216,7 @@ def print_market(Current, DisplayDiff, DiffColor, IndexSelection, Interval):
     )
 
 def getTitle(IndexSelection):
-    if IndexSelection == "axjo":
-        return ("ASX 200")
-    elif IndexSelection == "dji":
-        return ("Dow Jones")
-    elif IndexSelection == "ixic":
-        return ("NASDAQ")
-    elif IndexSelection == "n225":
-        return ("NIKKEI")
-    elif IndexSelection == "ftse":
-        return ("FTSE")
-    elif IndexSelection == "gspc":
-        return ("S&P 500")
-    elif IndexSelection == "BSESN":
-        return ("BSE")
-    elif IndexSelection == "NSEI":
-        return ("NIFTY")
-    return ""
+    return INDEX_MAP.get(IndexSelection, "")
 
 def get_schema():
     return schema.Schema(
@@ -254,38 +249,8 @@ def get_schema():
     )
 
 IndexOptions = [
-    schema.Option(
-        display = "ASX 200",
-        value = "axjo",
-    ),
-    schema.Option(
-        display = "Dow Jones",
-        value = "dji",
-    ),
-    schema.Option(
-        display = "NASDAQ",
-        value = "ixic",
-    ),
-    schema.Option(
-        display = "S&P 500",
-        value = "gspc",
-    ),
-    # schema.Option(
-    #     display = "NIKKEI",
-    #     value = "n225",
-    # ),
-    schema.Option(
-        display = "FTSE",
-        value = "ftse",
-    ),
-    schema.Option(
-        display = "BSE",
-        value = "BSESN",
-    ),
-    schema.Option(
-        display = "NIFTY",
-        value = "NSEI",
-    ),
+    schema.Option(display = title, value = value)
+    for value, title in INDEX_MAP.items()
 ]
 
 RangeOptions = [
