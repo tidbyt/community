@@ -29,35 +29,31 @@ LEAGUE = "nba"
 API = "https://site.api.espn.com/apis/v2/sports/" + SPORT + "/" + LEAGUE + "/standings"
 ALT_COLOR = """
 {
-    "OKC": "#007AC1",
-    "DEN": "#0E2240",
-    "PHI": "#006BB6"
+    "GS": "#1D428A"
 }
 """
 ALT_LOGO = """
 {
     "HOU": "https://b.fssta.com/uploads/application/nba/team-logos/Rockets-alternate.png",
-    "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png"
+    "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png",
+    "TOR": "https://b.fssta.com/uploads/application/nba/team-logos/Raptors-alternate.png"
 }
 """
 MAGNIFY_LOGO = """
 {
     "BOS": 18,
-    "BKN": 18,
     "CHA": 18,
-    "CLE": 22,
     "DEN": 14,
-    "HOU": 20,
     "LAL": 18,
-    "MIL": 20,
-    "NO": 26,
-    "NY": 20,
-    "OKC": 26,
+    "MIL": 18,
+    "NO": 24,
+    "NY": 18,
+    "OKC": 24,
     "ORL": 18,
     "PHX": 18,
     "PHI": 14,
     "SA": 18,
-    "TOR": 14,
+    "TOR": 13,
     "WSH": 14
 }
 """
@@ -65,7 +61,7 @@ MAGNIFY_LOGO = """
 def main(config):
     renderCategory = []
     rotationSpeed = config.get("rotationSpeed", "5")
-    divisionType = config.get("divisionType", "5")
+    divisionType = config.get("divisionType", "1")
     teamsToShow = int(config.get("teamsOptions", "3"))
     displayTop = config.get("displayTop", "league")
     timeColor = config.get("displayTimeColor", "#FFA500")
@@ -79,7 +75,7 @@ def main(config):
     standings = get_standings(league)
 
     if (standings):
-        for i, s in enumerate(standings[0]["children"]):
+        for i, s in enumerate(standings):
             entries = s["standings"]["entries"]
 
             if entries:
@@ -120,12 +116,28 @@ def get_games_behind(entry):
 
 divisionOptions = [
     schema.Option(
-        display = "Eastern Conference",
-        value = "5",
+        display = "Atlantic Division",
+        value = "1",
     ),
     schema.Option(
-        display = "Western Conference",
-        value = "6",
+        display = "Central Division",
+        value = "2",
+    ),
+    schema.Option(
+        display = "Southeast Division",
+        value = "9",
+    ),
+    schema.Option(
+        display = "Northwest Division",
+        value = "11",
+    ),
+    schema.Option(
+        display = "Pacific Division",
+        value = "4",
+    ),
+    schema.Option(
+        display = "Southwest Division",
+        value = "10",
     ),
 ]
 

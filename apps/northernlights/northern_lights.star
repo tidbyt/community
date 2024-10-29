@@ -29,39 +29,55 @@ def fetch_data(url):
 
 # Parse the alert message to extract the event type and predicted storm level
 def parse_alert_message(alert):
-    # Helper function to extract data between two markers
-    alert = alert.replace("\r\n", " ").replace("\r", " ").replace("\n", " ")
-    alert = alert.split(" UTC ", 1)[1] if " UTC " in alert else ""
-
-    def extract_between(text, start, end):
-        start_idx = text.find(start)
-        if start_idx == -1:
-            return None
-        start_idx += len(start)
-        end_idx = text.find(end, start_idx)
-        if end_idx == -1:
-            return text[start_idx:]
-        return text[start_idx:end_idx].strip()
-
-    # Extract event type
+    # Split the alert message into lines for easier parsing
+    lines = alert.split("\r\n")
     event_type = None
-    if "ALERT" in alert:
-        event_type = "ALERT"
-    elif "WARNING" in alert:
-        event_type = "Warning"
-    elif "WATCH" in alert:
-        event_type = "Watch"
-    elif "SUMMARY" in alert:
-        event_type = "Summary"
+    predicted_level = None
+    active_warning = False
 
-    # Extract predicted storm level
-    predicted_level = extract_between(alert, "Geomagnetic Storm Category ", " Predicted")
+    for line in lines:
+        line = line.strip()
 
-    # Format the output
-    summary = "{}: {} predicted".format(
-        event_type if event_type else "N/A",
-        predicted_level if predicted_level else "None",
-    )
+        # Determine the event type and set active_warning accordingly
+        if "ALERT" in line:
+            event_type = "ALERT"
+            active_warning = True  # Set active_warning to True for ALERT
+        elif "WARNING" in line:
+            event_type = "WARNING"
+            active_warning = True  # Set active_warning to True for WARNING
+        elif "WATCH" in line:
+            event_type = "WATCH"
+            active_warning = True  # Set active_warning to True for WATCH
+        elif "SUMMARY" in line:
+            event_type = "SUMMARY"
+            # Decide if SUMMARY should set active_warning (currently left as False)
+
+        # Extract predicted storm level from 'NOAA Scale: ' line
+        if line.startswith("NOAA Scale: "):
+            predicted_level = line[len("NOAA Scale: "):].strip()
+
+        # For WATCH messages, extract predicted level differently
+        if event_type == "WATCH" and "WATCH:" in line:
+            idx = line.find("Geomagnetic Storm Category ")
+            if idx != -1:
+                start = idx + len("Geomagnetic Storm Category ")
+                end = line.find(" Predicted", start)
+                if end != -1:
+                    predicted_level = line[start:end].strip()
+                else:
+                    predicted_level = line[start:].strip()
+            else:
+                # In case 'Geomagnetic Storm Category' is not found
+                predicted_level = line.replace("WATCH:", "").strip()
+
+    # Format the output based on whether there's an active warning
+    if active_warning:
+        event = event_type if event_type else "N/A"
+        level = predicted_level if predicted_level else "None"
+        summary = event + ": " + level + " active"
+    else:
+        summary = ""  # Return empty string if no active warning
+
     return summary
 
 # Main function to fetch data and render the UI
@@ -112,7 +128,7 @@ def main():
         if alert_data and len(alert_data) > 0:
             # The latest data entry is the last item in the list (-1 index)
             # Alert index is the second item in this list (index 1)
-            latest_alert_entry = alert_data[-1]
+            latest_alert_entry = alert_data[0]
             alert = latest_alert_entry["message"]  # Extract KP value
             alert = parse_alert_message(alert)
             print("Alert value: ", alert)
