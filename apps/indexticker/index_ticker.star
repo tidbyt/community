@@ -29,8 +29,12 @@ INDEX_SUFFIX = "?metrics=high?&interval="
 INDEX_MAP = {
     "axjo": "ASX 200",
     "dji": "Dow Jones",
+    # "speup": "Europe 350",
+    "spg100": "Global 100",
+    "spg1200": "Global 1200",
     "ixic": "NASDAQ",
-    "n225": "NIKKEI",
+    # "n225": "NIKKEI",
+    # "nz50": "NZX 50",
     "ftse": "FTSE",
     "gspc": "S&P 500",
     "BSESN": "BSE",
