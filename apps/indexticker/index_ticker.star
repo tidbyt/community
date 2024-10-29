@@ -181,7 +181,7 @@ def print_chart(INDEX_JSON, TotalTicks, LastClose, Interval):
     )
 
 def print_market(Current, DisplayDiff, DiffColor, IndexSelection, Interval):
-    Title = getTitle(IndexSelection)
+    Title = getTitle(IndexSelection).upper()
     return render.Column(
         children = [
             render.Row(
