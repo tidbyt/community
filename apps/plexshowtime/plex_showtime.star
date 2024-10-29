@@ -170,7 +170,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
 
                                         library_url = base_url + "/library/sections/" + library_key + "/all"
                                         if library_type_enum > 0:
-                                            library_url = base_url + "/library/sections/" + library_key + "/all?type=" + library_type_enum
+                                            library_url = base_url + "/library/sections/" + library_key + "/all?type=" + str(library_type_enum)
 
                                         library_content = get_data(library_url, debug_output, headerMap, ttl_seconds)
                                         library_output = json.decode(library_content, None)
