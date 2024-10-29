@@ -21,7 +21,7 @@ def main(config):
     random.seed(time.now().unix)
 
     plex_server_url = config.str("plex_server_url", "")
-    plex_api_key = config.str("plex_api_key", "")
+    plex_token = config.str("plex_token", "")
     show_heading = config.bool("show_heading", True)
     heading_color = config.str("heading_color", "#FFA500")
     font_color = config.str("font_color", "#FFFFFF")
@@ -59,7 +59,7 @@ def main(config):
     if debug_output:
         print("------------------------------")
         print("CONFIG - plex_server_url: " + plex_server_url)
-        print("CONFIG - plex_api_key: " + plex_api_key)
+        print("CONFIG - plex_token: " + plex_token)
         print("CONFIG - ttl_seconds: " + str(ttl_seconds))
         print("CONFIG - debug_output: " + str(debug_output))
         print("CONFIG - endpoint_map: " + str(endpoint_map))
@@ -74,15 +74,15 @@ def main(config):
         print("CONFIG - font_color: " + font_color)
         print("CONFIG - fit_screen: " + str(fit_screen))
 
-    return get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, show_heading, heading_color, font_color, ttl_seconds)
+    return get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, show_heading, heading_color, font_color, ttl_seconds)
 
-def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, show_heading, heading_color, font_color, ttl_seconds):
+def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, show_heading, heading_color, font_color, ttl_seconds):
     base_url = plex_server_url
     if base_url.endswith("/"):
         base_url = base_url[0:len(base_url) - 1]
 
     display_message_string = ""
-    if plex_server_url == "" or plex_api_key == "":
+    if plex_server_url == "" or plex_token == "":
         display_message_string = "Plex API URL and Plex API key must not be blank"
     elif endpoint_map["id"] == 0:
         display_message_string = "Select recent, added, library or playing"
@@ -91,7 +91,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
     else:
         headerMap = {
             "Accept": "application/json",
-            "X-Plex-Token": plex_api_key,
+            "X-Plex-Token": plex_token,
         }
 
         api_endpoint = plex_server_url
@@ -544,15 +544,15 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "plex_server_url",
-                name = "Plex Server URL (required)",
+                name = "Plex server URL (required)",
                 desc = "Your Plex Server URL.",
                 icon = "globe",
                 default = "",
             ),
             schema.Text(
-                id = "plex_api_key",
-                name = "Plex API Key (required)",
-                desc = "Your Plex API key.",
+                id = "plex_token",
+                name = "Plex token (required)",
+                desc = "Your Plex token.",
                 icon = "key",
                 default = "",
             ),
