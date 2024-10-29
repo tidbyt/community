@@ -15,6 +15,7 @@ load("time.star", "time")
 
 PLEX_ICON = "/9j/4AAQSkZJRgABAQEAwADAAAD/4QBoRXhpZgAATU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAAExAAIAAAARAAAATgAAAAAAAADAAAAAAQAAAMAAAAABcGFpbnQubmV0IDUuMC4xMwAA/9sAQwABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/9sAQwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/8AAEQgACgAKAwESAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A/nv/AGavgD8JPiR+xD+2B8VPi/4T/wCFey/CVtHv/g1+0v8A2x4rk/4Sb4sXFrbNbfsvf8ID/bf/AAi3i/8A4TC1NjqH/CQ6FoFv4k+GH9vf8JT4y1e/8IzaZplt+a9fn/EPB+eZzxdwxxFl/Gub8PZZkUayzHIctjiKlDiL2k3KNHMI4vMq2Rxw8I3p8/8Aq5WzNQqVXRzShUjgp4L3MDmuDwmV5jga+UYXHYjGuLw+NxDpxngOVJOVB08PHFucmuZr69GheMb4eUXWVcor9APDP//Z"
 PLEX_BANNER = "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"
+GET_TOP = 15
 
 def main(config):
     random.seed(time.now().unix)
@@ -24,7 +25,6 @@ def main(config):
     show_heading = config.bool("show_heading", True)
     heading_color = config.str("heading_color", "#FFA500")
     font_color = config.str("font_color", "#FFFFFF")
-    show_unwatched = config.bool("show_unwatched", True)
     show_recent = config.bool("show_recent", True)
     show_added = config.bool("show_added", True)
     show_library = config.bool("show_library", True)
@@ -51,9 +51,6 @@ def main(config):
     if show_library == True:
         plex_endpoints.append({"title": "Library", "endpoint": "/library/sections", "id": 4})
 
-    if show_unwatched == True:
-        plex_endpoints.append({"title": "Unwatched", "endpoint": "/library/sections", "id": 5})
-
     endpoint_map = {"title": "None", "endpoint": "", "id": 0}
     if len(plex_endpoints) > 0:
         endpoint_map = plex_endpoints[int(get_random_index("rand", plex_endpoints, debug_output))]
@@ -65,7 +62,6 @@ def main(config):
         print("CONFIG - ttl_seconds: " + str(ttl_seconds))
         print("CONFIG - debug_output: " + str(debug_output))
         print("CONFIG - endpoint_map: " + str(endpoint_map))
-        print("CONFIG - show_unwatched: " + str(show_unwatched))
         print("CONFIG - show_recent: " + str(show_recent))
         print("CONFIG - show_added: " + str(show_added))
         print("CONFIG - show_playing: " + str(show_playing))
@@ -130,7 +126,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                         valid_media_container_key = False
                         media_container_keys = output["MediaContainer"].keys()
                         for media_container_key in media_container_keys:
-                            if (endpoint_map["id"] == 4 or endpoint_map["id"] == 5) and media_container_key == "Directory":
+                            if endpoint_map["id"] == 4 and media_container_key == "Directory":
                                 valid_media_container_key = True
                                 break
                             elif (endpoint_map["id"] == 1 or endpoint_map["id"] == 2 or endpoint_map["id"] == 3) and media_container_key == "Metadata":
@@ -139,7 +135,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
 
                         if valid_media_container_key:
                             metadata_list = []
-                            if endpoint_map["id"] == 4 or endpoint_map["id"] == 5:
+                            if endpoint_map["id"] == 4:
                                 if filter_movie or filter_music or filter_tv:
                                     # Get random library
                                     library_list = output["MediaContainer"]["Directory"]
@@ -162,10 +158,6 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                                 break
 
                                         library_url = base_url + "/library/sections/" + library_key + "/all"
-                                        if endpoint_map["id"] == 4:
-                                            library_url = base_url + "/library/sections/" + library_key + "/all"
-                                        if endpoint_map["id"] == 5:
-                                            library_url = base_url + "/library/sections/" + library_key + "/unwatched"
                                         library_content = get_data(library_url, debug_output, headerMap, ttl_seconds)
                                         library_output = json.decode(library_content, None)
                                         if library_output != None and library_output["MediaContainer"]["size"] > 0:
@@ -189,8 +181,8 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                     return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
                             elif filter_movie and filter_music and filter_tv:
                                 metadata_list = output["MediaContainer"]["Metadata"]
-                                if endpoint_map["id"] != 4 and endpoint_map["id"] != 5 and len(metadata_list) > 9:
-                                    metadata_list = metadata_list[0:9]
+                                if endpoint_map["id"] != 4 and len(metadata_list) > GET_TOP:
+                                    metadata_list = metadata_list[0:GET_TOP]
                             else:
                                 m_list = output["MediaContainer"]["Metadata"]
                                 for metadata in m_list:
@@ -209,7 +201,7 @@ def get_text(plex_server_url, plex_api_key, endpoint_map, debug_output, fit_scre
                                         metadata_list.append(metadata)
                                     if filter_tv and (metadata["type"] == "season" or metadata["type"] == "episode" or metadata["type"] == "show"):
                                         metadata_list.append(metadata)
-                                    if endpoint_map["id"] != 4 and endpoint_map["id"] != 5 and len(metadata_list) > 9:
+                                    if endpoint_map["id"] != 4 and len(metadata_list) > GET_TOP:
                                         break
 
                             if len(metadata_list) > 0:
@@ -572,23 +564,16 @@ def get_schema():
                 default = True,
             ),
             schema.Toggle(
-                id = "show_unwatched",
-                name = "Show unwatched",
-                desc = "Show unwatched media.",
-                icon = "layerGroup",
-                default = True,
-            ),
-            schema.Toggle(
                 id = "show_recent",
                 name = "Show played",
-                desc = "Show last 10 recently played.",
+                desc = "Show last " + str(GET_TOP) + " recently played.",
                 icon = "arrowTrendUp",
                 default = True,
             ),
             schema.Toggle(
                 id = "show_added",
                 name = "Show added",
-                desc = "Show last 10 recently added.",
+                desc = "Show last " + str(GET_TOP) + " recently added.",
                 icon = "arrowTrendUp",
                 default = True,
             ),
