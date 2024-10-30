@@ -6,24 +6,24 @@ load("schema.star", "schema")
 
 DEFAULT_ZIP = "11367"
 
-ZMANIM_MAP = {
-    "Dawn": "Dawn (Alot",
-    "Misheyakir": "Earliest Tallit",
-    "Sunrise": "Sunrise",
-    "Last Shema": "Latest Shema",
-    "Last Shach": "Latest Shacharit",
-    "Midday": "Midday",
-    "Mincha Ged": "Earliest Mincha",
-    "Mincha Ket": "Mincha Ketanah",
-    "Plag": "Plag Hamincha",
-    "Sunset": "Sunset",
-    "Nightfall": "Nightfall",
-    "Midnight": "Midnight",
-    "Candle Lighting": "Candle Lighting",
-    "Shabbat Ends": "Shabbat Ends",
-    "Candle Lighting after": "Candle Lighting after",
-    "Holiday Ends": "Holiday Ends",
-}
+ZMANIM_MAP = dict(
+    Dawn = "Dawn (Alot",
+    Misheyakir = "Earliest Tallit",
+    Sunrise = "Sunrise",
+    Last_Shema = "Latest Shema",
+    Last_Shach = "Latest Shacharit",
+    Midday = "Midday",
+    Mincha_Ged = "Earliest Mincha",
+    Mincha_Ket = "Mincha Ketanah",
+    Plag = "Plag Hamincha", 
+    Sunset = "Sunset",
+    Nightfall = "Nightfall",
+    Midnight = "Midnight",
+    Candle_Lighting = "Candle Lighting",
+    Shabbat_Ends = "Shabbat Ends",
+    Candle_Lighting_after = "Candle Lighting after",
+    Holiday_Ends = "Holiday Ends",
+)
 
 def get_url(zip_code):
     return "https://www.chabad.org/tools/rss/zmanim.xml?locationid=%s&locationtype=2" % zip_code
