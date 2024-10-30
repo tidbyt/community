@@ -42,8 +42,17 @@ def get_current_date():
     days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     
+    dow = now.format("Monday")  # Get full day name
+    if dow == "Monday": weekday = 1
+    elif dow == "Tuesday": weekday = 2
+    elif dow == "Wednesday": weekday = 3
+    elif dow == "Thursday": weekday = 4
+    elif dow == "Friday": weekday = 5
+    elif dow == "Saturday": weekday = 6
+    else: weekday = 0
+    
     return "%s %s %d" % (
-        days[now.weekday],
+        days[weekday],
         months[now.month - 1],
         now.day,
     )
