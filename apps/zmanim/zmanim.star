@@ -17,10 +17,10 @@ ZMANIM_MAP = {
     "Sunset": "Sunset",
     "Nightfall": "Nightfall",
     "Midnight": "Midnight",
-    "Candle Lighting": "Candle Lighting",          # Entry for Candle Lighting
-    "Shabbat Ends": "Shabbat Ends",                # Entry for Shabbat Ends
-    "Candle Lighting after": "Candle Lighting after",  # Entry for Candle Lighting after
-    "Holiday Ends": "Holiday Ends"                 # Entry for Holiday Ends
+    "Candle Lighting": "Candle Lighting",
+    "Shabbat Ends": "Shabbat Ends",
+    "Candle Lighting after": "Candle Lighting after",
+    "Holiday Ends": "Holiday Ends"                 
 }
 
 
