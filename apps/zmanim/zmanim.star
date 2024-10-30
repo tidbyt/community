@@ -7,7 +7,7 @@ DEFAULT_ZIP = "11367"
 ZMANIM_MAP = {
     "Dawn": "Dawn (Alot",
     "Misheyakir": "Earliest Tallit",
-    "Sunrise": "Sunrise", 
+    "Sunrise": "Sunrise",
     "Last Shema": "Latest Shema",
     "Last Shach": "Latest Shacharit",
     "Midday": "Midday",
@@ -24,11 +24,9 @@ ZMANIM_MAP = {
 }
 
 def get_url(zip_code):
-    """Generate URL for zmanim RSS feed."""
-    return "https://www.chabad.org/tools/rss/zmanim.xml?locationid={}&locationtype=2".format(zip_code)
+    return "https://www.chabad.org/tools/rss/zmanim.xml?locationid=%s&locationtype=2" % zip_code
 
 def clean_title(title):
-    """Clean and standardize zman title."""
     original = title.split(" - ")[0].split(" (")[0]
     for display_name, match_text in ZMANIM_MAP.items():
         if original.startswith(match_text):
@@ -36,20 +34,17 @@ def clean_title(title):
     return original
 
 def clean_time(time):
-    """Extract clean time string from full title."""
     return time.split(" - ")[1].split(" --")[0].strip()
 
 def get_current_date():
-    """Fetch current date from external API in 'Wed Oct 30' format."""
     date_response = http.get("http://worldtimeapi.org/api/timezone/Etc/UTC")
     if date_response.status_code != 200:
         return "Date Error"
 
     date_data = date_response.json()
     datetime_str = date_data["datetime"]
-    
     date_str = datetime_str.split("T")[0]
-    year, month, day = date_str.split("-")
+    _, month, day = date_str.split("-")  # Ignore year value
     
     month_index = int(month) - 1
     day_of_week_index = int(date_data["day_of_week"])
@@ -60,30 +55,21 @@ def get_current_date():
     month_str = months[month_index]
     day_of_week_str = days[day_of_week_index]
     
-    return "{} {} {}".format(day_of_week_str, month_str, day)
+    return "%s %s %s" % (day_of_week_str, month_str, day)
 
 def create_zman_row(title, time, title_font, time_font, first):
-    """Create a render Column for a single zman."""
     row_children = [
-        render.Text(
-            content=clean_title(title) + ":",
-            font=title_font,
-        ),
-        render.Box(height=1),
-        render.Text(
-            content=time,
-            font=time_font,
-            color="#ff0",
-        ),
+        render.Text(content = clean_title(title) + ":", font = title_font),
+        render.Box(height = 1),
+        render.Text(content = time, font = time_font, color = "#ff0"),
     ]
     
     if not first:
-        row_children.insert(0, render.Box(height=4, width=1))
+        row_children.insert(0, render.Box(height = 4, width = 1))
     
-    return render.Column(children=row_children)
+    return render.Column(children = row_children)
 
 def main(config):
-    """Main function to render the Tidbyt display."""
     font = "tb-8"
     title_font = "tom-thumb"
     time_font = "CG-pixel-4x5-mono"
@@ -91,23 +77,23 @@ def main(config):
     current_date = get_current_date()
 
     rep = http.get(
-        url=get_url(zip_code),
-        ttl_seconds=14400,
-        headers={
+        url = get_url(zip_code),
+        ttl_seconds = 14400,
+        headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
         },
     )
 
     if rep.status_code != 200:
         display_rows = [
-            render.Text("Error", font=title_font),
-            render.Text("getting", font=title_font),
-            render.Text("data!", font=title_font),
+            render.Text("Error", font = title_font),
+            render.Text("getting", font = title_font),
+            render.Text("data!", font = title_font),
         ]
     else:
         display_rows = [
-            render.Text(current_date, font=title_font, color="#ff0"),
-            render.Box(height=4),
+            render.Text(current_date, font = title_font, color = "#ff0"),
+            render.Box(height = 4),
         ]
         
         items = rep.body().split("<item>")[1:]
@@ -129,25 +115,25 @@ def main(config):
                         break
 
     times_display = render.Marquee(
-        height=32,
-        scroll_direction="vertical",
-        child=render.Column(children=display_rows),
-        offset_start=32,
-        offset_end=32,
+        height = 32,
+        scroll_direction = "vertical",
+        child = render.Column(children = display_rows),
+        offset_start = 32,
+        offset_end = 32,
     )
 
     return render.Root(
-        delay=int(config.str("speed", "30")),
-        show_full_animation=True,
-        child=render.Row(
-            expanded=True,
-            children=[
+        delay = int(config.str("speed", "30")),
+        show_full_animation = True,
+        child = render.Row(
+            expanded = True,
+            children = [
                 render.Column(
-                    main_align="space_evenly",
-                    expanded=True,
-                    children=[
-                        render.Text("Z", font=font, color="#00a"),
-                        render.Text("T", font=font, color="#00a"),
+                    main_align = "space_evenly",
+                    expanded = True,
+                    children = [
+                        render.Text("Z", font = font, color = "#00a"),
+                        render.Text("T", font = font, color = "#00a"),
                     ],
                 ),
                 times_display,
@@ -156,31 +142,30 @@ def main(config):
     )
 
 def get_schema():
-    """Define the app's configuration schema."""
     scroll_speed = [
-        schema.Option(display="Slower", value="100"),
-        schema.Option(display="Slow", value="70"),
-        schema.Option(display="Normal", value="50"),
-        schema.Option(display="Fast (Default)", value="30"),
+        schema.Option(display = "Slower", value = "100"),
+        schema.Option(display = "Slow", value = "70"),
+        schema.Option(display = "Normal", value = "50"),
+        schema.Option(display = "Fast (Default)", value = "30"),
     ]
     
     return schema.Schema(
-        version="1",
-        fields=[
+        version = "1",
+        fields = [
             schema.Text(
-                id="zip_code",
-                name="ZIP Code",
-                desc="Enter your ZIP code for local zmanim",
-                icon="locationDot",
-                default=DEFAULT_ZIP,
+                id = "zip_code",
+                name = "ZIP Code",
+                desc = "Enter your ZIP code for local zmanim",
+                icon = "locationDot",
+                default = DEFAULT_ZIP,
             ),
             schema.Dropdown(
-                id="speed",
-                name="Scroll Speed",
-                desc="Change the speed that text scrolls.",
-                icon="gear",
-                default=scroll_speed[-1].value,
-                options=scroll_speed,
+                id = "speed",
+                name = "Scroll Speed",
+                desc = "Change the speed that text scrolls.",
+                icon = "gear",
+                default = scroll_speed[-1].value,
+                options = scroll_speed,
             ),
         ],
     )
