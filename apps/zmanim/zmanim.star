@@ -39,20 +39,19 @@ def clean_time(zman_time):
 
 def format_date(now):
     weekday = now.format("Monday")  # Get full weekday name
-    month = now.format("January")   # Get full month name
+    month = now.format("January")  # Get full month name
     day = now.day
-    
-    # Convert to short format
+
     days = {
         "Monday": "Mon",
-        "Tuesday": "Tue", 
+        "Tuesday": "Tue",
         "Wednesday": "Wed",
         "Thursday": "Thu",
         "Friday": "Fri",
         "Saturday": "Sat",
-        "Sunday": "Sun"
+        "Sunday": "Sun",
     }
-    
+
     months = {
         "January": "Jan",
         "February": "Feb",
@@ -63,14 +62,14 @@ def format_date(now):
         "July": "Jul",
         "August": "Aug",
         "September": "Sep",
-        "October": "Oct", 
+        "October": "Oct",
         "November": "Nov",
-        "December": "Dec"
+        "December": "Dec",
     }
-    
+
     short_day = days[weekday]
     short_month = months[month]
-    
+
     return "%s %s %d" % (short_day, short_month, day)
 
 def create_zman_row(title, zman_time, title_font, time_font, first):
