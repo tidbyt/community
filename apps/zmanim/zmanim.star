@@ -89,7 +89,6 @@ def main(config):
     title_font = "tom-thumb"
     time_font = "CG-pixel-4x5-mono"
     zip_code = config.str("zip_code", DEFAULT_ZIP)
-    
     now = time.now()
     current_date = format_date(now)
 
