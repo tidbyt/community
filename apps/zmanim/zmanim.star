@@ -1,6 +1,7 @@
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 DEFAULT_ZIP = "11367"
 
@@ -13,7 +14,7 @@ ZMANIM_MAP = dict(
     Midday = "Midday",
     Mincha_Ged = "Earliest Mincha",
     Mincha_Ket = "Mincha Ketanah",
-    Plag = "Plag Hamincha",  # Removed trailing space
+    Plag = "Plag Hamincha",
     Sunset = "Sunset",
     Nightfall = "Nightfall",
     Midnight = "Midnight",
@@ -33,14 +34,50 @@ def clean_title(title):
             return display_name
     return original
 
-def clean_time(time):
-    return time.split(" - ")[1].split(" --")[0].strip()
+def clean_time(zman_time):
+    return zman_time.split(" - ")[1].split(" --")[0].strip()
 
-def create_zman_row(title, time, title_font, time_font, first):
+def format_date(now):
+    weekday = now.format("Monday")  # Get full weekday name
+    month = now.format("January")   # Get full month name
+    day = now.day
+    
+    # Convert to short format
+    days = {
+        "Monday": "Mon",
+        "Tuesday": "Tue", 
+        "Wednesday": "Wed",
+        "Thursday": "Thu",
+        "Friday": "Fri",
+        "Saturday": "Sat",
+        "Sunday": "Sun"
+    }
+    
+    months = {
+        "January": "Jan",
+        "February": "Feb",
+        "March": "Mar",
+        "April": "Apr",
+        "May": "May",
+        "June": "Jun",
+        "July": "Jul",
+        "August": "Aug",
+        "September": "Sep",
+        "October": "Oct", 
+        "November": "Nov",
+        "December": "Dec"
+    }
+    
+    short_day = days[weekday]
+    short_month = months[month]
+    
+    return "%s %s %d" % (short_day, short_month, day)
+
+def create_zman_row(title, zman_time, title_font, time_font, first):
     row_children = [
         render.Text(content = clean_title(title) + ":", font = title_font),
         render.Box(height = 1),
-        render.Text(content = time, font = time_font, color = "#ff0"),
+        render.Text(content = zman_time, font = time_font, color = "#ff0"),
     ]
 
     if not first:
@@ -53,6 +90,9 @@ def main(config):
     title_font = "tom-thumb"
     time_font = "CG-pixel-4x5-mono"
     zip_code = config.str("zip_code", DEFAULT_ZIP)
+    
+    now = time.now()
+    current_date = format_date(now)
 
     rep = http.get(
         url = get_url(zip_code),
@@ -70,6 +110,8 @@ def main(config):
         ]
     else:
         display_rows = [
+            render.Box(height = 8),
+            render.Text(current_date, font = title_font, color = "#ff0"),
             render.Box(height = 4),
         ]
 
@@ -86,8 +128,8 @@ def main(config):
 
                 for match_text in ZMANIM_MAP.values():
                     if original_title.startswith(match_text):
-                        time = clean_time(full_title)
-                        display_rows.append(create_zman_row(full_title, time, title_font, time_font, first))
+                        zman_time = clean_time(full_title)
+                        display_rows.append(create_zman_row(full_title, zman_time, title_font, time_font, first))
                         first = False
                         break
 
