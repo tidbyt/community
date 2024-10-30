@@ -1,6 +1,7 @@
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 DEFAULT_ZIP = "11367"
 
@@ -37,25 +38,15 @@ def clean_time(time):
     return time.split(" - ")[1].split(" --")[0].strip()
 
 def get_current_date():
-    date_response = http.get("http://worldtimeapi.org/api/timezone/Etc/UTC")
-    if date_response.status_code != 200:
-        return "Date Error"
-
-    date_data = date_response.json()
-    datetime_str = date_data["datetime"]
-    date_str = datetime_str.split("T")[0]
-    _, month, day = date_str.split("-")  # Ignore year value
-    
-    month_index = int(month) - 1
-    day_of_week_index = int(date_data["day_of_week"])
-    
-    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    now = time.now()
     days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     
-    month_str = months[month_index]
-    day_of_week_str = days[day_of_week_index]
-    
-    return "%s %s %s" % (day_of_week_str, month_str, day)
+    return "%s %s %d" % (
+        days[now.weekday],
+        months[now.month - 1],
+        now.day,
+    )
 
 def create_zman_row(title, time, title_font, time_font, first):
     row_children = [
