@@ -1,56 +1,24 @@
-load("http.star", "http")
-load("render.star", "render")
-load("schema.star", "schema")
-load("time.star", "time")
-
-DEFAULT_ZIP = "11367"
-
-ZMANIM_MAP = {
-    "Dawn": "Dawn (Alot",
-    "Misheyakir": "Earliest Tallit",
-    "Sunrise": "Sunrise",
-    "Last Shema": "Latest Shema",
-    "Last Shach": "Latest Shacharit",
-    "Midday": "Midday",
-    "Mincha Ged": "Earliest Mincha",
-    "Mincha Ket": "Mincha Ketanah",
-    "Plag": "Plag Hamincha",
-    "Sunset": "Sunset",
-    "Nightfall": "Nightfall",
-    "Midnight": "Midnight",
-    "Candle Lighting": "Candle Lighting",
-    "Shabbat Ends": "Shabbat Ends",
-    "Candle Lighting after": "Candle Lighting after",
-    "Holiday Ends": "Holiday Ends",
-}
-
-def get_url(zip_code):
-    return "https://www.chabad.org/tools/rss/zmanim.xml?locationid=%s&locationtype=2" % zip_code
-
-def clean_title(title):
-    original = title.split(" - ")[0].split(" (")[0]
-    for display_name, match_text in ZMANIM_MAP.items():
-        if original.startswith(match_text):
-            return display_name
-    return original
-
-def clean_time(time):
-    return time.split(" - ")[1].split(" --")[0].strip()
-
 def get_current_date():
     now = time.now()
     days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    
+
     dow = now.format("Monday")  # Get full day name
-    if dow == "Monday": weekday = 1
-    elif dow == "Tuesday": weekday = 2
-    elif dow == "Wednesday": weekday = 3
-    elif dow == "Thursday": weekday = 4
-    elif dow == "Friday": weekday = 5
-    elif dow == "Saturday": weekday = 6
-    else: weekday = 0
-    
+    if dow == "Monday":
+        weekday = 1
+    elif dow == "Tuesday":
+        weekday = 2
+    elif dow == "Wednesday":
+        weekday = 3
+    elif dow == "Thursday":
+        weekday = 4
+    elif dow == "Friday":
+        weekday = 5
+    elif dow == "Saturday":
+        weekday = 6
+    else:
+        weekday = 0
+
     return "%s %s %d" % (
         days[weekday],
         months[now.month - 1],
@@ -63,10 +31,10 @@ def create_zman_row(title, time, title_font, time_font, first):
         render.Box(height = 1),
         render.Text(content = time, font = time_font, color = "#ff0"),
     ]
-    
+
     if not first:
         row_children.insert(0, render.Box(height = 4, width = 1))
-    
+
     return render.Column(children = row_children)
 
 def main(config):
@@ -95,18 +63,18 @@ def main(config):
             render.Text(current_date, font = title_font, color = "#ff0"),
             render.Box(height = 4),
         ]
-        
+
         items = rep.body().split("<item>")[1:]
         first = True
-        
+
         for item in items:
             title_start = item.find("<title>") + 7
             title_end = item.find("</title>")
-            
+
             if title_start > 6 and title_end > 0:
                 full_title = item[title_start:title_end].strip()
                 original_title = full_title.split(" - ")[0]
-                
+
                 for match_text in ZMANIM_MAP.values():
                     if original_title.startswith(match_text):
                         time = clean_time(full_title)
@@ -148,7 +116,7 @@ def get_schema():
         schema.Option(display = "Normal", value = "50"),
         schema.Option(display = "Fast (Default)", value = "30"),
     ]
-    
+
     return schema.Schema(
         version = "1",
         fields = [
