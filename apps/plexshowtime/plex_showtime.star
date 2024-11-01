@@ -616,9 +616,7 @@ def render_marquee(message_array, image, show_summary, debug_output):
             ),
         )
     else:
-        marquee_width = len(full_message)
-        if marquee_width < 57:
-            marquee_width = 57
+        marquee_width = 57 + ((len(full_message)) - ((len(full_message)) * 0.9))
 
         return render.Root(
             show_full_animation = True,
@@ -642,7 +640,7 @@ def render_marquee(message_array, image, show_summary, debug_output):
                                         children = [
                                             render.Marquee(
                                                 scroll_direction = "horizontal",
-                                                width = marquee_width,
+                                                width = int(marquee_width),
                                                 offset_start = 64,
                                                 offset_end = 57,
                                                 child = render.Row(text_array),
