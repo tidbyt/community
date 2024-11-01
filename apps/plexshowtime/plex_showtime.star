@@ -333,9 +333,31 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                     title_text = grandparent_title + parent_title + title
                                     title_text = title_text.strip()
                                     contains_summary = False
+                                    has_key = False
                                     for m_key in metadata_list[random_index].keys():
                                         if m_key == "summary":
                                             contains_summary = True
+
+                                        if m_key == "key":
+                                            has_key = True
+
+                                    if contains_summary == False and has_key:
+                                        child_metadata = get_data(base_url + metadata_list[random_index]["key"], debug_output, headerMap, ttl_seconds)
+                                        child_metadata_output = json.decode(child_metadata, None)
+
+                                        if child_metadata_output != None:
+                                            valid = False
+                                            for m_key in child_metadata_output.keys():
+                                                if m_key == "MediaContainer":
+                                                    valid = True
+                                                    break
+                                            if valid and child_metadata_output["MediaContainer"]["size"] > 0:
+                                                for m_key in child_metadata_output["MediaContainer"]["Metadata"][0].keys():
+                                                    if m_key == "summary":
+                                                        metadata_list[random_index]["summary"] = child_metadata_output["MediaContainer"]["Metadata"][0]["summary"]
+                                                        contains_summary = True
+                                                        break
+
                                     body_text = ""
                                     if contains_summary:
                                         body_text = metadata_list[random_index]["summary"]
