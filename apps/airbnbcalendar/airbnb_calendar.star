@@ -74,7 +74,7 @@ def listing(url, height):
 
     dtstart_list = re.match(r"DTSTART;VALUE=DATE:(.{4})(.{2})(.{2})", ical)
     dtend_list = re.match(r"DTEND;VALUE=DATE:(.{4})(.{2})(.{2})", ical)
-    summary_list = re.match(r"SUMMARY:(.+)", ical)
+    summary_list = re.match(r"SUMMARY:([^\r\n]+)", ical)
     event_list = zip(dtstart_list, dtend_list, summary_list)
     now = time.now()
 
@@ -86,7 +86,7 @@ def listing(url, height):
         offset = math.ceil((start - now).hours)
         duration = math.ceil((end - now).hours - offset)
 
-        status = "BLOCKED" if summary[1] == "Airbnb (Not available)\r" else "PAST" if now > end else "FUTURE" if now < start else "PRESENT"
+        status = "BLOCKED" if summary[1] == "Airbnb (Not available)" else "PAST" if now > end else "FUTURE" if now < start else "PRESENT"
 
         left = offset // DEFAULT_HOURS_PER_PIXEL
         if left > SCREEN_WIDTH:
