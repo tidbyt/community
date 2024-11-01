@@ -353,11 +353,17 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                     if debug_output:
                                         print("body_text: " + body_text)
 
-                                marquee_text_array = [
-                                    {"type": "heading", "message": header_text, "color": "#FFFFFF"},
-                                    {"type": "title", "message": title_text, "color": heading_color},
-                                    {"type": "body", "message": body_text, "color": font_color},
-                                ]
+                                if show_summary:
+                                    marquee_text_array = [
+                                        {"type": "heading", "message": header_text, "color": "#FFFFFF"},
+                                        {"type": "title", "message": title_text, "color": heading_color},
+                                        {"type": "body", "message": body_text, "color": font_color},
+                                    ]
+                                else:
+                                    marquee_text_array = [
+                                        {"type": "heading", "message": header_text, "color": heading_color},
+                                        {"type": "body", "message": body_text, "color": font_color},
+                                    ]
 
                                 if debug_output and show_summary == False:
                                     print("Full title: " + header_text + " " + body_text)
@@ -532,7 +538,7 @@ def render_marquee(message_array, image, show_summary, debug_output):
                 string_length = string_length + local_length
 
                 if index == len(message_array) - 1 and string_length > max_length:
-                    marquee_message = marquee_message[0:local_length - (string_length - max_length + 3)] + "..."
+                    # marquee_message = marquee_message[0:local_length-(string_length-max_length+3)] + "..."
                     for_break = True
                 elif index == len(message_array) - 1 and string_length <= max_length:
                     marquee_message = marquee_message[0:local_length]
@@ -610,7 +616,12 @@ def render_marquee(message_array, image, show_summary, debug_output):
             ),
         )
     else:
+        marquee_width = len(full_message)
+        if marquee_width < 57:
+            marquee_width = 57
+
         return render.Root(
+            show_full_animation = True,
             child = render.Column(
                 children = [
                     render.Box(
@@ -631,7 +642,7 @@ def render_marquee(message_array, image, show_summary, debug_output):
                                         children = [
                                             render.Marquee(
                                                 scroll_direction = "horizontal",
-                                                width = 57,
+                                                width = marquee_width,
                                                 offset_start = 64,
                                                 offset_end = 57,
                                                 child = render.Row(text_array),
