@@ -184,7 +184,7 @@ def get_element_box_children(element):
 
 def find_element_symbol(name):
     for length in (2, 1):  # Check 2-letter symbols first, then 1-letter
-        for i in range(len(name) - 1):
+        for i in range(len(name) - (length - 1)):
             if name[i:i + length].capitalize() in elements:
                 return name[:i], name[i:i + length].capitalize(), name[i + length:]
 
