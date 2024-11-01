@@ -225,8 +225,6 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                         metadata_list = library_output["MediaContainer"]["Metadata"]
                                         random_index = random.number(0, len(metadata_list) - 1)
 
-                                random_index = 58
-
                                 metadata_keys = metadata_list[random_index].keys()
 
                                 if debug_output:
