@@ -243,6 +243,100 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                         is_clip = True
                                         break
 
+                                # Relabel
+                                media_type = "Movie"
+                                if is_clip:
+                                    media_type = "Clip"
+                                elif metadata_list[random_index]["type"] == "season" or metadata_list[random_index]["type"] == "episode" or metadata_list[random_index]["type"] == "show":
+                                    media_type = "Show"
+                                elif metadata_list[random_index]["type"] == "album" or metadata_list[random_index]["type"] == "track" or metadata_list[random_index]["type"] == "artist":
+                                    media_type = "Music"
+                                elif metadata_list[random_index]["type"] == "movie":
+                                    media_type = "Movie"
+
+                                # Find title
+                                header_text = ""
+                                if show_heading:
+                                    header_text = media_type + " " + endpoint_map["title"]
+
+                                header_text = header_text.strip()
+
+                                if debug_output:
+                                    print("header_text: " + header_text)
+
+                                title = ""
+                                parent_title = ""
+                                grandparent_title = ""
+                                for key in metadata_keys:
+                                    if key == "title":
+                                        title = metadata_list[random_index][key]
+                                    elif key == "parentTitle":
+                                        parent_title = metadata_list[random_index][key]
+                                    elif key == "grandparentTitle":
+                                        grandparent_title = metadata_list[random_index][key]
+
+                                if len(grandparent_title) > 0:
+                                    grandparent_title = grandparent_title + " - "
+                                if len(parent_title) > 0:
+                                    parent_title = parent_title + ": "
+
+                                # Find summary
+                                title_text = ""
+                                if show_summary:
+                                    title_text = grandparent_title + parent_title + title
+                                    title_text = title_text.strip()
+                                    contains_summary = False
+                                    has_key = False
+                                    for m_key in metadata_list[random_index].keys():
+                                        if m_key == "summary" and len(metadata_list[random_index][m_key].strip()) > 0:
+                                            contains_summary = True
+
+                                        if m_key == "key":
+                                            has_key = True
+
+                                    # Check if summary exists
+                                    if contains_summary == False and has_key:
+                                        child_metadata = get_data(base_url + metadata_list[random_index]["key"], debug_output, headerMap, ttl_seconds)
+                                        child_metadata_output = json.decode(child_metadata, None)
+
+                                        if child_metadata_output != None:
+                                            valid = False
+                                            for m_key in child_metadata_output.keys():
+                                                if m_key == "MediaContainer":
+                                                    valid = True
+                                                    break
+                                            if valid and child_metadata_output["MediaContainer"]["size"] > 0:
+                                                child_metadata_first = child_metadata_output["MediaContainer"]["Metadata"][0]
+                                                for m_key in child_metadata_first.keys():
+                                                    if m_key == "summary" and len(child_metadata_first[m_key].strip()) > 0:
+                                                        metadata_list[random_index][m_key] = child_metadata_first[m_key].strip()
+                                                        contains_summary = True
+                                                        break
+
+                                    body_text = ""
+                                    if contains_summary:
+                                        body_text = metadata_list[random_index]["summary"]
+                                    else:
+                                        body_text = grandparent_title + parent_title + title
+                                        body_text = body_text.strip()
+                                        show_summary = False
+                                        if debug_output:
+                                            print("body_text: " + body_text)
+                                    if debug_output:
+                                        print("title_text: " + title_text)
+
+                                        output_str = body_text[0:len(body_text)]
+                                        if len(output_str) > 200:
+                                            output_str = output_str[0:200] + "..."
+
+                                        print("body_text: " + output_str)
+                                else:
+                                    body_text = grandparent_title + parent_title + title
+                                    body_text = body_text.strip()
+                                    if debug_output:
+                                        print("body_text: " + body_text)
+
+                                # Find art
                                 image_map = find_valid_image(metadata_list[random_index], base_url, debug_output, headerMap, show_summary, ttl_seconds)
                                 img = image_map["img"]
                                 art_type = image_map["art_type"]
@@ -295,95 +389,6 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                             img = base64.decode(PLEX_BANNER)
                                 elif debug_output:
                                     print("Using image type " + art_type + ": " + img_url)
-
-                                media_type = "Movie"
-                                if is_clip:
-                                    media_type = "Clip"
-                                elif metadata_list[random_index]["type"] == "season" or metadata_list[random_index]["type"] == "episode" or metadata_list[random_index]["type"] == "show":
-                                    media_type = "Show"
-                                elif metadata_list[random_index]["type"] == "album" or metadata_list[random_index]["type"] == "track" or metadata_list[random_index]["type"] == "artist":
-                                    media_type = "Music"
-                                elif metadata_list[random_index]["type"] == "movie":
-                                    media_type = "Movie"
-
-                                header_text = ""
-                                if show_heading:
-                                    header_text = media_type + " " + endpoint_map["title"]
-
-                                header_text = header_text.strip()
-
-                                if debug_output:
-                                    print("header_text: " + header_text)
-
-                                title = ""
-                                parent_title = ""
-                                grandparent_title = ""
-                                for key in metadata_keys:
-                                    if key == "title":
-                                        title = metadata_list[random_index][key]
-                                    elif key == "parentTitle":
-                                        parent_title = metadata_list[random_index][key]
-                                    elif key == "grandparentTitle":
-                                        grandparent_title = metadata_list[random_index][key]
-
-                                if len(grandparent_title) > 0:
-                                    grandparent_title = grandparent_title + " - "
-                                if len(parent_title) > 0:
-                                    parent_title = parent_title + ": "
-
-                                title_text = ""
-                                if show_summary:
-                                    title_text = grandparent_title + parent_title + title
-                                    title_text = title_text.strip()
-                                    contains_summary = False
-                                    has_key = False
-                                    for m_key in metadata_list[random_index].keys():
-                                        if m_key == "summary" and len(metadata_list[random_index][m_key].strip()) > 0:
-                                            contains_summary = True
-
-                                        if m_key == "key":
-                                            has_key = True
-
-                                    if contains_summary == False and has_key:
-                                        child_metadata = get_data(base_url + metadata_list[random_index]["key"], debug_output, headerMap, ttl_seconds)
-                                        child_metadata_output = json.decode(child_metadata, None)
-
-                                        if child_metadata_output != None:
-                                            valid = False
-                                            for m_key in child_metadata_output.keys():
-                                                if m_key == "MediaContainer":
-                                                    valid = True
-                                                    break
-                                            if valid and child_metadata_output["MediaContainer"]["size"] > 0:
-                                                child_metadata_first = child_metadata_output["MediaContainer"]["Metadata"][0]
-                                                for m_key in child_metadata_first.keys():
-                                                    if m_key == "summary" and len(child_metadata_first[m_key].strip()) > 0:
-                                                        metadata_list[random_index][m_key] = child_metadata_first[m_key].strip()
-                                                        contains_summary = True
-                                                        break
-
-                                    body_text = ""
-                                    if contains_summary:
-                                        body_text = metadata_list[random_index]["summary"]
-                                    else:
-                                        body_text = grandparent_title + parent_title + title
-                                        body_text = body_text.strip()
-                                        show_summary = False
-                                        if debug_output:
-                                            print("body_text: " + body_text)
-                                    if debug_output:
-                                        print("title_text: " + title_text)
-
-                                        output_str = body_text[0:len(body_text)]
-                                        if len(output_str) > 200:
-                                            output_str = output_str[0:200] + "..."
-
-                                        print("body_text: " + output_str)
-                                else:
-                                    body_text = grandparent_title + parent_title + title
-                                    body_text = body_text.strip()
-                                    if debug_output:
-                                        print("body_text: " + body_text)
 
                                 if show_summary:
                                     marquee_text_array = [
