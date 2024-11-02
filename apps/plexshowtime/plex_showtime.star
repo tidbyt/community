@@ -15,7 +15,7 @@ load("time.star", "time")
 
 PLEX_ICON = "/9j/4AAQSkZJRgABAQEAwADAAAD/4QBoRXhpZgAATU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAAExAAIAAAARAAAATgAAAAAAAADAAAAAAQAAAMAAAAABcGFpbnQubmV0IDUuMC4xMwAA/9sAQwABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/9sAQwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/8AAEQgACgAKAwESAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A/nv/AGavgD8JPiR+xD+2B8VPi/4T/wCFey/CVtHv/g1+0v8A2x4rk/4Sb4sXFrbNbfsvf8ID/bf/AAi3i/8A4TC1NjqH/CQ6FoFv4k+GH9vf8JT4y1e/8IzaZplt+a9fn/EPB+eZzxdwxxFl/Gub8PZZkUayzHIctjiKlDiL2k3KNHMI4vMq2Rxw8I3p8/8Aq5WzNQqVXRzShUjgp4L3MDmuDwmV5jga+UYXHYjGuLw+NxDpxngOVJOVB08PHFucmuZr69GheMb4eUXWVcor9APDP//Z"
 PLEX_BANNER = "/9j/4AAQSkZJRgABAQEAkACQAAD/4QBoRXhpZgAATU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAAExAAIAAAARAAAATgAAAAAAAjJ4AAAD6AACMngAAAPocGFpbnQubmV0IDUuMC4xMwAA/9sAQwABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/9sAQwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/8AAEQgAIABAAwESAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A/jHooAK1tA05NY17QdHlleCLV9d0TSJZ4wrSQR6rqtnp0k8avlGkhS5aWNX+RnRVf5SaAMmv6zviv/wRI/4JL/Az9rnRP2Bvid/wUn/aA0v9p/4sr4PsvhZBD8EvCl54H8Ca949sY4/Ami/GDX9P019Gk1fx7rDq/h3SbPWfCnlaReaPFqWo2N3q1lqVzPMt+ml30V0nr8nfS5XK720T7de33309bn8lomhMphE0JnVQ7QCWMzqhxh2h3eYEOQA5UKSQM5Ir+w/Wv+CYvxF8R/8ABKj9nb9gOz0j4fWX7TEv/BbX4q/s6a58TRo0Ulnb6P4d0b416nqniy41yCyXxRe+BrPwZoo8b2uim4F1cWUWn6Z5MV8IngObW3r+HL+PvByu19On4tpa7dH5Ws7n8elf1mfFX/g3i+CMPgr4+j4IeO/+Cgc3xC/ZL0PUvG3xJ1X4+fsf6p8Ifg7+0T4H8FXUn/Cyrj9ln4g6/wCHdJ0LUvFOnaTZanqngbSNW1rxFaeL/IsY4GutB1FvGFjz4vFxwmFxOK9jicSsNQq1/q+DoyxOLrqlB1HSwuGp3qYjEVEuWjQpp1K1RqlSjKpKMXpSoyq1adPmp0/aVIU+erNU6VNzkoqVWcrRpwi3785NRgk5Sairn8mdfujef8Ex/wBjv4cab8WvjD8bv2zPF+lfs1x/s16B8c/2U/EPgXwf4QuviH+034q1W+s9N1H4VaMuumbwfYeKdHuNW8N3j6NaqdauPDfid/FUkVlpHgTxxJZfnvhv4weH3ixh82q8FZ79dxvD+PrZXxFkOY4DMch4m4ex9GpKlLD53w3neFwGdZZz1IzjQq4rBU6GIlTqwo1Zzo1o0/d4g4Tz3hieFjm+C9jRx+Hp4rAY2hWoY3LsfQqRjNVMHmGDqV8JiFGMk6kadZzppxdSMVOHN+F1H4bT3XcH2k/w7wqB9v3d4RA+N4RAdo/TD5wKKACigDpPBkscPjLwdNM6RQw+MPCc00sjKkcUMXiPS5JZZHchEjjjVnkdyERFZ2IUEjm/68HPIIPUEdwe4oGnZp9mf3Bf8FRP+ClH/BJv4P8A/BUW/wDjdr/7HN1+1j+0z+z14a+E2rfD34z/AAm/aE0mL4N+KfiBpXh9tX8M2HxU0Oyub3Qb/wATfBu9l0+Kw1zS7DxlNFC+n2V/YnU/DtlZWv8AD2iJGixxRxxRqMJHFGscaDrhI4wqKMknCqBkmoULK12189bJLX7huTbvZbt7bXae/r37vuf0leBP+DhjxlonwH8RWXjD4LHX/wBq3Sv+ChN7+3p8Jvifo/iG20n4W6VqfjDWL0ePPh1408LTLL4pu/Dk3w98QeM/hVpEWiXvn3XhvxHp2r3mpaZrfhkNrH829VZf18vn0Xz131FzP+v628v82f0Z/tF/8Ff/ANjL4oeDfidJ8Nf2YP20fDPxT+P/AIhOofEDVfH/AO3x8YPFPw++DGi+ILq5l+Iumfs6+BtJ8dab4fkuvEVpqOrWfhu38deHrTwp4ae9trqXw/eaZpVv4Tl/nMrmxeEhi8LicI6uJw8cVQq4eVbB4irhMXRjVg4OphcVQlCvhcRBNyo4mhOFahU5atGcKkISjrSrypVadVRp1HTnCpyVoRq0qjhJS5atKacKlOTXv05xcJxbjOMotp/ui3/BUb9lH4ixfGf4X/Hv9izV/EP7Nuqfsxad8DP2YPB3gfxv4e0rx5+zT4s0a8s9bT4ieG9T1XTz4V/t3xFq+keGrHVPEtlpzeINH8MeFrTQIYNe0bxR420jWfwur8/8OPCLw+8J8LmmH4HyCOXYjPsfVzTiDOcbjsyzziPiDMK1SVWWJzviPPMXmGd5pKE5zlQhjMfVpYd1KsqFOnKtWlU9ziDivPuJ6uGqZzjniKeBoQw2BwlGhh8Fl+BoQjGKp4PL8FSoYPDKUYxVR0qMZVOWPO5ckOVBuwu7Bbau4gYBbA3EAAAAtkgAAAdh0pa/Sj50KKAP/9k="
-PLEX_BANNER_PORTRAIT = "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"
+PLEX_BANNER_PORTRAIT = "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"
 GET_TOP = 15
 
 def main(config):
@@ -118,6 +118,8 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                         break
 
                 if valid_parent_map == True:
+                    using_portrait_banner = False
+
                     marquee_text_array = [
                         {"type": "heading", "message": endpoint_map["title"], "color": heading_color},
                         {"type": "title", "message": "Not Available", "color": font_color},
@@ -287,6 +289,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                         if debug_output:
                                             print("Media image not detected, using Plex banner")
                                         if show_summary:
+                                            using_portrait_banner = True
                                             img = base64.decode(PLEX_BANNER_PORTRAIT)
                                         else:
                                             img = base64.decode(PLEX_BANNER)
@@ -393,12 +396,15 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                             display_message_string = "No results for " + endpoint_map["title"]
                             return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
 
+                    # img = base64.decode(PLEX_BANNER_PORTRAIT)
+                    # using_portrait_banner = True
+
                     if show_summary:
                         rendered_image = render.Image(
                             width = 22,
                             src = img,
                         )
-                    elif fit_screen == True:
+                    elif fit_screen:
                         rendered_image = render.Image(
                             width = 64,
                             src = img,
@@ -409,7 +415,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                             src = img,
                         )
 
-                    return render_marquee(marquee_text_array, rendered_image, show_summary, debug_output)
+                    return render_marquee(marquee_text_array, rendered_image, show_summary, debug_output, using_portrait_banner)
 
                 else:
                     display_message_string = "No valid results for " + endpoint_map["title"]
@@ -537,7 +543,7 @@ def display_message(debug_output, message_array = [], show_summary = False):
         )
         return render_marquee(message_array, rendered_image, show_summary, debug_output)
 
-def render_marquee(message_array, image, show_summary, debug_output):
+def render_marquee(message_array, image, show_summary, debug_output, using_portrait_banner = False):
     icon_img = base64.decode(PLEX_ICON)
 
     text_array = []
@@ -599,6 +605,18 @@ def render_marquee(message_array, image, show_summary, debug_output):
     if show_summary:
         marquee_height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
 
+        children = [
+            render.Column(
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "center",
+                children = [image],
+            ),
+        ]
+
+        if using_portrait_banner == False:
+            children.append(render.Image(src = icon_img, width = 7, height = 7))
+
         return render.Root(
             delay = 90,
             show_full_animation = True,
@@ -606,19 +624,11 @@ def render_marquee(message_array, image, show_summary, debug_output):
                 render.Row(
                     children = [
                         render.Stack(
-                            children = [
-                                render.Column(
-                                    expanded = True,
-                                    main_align = "space_evenly",
-                                    cross_align = "center",
-                                    children = [image],
-                                ),
-                                render.Image(src = icon_img, width = 7, height = 7),
-                            ],
+                            children = children,
                         ),
                         render.Padding(
                             pad = (1, 0, 0, 0),
-                            child = render.Column(
+                            child = render.Stack(
                                 children = [
                                     render.Marquee(
                                         offset_start = 32,
@@ -630,6 +640,12 @@ def render_marquee(message_array, image, show_summary, debug_output):
                                             children = text_array,
                                         ),
                                     ),
+                                    # render.Row(
+                                    #     expanded=True,
+                                    #     cross_align="end",
+                                    #     main_align="end",
+                                    #     children=[render.Image(src = icon_img, width = 7, height = 7)]
+                                    # )
                                 ],
                             ),
                         ),
