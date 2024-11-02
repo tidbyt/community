@@ -915,7 +915,7 @@ def get_schema():
             schema.Toggle(
                 id = "filter_tv",
                 name = "Filter by TV shows",
-                desc = "Filter results by shows.",
+                desc = "Filter results by TV shows.",
                 icon = "tv",
                 default = True,
             ),
