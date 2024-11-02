@@ -131,6 +131,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                     else:
                         img = base64.decode(PLEX_BANNER)
 
+                    # Get media list and filter
                     if output["MediaContainer"]["size"] > 0:
                         # Check if has needed keys
                         valid_media_container_key = False
@@ -221,6 +222,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                     if endpoint_map["id"] != 4 and len(metadata_list) > GET_TOP:
                                         break
 
+                            # Process text
                             if len(metadata_list) > 0:
                                 random_index = random.number(0, len(metadata_list) - 1)
                                 if library_type == "artist":
@@ -836,21 +838,21 @@ def get_schema():
             schema.Toggle(
                 id = "show_heading",
                 name = "Show heading",
-                desc = "Show the heading with title",
+                desc = "Display the media type and library view.",
                 icon = "eye",
                 default = True,
             ),
             schema.Text(
                 id = "heading_color",
                 name = "Heading color",
-                desc = "Heading color using Hex color codes. eg, `#FFA500`",
+                desc = "Heading color using Hex color codes. eg, `#FFA500`. This is the title in summary view, otherwise the type and library view.",
                 icon = "paintbrush",
                 default = "#FFA500",
             ),
             schema.Text(
                 id = "font_color",
                 name = "Font color",
-                desc = "Main font color using Hex color codes. eg, `#FFFFFF`",
+                desc = "Main font color using Hex color codes. eg, `#FFFFFF`. This is the summary in summary view, otherwise the title.",
                 icon = "paintbrush",
                 default = "#FFFFFF",
             ),
