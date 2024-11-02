@@ -838,14 +838,14 @@ def get_schema():
             schema.Toggle(
                 id = "show_heading",
                 name = "Show heading",
-                desc = "Display the media type and library view.",
+                desc = "Display the media and library view type.",
                 icon = "eye",
                 default = True,
             ),
             schema.Text(
                 id = "heading_color",
                 name = "Heading color",
-                desc = "Heading color using Hex color codes. eg, `#FFA500`. This is the title in summary view, otherwise the type and library view.",
+                desc = "Heading color using Hex color codes. eg, `#FFA500`. This is the title in summary view, otherwise the media and library view type.",
                 icon = "paintbrush",
                 default = "#FFA500",
             ),
