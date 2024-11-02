@@ -338,7 +338,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                     contains_summary = False
                                     has_key = False
                                     for m_key in metadata_list[random_index].keys():
-                                        if m_key == "summary":
+                                        if m_key == "summary" and len(metadata_list[random_index][m_key].strip()) > 0:
                                             contains_summary = True
 
                                         if m_key == "key":
@@ -355,15 +355,22 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                                     valid = True
                                                     break
                                             if valid and child_metadata_output["MediaContainer"]["size"] > 0:
-                                                for m_key in child_metadata_output["MediaContainer"]["Metadata"][0].keys():
-                                                    if m_key == "summary":
-                                                        metadata_list[random_index]["summary"] = child_metadata_output["MediaContainer"]["Metadata"][0]["summary"]
+                                                child_metadata_first = child_metadata_output["MediaContainer"]["Metadata"][0]
+                                                for m_key in child_metadata_first.keys():
+                                                    if m_key == "summary" and len(child_metadata_first[m_key].strip()) > 0:
+                                                        metadata_list[random_index][m_key] = child_metadata_first[m_key].strip()
                                                         contains_summary = True
                                                         break
 
                                     body_text = ""
                                     if contains_summary:
                                         body_text = metadata_list[random_index]["summary"]
+                                    else:
+                                        body_text = grandparent_title + parent_title + title
+                                        body_text = body_text.strip()
+                                        show_summary = False
+                                        if debug_output:
+                                            print("body_text: " + body_text)
                                     if debug_output:
                                         print("title_text: " + title_text)
 
@@ -845,7 +852,7 @@ def get_schema():
             schema.Toggle(
                 id = "show_summary",
                 name = "Show summary",
-                desc = "Show summary view.",
+                desc = "Show summary if available.",
                 icon = "alignLeft",
                 default = False,
             ),
