@@ -176,7 +176,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                         elif library_type == "show":
                                             # Try to find episodes
                                             library_type_enum = 4
-                                            media_type = "Show"
+                                            media_type = "TV"
                                         elif library_type == "artist":
                                             media_type = "Music"
 
@@ -250,7 +250,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                 if is_clip:
                                     media_type = "Clip"
                                 elif metadata_list[random_index]["type"] == "season" or metadata_list[random_index]["type"] == "episode" or metadata_list[random_index]["type"] == "show":
-                                    media_type = "Show"
+                                    media_type = "TV"
                                 elif metadata_list[random_index]["type"] == "album" or metadata_list[random_index]["type"] == "track" or metadata_list[random_index]["type"] == "artist":
                                     media_type = "Music"
                                 elif metadata_list[random_index]["type"] == "movie":
