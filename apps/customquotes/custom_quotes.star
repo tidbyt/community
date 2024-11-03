@@ -1,7 +1,7 @@
 """
 Applet: Custom Quotes
 Summary: Display custom quotes
-Description: Display quotes from a Gsheet like this https://docs.google.com/spreadsheets/d/1zDiMWjzZQqB6QRMhde0dOoptTjwdv6GalNHHYkUytAI/edit?usp=sharing
+Description: Display quotes from a Google sheet with a quote and author column
 Author: vipulchhajer
 """
 
