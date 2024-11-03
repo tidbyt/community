@@ -617,7 +617,7 @@ def render_marquee(message_array, image, show_summary, debug_output, using_portr
         print("Marquee text: " + full_message)
 
     if show_summary:
-        marquee_height = 32 + ((heading_lines + body_lines) - ((heading_lines + body_lines) * 0.52))
+        marquee_height = 32 + ((heading_lines + title_lines + body_lines) - ((heading_lines + title_lines + body_lines) * 0.72))
 
         children = [
             render.Column(
