@@ -473,13 +473,13 @@ def find_valid_image(metadata, base_url, debug_output, headerMap, show_summary, 
 
     # if show_summary is true, prioritize thumbs
     if show_summary:
-        if valid_image["parentThumb"] == True:
-            art_type = "parentThumb"
+        if valid_image["thumb"] == True:
+            art_type = "thumb"
             img_url = base_url + metadata[art_type]
             img = get_data(img_url, debug_output, headerMap, ttl_seconds)
 
-        if valid_image["thumb"] == True and img == None:
-            art_type = "thumb"
+        if valid_image["parentThumb"] == True and img == None:
+            art_type = "parentThumb"
             img_url = base_url + metadata[art_type]
             img = get_data(img_url, debug_output, headerMap, ttl_seconds)
 
@@ -626,7 +626,7 @@ def render_marquee(message_array, image, show_summary, debug_output, using_portr
         print("Marquee text: " + full_message)
 
     if show_summary:
-        marquee_height = 32 + ((heading_lines + title_lines + body_lines) - ((heading_lines + title_lines + body_lines) * 0.72))
+        marquee_height = 32 + ((heading_lines + title_lines + body_lines) - ((heading_lines + title_lines + body_lines) * 0.62))
 
         children = [
             render.Column(
