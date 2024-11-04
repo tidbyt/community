@@ -473,15 +473,26 @@ def find_valid_image(metadata, base_url, debug_output, headerMap, show_summary, 
 
     # if show_summary is true, prioritize thumbs
     if show_summary:
-        if valid_image["thumb"] == True:
-            art_type = "thumb"
-            img_url = base_url + metadata[art_type]
-            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+        if metadata["type"] == "album" or metadata["type"] == "track" or metadata["type"] == "artist":
+            if valid_image["thumb"] == True:
+                art_type = "thumb"
+                img_url = base_url + metadata[art_type]
+                img = get_data(img_url, debug_output, headerMap, ttl_seconds)
 
-        if valid_image["parentThumb"] == True and img == None:
-            art_type = "parentThumb"
-            img_url = base_url + metadata[art_type]
-            img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+            if valid_image["parentThumb"] == True and img == None:
+                art_type = "parentThumb"
+                img_url = base_url + metadata[art_type]
+                img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+        else:
+            if valid_image["parentThumb"] == True:
+                art_type = "parentThumb"
+                img_url = base_url + metadata[art_type]
+                img = get_data(img_url, debug_output, headerMap, ttl_seconds)
+
+            if valid_image["thumb"] == True and img == None:
+                art_type = "thumb"
+                img_url = base_url + metadata[art_type]
+                img = get_data(img_url, debug_output, headerMap, ttl_seconds)
 
         if valid_image["grandparentThumb"] == True and img == None:
             art_type = "grandparentThumb"
