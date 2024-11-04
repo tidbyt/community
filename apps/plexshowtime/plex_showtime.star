@@ -844,14 +844,14 @@ def get_schema():
             schema.Text(
                 id = "plex_server_url",
                 name = "Plex server URL (required)",
-                desc = "Your Plex Server URL.",
+                desc = "Plex server URL.",
                 icon = "globe",
                 default = "",
             ),
             schema.Text(
                 id = "plex_token",
                 name = "Plex token (required)",
-                desc = "Your Plex token.",
+                desc = "Plex token.",
                 icon = "key",
                 default = "",
             ),
