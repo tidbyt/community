@@ -22,6 +22,8 @@ def main(config):
     thanksgiving_year = now.year
 
     thanksgiving_day = math.ceil(28 - (5 + now.year + now.year / 4 - now.year / 100 + now.year / 400) % 7)
+    if thanksgiving_year == 2024:
+        thanksgiving_day = 28
 
     if 11 == now.month:
         if 0 > thanksgiving_day - now.day:
