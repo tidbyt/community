@@ -108,10 +108,10 @@ def main(config):
     current_events = None
 
     all_events = get_events(selected_device, api_key, past_start, rounded_time)
-    recent_events = get_selected_events(all_events, False)
-    current_events = get_selected_events(all_events, True)
+    recent_events = get_selected_events(tz, all_events, False)
+    current_events = get_selected_events(tz, all_events, True)
 
-    return render_rachio(config, get_device_name(devices, selected_device), recent_events, current_events, now, delay, skip_when_empty)
+    return render_rachio(tz, config, get_device_name(devices, selected_device), recent_events, current_events, now, delay, skip_when_empty)
 
 def get_device_name(devices, selected_device):
     for device in devices:
@@ -164,7 +164,7 @@ def display_error_screen(time, line_3, line_4 = "", delay = 45):
         delay = delay,
     )
 
-def render_rachio(config, device_name, recent_events, current_events, now, delay, skip_when_empty = True):
+def render_rachio(tz, config, device_name, recent_events, current_events, now, delay, skip_when_empty = True):
     show_device_name = config.bool("title_display", True)
 
     line_1 = "Rachio"
@@ -199,7 +199,7 @@ def render_rachio(config, device_name, recent_events, current_events, now, delay
         if show_current_events:
             preface = "Current"
 
-        readable_date = time.from_timestamp(int(int(latest_event["eventDate"]) / 1000.0))
+        readable_date = time.from_timestamp(int(int(latest_event["eventDate"]) / 1000.0)).in_location(tz)
         line_2 = readable_date.format("Mon Jan 2 at 3:04 PM")
         line_3 = "%s: %s - %s" % (preface, latest_event["summary"], readable_date.format("Mon Jan 2 at 3:04 PM"))
 
@@ -261,7 +261,7 @@ def get_events(deviceId, api_key, start, end):
 
     return event_response.json()
 
-def get_selected_events(events, current):
+def get_selected_events(tz, events, current):
     selected_sub_types = []
     if current:
         selected_sub_types = [ZONE_STARTED]
@@ -272,7 +272,7 @@ def get_selected_events(events, current):
     for event in events:
         if "subType" in event.keys():
             if event["subType"] in selected_sub_types:
-                eventDateSecs = time.from_timestamp(int(event["eventDate"] / 1000))
+                eventDateSecs = time.from_timestamp(int(event["eventDate"] / 1000)).in_location(tz)
                 parsedDate = eventDateSecs.format("Monday 03:04PM")
                 newEvent = dict(type = event["subType"], date = parsedDate, summary = event["summary"], eventDate = event["eventDate"])
                 selected_events.append(newEvent)

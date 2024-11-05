@@ -10,4 +10,4 @@ Check out the official [Tidbyt documentation](https://tidbyt.dev/docs/) for inst
 
 ## Update frequency
 
-The app fetches new data once an hour. This interval is chosen because the free tier of APIStocks allows 5000 requests per month. Considering that we are showing 5 stocks, that's 1000 requests per stock per month, which is about once an hour. If you have a paid subscription and can afford more frequent updates, you can change the interval by modifying the `ttl_seconds` variable.
+The app fetches new data once an hour. This interval is chosen because the free tier of APIStocks allows 5000 requests per month. Considering that we are showing 5 stocks, that's 1000 requests per stock per month, which is about once an hour. If you have a paid subscription and can afford more frequent updates, you can change the interval by modifying the `TTL_SECONDS` variable.
