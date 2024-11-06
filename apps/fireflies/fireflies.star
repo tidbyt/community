@@ -11,59 +11,35 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 # Tidbyt Constants
-WIDTH = 64
-HEIGHT = 32
-HEIGHT_CLOCK = 26
+WIDTH, HEIGHT, HEIGHT_CLOCK = 64, 32, 26
 
 # Colors
-YELLOW = "#ffff00"
-GREEN = "#ADFF2F"
-ORANGE_RED = "#FF4500"
-BLUE = "#0000FF"
+YELLOW, GREEN, ORANGE_RED, BLUE = "#FFFF00", "#ADFF2F", "#FF4500", "#0000FF"
 
 # Firefly Properties
-N_FIREFLIES = 10
-MAX_FIREFLIES = 50
-DELTA_LIGHTNESS = 14
-LIGHT_UP = 14
-MAX_LIGHTNESS = 70
+N_FIREFLIES, MAX_FIREFLIES, DELTA_LIGHTNESS, LIGHT_UP, MAX_LIGHTNESS = 10, 50, 14, 14, 70
 
 # Animation Properties
-DELAY = 250
-N_FRAMES = int(15 * 1000 / DELAY)
+DELAY = 250  # Delay between frames in milliseconds
+DURATION_SECONDS = 15  # Total animation duration in seconds
+N_FRAMES = DURATION_SECONDS * 1000 // DELAY  # Number of frames in the animation
 
 # Time Settings
-DEFAULT_LOCATION = {
-    "lat": 38.8951,
-    "lng": -77.0364,
-    "locality": "Washington, D.C.",
-    "timezone": "America/New_York",
-}
+DEFAULT_LOCATION = {"lat": 38.8951, "lng": -77.0364, "locality": "Washington, D.C.", "timezone": "America/New_York"}
 
-# Indeces for Lists
-FIREFLY_X = 0  # Firefly x-position
-FIREFLY_Y = 1  # Firefly y-position
-FIREFLY_HUE = 2  # Firefly hue
-FIREFLY_LIGHTNESS = 3  # Firefly lightness
-DATA_X_OFFSET = 0  # Offset for x location
-DATA_Y_OFFSET = 1  # Offset for y location
-DATA_PERIOD = 2  # Period of the sinusoidal formulas represting the x and y coordinates
-DATA_A = 3  # Semi-major axis value
-DATA_B = 4  # Semi-minor axis value
-DATA_TIME_OFFSET = 5  # Time offset within the elliptical period
-DATA_ROTATE = 6  # Ellipse rotation angle in degrees
-DATA_LIGHTNESS_OFFSET = 7  # Index offset for the lightness
-DATA_I0 = 8  # Index for lightness graph where y-values begin to increase from 0
-DATA_HUE = 9  # Hue value 0 <= hue < 360 in dgrees
-DATA_LIGHTNESS_ON_OFF = 10  # Determines if firefly ever turns off or not
+# Firefly Indices
+# 0: x-position, 1: y-position, 2: hue, 3: lightness
+FIREFLY_X, FIREFLY_Y, FIREFLY_HUE, FIREFLY_LIGHTNESS = range(4)
+
+# Data Indices For Each Firefly
+# 0: Offset for x location, 1: Offset for y location, 2: Period of the sinusoidal formulas representing the x and y coordinates
+# 3: Semi-major axis value, 4: Semi-minor axis value, 5: Time offset within the elliptical period, 6: Ellipse rotation angle in degrees
+# 7: Index offset for the lightness, 8: Index for lightness graph where y-values begin to increase from 0
+# 9: Hue value (0 <= hue < 360 in degrees), 10: Determines if firefly ever turns off or not
+DATA_X_OFFSET, DATA_Y_OFFSET, DATA_PERIOD, DATA_A, DATA_B, DATA_TIME_OFFSET, DATA_ROTATE, DATA_LIGHTNESS_OFFSET, DATA_I0, DATA_HUE, DATA_LIGHTNESS_ON_OFF = range(11)
 
 # Display Text Properties
-TEXT_FONT = "CG-pixel-3x5-mono"  # Text font name
-FONT_HEIGHT = 5  # Font height
-RIGHT_ALIGN = "right"  # Align type
-LEFT_ALIGN = "left"
-CENTER_ALIGN = "center"
-TIME_COLOR = "#405678"  # Color of time text
+TEXT_FONT, FONT_HEIGHT, RIGHT_ALIGN, LEFT_ALIGN, CENTER_ALIGN, TIME_COLOR = "CG-pixel-3x5-mono", 5, "right", "left", "center", "#405678"
 
 def main(config):
     show_clock = config.bool("show_clock", False)
@@ -80,7 +56,7 @@ def main(config):
 
     fireflies = [[0, 0, 0, 0] for _ in range(MAX_FIREFLIES)]
     now = time.now().in_location(timezone)
-    tm = seconds_since_midnight(now, DELAY / 1000)
+    sec_since_midnight = seconds_since_midnight(now)
     if delta_lightness == 2:
         N_lightness = 70
     elif delta_lightness == 7:
@@ -91,17 +67,17 @@ def main(config):
 
     frames = []
     for t in range(N_FRAMES):
-        update_fireflies(fireflies, firefly_data, n_fireflies, now, tm, t, hue, rnd_color, delta_lightness, N_lightness, show_clock, speed)
+        update_fireflies(fireflies, firefly_data, n_fireflies, sec_since_midnight, t, hue, rnd_color, delta_lightness, N_lightness, show_clock, speed)
         frames.append(render_frame(generate_screen(fireflies), show_clock, timezone))
 
     return render_animation(frames)
 
-def update_fireflies(fireflies, firefly_data, n_fireflies, now, tm, t, hue, rnd_color, delta_lightness, N_lightness, show_clock, speed):
+def update_fireflies(fireflies, firefly_data, n_fireflies, sec_since_midnight, t, hue, rnd_color, delta_lightness, N_lightness, show_clock, speed):
     for f in range(n_fireflies):
-        tt = tm + t * DELAY / 1000 + firefly_data[f][DATA_TIME_OFFSET]
+        tt = sec_since_midnight + t * DELAY / 1000 + firefly_data[f][DATA_TIME_OFFSET]
         theta = 2 * 3.141592653589793 * tt / firefly_data[f][DATA_PERIOD] / speed
         x, y = calculate_position(firefly_data[f], theta)
-        lightness = get_lightness(now, t, firefly_data[f][DATA_LIGHTNESS_OFFSET], LIGHT_UP, delta_lightness, firefly_data[f][DATA_I0], N_lightness, firefly_data[f][DATA_LIGHTNESS_ON_OFF])
+        lightness = get_lightness(sec_since_midnight, t, firefly_data[f][DATA_LIGHTNESS_OFFSET], LIGHT_UP, delta_lightness, firefly_data[f][DATA_I0], N_lightness, firefly_data[f][DATA_LIGHTNESS_ON_OFF])
 
         fireflies[f][FIREFLY_X] = x
         fireflies[f][FIREFLY_Y] = y
@@ -127,12 +103,12 @@ def calculate_position(data, theta):
 
     return x % WIDTH, y % HEIGHT
 
-def get_firefly_data(set):
-    #    0              1              2            3       4       5                 6            7                      8        9         10
-    #   [DATA_X_OFFSET, DATA_Y_OFFSET, DATA_PERIOD, DATA_A, DATA_B, DATA_TIME_OFFSET, DATA_ROTATE, DATA_LIGHTNESS_OFFSET, DATA_I0, DATA_HUE, DATA_LIGHTNESS_ON_OFF]
-
-    if set == 1:
-        return [
+def get_firefly_data(set_number):
+    """Retrieve firefly data based on the selected set.
+        0              1              2            3       4       5                 6            7                      8        9         10
+        [DATA_X_OFFSET, DATA_Y_OFFSET, DATA_PERIOD, DATA_A, DATA_B, DATA_TIME_OFFSET, DATA_ROTATE, DATA_LIGHTNESS_OFFSET, DATA_I0, DATA_HUE, DATA_LIGHTNESS_ON_OFF]"""
+    firefly_sets = {
+        1: [
             [12, 29, 226.0, 27, 1, 2, 2.0, 5, 8, 28, 1],
             [10, 3, 210.0, 25, 1, 2, 45.0, 2, 7, 193, 1],
             [17, 16, 273.0, 19, 1, 3, 2.0, 2, 3, 26, 0],
@@ -183,9 +159,8 @@ def get_firefly_data(set):
             [33, 3, 216.0, 27, 3, 3, 6.0, 9, 17, 140, 0],
             [44, 11, 171.0, 21, 4, 6, 42.0, 13, 21, 246, 0],
             [1, 13, 105.0, 24, 1, 4, 11.0, 9, 0, 169, 1],
-        ]
-    elif set == 2:
-        return [
+        ],
+        2: [
             [0, 7, 100.0, 27, 2, 4, 37.0, 12, 10, 74, 0],
             [36, 15, 142.0, 18, 3, 7, 15.0, 12, 15, 257, 1],
             [10, 7, 139.0, 26, 2, 1, 19.0, 2, 26, 279, 0],
@@ -236,9 +211,8 @@ def get_firefly_data(set):
             [39, 17, 65.0, 12, 1, 2, 23.0, 1, 21, 143, 0],
             [19, 15, 104.0, 14, 4, 7, 28.0, 6, 3, 282, 0],
             [8, 5, 64.0, 16, 2, 6, 17.0, 14, 1, 281, 1],
-        ]
-    elif set == 3:
-        return [
+        ],
+        3: [
             [13, 21, 53.0, 22, 3, 1, 16.0, 14, 21, 19, 0],
             [0, 19, 132.0, 29, 4, 7, 43.0, 2, 26, 76, 1],
             [26, 9, 110.0, 26, 3, 6, 8.0, 14, 23, 317, 1],
@@ -288,9 +262,8 @@ def get_firefly_data(set):
             [15, 10, 52.0, 24, 3, 1, 35.0, 13, 11, 279, 1],
             [39, 13, 135.0, 26, 4, 2, 30.0, 13, 2, 107, 0],
             [28, 17, 72.0, 15, 3, 7, 0.0, 1, 3, 349, 1],
-        ]
-    elif set == 4:
-        return [
+        ],
+        4: [
             [41, 14, 134.0, 10, 2, 6, 5.0, 9, 17, 200, 0],
             [33, 26, 90.0, 29, 2, 5, 8.0, 0, 0, 310, 1],
             [51, 17, 70.0, 19, 3, 2, 24.0, 5, 11, 52, 1],
@@ -341,81 +314,27 @@ def get_firefly_data(set):
             [25, 20, 100.0, 16, 2, 2, 7.0, 8, 0, 263, 1],
             [33, 16, 66.0, 22, 3, 4, 17.0, 12, 28, 139, 0],
             [12, 22, 86.0, 25, 2, 1, 8.0, 5, 7, 36, 1],
-        ]
-    else:
-        return [
-            [12, 29, 226.0, 27, 1, 2, 2.0, 5, 8, 28, 1],
-            [10, 3, 210.0, 25, 1, 2, 45.0, 2, 7, 193, 1],
-            [17, 16, 273.0, 19, 1, 3, 2.0, 2, 3, 26, 0],
-            [63, 5, 129.0, 15, 1, 3, 27.0, 12, 18, 187, 1],
-            [24, 14, 229.0, 26, 2, 4, 15.0, 14, 16, 131, 1],
-            [20, 30, 200.0, 14, 2, 0, 17.0, 13, 17, 346, 1],
-            [55, 10, 216.0, 20, 4, 4, 29.0, 11, 29, 145, 1],
-            [18, 21, 262.0, 29, 4, 2, 35.0, 10, 26, 127, 1],
-            [40, 30, 144.0, 17, 1, 7, 36.0, 8, 11, 299, 1],
-            [14, 26, 114.0, 19, 3, 5, 43.0, 11, 10, 176, 0],
-            [11, 16, 160.0, 14, 4, 2, 9.0, 2, 18, 84, 0],
-            [23, 4, 108.0, 12, 1, 7, 42.0, 7, 12, 207, 1],
-            [59, 26, 114.0, 13, 4, 6, 18.0, 12, 29, 100, 0],
-            [63, 17, 179.0, 23, 2, 3, 13.0, 3, 10, 155, 0],
-            [25, 4, 165.0, 26, 3, 5, 3.0, 8, 30, 271, 1],
-            [47, 31, 252.0, 25, 3, 4, 35.0, 12, 12, 290, 1],
-            [56, 13, 246.0, 16, 4, 5, 24.0, 6, 24, 321, 1],
-            [30, 20, 250.0, 20, 4, 2, 3.0, 7, 7, 171, 0],
-            [15, 5, 102.0, 29, 3, 0, 2.0, 4, 12, 121, 1],
-            [48, 10, 246.0, 16, 3, 2, 0.0, 3, 3, 293, 1],
-            [51, 11, 191.0, 24, 1, 5, 42.0, 7, 10, 192, 1],
-            [37, 12, 178.0, 21, 1, 4, 23.0, 11, 19, 324, 0],
-            [38, 20, 284.0, 28, 2, 0, 30.0, 2, 17, 129, 1],
-            [48, 16, 287.0, 12, 4, 5, 30.0, 7, 10, 234, 1],
-            [20, 2, 128.0, 23, 4, 1, 18.0, 11, 30, 344, 1],
-            [10, 28, 170.0, 23, 1, 5, 8.0, 6, 13, 157, 0],
-            [15, 13, 240.0, 23, 3, 1, 24.0, 14, 25, 229, 1],
-            [13, 5, 207.0, 18, 2, 3, 31.0, 0, 20, 24, 0],
-            [60, 20, 149.0, 19, 2, 7, 21.0, 7, 14, 145, 0],
-            [7, 6, 147.0, 26, 2, 4, 1.0, 12, 4, 67, 1],
-            [36, 15, 196.0, 28, 4, 1, 22.0, 9, 8, 170, 0],
-            [3, 14, 121.0, 14, 3, 5, 12.0, 6, 1, 284, 1],
-            [56, 0, 263.0, 13, 1, 3, 33.0, 2, 20, 263, 0],
-            [27, 3, 281.0, 28, 3, 4, 11.0, 4, 19, 235, 0],
-            [27, 14, 185.0, 12, 4, 0, 22.0, 7, 7, 151, 1],
-            [29, 26, 229.0, 19, 3, 1, 26.0, 2, 10, 133, 1],
-            [15, 31, 177.0, 19, 4, 7, 43.0, 7, 10, 327, 1],
-            [46, 16, 117.0, 19, 2, 5, 0.0, 0, 15, 91, 1],
-            [6, 23, 128.0, 14, 1, 3, 41.0, 13, 13, 23, 1],
-            [63, 1, 186.0, 12, 3, 3, 4.0, 13, 7, 76, 1],
-            [60, 8, 195.0, 17, 1, 6, 9.0, 12, 0, 262, 0],
-            [7, 12, 191.0, 29, 4, 3, 8.0, 1, 28, 219, 1],
-            [31, 8, 114.0, 23, 2, 6, 34.0, 14, 10, 76, 1],
-            [47, 28, 210.0, 16, 3, 2, 7.0, 8, 19, 174, 1],
-            [37, 9, 183.0, 21, 4, 6, 4.0, 4, 5, 276, 1],
-            [26, 27, 295.0, 10, 4, 3, 20.0, 14, 20, 294, 1],
-            [28, 7, 149.0, 27, 2, 7, 38.0, 4, 5, 285, 1],
-            [33, 3, 216.0, 27, 3, 3, 6.0, 9, 17, 140, 0],
-            [44, 11, 171.0, 21, 4, 6, 42.0, 13, 21, 246, 0],
-            [1, 13, 105.0, 24, 1, 4, 11.0, 9, 0, 169, 1],
-        ]
+        ],
+    }
 
-def seconds_since_midnight(current_time, resolution):
-    seconds = current_time.hour * 3600 + current_time.minute * 60 + current_time.second + (current_time.nanosecond / 1000000000)
-    return step_round(seconds / resolution) * resolution
+    # Return the requested set or default to set 1 if the set number is invalid.
+    return firefly_sets.get(set_number, firefly_sets[1])
 
-def calculate_index(now, delta_lightness):
-    seconds_since_midnight = (now.hour * 3600) + (now.minute * 60) + now.second + (now.nanosecond / 1000000000)
-    return int(seconds_since_midnight / 0.25) % delta_lightness
+def seconds_since_midnight(current_time):
+    seconds = current_time.hour * 3600 + current_time.minute * 60 + current_time.second
+    t_mod = (seconds + 14) // 15 * 15
+    return t_mod
 
-def step_round(number):
-    int_part = int(number)
-    fractional_part = number - int_part
-    return int_part if fractional_part <= 0.5 else int_part + 1
+def calculate_index(sec_since_midnight, delta_lightness):
+    return int(sec_since_midnight * 1000 / DELAY) % delta_lightness
 
-def get_lightness(now, t, idx_offset, delta_lightness_1, delta_lightness_2, i0, N_lightness, darkness):
+def get_lightness(sec_since_midnight, t, idx_offset, delta_lightness_1, delta_lightness_2, i0, N_lightness, darkness):
     # Calculate the total lightness steps
     total_lightness_steps = MAX_LIGHTNESS * (1 / delta_lightness_1 + 1 / delta_lightness_2)
     N_lightness = i0 + int(total_lightness_steps)
 
     # Calculate the index
-    idx = (calculate_index(now, N_lightness) + t + idx_offset) % N_lightness
+    idx = (calculate_index(sec_since_midnight, N_lightness) + t + idx_offset) % N_lightness
 
     # Define thresholds
     im = i0 + MAX_LIGHTNESS / delta_lightness_1
@@ -606,14 +525,14 @@ def get_schema():
             schema.Toggle(
                 id = "rnd_color",
                 name = "Random Colors",
-                desc = "Enable random colors.",
+                desc = "Enable random colors for fireflies.",
                 icon = "sliders",
                 default = False,
             ),
             schema.Toggle(
                 id = "show_clock",
                 name = "Show Clock",
-                desc = "Enable displaying time.",
+                desc = "Enable displaying current time.",
                 icon = "sliders",
                 default = False,
             ),
