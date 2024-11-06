@@ -67,7 +67,7 @@ def main(config):
     wind_heavy_threshold_mps = 10 * 0.44704  # [mph] to [m/s]
 
     # pull weather data from API or cache
-    weather_url = "https://api.open-meteo.com/v1/forecast?latitude=" + str(lat) + "&longitude=" + str(lng) + "&current=temperature_2m,weather_code,cloud_cover,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset"
+    weather_url = "https://api.open-meteo.com/v1/forecast?latitude=" + str(lat) + "&longitude=" + str(lng) + "&current=temperature_2m,weather_code,cloud_cover,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timeformat=unixtime&timezone=" + timezone
     res = http.get(url = weather_url, ttl_seconds = TTL_SECONDS)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (weather_url, res.status_code, res.body()))
@@ -88,10 +88,8 @@ def main(config):
     weather_code = res.json()["current"]["weather_code"]
 
     # convert times to unix and windspeed to m/s
-    sunrise = time.parse_time(sunrise + ":00Z")
-    sunrise_unix = sunrise.unix
-    sunset = time.parse_time(sunset + ":00Z")
-    sunset_unix = sunset.unix
+    sunrise_unix = int(sunrise)
+    sunset_unix = int(sunset)
     windspeed_mps = windspeed_kmph * 1000 / 60 / 60
 
     # convert temperature units
@@ -199,8 +197,8 @@ def main(config):
     stream2_2 = draw_stream(day, wind, 10, 26, 20, offset)
     stream3_1 = draw_stream(day, wind, 35, 28, 20, 0)
     stream3_2 = draw_stream(day, wind, 35, 28, 20, offset)
-    stream4_1 = draw_stream(day, wind, 1, 30, 20, 0)
-    stream4_2 = draw_stream(day, wind, 1, 30, 20, offset)
+    stream4_1 = draw_stream(day, wind, 5, 30, 20, 0)
+    stream4_2 = draw_stream(day, wind, 5, 30, 20, offset)
     text_time = print_time(day, now, clock_format)
     text_low_temp = print_temp(day, str(low_temp), 50, 6)
     text_high_temp = print_temp(day, str(high_temp), 64, 6)
@@ -454,7 +452,7 @@ def print_time(day, now, clock_format):
         width = 64,
         color = text_color,
         content = now.format(clock_format),
-        font = "CG-pixel-3x5-mono",
+        font = "tom-thumb",
     )
     return text
 
@@ -470,7 +468,7 @@ def print_temp(day, temperature, x, y):
             width = x,
             color = text_color,
             content = temperature,
-            font = "CG-pixel-3x5-mono",
+            font = "tom-thumb",
         ),
     ])
     return text
