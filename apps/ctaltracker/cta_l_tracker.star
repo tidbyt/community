@@ -95,7 +95,7 @@ def get_schema():
             schema.Dropdown(
                 id = "station",
                 name = "Departing Station",
-                desc = "The CTA \"L\" Station to you would depart from",
+                desc = "The CTA \"L\" Station you would depart from",
                 icon = "train",
                 default = departure_station_options[0].value,
                 options = departure_station_options,
