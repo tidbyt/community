@@ -2,12 +2,13 @@
 Applet: PurpleAir
 Summary: Displays local air quality
 Description: Displays the local air quality index from a nearby PurpleAir sensor. Choose a sensor close to you or provide a specific sensor id.
-Author: posburn
+Author: posburn, coatedmoose
 """
 
 # jvivona 20230821 - helped out @frame-shift to fix syntax error in code
 #                    while I was in there - removed the cache.star module dependency
 
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -21,6 +22,8 @@ DEFAULT_SENSOR_ID = None
 DEFAULT_LOCATION_BASED_SENSOR = '{"display": "SF Maritime NHP", "value": 70251}'
 TEMP_UNIT_F = "F"
 TEMP_UNIT_C = "C"
+DEFAULT_CONVERSION = "C5"
+DEFAULT_DATA_LAYER = "US_EPA_AQI"
 DEFAULT_TEMP_UNIT = TEMP_UNIT_F
 DEFAULT_PARTICLE_SENSOR = "A and B sensors (avg)"
 PARTICLE_SENSOR_A = "Sensor A"
@@ -28,81 +31,113 @@ PARTICLE_SENSOR_B = "Sensor B"
 
 # MAIN APP
 
-api_key = None
-
 def main(config):
     api_key = config.get("api_key")
     sensor_id = get_sensor_id(config)
     show_title = get_cfg_value(config, "show_title", True)
     show_temp = get_cfg_value(config, "show_temp", True)
     show_name = get_cfg_value(config, "show_name", True)
+    temp_unit = config.get("temp_unit", DEFAULT_TEMP_UNIT)
+    particle_sensor = config.get("particle_sensor", DEFAULT_PARTICLE_SENSOR)
 
-    temp_unit = config.get("temp_unit")
-    if temp_unit == None:
-        temp_unit = DEFAULT_TEMP_UNIT
+    conversion_name = config.get("conversion", DEFAULT_CONVERSION)
+    data_layer_name = config.get("map_data_layer ", DEFAULT_DATA_LAYER)
 
-    particle_sensor = config.get("particle_sensor")
-    if particle_sensor == None:
-        particle_sensor = DEFAULT_PARTICLE_SENSOR
+    fields_to_retrieve = ["confidence", "confidence_auto"]
+    if api_key == None or sensor_id == None:
+        print("API key and sensor ID must both be defined, and at least one is missing")
+        return main_render(AQI_ERROR, 0, 0, "", show_title, show_temp, show_name, temp_unit)
 
-    temp = 0
-    aqi = 0
-    humidity = 0
-    name = ""
+    per_sensor_cache_prefix = "%s:%s:" % (CACHE_KEY_DATA, sensor_id)
+
+    # Optimization to save an API credit if the name is already cached
+    name = cache.get(per_sensor_cache_prefix + "name")
+    if name == None and show_name:
+        fields_to_retrieve.append("name")
+
+    # The specific pm fields used depends on the conversion
+    pm_source_fields = pm_source_fields_for_conversion[conversion_name]
+    additional_source_fields = additional_source_fields_for_conversion.get(conversion_name, [])
+    fields_to_retrieve.extend(pm_source_fields + additional_source_fields)
+
+    # Location type must be known for the EPA conversion, as the conversion varies for indoor vs outdoor sensors
+    location_type = cache.get(per_sensor_cache_prefix + "location_type")
+    if location_type == None:
+        fields_to_retrieve.append("location_type")
+    else:
+        location_type = int(location_type)
+
+    # Optimization to only retrieve the temp+humidity if it will be displayed
+    if show_temp:
+        fields_to_retrieve.append("temperature")
+        if "humidity" not in fields_to_retrieve:
+            fields_to_retrieve.append("humidity")
 
     # Fetch the air info
-    data = None
-    if api_key != None and sensor_id != None:
-        # [0] = data, [1] = was_cached
-        data = fetch_sensor_data(api_key, PUBLIC_SENSOR + sensor_id + FETCH_SENSOR_FIELDS, {})
+    sensor = fetch_sensor_data(
+        api_key,
+        PUBLIC_SENSOR + sensor_id,
+        {"fields": ",".join(fields_to_retrieve)},
+    )
 
-    if data == None:
+    if sensor == None:
         print("No data returned for sensor %s" % sensor_id)
-        aqi = AQI_ERROR
-        temp = 0
-        humidity = 0
-        name = ""
+        return main_render(AQI_ERROR, 0, 0, "", show_title, show_temp, show_name, temp_unit)
 
-    elif len(data) != 2 or data[0] == None:
-        print("Data in incorrect format or missing")
+    if sensor.get("location_type") != None:
+        location_type = sensor.get("location_type")
+        cache.set(
+            per_sensor_cache_prefix + "location_type",
+            str(int(location_type)),
+            ttl_seconds = LONG_CACHE_DURATION,
+        )
 
-    else:
-        name = data[0].get("name", "")
-        temp = data[0].get("temperature", 0)
-        humidity = data[0].get("humidity", 0)
+    if sensor.get("name") != None:
+        name = sensor.get("name")
+        cache.set(
+            per_sensor_cache_prefix + "name",
+            name,
+            ttl_seconds = LONG_CACHE_DURATION,
+        )
 
-        pm_a = data[0].get("pm_a", 0)
-        pm_b = data[0].get("pm_b", 0)
-        confidence = data[0].get("confidence", 0)
-        confidenceAuto = data[0].get("confidenceAuto", -1)
-        aqi = epa_AQI(pm_a, pm_b, humidity, particle_sensor, confidence, confidenceAuto)
+    confidence = sensor.get("confidence", 0)
+    confidence_auto = sensor.get("confidence_auto", None)
 
-        if data[0].get("locationType", 0) == 1:
-            name = "%s\n(inside)" % name
+    conversion = conversions[conversion_name]
+    data_layer = data_layers[data_layer_name]
 
-    return render.Root(
-        child = render.Stack(
-            children = [
-                render.Box(
-                    width = 64,
-                    height = 32,
-                    color = BACKGROUND_COLOR,
-                    child = render.Column(
-                        children = [
-                            render.Stack(
-                                render_range(aqi),
-                            ),
-                            render.Padding(
-                                pad = (2, 2, 0, 0),
-                                child = render_animation(aqi, temp, humidity, name, show_title, show_temp, show_name, temp_unit),
-                            ),
-                        ],
-                        expanded = True,
-                        main_align = "space_evenly",
-                    ),
-                ),
-            ],
-        ),
+    # print("API response sensor: %s" % json.encode(sensor))
+
+    pm_a, pm_b = derive_base_pm_values(sensor, pm_source_fields, particle_sensor, confidence, confidence_auto)
+    print("base PM values: %s, %s" % (pm_a, pm_b))
+
+    humidity = sensor.get("humidity", 0)
+
+    # To match the Purple Air map, conversions/"data layer" calculations need to be done independently for each sensor
+    # and then averaged (instead of using the average value of the sensors and applying the calculations).
+    # https://community.purpleair.com/t/is-there-a-field-that-returns-data-with-us-epa-pm2-5-conversion-formula-applied/4593/7
+    aqi = (
+        data_layer(conversion(pm_a, humidity, location_type == 1)) +
+        data_layer(conversion(pm_b, humidity, location_type == 1))
+    ) / 2
+
+    temp = sensor.get("temperature", 0)
+    ambient_temp = max(temp - 8, 0)  # Temp reported 8F higher so adjust
+
+    ambient_humidity = max(humidity + 4, 0)  # Humidity reported 4F lower so adjust
+
+    if sensor.get("location_type", 0) == 1:
+        name = "%s\n(inside)" % name
+
+    return main_render(
+        aqi,
+        ambient_temp,
+        ambient_humidity,
+        name,
+        show_title,
+        show_temp,
+        show_name,
+        temp_unit,
     )
 
 def get_cfg_value(config, key, default):
@@ -117,43 +152,65 @@ def get_schema():
             schema.Text(
                 id = "api_key",
                 name = "PurpleAir API Key",
-                desc = "Specify the API key to use",
-                icon = "gear",
+                desc = "Specify the API key to use. This can be acquired by registering on PurpleAir developer site.",
+                icon = "key",
                 default = "",
             ),
             schema.Text(
                 id = "sensor_id_direct",
-                name = "Sensor ID",
-                desc = "Specify the sensor if you know the ID",
+                name = "Public sensor ID",
+                desc = "Specify the (public) sensor ID. This can be acquired by selecting the sensor on the PurpleAir map, and using the <number> part of the 'select=<number>' parameter in the URL/web address.",
                 icon = "satelliteDish",
                 default = "",
+            ),
+            schema.Dropdown(
+                id = "conversion",
+                name = "Apply conversion",
+                desc = "Conversions help accommodate different types of pollution with different particle densities and systematic errors in the reported values.",
+                icon = "magnifyingGlassChart",
+                default = DEFAULT_CONVERSION,
+                options = [
+                    schema.Option(display = "No", value = "C0"),
+                    schema.Option(display = "US EPA", value = "C5"),
+                    schema.Option(display = "US EPA (OLD)", value = "C7"),
+                ],
+            ),
+            schema.Dropdown(
+                id = "map_data_layer",
+                name = "Data Layer",
+                desc = "Interpretation of the sensor data to standards",
+                icon = "layerGroup",
+                default = DEFAULT_DATA_LAYER,
+                options = [
+                    schema.Option(display = "US EPA PM2.5 (AQI)", value = "US_EPA_AQI"),
+                ],
             ),
             schema.Toggle(
                 id = "show_title",
                 name = "Show title",
                 desc = "Show AQI title",
-                icon = "gear",
+                icon = "smog",
                 default = True,
             ),
             schema.Toggle(
                 id = "show_temp",
                 name = "Show temp and humidity",
                 desc = "Shows the temperature and humidity",
-                icon = "gear",
+                icon = "droplet",
                 default = True,
             ),
             schema.Toggle(
                 id = "show_name",
                 name = "Show sensor name",
                 desc = "Shows the name of the sensor",
-                icon = "gear",
+                icon = "heading",
                 default = True,
             ),
             schema.Dropdown(
                 id = "temp_unit",
                 name = "Temperature unit",
                 desc = "Temperature unit",
-                icon = "gear",
+                icon = "temperatureHalf",
                 default = DEFAULT_TEMP_UNIT,
                 options = [
                     schema.Option(display = "Fahrenheit", value = TEMP_UNIT_F),
@@ -190,66 +247,46 @@ def get_sensor_id(config):
 
 # DATA
 
-# Returns a tuple: (data, was_cached)
-# Sample call:
-# https://api.purpleair.com/v1/sensors/12345?fields=name,temperature,humidity,pm2.5_cf_1_a,pm2.5_cf_1_b,confidence,confidence_auto,location_type
+# Returns a dictionary of a sensor from the PurpleAir API
 def fetch_sensor_data(api_key, url, params):
-    air_dict = {}
     headers = {"X-API-Key": api_key}
-    rep = http.get(url, params = params, headers = headers, ttl_seconds = 1800)  # 30 min cache
+    rep = http.get(
+        url,
+        params = params,
+        headers = headers,
+        ttl_seconds = 1800,
+    )  # 30 min cache
     if rep.status_code != 200:
         print("Request failed with status %d" % rep.status_code)
         return None
     else:
         data = rep.json()
-        sensor = data.get("sensor", None)
-
-        if sensor != None:
-            name = sensor.get("name", "")
-
-            temp = sensor.get("temperature", 0)
-            temp = max(temp - 8, 0)  # Temp reported 8F higher so adjust
-
-            humidity = sensor.get("humidity", 0)
-            humidity = max(humidity + 4, 0)  # Humidity reported 4F lower so adjust
-
-            pm_a = sensor.get("pm2.5_cf_1_a", 0)
-            pm_b = sensor.get("pm2.5_cf_1_b", 0)
-            confidence = sensor.get("confidence", 0)
-            confidenceAuto = sensor.get("confidence_auto", -1)
-            locationType = sensor.get("location_type", 0)
-
-            air_dict = {
-                "name": name,
-                "temperature": temp,
-                "humidity": humidity,
-                "pm_a": pm_a,
-                "pm_b": pm_b,
-                "confidence": confidence,
-                "confidenceAuto": confidenceAuto,
-                "locationType": locationType,
-            }
-
-        return (air_dict, False)
+        return data.get("sensor", None)
 
 # AQI & CALCULATIONS
 
-def epa_AQI(pm25A, pm25B, humidity, particle_sensor, confidence, confidenceAuto):
-    # By default, average both particle sensors
-    pmValue = (pm25A + pm25B) / 2
+# Coerce PM values used in calculations based on confidence of each sensor's accuracy.
+def derive_base_pm_values(sensor, pm_source_fields, particle_sensor, confidence, confidence_auto):
+    pm25A = sensor[pm_source_fields[0]]
+    pm25B = sensor.get(pm_source_fields[1], 0)
+    pmValue = None
 
     # If the sensor's confidence is 0 then one or both sensors isn't working. Try to
     # use the other 'good' sensor by detecting if the PM 2.5 value is out of range.
     # Note: Upper range of 1000 ug/m^3 comes from https://www.plantower.com/en/products_33/74.html
     if confidence == 0:
+        print("Low confidence for sensor")
         if pm25A <= 0 or pm25A > 1000:
+            print("Sensor A inaccurate, using B")
             pmValue = pm25B
         elif pm25B <= 0 or pm25B > 1000:
+            print("Sensor B inaccurate, using A")
             pmValue = pm25A
 
     # If this is a device with only one sensor, the confidence_auto property will be
     # missing. In this case use the A sensor
-    if confidenceAuto == -1 and pm25B == 0:
+    if confidence_auto == None and pm25B == 0:
+        print("Loading for device with one sensor")
         pmValue = pm25A
 
     # The user can choose which sensor to use though so check that
@@ -258,6 +295,36 @@ def epa_AQI(pm25A, pm25B, humidity, particle_sensor, confidence, confidenceAuto)
     elif particle_sensor == PARTICLE_SENSOR_B:
         pmValue = pm25B
 
+    if pmValue == None:
+        return [pm25A, pm25B]
+    else:
+        return [pmValue, pmValue]
+
+def _us_epa_convert_indoor_eq1(pm_value, humidity):
+    return pm_value * 0.524 - 0.0862 * humidity + 5.75
+
+def _us_epa_convert_indoor_eq3(pm_value):
+    return math.pow(pm_value, 2) * 4.21 * 0.0001 + pm_value * 0.392 + 3.44
+
+def us_epa_convert_indoor(pm_value, humidity):
+    pm_25_corrected = 0
+
+    # Taken from https://www.mdpi.com/1424-8220/22/24/9669 (Section 3.1.3. Final Equations)
+    if pm_value < 570:
+        pm_25_corrected = _us_epa_convert_indoor_eq1(pm_value, humidity)
+    elif pm_value < 611:
+        pm_25_corrected = (0.0244 * pm_value - 13.9) * _us_epa_convert_indoor_eq3(
+            pm_value,
+        ) + (1 - (0.0244 * pm_value - 13.9)) * _us_epa_convert_indoor_eq1(
+            pm_value,
+            humidity,
+        )
+    else:
+        pm_25_corrected = _us_epa_convert_indoor_eq3(pm_value)
+
+    return pm_25_corrected
+
+def us_epa_convert_outdoor(pmValue, humidity):
     pm25_corrected = 0
 
     # [OLD] EPA adjustment for wood smoke and PurpleAir from https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513
@@ -280,10 +347,27 @@ def epa_AQI(pm25A, pm25B, humidity, particle_sensor, confidence, confidenceAuto)
     elif 260 <= pmValue:
         pm25_corrected = 2.966 + 0.69 * pmValue + 8.84 * 0.0001 * math.pow(pmValue, 2)
 
-    return aqi_from_PM(pm25_corrected)
+    # At very low particle counts, this adjustment can be negative. Clamp range to positive.
+    return max(pm25_corrected, 0)
+
+def us_epa_convert_old(pm_value, humidity, _):
+    # The previous implementation of the US EPA conversion applied the same conversion for indoor and outdoor sensors
+    return us_epa_convert_outdoor(pm_value, humidity)
+
+def us_epa_convert(pm_value, humidity, indoor):
+    # As of Sept 2024, for EPA correction, PurpleAir uses a different correction for indoor sensors.
+    if indoor:
+        return us_epa_convert_indoor(pm_value, humidity)
+    else:
+        return us_epa_convert_outdoor(pm_value, humidity)
 
 # From Jason Snell's AQI Widget and PurpleAir Google Doc
 # https://github.com/jasonsnell/PurpleAir-AQI-Scriptable-Widget/blob/main/purpleair-aqi.js
+# This is derived from the calculations defined by the US EPA
+# https://www.epa.gov/outdoor-air-quality-data/how-aqi-calculated
+# which refers to the technical assistance document hosted by AirNow:
+# https://www.airnow.gov/publications/air-quality-index/technical-assistance-document-for-reporting-the-daily-aqi/
+# In particular, using: "IV. Calculating the AQI, Equation 1" and the breakpoints from Table 6. in the PM2.5 column.
 def aqi_from_PM(pm):
     if pm > 350.5:
         return calculate_AQI(pm, 500.0, 401.0, 500.0, 350.5)
@@ -552,12 +636,70 @@ def render_animation(aqi, temp, humidity, name, show_title = True, show_temp = T
 
     return render.Animation(fr)
 
+def main_render(aqi, temp, humidity, name, show_title, show_temp, show_name, temp_unit):
+    return render.Root(
+        child = render.Stack(
+            children = [
+                render.Box(
+                    width = 64,
+                    height = 32,
+                    color = BACKGROUND_COLOR,
+                    child = render.Column(
+                        children = [
+                            render.Stack(
+                                render_range(aqi),
+                            ),
+                            render.Padding(
+                                pad = (2, 2, 0, 0),
+                                child = render_animation(
+                                    aqi,
+                                    temp,
+                                    humidity,
+                                    name,
+                                    show_title,
+                                    show_temp,
+                                    show_name,
+                                    temp_unit,
+                                ),
+                            ),
+                        ],
+                        expanded = True,
+                        main_align = "space_evenly",
+                    ),
+                ),
+            ],
+        ),
+    )
+
+conversions = {
+    "C0": lambda pm, humidity, indoor: pm,
+    "C5": us_epa_convert,
+    "C7": us_epa_convert_old,
+}
+
+data_layers = {
+    "US_EPA_AQI": aqi_from_PM,
+}
+
+pm_source_fields_for_conversion = {
+    "C0": ["pm2.5_a", "pm2.5_b"],
+    "C5": ["pm2.5_a", "pm2.5_b"],
+    "C7": ["pm2.5_atm_a", "pm2.5_atm_b"],
+}
+
+additional_source_fields_for_conversion = {
+    "C5": ["humidity"],
+    "C7": ["humidity"],
+}
+
 # CONSTANTS
 
 PUBLIC_SENSOR = "https://api.purpleair.com/v1/sensors/"
-FETCH_SENSOR_FIELDS = "?fields=name,temperature,humidity,pm2.5_cf_1_a,pm2.5_cf_1_b,confidence,confidence_auto,location_type"
+
+# PUBLIC_SENSOR = "http://localhost:8000/v1/sensors/"
 CACHE_KEY_DATA = "purpleAirData"
 BACKGROUND_COLOR = "#21024D"
+LONG_CACHE_DURATION = 60 * 60 * 24 * 7
 
 # Images
 RANGE = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAEAAAAADCAYAAAAjpQkcAAAABHNCSVQICAgIfAhkiAAAAQ5JREFUKFONkm1ShDAQRHsS2I+r6bX0HHrMJYHENyGwYmHpj1SnZygq3fXs7eOl3segazTdhjPVc853oyTLUklFylV16tp9+eHbfjZVjkpYdemKLzP/wxfm1vy6zzUo2aiHuDeNymHQo0bmgyYNSvjJvSt7W4osZYV55o1ZcV7+9u+fr/UY3tYyCHtDrxEdnuVcAmE8bCI8Wr2E3VdKYcZu3/t3hNRCsJngqJ+9BC/j4Nd9JqCHSq72LXQLv/nIjiLwEyWJ4CFzunoJ293nmzfusXvbCLgQ9v4rAZEiVhIuvJ3XQcDS9IwAo5QDIacE8J8STwlwIlInYAvbCCDsSgJE+B7dCYCERkAP/V8CvgB8qhUiAN3IHAAAAABJRU5ErkJggg==")
