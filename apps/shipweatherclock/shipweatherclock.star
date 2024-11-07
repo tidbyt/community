@@ -8,6 +8,7 @@ Author: Peter Uth
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -37,6 +38,14 @@ RAIN_HEAVY_NIGHT = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAA
 SNOW_DAY = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bpaIVh1YQcchQO9lFRRxrFYpQIdQKrTqYXPoFTRqSFBdHwbXg4Mdi1cHFWVcHV0EQ/ABxdnBSdJES/5cUWsR4cNyPd/ced+8Af7PKVLMnAaiaZWRSSSGXXxWCrxhAAGEMIyYxU58TxTQ8x9c9fHy9i/Ms73N/jkGlYDLAJxAnmG5YxBvEM5uWznmfOMLKkkJ8Tjxh0AWJH7kuu/zGueSwn2dGjGxmnjhCLJS6WO5iVjZU4mniqKJqlO/Puaxw3uKsVuusfU/+wlBBW1nmOs0xpLCIJYgQIKOOCqqwEKdVI8VEhvaTHv5Rxy+SSyZXBYwcC6hBheT4wf/gd7dmcWrSTQolgd4X2/4YB4K7QKth29/Htt06AQLPwJXW8deawOwn6Y2OFj0ChraBi+uOJu8BlzvAyJMuGZIjBWj6i0Xg/Yy+KQ+Eb4H+Nbe39j5OH4AsdZW+AQ4OgViJstc93t3X3du/Z9r9/QCDd3KtmFmoAgAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+gLAxQsKqoDBGQAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAZElEQVRo3u3XwQ0AIQwDQfpvOpRwOh4ER+M/wl6HSKzVqKqqcXfdDEWdTWoa9HyghDQw34bTQoyYRk+KLEchrvlNChLh1QYHnVECXYuDTL8W6sTPiG85ARhC8c85TRl5oKi7nQ3XgJNt4HaPtwAAAABJRU5ErkJggg==")
 SNOW_NIGHT = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bpaIVh1YQcchQO9lFRRxrFYpQIdQKrTqYXPoFTRqSFBdHwbXg4Mdi1cHFWVcHV0EQ/ABxdnBSdJES/5cUWsR4cNyPd/ced+8Af7PKVLMnAaiaZWRSSSGXXxWCrxhAAGEMIyYxU58TxTQ8x9c9fHy9i/Ms73N/jkGlYDLAJxAnmG5YxBvEM5uWznmfOMLKkkJ8Tjxh0AWJH7kuu/zGueSwn2dGjGxmnjhCLJS6WO5iVjZU4mniqKJqlO/Puaxw3uKsVuusfU/+wlBBW1nmOs0xpLCIJYgQIKOOCqqwEKdVI8VEhvaTHv5Rxy+SSyZXBYwcC6hBheT4wf/gd7dmcWrSTQolgd4X2/4YB4K7QKth29/Htt06AQLPwJXW8deawOwn6Y2OFj0ChraBi+uOJu8BlzvAyJMuGZIjBWj6i0Xg/Yy+KQ+Eb4H+Nbe39j5OH4AsdZW+AQ4OgViJstc93t3X3du/Z9r9/QCDd3KtmFmoAgAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+gLAxQtH+Wr8QYAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAZklEQVRo3u3XwQ3AIAxDUfYfJiu2IyB6IHX0fEfY3yESazWqqp5xd90MRZ1Nahr0fKCENDB7w2khRkyjJ0WWoxDX/CYFifBqg4POKIGuxUGm/xbqi58R33ICMITiyTlNGXmgqLudF2iScE5Btz32AAAAAElFTkSuQmCC")
 LIGHTNING = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TpaIVByuIOASpThZBRRxrFYpQIdQKrTqYXPoFTRqSFhdHwbXg4Mdi1cHFWVcHV0EQ/ABxdnBSdJES/5cUWsR4cNyPd/ced+8AoV5imtURBTS9YibjMTGdWRUDr+iBHwOYwIjMLGNOkhLwHF/38PH1LsKzvM/9OXrVrMUAn0gcZYZZId4gntmsGJz3iUOsIKvE58TjJl2Q+JHristvnPMOCzwzZKaS88QhYjHfxkobs4KpEU8Th1VNp3wh7bLKeYuzVqqy5j35C4NZfWWZ6zSHEcciliBBhIIqiiihggitOikWkrQf8/APOX6JXAq5imDkWEAZGmTHD/4Hv7u1clOTblIwBnS+2PbHKBDYBRo12/4+tu3GCeB/Bq70lr9cB2Y/Sa+1tPAR0LcNXFy3NGUPuNwBBp8M2ZQdyU9TyOWA9zP6pgzQfwt0r7m9Nfdx+gCkqKvEDXBwCIzlKXvd491d7b39e6bZ3w+/a3LFYPmf5QAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+gLAxcHNCQ6ejcAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAdklEQVRo3u2YsRHAIAwDbfbfWWlSpEiRJuC7f20g+YWBqsFKkqJql/lVSvTR5q2A6MPNW4FJ08dW4GkcF8KbYUwIuYXcCF96vyOEdcp8d/eEQYxeg1NC8tD7+7aHDwD/DjAE/wPUMQokgE6BBNApwBNgBZRi6wJ5G3elOccUgAAAAABJRU5ErkJggg==")
+WHALE1 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9btaIVQTuIOGSondpFRRxrFYpQIdQKrTqYXPohNGlIUlwcBdeCgx+LVQcXZ10dXAVB8APE2cFJ0UVK/F9SaBHjwXE/3t173L0D/I0KU82uBKBqlpFJJYVcfkUIvqIfPRhCFDGJmfqsKKbhOb7u4ePrXZxneZ/7cwwoBZMBPoE4wXTDIl4nnt60dM77xGFWlhTic+KYQRckfuS67PIb55LDfp4ZNrKZOeIwsVDqYLmDWdlQiaeII4qqUb4/57LCeYuzWqmx1j35C0MFbXmJ6zTHkMICFiFCgIwaNlCBhTitGikmMrSf9PCPOn6RXDK5NsDIMY8qVEiOH/wPfndrFicn3KRQEuh+se2PcSC4CzTrtv19bNvNEyDwDFxpbX+1Acx8kl5va5EjYHAbuLhua/IecLkDjDzpkiE5UoCmv1gE3s/om/LA8C3Qt+r21trH6QOQpa7SN8DBIRAtUfaax7t7O3v790yrvx/B3HLGhJ5/3QAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+gLBhUNK2eHuxQAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAIElEQVQoz2NgGAWjgAqAEcYwMzP7j0vRqVOnGBkYGBgASj8EAjmBeG4AAAAASUVORK5CYII=")
+WHALE2 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9btaIVQTuIOGSondpFRRxrFYpQIdQKrTqYXPohNGlIUlwcBdeCgx+LVQcXZ10dXAVB8APE2cFJ0UVK/F9SaBHjwXE/3t173L0D/I0KU82uBKBqlpFJJYVcfkUIvqIfPRhCFDGJmfqsKKbhOb7u4ePrXZxneZ/7cwwoBZMBPoE4wXTDIl4nnt60dM77xGFWlhTic+KYQRckfuS67PIb55LDfp4ZNrKZOeIwsVDqYLmDWdlQiaeII4qqUb4/57LCeYuzWqmx1j35C0MFbXmJ6zTHkMICFiFCgIwaNlCBhTitGikmMrSf9PCPOn6RXDK5NsDIMY8qVEiOH/wPfndrFicn3KRQEuh+se2PcSC4CzTrtv19bNvNEyDwDFxpbX+1Acx8kl5va5EjYHAbuLhua/IecLkDjDzpkiE5UoCmv1gE3s/om/LA8C3Qt+r21trH6QOQpa7SN8DBIRAtUfaax7t7O3v790yrvx/B3HLGhJ5/3QAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+gLBhUNOOM5+soAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAI0lEQVQoz2NgGAWjADtghDHMzMz+41J06tQpRrhifAqRNQAAQ0wIA/RJaBUAAAAASUVORK5CYII=")
+WHALE3 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9btaIVQTuIOGSondpFRRxrFYpQIdQKrTqYXPohNGlIUlwcBdeCgx+LVQcXZ10dXAVB8APE2cFJ0UVK/F9SaBHjwXE/3t173L0D/I0KU82uBKBqlpFJJYVcfkUIvqIfPRhCFDGJmfqsKKbhOb7u4ePrXZxneZ/7cwwoBZMBPoE4wXTDIl4nnt60dM77xGFWlhTic+KYQRckfuS67PIb55LDfp4ZNrKZOeIwsVDqYLmDWdlQiaeII4qqUb4/57LCeYuzWqmx1j35C0MFbXmJ6zTHkMICFiFCgIwaNlCBhTitGikmMrSf9PCPOn6RXDK5NsDIMY8qVEiOH/wPfndrFicn3KRQEuh+se2PcSC4CzTrtv19bNvNEyDwDFxpbX+1Acx8kl5va5EjYHAbuLhua/IecLkDjDzpkiE5UoCmv1gE3s/om/LA8C3Qt+r21trH6QOQpa7SN8DBIRAtUfaax7t7O3v790yrvx/B3HLGhJ5/3QAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+gLBhUOCZnKqTMAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAJklEQVQoz2NgGAUjCDDCGGZmZv9xKTp16hQjXDE+hcgamIhRCAMA8BwJpp2QNXMAAAAASUVORK5CYII=")
+WHALE4 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9btaIVQTuIOGSondpFRRxrFYpQIdQKrTqYXPohNGlIUlwcBdeCgx+LVQcXZ10dXAVB8APE2cFJ0UVK/F9SaBHjwXE/3t173L0D/I0KU82uBKBqlpFJJYVcfkUIvqIfPRhCFDGJmfqsKKbhOb7u4ePrXZxneZ/7cwwoBZMBPoE4wXTDIl4nnt60dM77xGFWlhTic+KYQRckfuS67PIb55LDfp4ZNrKZOeIwsVDqYLmDWdlQiaeII4qqUb4/57LCeYuzWqmx1j35C0MFbXmJ6zTHkMICFiFCgIwaNlCBhTitGikmMrSf9PCPOn6RXDK5NsDIMY8qVEiOH/wPfndrFicn3KRQEuh+se2PcSC4CzTrtv19bNvNEyDwDFxpbX+1Acx8kl5va5EjYHAbuLhua/IecLkDjDzpkiE5UoCmv1gE3s/om/LA8C3Qt+r21trH6QOQpa7SN8DBIRAtUfaax7t7O3v790yrvx/B3HLGhJ5/3QAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+gLBhUPA2AEcWwAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAM0lEQVQoz2NgGAXUBv////+PLsZEigG0U8wIY5iZmf3HpejUqVOMcMX4FCJrYCJGIQwAAHMrDag9zg9SAAAAAElFTkSuQmCC")
+WHALE5 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9btaIVQTuIOGSondpFRRxrFYpQIdQKrTqYXPohNGlIUlwcBdeCgx+LVQcXZ10dXAVB8APE2cFJ0UVK/F9SaBHjwXE/3t173L0D/I0KU82uBKBqlpFJJYVcfkUIvqIfPRhCFDGJmfqsKKbhOb7u4ePrXZxneZ/7cwwoBZMBPoE4wXTDIl4nnt60dM77xGFWlhTic+KYQRckfuS67PIb55LDfp4ZNrKZOeIwsVDqYLmDWdlQiaeII4qqUb4/57LCeYuzWqmx1j35C0MFbXmJ6zTHkMICFiFCgIwaNlCBhTitGikmMrSf9PCPOn6RXDK5NsDIMY8qVEiOH/wPfndrFicn3KRQEuh+se2PcSC4CzTrtv19bNvNEyDwDFxpbX+1Acx8kl5va5EjYHAbuLhua/IecLkDjDzpkiE5UoCmv1gE3s/om/LA8C3Qt+r21trH6QOQpa7SN8DBIRAtUfaax7t7O3v790yrvx/B3HLGhJ5/3QAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+gLBhUPDh61DdEAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAPklEQVQoz2NgGLzg/////5FpojUgA0ZCChkZGRnJMpmJFL8MEsVwn5qZmeEM01OnTjHCFeNTiKyBiRiFMAAAUrQdn5UUMvwAAAAASUVORK5CYII=")
+WHALE6 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9btaIVQTuIOGSondpFRRxrFYpQIdQKrTqYXPohNGlIUlwcBdeCgx+LVQcXZ10dXAVB8APE2cFJ0UVK/F9SaBHjwXE/3t173L0D/I0KU82uBKBqlpFJJYVcfkUIvqIfPRhCFDGJmfqsKKbhOb7u4ePrXZxneZ/7cwwoBZMBPoE4wXTDIl4nnt60dM77xGFWlhTic+KYQRckfuS67PIb55LDfp4ZNrKZOeIwsVDqYLmDWdlQiaeII4qqUb4/57LCeYuzWqmx1j35C0MFbXmJ6zTHkMICFiFCgIwaNlCBhTitGikmMrSf9PCPOn6RXDK5NsDIMY8qVEiOH/wPfndrFicn3KRQEuh+se2PcSC4CzTrtv19bNvNEyDwDFxpbX+1Acx8kl5va5EjYHAbuLhua/IecLkDjDzpkiE5UoCmv1gE3s/om/LA8C3Qt+r21trH6QOQpa7SN8DBIRAtUfaax7t7O3v790yrvx/B3HLGhJ5/3QAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+gLBhUPGOphuIAAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAASElEQVQoz2NgoAv4DwWExBiQBWBsbGI4bUEXYySkkJGRkZGgidicQpIzmEgJLdophvvUzMwMp0dOnTrFCFeMTyGyBiZiFMIAAMAnQXnsOrt+AAAAAElFTkSuQmCC")
+WHALE7 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9btaIVQTuIOGSondpFRRxrFYpQIdQKrTqYXPohNGlIUlwcBdeCgx+LVQcXZ10dXAVB8APE2cFJ0UVK/F9SaBHjwXE/3t173L0D/I0KU82uBKBqlpFJJYVcfkUIvqIfPRhCFDGJmfqsKKbhOb7u4ePrXZxneZ/7cwwoBZMBPoE4wXTDIl4nnt60dM77xGFWlhTic+KYQRckfuS67PIb55LDfp4ZNrKZOeIwsVDqYLmDWdlQiaeII4qqUb4/57LCeYuzWqmx1j35C0MFbXmJ6zTHkMICFiFCgIwaNlCBhTitGikmMrSf9PCPOn6RXDK5NsDIMY8qVEiOH/wPfndrFicn3KRQEuh+se2PcSC4CzTrtv19bNvNEyDwDFxpbX+1Acx8kl5va5EjYHAbuLhua/IecLkDjDzpkiE5UoCmv1gE3s/om/LA8C3Qt+r21trH6QOQpa7SN8DBIRAtUfaax7t7O3v790yrvx/B3HLGhJ5/3QAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+gLBhUPIbVkMIgAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAARElEQVQoz2NgoAv4DwWExBiQBWBsbGI4bUEXYySkkJGRkZGgidicQpIzBgmA+9TMzAynG0+dOsUIV4xPIbIGJmIUwgAAuuFBc1nvATUAAAAASUVORK5CYII=")
+WHALE8 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9btaIVQTuIOGSondpFRRxrFYpQIdQKrTqYXPohNGlIUlwcBdeCgx+LVQcXZ10dXAVB8APE2cFJ0UVK/F9SaBHjwXE/3t173L0D/I0KU82uBKBqlpFJJYVcfkUIvqIfPRhCFDGJmfqsKKbhOb7u4ePrXZxneZ/7cwwoBZMBPoE4wXTDIl4nnt60dM77xGFWlhTic+KYQRckfuS67PIb55LDfp4ZNrKZOeIwsVDqYLmDWdlQiaeII4qqUb4/57LCeYuzWqmx1j35C0MFbXmJ6zTHkMICFiFCgIwaNlCBhTitGikmMrSf9PCPOn6RXDK5NsDIMY8qVEiOH/wPfndrFicn3KRQEuh+se2PcSC4CzTrtv19bNvNEyDwDFxpbX+1Acx8kl5va5EjYHAbuLhua/IecLkDjDzpkiE5UoCmv1gE3s/om/LA8C3Qt+r21trH6QOQpa7SN8DBIRAtUfaax7t7O3v790yrvx/B3HLGhJ5/3QAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+gLBhUPKbu/uLoAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAANklEQVQoz2NgoAv4DwWExBgwBLAYxEA/gM3NDEMYMMIYZmZmOD1y6tQpRrhifAqRNTARoxAGAOJLKYaN2UKPAAAAAElFTkSuQmCC")
 
 def main(config):
     # get coordinates and current time
@@ -174,6 +183,13 @@ def main(config):
     snow_scale = w[3]
     lightning_scale = w[4]
 
+    # whale
+    num = random.number(0, 100)
+    if num > 90:
+        enable_whale = True
+    else:
+        enable_whale = False
+
     # animation timing
     t_end = 15
     t_delay_ms = int(5000 / 24)  # 24 is slowest for seemless repeat
@@ -202,7 +218,8 @@ def main(config):
     text_time = print_time(day, now, clock_format)
     text_low_temp = print_temp(day, str(low_temp), 50, 6)
     text_high_temp = print_temp(day, str(high_temp), 64, 6)
-    text_now_temp = print_temp(day, str(now_temp) + unit_temp, 64, 12)
+    text_now_temp = print_temp(day, str(now_temp) + " " + unit_temp, 64, 12)
+    deg = draw_deg(day, 57, 12)
     stars = draw_stars(day, cloud_scale)
     clouds_heavy = draw_clouds(day, cloud_scale, 1, CLOUDS_HEAVY_DAY, CLOUDS_HEAVY_NIGHT)
     clouds_light = draw_clouds(day, cloud_scale, 0, CLOUDS_LIGHT_DAY, CLOUDS_LIGHT_NIGHT)
@@ -210,6 +227,7 @@ def main(config):
     rain_light = draw_rain_light(day, rain_scale)
     snow = draw_snow(day, snow_scale)
     lightning = draw_lightning(lightning_scale)
+    whale = draw_whale(enable_whale, 29, 13)
 
     # top-level render
     return render.Root(delay = t_delay_ms, child = render.Stack(children = [
@@ -237,10 +255,12 @@ def main(config):
         stream4_2,
         clouds_heavy,
         clouds_light,
+        whale,
         text_time,
         text_low_temp,
         text_high_temp,
         text_now_temp,
+        deg,
     ]))
 
 def get_schema():
@@ -473,6 +493,20 @@ def print_temp(day, temperature, x, y):
     ])
     return text
 
+def draw_deg(day, x, y):
+    if day:
+        deg_color = "#000000"
+    else:
+        deg_color = "#ffffff"
+    deg = render.Column(children = [
+        render.Box(height = y),
+        render.Row(children = [
+            render.Box(width = x),
+            render.Box(width = 2, height = 2, color = deg_color),
+        ]),
+    ])
+    return deg
+
 def draw_stars(day, cloud_scale):
     if day or cloud_scale > 2:
         star = render.Box()
@@ -579,3 +613,85 @@ def draw_lightning(lightning_scale):
     else:
         lightning = render.Box()
     return lightning
+
+def draw_whale(enable, x, y):
+    if enable:
+        whale = render.Column(children = [
+            render.Box(height = y),
+            render.Row(children = [
+                render.Box(width = x),
+                render.Animation(children = [
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Image(src = WHALE1),
+                    render.Image(src = WHALE1),
+                    render.Image(src = WHALE2),
+                    render.Image(src = WHALE2),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE4),
+                    render.Image(src = WHALE5),
+                    render.Image(src = WHALE6),
+                    render.Image(src = WHALE7),
+                    render.Image(src = WHALE8),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE3),
+                    render.Image(src = WHALE2),
+                    render.Image(src = WHALE2),
+                    render.Image(src = WHALE1),
+                    render.Image(src = WHALE1),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                    render.Box(),
+                ]),
+            ]),
+        ])
+    else:
+        whale = render.Box()
+    return whale
