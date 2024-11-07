@@ -275,8 +275,8 @@ def fullLayoutRevealed(image, width, text, shiny_frame):
 
 # Gets the width the image has to be at this frame of the transition.
 def getTransitionWidth(frame):
-    widths = [18, 18, 18, 18, 18, 12, 12, 12, 12, 12, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 6, 6, 12, 12, 12, 12, 12, 18, 18, 18, 18, 18]
-    return widths[frame]
+    widths = [18, 12, 6, 1, 1, 6, 12, 18]
+    return widths[int(frame/5)]
 
 def get_schema():
     return schema.Schema(
@@ -292,7 +292,7 @@ def get_schema():
             schema.Dropdown(
                 id = "shiny_odds",
                 name = "Shiny odds",
-                desc = "Odds of a shiny Pokemon appearing. By default, no shiny Pokemon will appear",
+                desc = "Odds of a shiny Pokemon appearing. By default, no shiny Pokemon will appear.",
                 icon = "star",
                 default = "0",
                 options = [
