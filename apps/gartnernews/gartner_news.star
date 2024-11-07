@@ -25,11 +25,11 @@ def main(config):
     """
     GARTNER_RSS_URL = "https://www.gartner.com/en/newsroom/rss"
     number_of_items = 0
-    seconds_xml_valid_for = 3 * 60 * 60  #3 hours
+    seconds_xml_valid_for = 6 * 60 * 60  #6 hours
 
     xml_body = cache.get(GARTNER_RSS_URL)
     if xml_body == None:
-        gartner_xml = http.get(GARTNER_RSS_URL)
+        gartner_xml = http.get(GARTNER_RSS_URL, headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36", "Accept": "text/html"})
 
         if gartner_xml.status_code == 200:
             xml_body = gartner_xml.body()

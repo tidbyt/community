@@ -36,6 +36,7 @@ def main(config):
 
     API_CALL = API_PREFIX + "Lon=" + str(Long) + "&" + "Lat=" + str(Lat) + "&Radius=5" + "&Brand=&FuelType=" + FuelType + "&Sort=true"
 
+    # Update every 5 mins
     Cached = get_cachable_data(API_CALL, 300)
     FuelData = json.decode(Cached)
 
@@ -57,6 +58,7 @@ def main(config):
     # print(int(Diff.minutes))
 
     mainFont = "CG-pixel-3x5-mono"
+    priceFont = "Dina_r400-6"
     Price = "$" + str(Price)
     ListFuel = Type_to_Fuel(FuelType)
 
@@ -87,7 +89,7 @@ def main(config):
                     main_align = "space_between",
                     cross_align = "end",
                     children = [
-                        render.Marquee(width = 64, height = 10, child = render.Text(content = Outlet, color = "#FFF", font = mainFont)),
+                        Outlet_Name(Outlet),
                     ],
                 ),
                 render.Row(
@@ -95,7 +97,7 @@ def main(config):
                     main_align = "space_between",
                     cross_align = "end",
                     children = [
-                        render.Box(width = 64, height = 10, color = "#000", child = render.Text(content = Price, color = "#48a800", font = mainFont)),
+                        render.Box(width = 64, height = 12, color = "#000", child = render.Text(content = Price, color = "#48a800", font = priceFont)),
                     ],
                 ),
                 render.Row(
@@ -109,6 +111,15 @@ def main(config):
             ],
         ),
     )
+
+def Outlet_Name(Outlet):
+    if len(Outlet) > 15:
+        Outlet_Resp = render.Marquee(width = 64, height = 10, child = render.Text(content = Outlet, color = "#FFF", font = "CG-pixel-3x5-mono"))
+
+    else:
+        Outlet_Resp = render.Box(width = 64, height = 5, child = render.Text(content = Outlet, color = "#fff", font = "CG-pixel-3x5-mono"))
+
+    return Outlet_Resp
 
 def Type_to_Fuel(type_id):
     Type = ""
@@ -177,7 +188,7 @@ def get_schema():
                 id = "FuelType",
                 name = "Select the fuel type",
                 desc = "Select the fuel type",
-                icon = "gear",
+                icon = "gasPump",
                 default = FuelOptions[0].value,
                 options = FuelOptions,
             ),

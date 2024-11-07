@@ -80,6 +80,7 @@ numbersPerLang["nl-BE"] = numbersPerLang["nl-NL"]
 numbersPerLang["de-AT"] = numbersPerLang["de-DE"]
 numbersPerLang["de-DE-alt"] = numbersPerLang["de-DE"]
 numbersPerLang["de-DE-alt2"] = numbersPerLang["de-DE"]
+numbersPerLang["de-DE-alt3"] = numbersPerLang["de-DE"]
 numbersPerLang["de-CH"] = numbersPerLang["de-DE"]
 numbersPerLang["de-CH-alt"] = numbersPerLang["de-DE"]
 
@@ -164,6 +165,21 @@ patternsPerLang = {
         30: "HALB,{next_hour}",
         35: "FÜNF,NACH HALB,{next_hour}",
         40: "FÜNF VOR,DREIVIERTEL,{next_hour}",
+        45: "DREI,VIERTEL,{next_hour}",
+        50: "ZEHN,VOR,{next_hour}",
+        55: "FÜNF,VOR,{next_hour}",
+    },
+    "de-DE-alt3": {
+        # this is a good fit for Berlin area
+        0: "{hour},UHR",
+        5: "FÜNF,NACH,{hour}",
+        10: "ZEHN,NACH,{hour}",
+        15: "VIERTEL,{next_hour}",
+        20: "ZEHN,VOR HALB,{next_hour}",
+        25: "FÜNF,VOR HALB,{next_hour}",
+        30: "HALB,{next_hour}",
+        35: "FÜNF,NACH HALB,{next_hour}",
+        40: "ZEHN,NACH HALB,{next_hour}",
         45: "DREI,VIERTEL,{next_hour}",
         50: "ZEHN,VOR,{next_hour}",
         55: "FÜNF,VOR,{next_hour}",
@@ -299,6 +315,7 @@ def main(config):
     texts = [render.Text(" " * i + s) for i, s in enumerate(fuzzed)]
 
     return render.Root(
+        max_age = 60 * 10,
         child = render.Padding(
             pad = 3,
             child = render.Column(
@@ -332,6 +349,10 @@ def get_schema():
         schema.Option(
             display = "Deutsch (Alternative 2)",
             value = "de-DE-alt2",
+        ),
+        schema.Option(
+            display = "Deutsch (Alternative 3)",
+            value = "de-DE-alt3",
         ),
         schema.Option(
             display = "Deutsch (Schweiz)",

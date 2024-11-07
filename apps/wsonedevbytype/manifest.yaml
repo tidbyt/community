@@ -1,0 +1,8 @@
+---
+id: wsonedevbytypep
+name: WSONE Dev By Type
+summary: List WS1UEM devices by type
+desc: Displays the devices you manage in Workspace ONE UEM by type and amount of each.
+author: Craig Johnston
+fileName: wsonedevbytypep.star
+packageName: wsonedevbytypep

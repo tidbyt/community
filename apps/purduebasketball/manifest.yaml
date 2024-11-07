@@ -1,0 +1,8 @@
+---
+id: purdue-basketball
+name: Purdue Basketball
+summary: Purdue Bball record
+desc: Shows Purdues basketball record of current year provided that you use a free api key from https://sportsdata.io/ .
+author: Griffinov22
+fileName: purdue_basketball.star
+packageName: purduebasketball

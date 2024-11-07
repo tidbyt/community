@@ -81,13 +81,14 @@ def main(config):
             content = http.get(URL)
             if content.status_code == 200 and content.body():
                 xml = xpath.loads(content.body())
-                data = {
-                    c: {
-                        "quote": xml.query("//item[ends-with(link,'#" + c + "')]/quote"),
-                        "author": xml.query("//item[ends-with(link,'#" + c + "')]/author"),
+                data = {}
+                for c in CATEGORIES:
+                    description = xml.query("//item[ends-with(link,'quote-of-the-day/" + c + "')]/description").replace("&#039;", "'")
+                    quote, author = description.split(" - ", 1) if " - " in description else (description, "Unknown")
+                    data[c] = {
+                        "quote": quote,
+                        "author": author,
                     }
-                    for c in CATEGORIES
-                }
             else:
                 #print('Server returned %s' % content.status_code)
                 data = {

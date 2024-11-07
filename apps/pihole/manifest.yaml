@@ -1,0 +1,6 @@
+---
+id: pihole
+name: PiHole
+summary: PiHole stats for Tidbyt
+desc: Display Pi-hole blocking statistics on Tidbyt. Pi-hole admin portle should be reachable from outside home network (via reverse proxy or other means) for this app to work.
+author: siva801

@@ -9,12 +9,13 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("math.star", "math")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-APP_VERSION = "2.0.0"
+APP_VERSION = "2.2.0"
 
 # Constants
 DEFAULT_LOCATION = """
@@ -90,9 +91,10 @@ TEAMS_LIST = {
     29: {"name": "Columbus Blue Jackets", "abbreviation": "CBJ"},
     30: {"name": "Minnesota Wild", "abbreviation": "MIN"},
     52: {"name": "Winnipeg Jets", "abbreviation": "WPG"},
-    53: {"name": "Arizona Coyotes", "abbreviation": "ARI"},
+    # 53: {"name": "Arizona Coyotes", "abbreviation": "ARI"}, LOL
     54: {"name": "Vegas Golden Knights", "abbreviation": "VGK"},
     55: {"name": "Seattle Kraken", "abbreviation": "SEA"},
+    59: {"name": "Utah Hockey Club", "abbreviation": "UTA", "abbr_fix": "UTAH"},
 }
 
 # Main App
@@ -132,11 +134,12 @@ def main(config):
             "is_empty_home": False,
             "game_update": "",
             "game_state": "",
+            "start_time": "",
             "is_intermission": "",
         }
 
         # Get game info (current game, opponent, basic stats, or next game scheduled)
-        game_info = get_games(teamId, currDate, game_info, config)
+        game_info = get_games(teamId, currDate, game_info)
 
         print("  - CACHE: Setting Game for teamid %s" % str(teamId))
         cache.set("teamid_" + str(teamId) + "_game", json.encode(game_info), ttl_seconds = CACHE_GAME_SECONDS)
@@ -152,6 +155,11 @@ def main(config):
         game_info["game_update"] = get_live_game_update(game_info, config)
     elif game_info["game_state"] in ["LIVE", "CRIT"] and not config.bool("liveupdates", True):
         game_info["game_update"] = ""
+        # If game is FUT/PRE scheduled, override game_update with local start_time
+
+    elif game_info["game_state"] in ["FUT", "PRE"]:
+        print("  - INFO: Overriding game_update with start_time")
+        game_info["game_update"] = get_local_start_time(game_info["start_time"], config)
 
     # If we have no gameId, return NHL logo
     if game_info["gameId"] == None:
@@ -281,7 +289,7 @@ def main(config):
 
 # Check if there is a game, if it's live or over or scheduled.
 # If live or over, grab game info. If scheduled, grab next game info.
-def get_games(teamId, currDate, game_info, config):
+def get_games(teamId, currDate, game_info):
     print("  - Get Games for week")
 
     # Get team schedule for a team week
@@ -292,15 +300,16 @@ def get_games(teamId, currDate, game_info, config):
     teamId_away = None
     teamId_home = None
     gameId = None
+    game_state = None
 
-    if games:
+    if len(games["games"]) > 0:
         print("  - Games found for week")
         game_info["gameId"] = str(int(games["games"][0]["id"]))
         game_info["game_date"] = str(games["games"][0]["gameDate"])
         game_info["teamId_away"] = int(games["games"][0]["awayTeam"]["id"])
         game_info["teamId_home"] = int(games["games"][0]["homeTeam"]["id"])
 
-        game_info = get_game_status(game_info, games, currDate, config)
+        game_info = get_game_status(game_info, games, currDate)
 
         # If no games this week, get schedule for the season
     else:
@@ -309,19 +318,18 @@ def get_games(teamId, currDate, game_info, config):
 
         # If games set game_live, game_over, teamId_away, teamId_home, start_time
         if games:
-            teamId_away, teamId_home, start_time, gameId = get_next_game(currDate, games)
-
-        if start_time:
-            start_time = get_local_start_time(start_time, config)
+            teamId_away, teamId_home, start_time, gameId, game_state = get_next_game(currDate, games)
 
         game_info["teamId_away"] = teamId_away
         game_info["teamId_home"] = teamId_home
-        game_info["game_update"] = start_time
+        game_info["game_state"] = game_state
         game_info["gameId"] = gameId
+        game_info["start_time"] = start_time
 
     return game_info
 
-def get_game_status(game_info, games, currDate, config):
+def get_game_status(game_info, games, currDate):
+    # Check if game is today
     if game_info["game_date"] == str(currDate):
         game_info["is_game_today"] = True
 
@@ -338,10 +346,8 @@ def get_game_status(game_info, games, currDate, config):
 
     else:
         # Grab the start time
-        start_time = games["games"][0]["startTimeUTC"]
-        start_time = get_local_start_time(start_time, config)
-
-        game_info["game_update"] = start_time
+        game_info["game_state"] = "FUT"
+        game_info["start_time"] = games["games"][0]["startTimeUTC"]
 
     return game_info
 
@@ -351,7 +357,7 @@ def get_live_game_update(game_info, config):
 
     if game_stats == None:
         print("  - CACHE: No LiveUpdate found for gameid %s" % str(game_info["gameId"]))
-        url = BASE_API_URL + "/v1/gamecenter/" + game_info["gameId"] + "/landing"
+        url = BASE_API_URL + "/v1/gamecenter/" + game_info["gameId"] + "/right-rail"
         print("  - HTTP.GET: %s" % url)
 
         response = http.get(url)
@@ -361,21 +367,36 @@ def get_live_game_update(game_info, config):
             game = response.json()
 
             # Reformat our game stats a bit
-            for stat in game["summary"]["teamGameStats"]:
-                if stat["category"] == "faceoffPctg":
+            for stat in game["teamGameStats"]:
+                if stat["category"] == "faceoffWinningPctg":
                     stat["category"] = "fo"
-                    stat["awayValue"] = stat["awayValue"] + "%"
-                    stat["homeValue"] = stat["homeValue"] + "%"
+                    stat["awayValue"] = str(int(math.round(stat["awayValue"] * 100))) + "%"
+                    stat["homeValue"] = str(int(math.round(stat["homeValue"] * 100))) + "%"
                 elif stat["category"] == "blockedShots":
                     stat["category"] = "blk"
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
                 elif stat["category"] == "takeaways":
                     stat["category"] = "take"
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
                 elif stat["category"] == "giveaways":
                     stat["category"] = "give"
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
                 elif stat["category"] == "hits":
                     stat["category"] = "hit"
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
                 elif stat["category"] == "powerPlay":
                     stat["category"] = "ppg"
+                elif stat["category"] == "sog":
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
+                elif stat["category"] == "pim":
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
+
                 stat_type = stat["category"]
                 game_stats[stat_type] = [stat["awayValue"], stat["homeValue"]]
 
@@ -414,7 +435,7 @@ def get_live_game_update(game_info, config):
         opt = opts[random.number(0, len(opts) - 1)]
 
         # print("  - OPT: %s" % opt)
-        update = opt.upper() + " - " + team_away + ":" + game_stats[opt][0] + " " + team_home + ":" + game_stats[opt][1]
+        update = opt.upper() + " - " + team_away + ":" + str(game_stats[opt][0]) + " " + team_home + ":" + str(game_stats[opt][1])
     else:
         update = ""
 
@@ -436,7 +457,7 @@ def get_game_boxscore(game_info):
             game_info["goals_home"] = str(int(game["homeTeam"]["score"]))
 
             game_info["game_time"] = game["clock"]["timeRemaining"]
-            game_info["game_period"] = get_game_period(game["period"], game["periodDescriptor"]["periodType"])
+            game_info["game_period"] = get_game_period(game["periodDescriptor"]["number"], game["periodDescriptor"]["periodType"])
 
             if game["gameState"] in ["LIVE", "CRIT"]:
                 game_info["game_state"] = "LIVE"
@@ -468,6 +489,11 @@ def get_game_boxscore(game_info):
                     skater_home = skater_home - 1
                 if skater_home > skater_away:
                     game_info["is_pp_home"] = True
+            else:
+                game_info["is_empty_away"] = False
+                game_info["is_empty_home"] = False
+                game_info["is_pp_away"] = False
+                game_info["is_pp_home"] = False
 
             print("  - CACHE: Setting Boxscore for gameid %s" % str(game_info["gameId"]))
             cache.set("game_" + str(game_info["gameId"]) + "_boxscore", json.encode(game_info), ttl_seconds = CACHE_UPDATE_SECONDS)
@@ -540,13 +566,13 @@ def is_game_over(games):
 def get_next_game(currDate, games):
     for game in games["games"]:
         if game["gameDate"] >= currDate and game["gameState"] in ["FUT", "PRE"]:
-            return int(game["awayTeam"]["id"]), int(game["homeTeam"]["id"]), game["startTimeUTC"], game["id"]
-    return None, None, None
+            return int(game["awayTeam"]["id"]), int(game["homeTeam"]["id"]), game["startTimeUTC"], game["id"], game["gameState"]
+    return None, None, None, None, None
 
 def get_current_date(config):
     timezone = get_timezone(config)
     now = time.now().in_location(timezone)
-    today = now.format("2006-1-2").upper()
+    today = now.format("2006-01-02").upper()
     return today
 
 def get_team(config):
@@ -618,7 +644,7 @@ def get_random_team():
     return int(TEAMS_LIST.keys()[rand])
 
 def get_timezone(config):
-    return json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
+    return json.decode(config.get("location") or DEFAULT_LOCATION)["timezone"]
 
 # Schema
 def get_schema():

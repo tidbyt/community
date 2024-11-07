@@ -1,0 +1,6 @@
+---
+id: snakeclock
+name: Snake Clock
+summary: Shows the time and a snake
+desc: Shows the time with a snake slithering around in the background. Every user will see the same snake.
+author: paxos

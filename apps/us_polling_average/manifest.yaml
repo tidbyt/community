@@ -1,0 +1,6 @@
+---
+id: us-polling-average
+name: US PollingAverage
+summary: Election polls from 538
+desc: Shows current polling averages from FiveThirtyEight.
+author: jwoglom

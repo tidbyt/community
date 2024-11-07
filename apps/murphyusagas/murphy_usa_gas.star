@@ -14,7 +14,9 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23137
+VERSION = 23215
+
+# 20240802 - added code to handle widget mode and give single static screen
 
 # #######################################################
 # #####           Demo / Test Data                 ######
@@ -51,6 +53,7 @@ DEBUG = False
 # #####           Where all the magic happens      ######
 # #######################################################
 def main(config):
+    widgetMode = config.bool("$widget")
     gas_data = get_gas_data(config)
 
     labels, prices = get_price_display(gas_data, config)
@@ -62,7 +65,7 @@ def main(config):
                 render.Marquee(
                     width = 64,
                     child = render.Text(gas_data["station"], color = "#0073A6"),
-                ),
+                ) if not widgetMode else render.Text(gas_data["storeNum"], color = "#0073A6"),
                 render.Row(
                     children = [
                         render.Column(
@@ -176,6 +179,7 @@ def get_gas_data(config):
     gas_data = {}
 
     gas_data["station"] = "{} #{} - {} ({}, {})".format(station_data.get("chainName", "ERROR"), station_data.get("storeNumber", "ERROR"), station_data.get("address", ""), station_data.get("city", ""), station_data.get("state", ""))
+    gas_data["storeNum"] = "Murphy #{}".format(station_data.get("storeNumber", "ERROR"))
     gas_data["openText"] = station_data[today_dow + "Open"][:-1].lower()
     gas_data["closeText"] = station_data[today_dow + "Close"][:-1].lower()
 

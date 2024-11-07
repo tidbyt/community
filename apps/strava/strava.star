@@ -155,7 +155,7 @@ def main(config):
 
 def progress_chart(config, refresh_token, sport, units):
     show_logo = config.bool("show_logo", True)
-    no_anim = config.bool("no_anim", False)
+    no_anim = config.bool("no_anim", False) or config.bool("$widget")
 
     distance_conv = meters_to_mi
     if units == "metric":
@@ -397,7 +397,7 @@ def progress_chart(config, refresh_token, sport, units):
     )
 
 def athlete_stats(config, refresh_token, period, sport, units):
-    no_anim = config.bool("no_anim", False)
+    no_anim = config.bool("no_anim", False) or config.bool("$widget")
     timezone = config.get("timezone") or "America/New_York"
     year = time.now().in_location(timezone).year
 
@@ -595,7 +595,7 @@ def athlete_stats(config, refresh_token, period, sport, units):
 
 def last_activity(config, refresh_token, sport, units):
     show_logo = config.bool("show_logo", True)
-    no_anim = config.bool("no_anim", True)
+    no_anim = config.bool("no_anim", True) or config.bool("$widget")
     title_font = "CG-pixel-3x5-mono"
 
     if units == "metric":

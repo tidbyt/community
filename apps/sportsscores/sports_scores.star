@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20231125 RIS
+#Last Modified 20231213 RIS
 
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -633,14 +633,17 @@ def get_nhlgames(today_str):
             if game["periodDescriptor"].get("otPeriods"):
                 periodType = str(int(game["periodDescriptor"]["otPeriods"])) + periodType
 
-            # period_num = int(game["period"])
+            #there is probably a better way to do this, but works for now as a quick patch
+            period_num = int(game["period"])
+            if period_num > 3:
+                period = periodType
 
             period_T = game["clock"]["timeRemaining"]
             if game["clock"]["inIntermission"]:
                 period_T = "END"
 
             #if period_T == "Final":
-            if status == "OFF":
+            if status in ["OFF", "FINAL"]:
                 if period == "3rd":
                     status_txt = "F"
                 else:
@@ -653,6 +656,8 @@ def get_nhlgames(today_str):
                     stats_tmp["highlight"] = "home"
                 else:  #no ties in hockey, but here for completion
                     pass  #this case should never happen as ties in hockey aren't a thing, but here for completion
+
+                #elif period>4:
             else:
                 status_txt = period_T + "/" + period  #switch status and period here so time doesn't get cutoff
         else:  #this is a safety net
