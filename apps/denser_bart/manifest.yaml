@@ -1,0 +1,6 @@
+---
+id: denser-bart
+name: Denser BART
+summary: Shows more BART routes
+desc: Like the official BART applet but shows up to 8 routes for a station.
+author: scoobmx

@@ -175,6 +175,7 @@ def main(config):
 
     return render.Root(
         delay = delay,
+        max_age = 120,
         show_full_animation = True,
         child = render.Animation(children = frames),
     )

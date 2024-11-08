@@ -183,13 +183,15 @@ def main(config):
         "year_progress": year_progress,
     }
 
+    widgetMode = config.bool("$widget")
+
     return render.Root(
         delay = 32,  # 30 fps
         child = render.Box(
             child = render.Animation(
                 children = [
                     get_frame(state, fr, config)
-                    for fr in range(300)
+                    for fr in range(0 if not widgetMode else 299, 300)
                 ],
             ),
         ),

@@ -70,6 +70,9 @@ v1.12
 Updated box sizes to show "WO" for walkovers
 Final of tournament now indicated for scheduled, completed and in progress final
 Found bug that was showing incorrect winner for matches where there was a retirement during a set
+
+v1.13
+Only show players if both names are listed in the scheduled match, prevents blank rows from appearing
 """
 
 load("encoding/json.star", "json")
@@ -255,11 +258,20 @@ def main(config):
                     for y in range(0, len(ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"]), 1):
                         # if the match is scheduled ("pre") and the start time of the match is scheduled for next 12 hrs, add it to the list of scheduled matches
                         if ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["state"] == "pre":
-                            MatchTime = ATP_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
-                            MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
-                            diff = MatchTime - now
-                            if diff.hours < 12:
-                                ScheduledMatchList.insert(0, y)
+                            P1Name = ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][0]["athlete"]["shortName"]
+                            P2Name = ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][1]["athlete"]["shortName"]
+
+                            if P1Name != "TBD" and P2Name != "TBD":
+                                MatchTime = ATP_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
+                                MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
+                                diff = MatchTime - now
+                                if diff.hours < 12:
+                                    ScheduledMatchList.insert(0, y)
+                                else:
+                                    # once we go past 12hrs break out from loop
+                                    break
+                            else:
+                                continue
 
         # if there are more than 2 matches completed in past 24hrs, then we'll need to show them across multiple screens
         if len(ScheduledMatchList) > 0:
@@ -876,7 +888,7 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
     Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = TitleFontColor, font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
-    # loop through the list of completed matches
+    # loop through the list of scheduled matches
     for y in range(0, len(ScheduledMatchList), 1):
         # lint being a pain, so...
         y = y

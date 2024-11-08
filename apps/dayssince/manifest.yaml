@@ -1,0 +1,6 @@
+---
+id: days-since
+name: Days Since
+summary: Days since last incident
+desc: Displays the number of days since the incident supplied in the free text box. Default is the Noodle Incident from Calvin & Hobbes.
+author: Drew Tschetter
