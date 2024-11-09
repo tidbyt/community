@@ -6,10 +6,9 @@ Author: J. Alex Cooney
 """
 
 load("encoding/base64.star", "base64")
-load("math.star", "math")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("time.star", "time")
-load("humanize.star","humanize")
 
 # Load Turkey icon from base64 encoded data
 TRK_ICON = base64.decode("""
@@ -17,32 +16,30 @@ R0lGODlhIAAgAPcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 """)
 
 def main(config):
-
     def getthanksgivingday(year):
-        nov30 = time.time(year = year,month = 11,day = 30,location = timezone)
+        nov30 = time.time(year = year, month = 11, day = 30, location = timezone)
         day_of_week = humanize.day_of_week(nov30)
         calc = day_of_week - 4
         if calc > 0:
             day = 30 - calc
         else:
             day = 30 - (calc + 7)
-        
+
         return day
-        
+
     timezone = config.get("timezone") or "America/New_York"
-    now = time.time(year = time.now().year,month = time.now().month,day = time.now().day,location = timezone)
+    now = time.time(year = time.now().year, month = time.now().month, day = time.now().day, location = timezone)
 
     day = getthanksgivingday(now.year)
-    thanksgiving_day = time.time(year = now.year,month = 11,day = day,location = timezone)
+    thanksgiving_day = time.time(year = now.year, month = 11, day = day, location = timezone)
     if now >= thanksgiving_day:
         next_year = now.year + 1
         day = getthanksgivingday(next_year)
-        thanksgiving_day = time.time(year = next_year,month = 11,day = day,location = timezone)
-    
-    diff =  thanksgiving_day - now
+        thanksgiving_day = time.time(year = next_year, month = 11, day = day, location = timezone)
+
+    diff = thanksgiving_day - now
     diff_days = abs(int(diff.hours / 24))
     days_til_thanksgiving = diff_days
-
 
     return render.Root(
         delay = 1000,
