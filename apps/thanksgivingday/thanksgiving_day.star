@@ -20,7 +20,7 @@ def main(config):
         nov30 = time.time(year = year, month = 11, day = 30, location = timezone)
         day_of_week = humanize.day_of_week(nov30)
         calc = day_of_week - 4
-        if calc > 0:
+        if calc >= 0:
             day = 30 - calc
         else:
             day = 30 - (calc + 7)
