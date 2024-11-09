@@ -30,7 +30,10 @@ def main(config):
     thanksgiving_day = time.time(year = now.year,month = 11,day = day,location = timezone)
     diff =  thanksgiving_day - now
     diff_days = abs(int(diff.hours / 24))
-    days_til_thanksgiving = diff_days + 1
+    if now < thanksgiving_day:
+        days_til_thanksgiving = diff_days + 1
+    else:
+        days_til_thanksgiving = 365 - (diff_days + 1)
 
     return render.Root(
         delay = 1000,
