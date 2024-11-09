@@ -153,22 +153,22 @@ def vrm_api(url, token, ttl_seconds):
 
     return res.json()
 
-    def get_schema():
-        return schema.Schema(
-            version = "1",
-            fields = [
-                schema.Text(
-                    id = "token",
-                    name = "VRM API Token",
-                    desc = "Please provide your API token to access VRM",
-                    icon = "user",
-                ),
-                schema.Text(
-                    id = "installation_index",
-                    name = "Installation Index",
-                    desc = "This is which installation you would like to be shown (if you have more than one installation on your account).  Defaults to 0",
-                    icon = "layerGroup",
-                    default = "0",
-                ),
-            ],
-        )
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Text(
+                id = "token",
+                name = "VRM API Token",
+                desc = "Please provide your API token to access VRM",
+                icon = "user",
+            ),
+            schema.Text(
+                id = "installation_index",
+                name = "Installation Index",
+                desc = "This is which installation you would like to be shown (if you have more than one installation on your account).  Defaults to 0",
+                icon = "layerGroup",
+                default = "0",
+            ),
+        ],
+    )
