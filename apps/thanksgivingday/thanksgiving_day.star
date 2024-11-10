@@ -24,6 +24,8 @@ def main(config):
     thanksgiving_day = math.ceil(28 - (5 + now.year + now.year / 4 - now.year / 100 + now.year / 400) % 7)
     if thanksgiving_year == 2024:
         thanksgiving_day = 28
+    elif thanksgiving_year == 2025:
+        thanksgiving_day = 27
 
     if 11 == now.month:
         if 0 > thanksgiving_day - now.day:
@@ -32,9 +34,11 @@ def main(config):
     if now.month > 11:
         thanksgiving_year = now.year + 1
 
-    thanksgiving = time.time(year = thanksgiving_year, month = 11, day = math.ceil(28 - (5 + now.year + now.year / 4 - now.year / 100 + now.year / 400) % 7), hour = 0, minute = 0, location = timezone)
+    thanksgiving = time.time(year = thanksgiving_year, month = 11, day = thanksgiving_day, hour = 0, minute = 0, location = timezone)
 
+    print(thanksgiving)
     days_til_thanksgiving = math.ceil(time.parse_duration(thanksgiving - now).seconds / 86400)
+    print(days_til_thanksgiving)
 
     return render.Root(
         delay = 1000,
