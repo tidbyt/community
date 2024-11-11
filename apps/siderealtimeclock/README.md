@@ -12,7 +12,7 @@ No APIs are used by this app, all the calculations happen inside the app itself 
 
 The app supports many configuration options. Since this is a geolocation based service, the user needs to provide a location via the `Location` schema field.
 
-There are options to display the time using a blinking colon, to use 24h notation and to also display the local (standard) time along with the solar time. All colors are also configurable.
+There are options to display the time using a blinking colon, to use 24h notation and to also display the local (standard) time along with the sidereal time. All colors are also configurable.
 
 ## Future Improvements
 
