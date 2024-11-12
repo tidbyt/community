@@ -1161,7 +1161,7 @@ def main(config):
 
     #Add rank insignia if it exists
     if imageWidth > 0:
-        children.append(render.Image(selectedImage, height = imageHeight, width = imageWidth),)
+        children.append(render.Image(selectedImage, height = imageHeight, width = imageWidth))
 
     #Add Rank text display
     children.append(
@@ -1169,7 +1169,9 @@ def main(config):
             render.Marquee(
                 width = textWidth,
                 child = render.Text(selectedRank["name"], font = "CG-pixel-4x5-mono"),
-            ),64 - textWidth)
+            ),
+            64 - textWidth,
+        ),
     )
 
     #Add Name
@@ -1182,7 +1184,10 @@ def main(config):
                 width = textWidth if imageHeight > 10 else 64,
                 child = render.Text((config.str("myName", "")), font = "6x13"),
                 offset_start = len(selectedRank["name"]) * 5,
-            ),name_left_offset, 6)
+            ),
+            name_left_offset,
+            6,
+        ),
     )
 
     #Add Service
@@ -1191,8 +1196,8 @@ def main(config):
     service_left_offset = 64 - textWidth if imageHeight > 20 else 1
 
     #but if the service name is short enough to not scroll, let's put it under the name and rank
-    if len(branch)*5 < 32 - service_left_offset:
-        service_left_offset = 64 - textWidth 
+    if len(branch) * 5 < 32 - service_left_offset:
+        service_left_offset = 64 - textWidth
 
     children.append(
         add_padding_to_child_element(
@@ -1200,13 +1205,15 @@ def main(config):
                 width = textWidth if imageHeight > 20 else 64,
                 child = render.Text(branch, font = "CG-pixel-4x5-mono"),
                 offset_start = (len(selectedRank["name"]) + len(config.str("myName", ""))) * 5,
-            ), service_left_offset, 32-5
-        )
+            ),
+            service_left_offset,
+            32 - 5,
+        ),
     )
 
     return render.Root(
         child = render.Stack(
-            children = children
+            children = children,
         ),
         show_full_animation = True,
         delay = int(config.get("scroll", 45)),
