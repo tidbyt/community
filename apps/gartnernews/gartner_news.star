@@ -32,8 +32,8 @@ def main(config):
     if gartner_xml.status_code == 200:
         xml_body = gartner_xml.body()
         number_of_items = xml_body.count("<item>")
-
     else:
+        xml_body = None
         number_of_items = 0
 
     if number_of_items == 0:
