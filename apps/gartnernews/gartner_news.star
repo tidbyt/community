@@ -5,7 +5,6 @@ Description: Display Gartner News Feed.
 Author: Robert Ison
 """
 
-load("cache.star", "cache")  #Caching
 load("encoding/base64.star", "base64")  #Used to read encoded image
 load("http.star", "http")  #HTTP Client
 load("render.star", "render")
