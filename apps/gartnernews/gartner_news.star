@@ -59,8 +59,6 @@ def main(config):
             else:
                 display_text[marquee_row] = "%s - %s" % (display_text[marquee_row], current_title)
 
-            print(display_text)
-
     return render.Root(
         render.Column(
             children = [
