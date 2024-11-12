@@ -24,23 +24,18 @@ def main(config):
         The display inforamtion for the Tidbyt
     """
     GARTNER_RSS_URL = "https://www.gartner.com/en/newsroom/rss"
+
     number_of_items = 0
     seconds_xml_valid_for = 6 * 60 * 60  #6 hours
 
-    xml_body = cache.get(GARTNER_RSS_URL)
-    if xml_body == None:
-        gartner_xml = http.get(GARTNER_RSS_URL, headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36", "Accept": "text/html"})
+    gartner_xml = http.get(GARTNER_RSS_URL, headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.1", "Accept": "text/html,application/xhtml+xml,application/xml"}, ttl_seconds = seconds_xml_valid_for)
 
-        if gartner_xml.status_code == 200:
-            xml_body = gartner_xml.body()
-            number_of_items = xml_body.count("<item>")
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(GARTNER_RSS_URL, xml_body, ttl_seconds = seconds_xml_valid_for)
-        else:
-            number_of_items = 0
-    else:
+    if gartner_xml.status_code == 200:
+        xml_body = gartner_xml.body()
         number_of_items = xml_body.count("<item>")
+
+    else:
+        number_of_items = 0
 
     if number_of_items == 0:
         return []
@@ -53,11 +48,7 @@ def main(config):
             current_query = "//item[" + str(i) + "]/title"
             current_title = xpath.loads(xml_body).query(current_query)
             current_query = "//item[" + str(i) + "]/pubDate"
-            #current_pub_date = xpath.loads(xml_body).query(current_query)
-            #current_date = get_pub_date(current_pub_date, timezone)
 
-            #current_item_time = time.parse_time(current_time_stamp).in_location(timezone) + get_local_offset(config)
-            #date_diff = get_local_time(config) - current_date
             if len(display_text[marquee_row]) + len(current_title) > text_limit:
                 if marquee_row < len(display_text) - 1:
                     marquee_row = marquee_row + 1
@@ -68,6 +59,8 @@ def main(config):
                 display_text[marquee_row] = current_title
             else:
                 display_text[marquee_row] = "%s - %s" % (display_text[marquee_row], current_title)
+
+            print(display_text)
 
     return render.Root(
         render.Column(
@@ -136,7 +129,7 @@ def get_schema():
                 id = "scroll",
                 name = "Scroll",
                 desc = "Scroll Speed",
-                icon = "stopwatch",
+                icon = "scroll",
                 options = scroll_speed_options,
                 default = scroll_speed_options[0].value,
             ),
