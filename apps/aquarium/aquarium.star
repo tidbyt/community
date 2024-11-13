@@ -183,10 +183,12 @@ def get_frames(water_color):
 
     for i in range(SCREEN_WIDTH + (widest_fish_length * 2)):
         children = []
+
         #water
         children.append(render.Box(color = water_color, width = SCREEN_WIDTH, height = SCREEN_HEIGHT))
-        #base sand layer - 
-        children.append(add_padding_to_child_element(render.Box(color = sand_color, width = SCREEN_WIDTH, height = 1),0,SCREEN_HEIGHT - 2))
+
+        #base sand layer -
+        children.append(add_padding_to_child_element(render.Box(color = sand_color, width = SCREEN_WIDTH, height = 1), 0, SCREEN_HEIGHT - 2))
         children.append(add_padding_to_child_element(render.Image(src = base64.decode(random_ocean_floor[1]["image"])), second_offset, SCREEN_HEIGHT - random_ocean_floor[1]["height"]))
 
         for f in range(number_of_fish_to_display):
@@ -196,8 +198,8 @@ def get_frames(water_color):
         children.append(add_padding_to_child_element(render.Image(src = base64.decode(random_ocean_floor[2]["image"])), third_offset, SCREEN_HEIGHT - random_ocean_floor[2]["height"]))
 
         #base sand layer
-        children.append(add_padding_to_child_element(render.Box(color = sand_color, width = SCREEN_WIDTH, height = 1),0,SCREEN_HEIGHT - 1))
-        
+        children.append(add_padding_to_child_element(render.Box(color = sand_color, width = SCREEN_WIDTH, height = 1), 0, SCREEN_HEIGHT - 1))
+
         frame = render.Stack(
             children = children,
         )
