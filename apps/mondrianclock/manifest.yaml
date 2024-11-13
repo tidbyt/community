@@ -1,0 +1,8 @@
+---
+id: mondrianclock
+name: Mondrian Clock
+summary: Mondrian-inspired clock
+desc: Displays a Piet Mondrian inspired clock face, De Stijl.
+author: @theredwillow
+fileName: mondrianclock.star
+packageName: mondrianclock
