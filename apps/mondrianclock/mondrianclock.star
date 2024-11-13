@@ -6,8 +6,8 @@ Author: @theredwillow
 """
 
 load("render.star", "render")
-load("time.star", "time")
 load("schema.star", "schema")
+load("time.star", "time")
 
 DEFAULT_TIMEZONE = "America/Chicago"
 
