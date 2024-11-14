@@ -21,7 +21,6 @@ GRAY = "#808080"
 black_outline_block = render.Box(width = 2, height = 2, color = BLACK)
 
 def draw_hour(hour, minute, show_clock):
-
     def draw_no_hour_block():
         return render.Box(width = 4, height = 20, color = WHITE)
 
