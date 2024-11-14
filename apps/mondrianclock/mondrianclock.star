@@ -21,7 +21,6 @@ GRAY = "#808080"
 black_outline_block = render.Box(width = 2, height = 2, color = BLACK)
 
 def draw_hour(hour, minute, show_clock):
-    hour_blocks = []
 
     def draw_no_hour_block():
         return render.Box(width = 4, height = 20, color = WHITE)
@@ -73,67 +72,93 @@ def draw_hour(hour, minute, show_clock):
         return red_block
 
     if hour == 0:
-        hour_blocks.append(draw_no_hour_block())
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_red_block(0))
+        hour_blocks = [
+            draw_no_hour_block(),
+            black_outline_block,
+            draw_red_block(0),
+        ]
     elif hour == 1:
-        hour_blocks.append(draw_one_hour_block())
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_red_block(1))
+        hour_blocks = [
+            draw_one_hour_block(),
+            black_outline_block,
+            draw_red_block(1),
+        ]
     elif hour == 2:
-        hour_blocks.append(draw_two_hour_block())
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_red_block(1))
+        hour_blocks = [
+            draw_two_hour_block(),
+            black_outline_block,
+            draw_red_block(1),
+        ]
     elif hour == 3:
-        hour_blocks.append(draw_three_hour_block())
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_red_block(1))
+        hour_blocks = [
+            draw_three_hour_block(),
+            black_outline_block,
+            draw_red_block(1),
+        ]
     elif hour == 4:
-        hour_blocks.append(draw_three_hour_block())
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_one_hour_block())
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_red_block(2))
+        hour_blocks = [
+            draw_three_hour_block(),
+            black_outline_block,
+            draw_one_hour_block(),
+            black_outline_block,
+            draw_red_block(2),
+        ]
     elif hour == 5:
-        hour_blocks.append(draw_three_hour_block())
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_two_hour_block())
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_red_block(2))
+        hour_blocks = [
+            draw_three_hour_block(),
+            black_outline_block,
+            draw_two_hour_block(),
+            black_outline_block,
+            draw_red_block(2),
+        ]
     elif hour == 6:
-        hour_blocks.append(draw_red_block(0))
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_no_hour_block())
+        hour_blocks = [
+            draw_red_block(0),
+            black_outline_block,
+            draw_no_hour_block(),
+        ]
     elif hour == 7:
-        hour_blocks.append(draw_red_block(1))
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_one_hour_block())
+        hour_blocks = [
+            draw_red_block(1),
+            black_outline_block,
+            draw_one_hour_block(),
+        ]
     elif hour == 8:
-        hour_blocks.append(draw_red_block(1))
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_two_hour_block())
+        hour_blocks = [
+            draw_red_block(1),
+            black_outline_block,
+            draw_two_hour_block(),
+        ]
     elif hour == 9:
-        hour_blocks.append(draw_red_block(1))
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_three_hour_block())
+        hour_blocks = [
+            draw_red_block(1),
+            black_outline_block,
+            draw_three_hour_block(),
+        ]
     elif hour == 10:
-        hour_blocks.append(draw_red_block(2))
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_three_hour_block())
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_one_hour_block())
+        hour_blocks = [
+            draw_red_block(2),
+            black_outline_block,
+            draw_three_hour_block(),
+            black_outline_block,
+            draw_one_hour_block(),
+        ]
     elif hour == 11:
-        hour_blocks.append(draw_red_block(2))
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_three_hour_block())
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_two_hour_block())
+        hour_blocks = [
+            draw_red_block(2),
+            black_outline_block,
+            draw_three_hour_block(),
+            black_outline_block,
+            draw_two_hour_block(),
+        ]
     else:
-        hour_blocks.append(draw_red_block(2))
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_three_hour_block())
-        hour_blocks.append(black_outline_block)
-        hour_blocks.append(draw_three_hour_block())
+        hour_blocks = [
+            draw_red_block(2),
+            black_outline_block,
+            draw_three_hour_block(),
+            black_outline_block,
+            draw_three_hour_block(),
+        ]
 
     return render.Row(
         children = hour_blocks,
@@ -195,24 +220,43 @@ def draw_minute_left(minute):
     )
 
 def draw_minute_right(minute):
-    modulus = minute % 5
+    minute %= 5
     return render.Row(
         children = [
-            render.Box(width = 7, height = 10, color = YELLOW if modulus == 0 else WHITE),
+            render.Box(width = 7, height = 10, color = YELLOW if minute == 0 else WHITE),
             black_outline_block,
             render.Column(
                 children = [
-                    render.Box(width = 4, height = 4, color = YELLOW if modulus == 1 else WHITE),
+                    render.Box(width = 4, height = 4, color = YELLOW if minute == 1 else WHITE),
                     black_outline_block,
-                    render.Box(width = 4, height = 4, color = YELLOW if modulus == 3 else WHITE),
+                    render.Box(width = 4, height = 4, color = YELLOW if minute == 3 else WHITE),
                 ],
             ),
             black_outline_block,
             render.Column(
                 children = [
-                    render.Box(width = 4, height = 4, color = YELLOW if modulus == 2 else WHITE),
+                    render.Box(width = 4, height = 4, color = YELLOW if minute == 2 else WHITE),
                     black_outline_block,
-                    render.Box(width = 4, height = 4, color = YELLOW if modulus == 4 else WHITE),
+                    render.Box(width = 4, height = 4, color = YELLOW if minute == 4 else WHITE),
+                ],
+            ),
+        ],
+    )
+
+def draw_clock(hour, minute, show_clock):
+    return render.Column(
+        children = [
+            draw_hour(hour, minute, show_clock),
+            render.Row(
+                children = [
+                    render.Box(width = 10, height = 2, color = BLACK),
+                ],
+                expanded = True,
+            ),
+            render.Row(
+                children = [
+                    draw_minute_left(minute),
+                    draw_minute_right(minute),
                 ],
             ),
         ],
@@ -231,25 +275,9 @@ def main(config):
 
     # if config.get("minute"):
     #     minute = int(config.get("minute"))
-    show_clock = config.bool("clock", False)
+    show_clock = config.bool("clock", True)
     return render.Root(
-        child = render.Column(
-            children = [
-                draw_hour(hour, minute, show_clock),
-                render.Row(
-                    children = [
-                        render.Box(width = 10, height = 2, color = BLACK),
-                    ],
-                    expanded = True,
-                ),
-                render.Row(
-                    children = [
-                        draw_minute_left(minute),
-                        draw_minute_right(minute),
-                    ],
-                ),
-            ],
-        ),
+        child = draw_clock(hour, minute, show_clock),
     )
 
 def get_schema():
