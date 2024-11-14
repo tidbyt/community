@@ -1,17 +1,17 @@
 """
-Applet: Bluesky Stats
-Summary: Display Bluesky statistics
-Description: Display Bluesky statistics like the total number of users. Data courtesy of https://bsky.jazco.dev/stats.
+Applet: Bluesky Users
+Summary: Display Bluesky user count
+Description: Display the total number of users on the Bluesky social network. Data courtesy of https://bsky-users.theo.io.
 Author: Daniel Sitnik
 """
 
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("humanize.star", "humanize")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 
-DEFAULT_STAT = "total_users"
 DEFAULT_STAT_COLOR = "#3a83f7"
 DEFAULT_DOT_SEPARATOR = False
 CACHE_TTL = 900
@@ -29,12 +29,12 @@ def main(config):
         render.Root: Root widget tree.
     """
 
-    stat = config.str("stat", DEFAULT_STAT)
+    # read config values
     number_color = config.str("number_color", DEFAULT_STAT_COLOR)
     dot_separator = config.bool("dot_separator", DEFAULT_DOT_SEPARATOR)
 
     # get data
-    res = http.get("https://bsky-search.jazco.io/stats", ttl_seconds = CACHE_TTL)
+    res = http.get("https://bsky-users.theo.io/api/stats", ttl_seconds = CACHE_TTL)
 
     # handle errors
     if res.status_code != 200:
@@ -44,18 +44,19 @@ def main(config):
     # transform to json
     data = res.json()
 
-    # get humanized (comma separator) stat value
-    stat_value = humanize.comma(int(data[stat]))
+    # read data properties
+    user_count = data["last_user_count"]
+    growth_per_second = math.ceil(data["growth_per_second"])
 
-    # build stat name (just removes "total_" from the stat variables)
-    stat_name = stat.replace("total_", "")
+    # render frames to represent user count increase
+    frames = render_frames(user_count, growth_per_second, number_color, dot_separator)
 
-    # check and reformat to use dot separator
-    if dot_separator:
-        stat_value = stat_value.replace(",", ".")
+    # calculate frame delay to display all frames in 15 seconds
+    delay = math.ceil(15000 / len(frames))
 
     # render display
     return render.Root(
+        delay = delay,
         child = render.Box(
             color = "#000000",
             child = render.Column(
@@ -73,12 +74,44 @@ def main(config):
                             render.Text("Bluesky", font = "Dina_r400-6"),
                         ],
                     ),
-                    render.Text(stat_value, color = number_color),
-                    render.Text(stat_name, color = "#afbac7", font = "tom-thumb"),
+                    render.Animation(
+                        children = frames,
+                    ),
+                    render.Text("users", color = "#afbac7", font = "tom-thumb"),
                 ],
             ),
         ),
     )
+
+def render_frames(user_count, growth_per_second, number_color, dot_separator):
+    """Renders the frames for a animation representing the user count increase.
+
+    Args:
+        user_count (int): Current number of users.
+        growth_per_second (float): User growth rate per second.
+        number_color (str): Color used to format the user count number.
+        dot_separator (bool): Indicates if dot should be used as thousands separator.
+
+    Returns:
+        list: List of frames.
+    """
+    frames = []
+
+    # calculates how many users we would have after 15 seconds with the current growth rate
+    last_user_count = int(user_count + growth_per_second * 15)
+
+    # diff between final and current count
+    count_diff = int(last_user_count - user_count)
+
+    # create frames
+    for _ in range(count_diff):
+        frame_text = humanize.comma(int(user_count))
+        if dot_separator:
+            frame_text = frame_text.replace(",", ".")
+        frames.append(render.Text(frame_text, color = number_color))
+        user_count += 1
+
+    return frames
 
 def get_schema():
     """Creates the schema for the configuration screen.
@@ -87,28 +120,13 @@ def get_schema():
         schema.Schema: The schema for the configuration screen.
     """
 
-    stats = [
-        schema.Option(display = "Total Users", value = DEFAULT_STAT),
-        schema.Option(display = "Total Posts", value = "total_posts"),
-        schema.Option(display = "Total Follows", value = "total_follows"),
-        schema.Option(display = "Total Likes", value = "total_likes"),
-    ]
-
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Dropdown(
-                id = "stat",
-                name = "Statistic",
-                desc = "Select the statistic you want to view.",
-                icon = "hashtag",
-                options = stats,
-                default = stats[0].value,
-            ),
             schema.Color(
                 id = "number_color",
                 name = "Number color",
-                desc = "The color of the statistic number.",
+                desc = "The color of the user count number.",
                 icon = "brush",
                 default = DEFAULT_STAT_COLOR,
                 palette = [DEFAULT_STAT_COLOR],
@@ -116,7 +134,7 @@ def get_schema():
             schema.Toggle(
                 id = "dot_separator",
                 name = "Dot separator",
-                desc = "Use dot as thousands separator.",
+                desc = "Use dots as thousands separator.",
                 icon = "circleDot",
                 default = DEFAULT_DOT_SEPARATOR,
             ),
