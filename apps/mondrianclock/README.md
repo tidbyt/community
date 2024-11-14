@@ -95,7 +95,7 @@ Hr: 8 = Red / White column of 2
 
 Hr: 9 = Red / White column of 3
 
-5m: 1 (past 30) = Blue box reaches 1st tick mark, more than or (equal to) 30 so bottom row
+5m: 1 (past 30) = Blue box reaches 1st tick mark, more than (or equal to) 30 so bottom row
 
 1m: 0 = Big box is yellow
 
@@ -103,7 +103,7 @@ Hr: 9 = Red / White column of 3
 
 Hr: 10 = Red / White column of 3 / White column of 1
 
-5m: 2 (past 30) = Blue box reaches 2nd tick mark, more than or (equal to) 30 so bottom row
+5m: 2 (past 30) = Blue box reaches 2nd tick mark, more than (or equal to) 30 so bottom row
 
 1m: 0 = Big box is yellow
 
@@ -111,7 +111,7 @@ Hr: 10 = Red / White column of 3 / White column of 1
 
 Hr: 11 = Red / White column of 3 / White column of 2
 
-5m: 3 (past 30) = Blue box reaches 3rd tick mark (just before the quarter marking grey box), more than or (equal to) 30 so bottom row
+5m: 3 (past 30) = Blue box reaches 3rd tick mark (just before the quarter marking grey box), more than (or equal to) 30 so bottom row
 
 1m: 0 = Big box is yellow
 
