@@ -19,7 +19,7 @@ There is a one minute mark in the bottom right. If the big one is yellow, it mea
 ### Walk-through
 Below I have included 12 images that I believe will help you understand how to read the clock better.
 
-![12:00](tutorial-images/12_00.webp)
+![12:00](tutorial-images/12_00.jpg)
 
 Hr: 0 = Thin white column / Red
 
@@ -27,7 +27,7 @@ Hr: 0 = Thin white column / Red
 
 1m: 0 = Big box is yellow
 
-![1:01](tutorial-images/01_01.webp)
+![1:01](tutorial-images/01_01.jpg)
 
 Hr: 1 = White column of 1 / Red
 
@@ -35,7 +35,7 @@ Hr: 1 = White column of 1 / Red
 
 1m: 1 = Top left box is yellow
 
-![2:02](tutorial-images/02_02.webp)
+![2:02](tutorial-images/02_02.jpg)
 
 Hr: 2 = White column of 2 / Red
 
@@ -43,7 +43,7 @@ Hr: 2 = White column of 2 / Red
 
 1m: 2 = Top right box is yellow
 
-![3:03](tutorial-images/03_03.webp)
+![3:03](tutorial-images/03_03.jpg)
 
 Hr: 3 = White column of 3 / Red
 
@@ -51,7 +51,7 @@ Hr: 3 = White column of 3 / Red
 
 1m: 3 = Bottom left box is yellow
 
-![4:04](tutorial-images/04_04.webp)
+![4:04](tutorial-images/04_04.jpg)
 
 Hr: 4 = White column of 3 / White column of 1 / Red
 
@@ -59,7 +59,7 @@ Hr: 4 = White column of 3 / White column of 1 / Red
 
 1m: 4 = Bottom right box is yellow
 
-![5:05](tutorial-images/05_05.webp)
+![5:05](tutorial-images/05_05.jpg)
 
 Hr: 5 = White column of 3 / White column of 2 / Red
 
@@ -67,7 +67,7 @@ Hr: 5 = White column of 3 / White column of 2 / Red
 
 1m: 0 = Big box is yellow
 
-![6:15](tutorial-images/06_15.webp)
+![6:15](tutorial-images/06_15.jpg)
 
 Hr: 6 = Red / Thin white column
 
@@ -75,7 +75,7 @@ Hr: 6 = Red / Thin white column
 
 1m: 0 = Big box is yellow
 
-![7:25](tutorial-images/07_25.webp)
+![7:25](tutorial-images/07_25.jpg)
 
 Hr: 7 = Red / White column of 1
 
@@ -83,7 +83,7 @@ Hr: 7 = Red / White column of 1
 
 1m: 0 = Big box is yellow
 
-![8:30](tutorial-images/08_30.webp)
+![8:30](tutorial-images/08_30.jpg)
 
 Hr: 8 = Red / White column of 2
 
@@ -91,7 +91,7 @@ Hr: 8 = Red / White column of 2
 
 1m: 0 = Big box is yellow
 
-![9:35](tutorial-images/09_35.webp)
+![9:35](tutorial-images/09_35.jpg)
 
 Hr: 9 = Red / White column of 3
 
@@ -99,7 +99,7 @@ Hr: 9 = Red / White column of 3
 
 1m: 0 = Big box is yellow
 
-![10:40](tutorial-images/10_40.webp)
+![10:40](tutorial-images/10_40.jpg)
 
 Hr: 10 = Red / White column of 3 / White column of 1
 
@@ -107,7 +107,7 @@ Hr: 10 = Red / White column of 3 / White column of 1
 
 1m: 0 = Big box is yellow
 
-![11:45](tutorial-images/11_45.webp)
+![11:45](tutorial-images/11_45.jpg)
 
 Hr: 11 = Red / White column of 3 / White column of 2
 
