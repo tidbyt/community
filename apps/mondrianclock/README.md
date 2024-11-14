@@ -115,5 +115,11 @@ Hr: 11 = Red / White column of 3 / White column of 2
 
 1m: 0 = Big box is yellow
 
+## What Would Mondrian Think?
+
+Piet Mondrian was deeply influenced by theosophy, a philosophy that sought to understand the underlying spiritual truths of the universe. He believed that art should express universal harmony, reducing the complexity of the natural world to its most basic, balanced forms. His iconic paintings, with their grids of black lines and primary colors, aimed to convey a sense of order and spiritual evolution. By abstracting real-life objects into their simplest elements, Mondrian sought to reveal the hidden harmony that he believed underpinned all of existence.
+
+I imagine that Mondrian would earnestly attempt to interpret these clock faces as metaphysical representations. Perhaps he'd be reminded of his visits to the shores of the North Sea. He might see the hour blocks as a rare red sky evening over the vast expanse of the ocean (five-minute block). The bright, yellow light from the lighthouse (one-minute block) guides the large white ships home, despite the impending void of night. The sailors are moments away from the their small Dutch village, where their families recurrently light their warm, yellow candles in anticipation of their safe arrival home.
+
 ## Like my programming?
 Reach out to me on github [@theredwillow](https://github.com/theredwillow)
