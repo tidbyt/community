@@ -1,6 +1,6 @@
 """
 Applet: Mondrian Clock
-Summary: Mondrian-inspired clock
+Summary: P Mondrian-inspired Clock
 Description: Displays a Piet Mondrian inspired clock face, De Stijl.
 Author: @theredwillow
 """
