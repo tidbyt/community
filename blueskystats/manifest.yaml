@@ -1,0 +1,6 @@
+---
+id: bluesky-stats
+name: Bluesky Stats
+summary: Display Bluesky statistics
+desc: Display Bluesky statistics like the total number of users. Data courtesy of https://bsky.jazco.dev/stats.
+author: Daniel Sitnik
