@@ -68,8 +68,9 @@ def render_digit(digit, font, color):
         render.Image(src = base64.decode(font[int(digit)])),
     ])
 
-def main():
-    now = time.now().in_location("UTC")
+def main(config):
+    timezone = config.get("timezone") or "America/Chicago"
+    now = time.now().in_location(timezone)
     bmt = time.now().in_location("Europe/Zurich")
 
     hours = now.hour % 12 or 12
