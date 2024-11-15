@@ -105,11 +105,49 @@ def render_frames(user_count, growth_per_second, number_color, dot_separator):
 
     # create frames
     for _ in range(count_diff):
-        frame_text = humanize.comma(int(user_count))
-        if dot_separator:
-            frame_text = frame_text.replace(",", ".")
-        frames.append(render.Text(frame_text, color = number_color))
+        # check if user count has reached another million
+        if user_count % 1000000 != 0:
+            # most likely not, so just render the number
+            frame_text = humanize.comma(int(user_count))
+            if dot_separator:
+                frame_text = frame_text.replace(",", ".")
+            frames.append(render.Text(frame_text, color = number_color))
+        else:
+            # reached another million, render frames for a nice flashing animation!
+            frames += render_million(user_count, number_color, dot_separator)
         user_count += 1
+
+    return frames
+
+def render_million(user_count, number_color, dot_separator):
+    """Renders colored frames to show that the user count has reached another million.
+
+    Args:
+        user_count (int): Current number of users.
+        number_color (str): Color used to format the user count number.
+        dot_separator (bool): Indicates if dot should be used as thousands separator.
+
+    Returns:
+        list: List of frames.
+    """
+    frames = []
+
+    frame_text = humanize.comma(int(user_count))
+    if dot_separator:
+        frame_text = frame_text.replace(",", ".")
+
+    # add more frames with rainbow colors
+    for _ in range(8):
+        frames.append(render.Text(frame_text, color = number_color))
+        frames.append(render.Text(frame_text, color = "#ffffff"))
+        frames.append(render.Text(frame_text, color = "#ff0000"))
+        frames.append(render.Text(frame_text, color = "#ff7f00"))
+        frames.append(render.Text(frame_text, color = "#ffff00"))
+        frames.append(render.Text(frame_text, color = "#00ff00"))
+        frames.append(render.Text(frame_text, color = "#0000ff"))
+        frames.append(render.Text(frame_text, color = "#4b0082"))
+        frames.append(render.Text(frame_text, color = "#9400d3"))
+        frames.append(render.Text(frame_text, color = number_color))
 
     return frames
 
@@ -119,7 +157,6 @@ def get_schema():
     Returns:
         schema.Schema: The schema for the configuration screen.
     """
-
     return schema.Schema(
         version = "1",
         fields = [
