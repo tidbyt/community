@@ -27,7 +27,7 @@ def main(config):
 
         return day
 
-    timezone = config.get("timezone") or "America/New_York"
+    timezone = config.get($tz, "America/New_York")
     now = time.time(year = time.now().year, month = time.now().month, day = time.now().day, location = timezone)
 
     day = getthanksgivingday(now.year)
