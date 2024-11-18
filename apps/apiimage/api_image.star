@@ -400,7 +400,7 @@ def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
     if headers != None and headers.get("content-type") != None:
         contentType = headers.get("content-type")
 
-        if contentType.find("json") != -1 or contentType.find("image") != -1 or contentType.find("rss+xml") != -1 or contentType.find("atom+xml") != -1:
+        if contentType.find("json") != -1 or contentType.find("image") != -1 or contentType.find("xml") != -1:
             if contentType.find("json") != -1:
                 contentType = "json"
             elif contentType.find("image") != -1:
