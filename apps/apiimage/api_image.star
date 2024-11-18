@@ -307,6 +307,12 @@ def parse_response_path(output, responsePathStr, debug_output, is_xml = False):
                 output = output.query_all(path_str)
                 if type(output) == "list" and len(output) > 0:
                     output = output[0]
+
+                if type(output) != "string":
+                    failure = True
+                    message = "Response path result not a string, found " + type(output) + " instead."
+                    if debug_output:
+                        print(message)
             else:
                 output = None
 
