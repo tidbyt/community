@@ -42,15 +42,14 @@ def main(config):
             return render_header(servername, [render.WrappedText(content = "Login failed :(")])
         else:
             speeds = get_transfer_speeds(base_url, sid)
-            active_counts = get_active_torrents(base_url, category, sid)    
-            
+            active_counts = get_active_torrents(base_url, category, sid)
+
             if (torrent_count > 0):
                 torrents = get_latest_torrents(base_url, category, sid, torrent_count)
                 if not speeds or not active_counts or not torrents:
                     return render_header(servername, [render.WrappedText(content = "Failed to get data")])
             else:
                 torrents = None
-
 
             # Get pages frames for the list of torrents.
             pages = [[get_stats_frame(speeds, active_counts)] * 30]
