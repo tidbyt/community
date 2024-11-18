@@ -129,7 +129,7 @@ def get_image(api_url, base_url, response_path, request_headers, debug_output, f
                             print("Decoded JSON: " + outputStr)
 
                 if failure == False:
-                    if output_type == "json" and response_path != "":
+                    if output_type == "json":
                         failure = True
 
                         # Parse response path for JSON
@@ -167,7 +167,7 @@ def get_image(api_url, base_url, response_path, request_headers, debug_output, f
                             if debug_output:
                                 print(message)
                             failure = True
-                    elif output_type == "xml" and response_path != "":
+                    elif output_type == "xml":
                         failure = False
 
                         output = xpath.loads(output_body)
@@ -273,8 +273,18 @@ def parse_response_path(output, responsePathStr, debug_output, is_xml = False):
 
         if is_xml:
             path_str = ""
+            last_item = ""
             for item in responsePathArray:
                 item = item.strip()
+
+                if len(path_str) > 0:
+                    test_output = output.query_all(path_str)
+                    if type(test_output) == "list" and len(test_output) == 0:
+                        failure = True
+                        message = "Response path has empty list for " + last_item + "."
+                        if debug_output:
+                            print("responsePathArray for " + last_item + " invalid. Response path has empty list.")
+                        break
 
                 index = -1
                 valid_rand = False
@@ -302,6 +312,11 @@ def parse_response_path(output, responsePathStr, debug_output, is_xml = False):
                     path_str = path_str + "[" + str(index) + "]"
                 else:
                     path_str = path_str + "/" + item
+
+                last_item = item
+
+                if debug_output:
+                    print("Appended path: " + path_str)
 
             if failure == False:
                 output = output.query_all(path_str)
