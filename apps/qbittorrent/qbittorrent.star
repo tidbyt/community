@@ -30,7 +30,7 @@ def main(config):
     else:
         category = "&category={}".format(humanize.url_encode(category))
 
-    torrent_count = config.get("torrent_count", 1)
+    torrent_count = int(config.get("torrent_count", 1))
     if not base_url or not username or not password:
         return render_header(servername, [render.WrappedText(content = "Enter server details")])
 
@@ -42,14 +42,21 @@ def main(config):
             return render_header(servername, [render.WrappedText(content = "Login failed :(")])
         else:
             speeds = get_transfer_speeds(base_url, sid)
-            active_counts = get_active_torrents(base_url, category, sid)
-            torrents = get_latest_torrents(base_url, category, sid, torrent_count)
+            active_counts = get_active_torrents(base_url, category, sid)    
+            
+            if (torrent_count > 0):
+                torrents = get_latest_torrents(base_url, category, sid, torrent_count)
+                if not speeds or not active_counts or not torrents:
+                    return render_header(servername, [render.WrappedText(content = "Failed to get data")])
+            else:
+                torrents = None
 
-            if not speeds or not active_counts or not torrents:
-                return render_header(servername, [render.WrappedText(content = "Failed to get data")])
 
             # Get pages frames for the list of torrents.
-            pages = [[get_stats_frame(speeds, active_counts)] * 30] + [get_page_frames(t) for t in torrents]
+            pages = [[get_stats_frame(speeds, active_counts)] * 30]
+
+            if (torrents):
+                pages += [get_page_frames(t) for t in torrents]
             if not pages:
                 return []
 
@@ -316,6 +323,10 @@ def render_header(servername, frames):
 def get_schema():
     options = [
         schema.Option(
+            display = "0",
+            value = "0",
+        ),
+        schema.Option(
             display = "1",
             value = "1",
         ),
@@ -367,7 +378,7 @@ def get_schema():
                 name = "Torrent count",
                 desc = "Number of torrents to show",
                 icon = "listOl",
-                default = options[0].value,
+                default = options[1].value,
                 options = options,
             ),
         ],
