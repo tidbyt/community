@@ -310,7 +310,7 @@ def parse_response_path(output, responsePathStr, debug_output, is_xml = False):
 
                 if type(output) != "string":
                     failure = True
-                    message = "Response path result not a string, found " + type(output) + " instead."
+                    message = "Response path result not a string, found " + type(output) + " instead reading path " + path_str + "."
                     if debug_output:
                         print(message)
             else:
