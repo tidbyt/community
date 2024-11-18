@@ -451,14 +451,14 @@ def get_schema():
             schema.Text(
                 id = "api_url",
                 name = "API URL",
-                desc = "The API URL. Supports JSON or image types.",
+                desc = "The API URL. Supports JSON, XML or image types.",
                 icon = "globe",
                 default = "",
             ),
             schema.Text(
                 id = "response_path",
                 name = "JSON response path",
-                desc = "A comma separated path to the image URL in the response JSON. Use `[rand]` to choose a random index. eg. `json_key_1, 0, [rand], json_key_to_image_url`",
+                desc = "A comma separated path to the image URL in the response JSON or XML. Use `[rand]` to choose a random index. eg. `json_key_1, 0, [rand], json_key_to_image_url`",
                 icon = "code",
                 default = "",
                 # default = "message",
