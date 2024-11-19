@@ -50,7 +50,6 @@ def main(config):
     school_name = config.get("school_id", "KingstonCitySchoolDistrictElementarySchools")
 
     title, name = get_next_lunch(school_name)
-    print(title, name)
 
     return render.Root(
         child = render.Column(
