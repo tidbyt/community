@@ -8,7 +8,6 @@ Author: alewando
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 
 # Constants.
 EMPTY = 0
@@ -51,8 +50,8 @@ ANT_COLOR = render.Box(width = 1, height = 1, color = "#ff0000")  # Red
 DEFAULT_RULES = "RANDOM"
 PREDEFINED_RULES = ["RL", "RLR", "LLRR", "LRRRRRLLR", "LLRRRLRLRLLR", "RRLLLRLLLRRR"]
 
-DEFAULT_FRAMES_PER_VIEW = 500
-DEFAULT_NUM_ANTS = 10
+DEFAULT_FRAMES_PER_VIEW = 100
+DEFAULT_NUM_ANTS = 5
 
 DEBUG_ENABLED = False
 
@@ -64,11 +63,12 @@ def log(message, vars = None):
             print(message % vars)
 
 def main(config):
-    # Seed the RNG based on time (to aid in server-side caching)
-    random.seed(time.now().unix // 15)
-
     num_frames = int(config.get("num_frames", DEFAULT_FRAMES_PER_VIEW))
+    num_frames = min(num_frames, 300)  # doesn't make sense to render more frames than can be displayed in 15s
+
     num_ants = int(config.get("num_ants", DEFAULT_NUM_ANTS))
+    num_ants = min(num_ants, DEFAULT_NUM_ANTS * 2)  # ok guys let's keep it reasonable
+
     selected_rules = config.str("rule_set", DEFAULT_RULES)
 
     board = create_empty_board(BOARD_WIDTH, BOARD_HEIGHT)
@@ -212,6 +212,7 @@ def render_cell(cell_state, x, y, ants):
     for ant in ants:
         if x == ant[0] and y == ant[1]:
             cell = ANT_COLOR
+            break
 
     return cell
 

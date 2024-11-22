@@ -1,0 +1,8 @@
+---
+id: slippirank
+name: SlippiRank
+summary: Shows slippi rank
+desc: Shows current rank from SSBM Slippi profile.
+author: noahpodgurski
+fileName: slippirank.star
+packageName: slippirank

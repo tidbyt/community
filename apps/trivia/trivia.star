@@ -31,8 +31,11 @@ def get_data():
 
         body = rep.body()
         question_index = 0
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("questions", base64.encode(body), ttl_seconds = CACHE_TTL_SECONDS)
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("question_index", str(question_index), ttl_seconds = CACHE_TTL_SECONDS)
 
     return json.decode(body)[question_index % NUM_QUESTIONS]

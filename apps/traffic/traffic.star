@@ -152,6 +152,8 @@ def bing_reverse_geo(coordinates, key):
             # We'll return address parts in a tuple and match the parts between origin/destination; we can then only
             # display the more broad information if parts don't match (i.e. traveling between cities or countries)
             address_parts = [first["address"].get(item, None) for item in ["addressLine", "locality", "adminDistrict", "countryRegion"]]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_id, json.encode(address_parts), ttl_seconds = CACHE_TTL["location"])
 
     return address_parts
@@ -198,6 +200,8 @@ def mq_reverse_geo(coordinates, key):
             # We'll return address parts in a tuple and match the parts between origin/destination; we can then only
             # display the more broad information if parts don't match (i.e. traveling between cities or countries)
             address_parts = [first["fields"].get(item, None) for item in ["address", "city", "state", "country"]]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_id, json.encode(address_parts), ttl_seconds = CACHE_TTL["location"])
 
     return address_parts
@@ -243,6 +247,8 @@ def ors_reverse_geo(coordinates, key):
             # We'll return address parts in a tuple and match the parts between origin/destination; we can then only
             # display the more broad information if parts don't match (i.e. traveling between cities or countries)
             address_parts = [first["properties"].get(item, None) for item in ["name", "locality", "region", "country_a"]]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_id, json.encode(address_parts), ttl_seconds = CACHE_TTL["location"])
 
     return address_parts
@@ -303,6 +309,8 @@ def ors_directions(origin, destination, mode, key, **kwargs):
 
         else:
             data = response
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_id, json.encode(response), ttl_seconds = CACHE_TTL["directions"])
 
     features = data.get("features", [{}])[0]
@@ -368,6 +376,8 @@ def mq_directions(origin, destination, mode, key, **kwargs):
             return msg, None
         else:
             data = response
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_id, json.encode(response), ttl_seconds = CACHE_TTL["directions"])
 
     travel_time = int(data.get("route", {}).get("time", None))
@@ -429,6 +439,8 @@ def bing_directions(origin, destination, mode, key, **kwargs):
             return msg, None
         else:
             data = response
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_id, json.encode(response), ttl_seconds = CACHE_TTL["bing"])
 
     resources = []

@@ -112,6 +112,8 @@ def main(config):
                 return render_error("Error with Access Token.")
 
             count = get_count(response.json())
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(CACHE_KEY, json.encode(count), ttl_seconds = 60)
 
         return render_notifications(count)

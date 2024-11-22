@@ -130,6 +130,7 @@ def main(config):
             min_yield = min(min_yield, min(yields))
             dates.append(this)
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_id, json.encode(dates), ttl_seconds = 60 * 60 * 12)
     else:
         print("Displaying cached data.")

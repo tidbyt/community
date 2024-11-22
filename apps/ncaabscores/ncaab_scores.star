@@ -5,8 +5,6 @@ Description: Displays live and upcoming NCAA Football scores from a data feed.
 Author: LunchBox8484
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -316,11 +314,11 @@ def main(config):
                 gameTime = s["status"]["type"]["shortDetail"]
                 gameName = s["status"]["type"]["name"]
                 checkSeries = competition.get("series", "NO")
-                checkNotes = len(competition["notes"])
+                checkNotes = competition.get("notes", "NO")
                 if checkSeries != "NO":
                     seriesSummary = competition["series"]["summary"]
                     gameTime = seriesSummary.replace("series ", "")
-                if checkNotes > 0 and checkSeries == "NO":
+                if checkNotes != "NO" and checkSeries == "NO":
                     gameHeadline = competition["notes"][0]["headline"]
                     if gameHeadline.find(" - ") > 0:
                         gameNoteArray = gameHeadline.split(" - ")
@@ -2644,16 +2642,8 @@ def get_logo_column(showRanking, team, Logo, LogoSize, Rank, ScoreColor, textFon
     return gameTimeColumn
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = ttl_seconds)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

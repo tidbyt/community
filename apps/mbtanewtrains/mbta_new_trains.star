@@ -84,6 +84,8 @@ def fetchStationNames(useCache):
         if res.status_code != 200:
             fail("stations request failed with status %d", res.status_code)
         cachedStations = res.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("stations", cachedStations, ttl_seconds = CACHE_TTL_SECONDS)
 
     stations = json.decode(cachedStations)

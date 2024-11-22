@@ -95,6 +95,8 @@ def get_deal(api_key):
         response = http.get(MEH_URL + api_key)
         if response.status_code == 200:
             deal = response.json()["deal"]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(MEH_CACHE, json.encode(deal), ttl_seconds = TTL_SECONDS)
 
     return deal
@@ -112,6 +114,8 @@ def get_image(deal):
             response = http.get(photo_url)
             if response.status_code == 200:
                 image = base64.encode(response.body())
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(MEH_IMAGE_CACHE, image, ttl_seconds = TTL_SECONDS)
 
     return image

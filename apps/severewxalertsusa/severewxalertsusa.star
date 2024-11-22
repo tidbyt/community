@@ -110,6 +110,7 @@ def get_alerts(lat, long):
                 alerts.append(item)
 
         # set cache. cast object to jsonstring
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             key = cachekey,
             value = json.encode(alerts),
@@ -179,6 +180,7 @@ def render_alert(alert, alertIndex, totalAlerts):
         align = "center",
         font = "CG-pixel-4x5-mono",  # tiny
         color = "#FF0000",  # red
+        linespacing = 1,
     )
 
     mainAlertTextWrappedWidget = render.Box(
@@ -265,7 +267,7 @@ def render_summary_card_for_alerts(location, alerts):
     )
     alertsBox = render.Box(
         child = alertsText,
-        height = 17,
+        height = 16,
     )
 
     alertsRow = render.Row(
@@ -282,10 +284,11 @@ def render_summary_card_for_alerts(location, alerts):
         content = location["locality"],
         align = "center",
         font = "CG-pixel-3x5-mono",  # tiny
+        linespacing = 1,
     )
     locationBox = render.Box(
         child = locationText,
-        height = 10,
+        height = 11,
     )
     locationRow = render.Row(
         children = [locationBox],

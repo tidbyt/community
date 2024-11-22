@@ -5,7 +5,6 @@ Description: Display your follower count from a Mastodon instance.
 Author: Nick Penree
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -41,36 +40,28 @@ zdzn2Njlsx7uj8xhdHoqy64t7wG1QaJ1LoGzlAAAAABJRU5ErkJggg==
 """)
 
 INSTANCES_API_TOKEN = secret.decrypt("""
-AV6+xWcEESKe4IHklOyhfJe+GyImzX1mrhiSoy11SLG0CKJ4nrD7RCHHu4W/m6KZsOoEb4JQobyXoUON
-PmTM9yjERR4kBgHhSPx+BiOPbyhcjXiD2OlyRsKLsfOxkrp+2Dwjs8ofZ65ahzmTPBGJj11sB1m8rL31
-1RVaMt/vWc+vghVLccwSsuazSI8HXrw26wEvwaaku+Cpru3SpaJz4R5VoQpCWKSwOBzXxmPX6ukOEOE5
-fYB1msrF8ZaEXA8f9KnDauEtH/ke3K6Y2dhlxAA9tZN494CMGemWVjat5DuN+JkKLfU=
+AV6+xWcE/8+unRiK8XkPTrMjBib0FD0gsCVHVnWCbK1Q2QhUfZzJMGlP3wZURRgDhyF+kUsJUS+BblJo
+XKPacQol2+THpdf1SDjsL8WoXZy8a9FvFi0wpIKH6o2Zs104i8n4cSPXHu6C93+3hd8JFGDLvjMUvmlO
+1+lS5S7U4YvWAVH12N/ZHgUObNpuimBuIpoc4wVqx9pvD9dKiGlW8hWlc8qVmWsRV2HhqwQgcFt1Fxl2
+irBThl5EZKG0l5xrlQL/Lw2O4kHOCHzzH6J6eeTaYhipO9wa5uBYgNMHfs2MKyLvrjk=
 """)
 
 def main(config):
-    username = config.get("username", "donmelton")
+    username = config.get("username", "lisamelton")
 
     if username.startswith("@"):
         username = username[len("@"):]
 
-    instance = json.decode(config.get("instance", "{\"display\":\"mstdn.social\",\"value\":\"mstdn.social\"}"))
-
+    instance = json.decode(config.get("instance", "{\"display\":\"mastodon.social\",\"value\":\"mastodon.social\"}"))
     instance_name = instance["value"]
-
-    cache_key = "mastodown_follows_%s_%s" % (instance_name, username)
-
-    formatted_followers_count = cache.get(cache_key)
     message = "@%s@%s" % (username, instance_name)
+    followers_count = get_followers_count(instance_name, username)
 
-    if formatted_followers_count == None:
-        followers_count = get_followers_count(instance_name, username)
-
-        if followers_count == None:
-            formatted_followers_count = "Not Found"
-            message = "Check your username. (%s)" % message
-        else:
-            formatted_followers_count = "%s %s" % (humanize.comma(followers_count), humanize.plural_word(followers_count, "follower"))
-            cache.set(cache_key, formatted_followers_count, ttl_seconds = 240)
+    if followers_count == None:
+        formatted_followers_count = "Not Found"
+        message = "Check your username. (%s)" % message
+    else:
+        formatted_followers_count = "%s %s" % (humanize.comma(followers_count), humanize.plural_word(followers_count, "follower"))
 
     username_child = render.Text(
         color = "#3c3c3c",
@@ -107,17 +98,17 @@ def main(config):
 
 def get_followers_count(instance, username):
     response = http.get(
-        "https://%s/users/%s/followers" % (instance, username),
+        "https://%s/api/v1/accounts/lookup/?acct=%s" % (instance, username),
         headers = {
             "Content-Type": "application/json",
-            "Accept": "application/activity+json",
         },
+        ttl_seconds = 240,
     )
 
     if response.status_code == 200:
         body = response.json()
         if body != None and len(body) > 0:
-            return int(body["totalItems"])
+            return int(body["followers_count"])
     return None
 
 def search_instances(pattern):

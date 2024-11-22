@@ -65,7 +65,7 @@ orderings = [
     ),
 ]
 
-API = "https://beli.cleverapps.io/api/"
+API = "https://backoffice-service-t57o3dxfca-nn.a.run.app/api/"
 
 def get(path, ttl):
     data = cache.get(path)
@@ -73,6 +73,8 @@ def get(path, ttl):
         return json.decode(data)
 
     data = http.get(API + path).body()
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(path, data, ttl_seconds = ttl)
     return json.decode(data)
 
@@ -141,7 +143,7 @@ def getFriendsActivity(id, cutoff, index):
 
 def getMyActivity(id, cutoff, index):
     profile = get("user/member/?id=" + id, 10000000)["results"][0]
-    data = get("rank-list/" + id, 600)
+    data = get("rank-list/" + id, 600)["results"]
     data = sorted(data, key = lambda x: x["created_dt"], reverse = True)
 
     name = profile["first_name"] + " " + profile["last_name"]
@@ -177,6 +179,8 @@ def main(config):
 
     indexkey = user + mode + order + cutoff_str
     index = int(cache.get(indexkey) or 0)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(indexkey, str(index + 1), 600)  # Keep position in list for 10m
 
     if order == "random":

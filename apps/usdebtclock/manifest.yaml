@@ -1,0 +1,8 @@
+---
+id: usdebtclock
+name: USDebtClock
+summary: Displays the US total debt
+desc: Displays the total debt by the United States of America in dollars.
+author: PMK (@pmk)
+fileName: usdebtclock.star
+packageName: usdebtclock

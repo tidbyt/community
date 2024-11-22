@@ -5,7 +5,6 @@ Description: Display daily tides from NOAA stations.
 Author: tavdog
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -123,7 +122,7 @@ def get_tides_hilo(station_id):
     url = NOAA_API_URL_HILO % (station_id)
     if not debug:
         debug_print("HILO Url : " + url)
-        resp = http.get(url)
+        resp = http.get(url, ttl_seconds = 14400)  # cache for 4 hours (tides don't change much)
         if resp.status_code != 200:
             tides = None
         else:
@@ -139,7 +138,8 @@ def get_tides_graph(station_id):
     url = NOAA_API_URL_GRAPH % (station_id)
     if not debug:
         debug_print("Graph Url : " + url)
-        resp = http.get(url)
+        resp = http.get(url, ttl_seconds = 14400)  # cache for 4 hours (tides don't change much)
+        print(resp.headers.get("Tidbyt-Cache-Status"))
         if resp.status_code != 200:
             tides = None
         else:
@@ -180,7 +180,10 @@ def main(config):
         if "value" in local_selection:
             station_id = json.decode(local_selection)["value"]
             if station_name == None or station_name == "":
-                station_name = json.decode(local_selection)["display"]
+                if "display" in local_selection:
+                    station_name = json.decode(local_selection)["display"]
+                else:
+                    station_name = station_id
         else:
             station_id = local_selection  # san fran
 
@@ -189,27 +192,30 @@ def main(config):
     ################################ CACHINE CODE
     tides_hilo = {}
 
-    #load HILO cache
-    cache_key_hilo = "noaa_tides_%s" % (station_id)
-    cache_str_hilo = cache.get(cache_key_hilo)  #  not actually a json object yet, just a string
+    # #load HILO cache
+    # cache_key_hilo = "noaa_tides_%s" % (station_id)
+    # cache_str_hilo = cache.get(cache_key_hilo)  #  not actually a json object yet, just a string
 
-    #load GRAPH cache
-    cache_key_graph = "noaa_tides_graph_%s" % (station_id)
-    cache_str_graph = cache.get(cache_key_graph)
+    # #load GRAPH cache
+    # cache_key_graph = "noaa_tides_graph_%s" % (station_id)
+    # cache_str_graph = cache.get(cache_key_graph)
 
     tides_graph = {}
 
-    if cache_str_hilo != None:
-        debug_print("loading cached data")
-        tides_hilo = json.decode(cache_str_hilo)
-        tides_graph = json.decode(cache_str_graph)
-    if len(tides_hilo) == 0:
-        debug_print("pulling fresh tide data")
-        tides_hilo = get_tides_hilo(station_id)
-        tides_graph = get_tides_graph(station_id)
-        if tides_hilo != None:
-            cache.set(cache_key_hilo, json.encode(tides_hilo), ttl_seconds = 14400)  # 4 hours
-            cache.set(cache_key_graph, json.encode(tides_graph), ttl_seconds = 14400)  # 4 hours
+    # # if cache_str_hilo != None:
+    # #     debug_print("loading cached data")
+    # #     tides_hilo = json.decode(cache_str_hilo)
+    # #     tides_graph = json.decode(cache_str_graph)
+    # if len(tides_hilo) == 0:
+    #     debug_print("pulling fresh tide data")
+    tides_hilo = get_tides_hilo(station_id)
+    tides_graph = get_tides_graph(station_id)
+    # if tides_hilo != None:
+    #     # TODO: Determine if this cache call can be converted to the new HTTP cache.
+    #     cache.set(cache_key_hilo, json.encode(tides_hilo), ttl_seconds = 14400)  # 4 hours
+
+    #     # TODO: Determine if this cache call can be converted to the new HTTP cache.
+    #     cache.set(cache_key_graph, json.encode(tides_graph), ttl_seconds = 14400)  # 4 hours
 
     debug_print("Tides HILO : " + str(tides_hilo))
     debug_print("Tides GRAPH: " + str(tides_graph))

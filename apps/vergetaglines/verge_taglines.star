@@ -64,37 +64,50 @@ AABJRU5ErkJggg==
 """)
 PLACEHOLDER_TEXT = "THE VERGE"
 
-SITE = "https://www.theverge.com"
+SITE = "https://www.theverge.com/api/graphql?id=fe430f082510fd2d59950732fdd99e91"
 CACHE_KEY_TAGLINE = "verge-dot-com-tagline"
-
-# SELECTOR_TAGLINE = ".duet--recirculation--storystream-header > p > span > a"
-SELECTOR_TAGLINE = "script#__NEXT_DATA__"
+CACHE_KEY_TAGLINE_BACKUP = "verge-dot-com-tagline-backup"
 
 def main():
     tagline = cache.get(CACHE_KEY_TAGLINE)
+    tagline_backup = cache.get(CACHE_KEY_TAGLINE_BACKUP)
 
     if tagline == None:
         resp = http.get(SITE)
-        html_body = html(resp.body())
-        tagline = get_tagline(html_body)
+        resp_body = html(resp.body())
+        tagline = get_tagline(resp_body)
         if tagline == None or tagline == "":
-            tagline = PLACEHOLDER_TEXT
+            if tagline_backup == None:
+                tagline = PLACEHOLDER_TEXT
+                display = PLACEHOLDER_TEXT
+            else:
+                tagline = tagline_backup
+                display = "* " + tagline_backup
+        else:
+            display = tagline
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(CACHE_KEY_TAGLINE, tagline, ttl_seconds = 900)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
+        cache.set(CACHE_KEY_TAGLINE_BACKUP, tagline, ttl_seconds = 1200)
+    else:
+        display = tagline
 
     return render.Root(
         child = render.Column(
             expanded = True,
             main_align = "space_evenly",
             cross_align = "center",
-            children = content(tagline),
+            children = content(display),
         ),
     )
 
 def map_to_tagline():
-    return ["props", "pageProps", "hydration", "responses", 0, "data", "cellData", "prestoComponentData", "masthead_tagline"]
+    return ["data", "cellData", "prestoComponentData", "masthead_tagline"]
 
-def get_tagline(html_body):
-    json_blob = html_body.find(SELECTOR_TAGLINE).text()
+def get_tagline(resp_body):
+    json_blob = resp_body.text()
     json_object = json.decode(json_blob)
 
     current_ref = json_object

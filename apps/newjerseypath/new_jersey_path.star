@@ -49,7 +49,7 @@ def get_arrival_text(arrival_times):
         # "now, 5 min" is okay
         return "{} min".format(", ".join(offsets))
 
-def get_display_row(arrival):
+def get_display_row(arrival, widgetMode):
     wait_time_text = get_arrival_text(arrival["arrivalTimes"])
 
     is_multicolor = len(arrival["lineColors"]) > 1
@@ -104,11 +104,12 @@ def get_display_row(arrival):
                 pad = 2,
             ),
             render.Column(
+                cross_align = "start",
                 children = [
                     render.Marquee(
                         child = render.Text(arrival["friendlyRouteName"]),
                         width = 49,
-                    ),
+                    ) if not widgetMode else render.Text(arrival["friendlyRouteName"]),
                     render.Text(
                         content = wait_time_text,
                         color = "#ffa500",
@@ -157,6 +158,8 @@ def query_api(station):
     if api_response.status_code != 200:
         fail("Path api is sad :( url {} returned {}".format(path_url_for_station, api_response.status_code))
     response_json = api_response.json()
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("station_{}".format(station), json.encode(response_json), ttl_seconds = 30)
 
     return response_json
@@ -164,6 +167,7 @@ def query_api(station):
 def main(config):
     station = config.get("station") or "grove_street"
     desired_direction = config.get("direction") or "both"
+    widgetMode = config.bool("$widget")
 
     api_response = query_api(station)
 
@@ -183,17 +187,17 @@ def main(config):
 
         content = render.WrappedText(text_content, font = "tom-thumb")
     elif num_routes_to_display == 1:
-        content = get_display_row(routes_ordered[0])
+        content = get_display_row(routes_ordered[0], widgetMode)
     else:
         content = render.Column(
             children = [
-                get_display_row(routes_ordered[0]),
+                get_display_row(routes_ordered[0], widgetMode),
                 render.Box(
                     width = 64,
                     height = 1,
                     color = "#666",
                 ),
-                get_display_row(routes_ordered[1]),
+                get_display_row(routes_ordered[1], widgetMode),
             ],
         )
 

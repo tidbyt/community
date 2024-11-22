@@ -1,0 +1,8 @@
+---
+id: hashrate
+name: Hashrate
+summary: Bitcoin's hashrate
+desc: Plotting the hashrate of Bitcoin.
+author: PMK (@pmk)
+fileName: hashrate.star
+packageName: hashrate

@@ -42,6 +42,8 @@ def load_quotes():
             return {}
 
         quotes = req.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(QUOTE_CACHE_KEY, quotes, ttl_seconds = CACHE_TTL)
 
     return json.decode(quotes)

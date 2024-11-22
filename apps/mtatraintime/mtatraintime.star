@@ -299,6 +299,7 @@ DEFAULT_LOCATION = """
 CACHE_TIMEOUT = 60  # will display inaccurate on-time performance if not 60 seconds.
 
 def main(config):
+    widgetMode = config.bool("$widget")
     config_location = config.get("location", DEFAULT_LOCATION)
     location = json.decode(config_location)
     timezone = location["timezone"]
@@ -321,6 +322,8 @@ def main(config):
             },
         )
         arrivals = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("%s" % station_id + "_arrivals", rep.body(), ttl_seconds = CACHE_TIMEOUT)
 
     count = 0
@@ -340,16 +343,33 @@ def main(config):
                 display.append(arrival)
                 count += 1
 
+    if not widgetMode:
+        direction_text = render.Marquee(
+            width = 64,
+            child = render.Text(
+                STATIONS[station_id]["name"] + " to " + STATIONS[end_station_id]["name"],
+                font = "CG-pixel-3x5-mono",
+            ),
+        )
+    else:
+        direction_text = render.Row(
+            expanded = True,
+            main_align = "start",
+            children = [
+                render.Text(
+                    "to " + STATIONS[end_station_id]["name"],
+                    font = "CG-pixel-3x5-mono",
+                ),
+            ],
+        )
+
     children = [
         render.Box(
             width = 64,
             height = 1,
             color = LINE_COLORS[STATIONS[station_id]["branch"]],
         ),
-        render.Marquee(
-            width = 64,
-            child = render.Text(STATIONS[station_id]["name"] + " to " + STATIONS[end_station_id]["name"], font = "CG-pixel-3x5-mono"),
-        ),
+        direction_text,
         render.Box(
             width = 64,
             height = 1,

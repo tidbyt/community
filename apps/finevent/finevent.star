@@ -379,6 +379,8 @@ def flag_api(country_name):
             flag = ISO3166.get(country_name)
         else:
             flag = flag_resp.body()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_prefix + country_name, flag, ttl_seconds = 60 * 60 * 24 * 30)  # keep for a month
     return flag
 
@@ -430,6 +432,8 @@ def main(config):
                 times.append(time.parse_time(event.get("Date", ""), format = DATEFMT).in_location(timezone))
             next_release = abs(max([int((now - t).seconds) for t in times if t > now]))
             print("Caching %s results as %s until next release in %s seconds" % (len(filtered_events), cache_id, next_release))
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_id, json.encode(filtered_events), ttl_seconds = next_release)
     else:
         print("Displaying cached data from %s" % cache_id)

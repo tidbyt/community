@@ -165,6 +165,7 @@ def get_data():
     print("success")
     data = resp.json()
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(CACHE_KEY, json.encode(data), ttl_seconds = 43200)
 
     return data

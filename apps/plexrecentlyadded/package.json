@@ -1,0 +1,17 @@
+{
+    "name": "plex-proxy-server",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "noahpodgurski",
+    "license": "ISC",
+    "dependencies": {
+      "http": "^0.0.1-security",
+      "request": "2.88.2"
+    }
+  }
+  

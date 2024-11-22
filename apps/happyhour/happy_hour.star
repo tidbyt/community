@@ -113,7 +113,11 @@ def checkCache():
 # Stores cocktail and current hour for 75 minutes.
 def updateCache(cocktail):
     hour = time.now().in_location("UTC").hour
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("lastHour", str(hour), 75 * 60)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("cocktailData", json.encode(cocktail), 75 * 60)
 
 # Gets the updated cocktail from the API.

@@ -3,10 +3,17 @@ Applet: F1 Results
 Summary: Qualifying and race results
 Description: Shows F1 qualifying or race results for the latest race. Otherwise the app shows date & time of next race. This is not a live timing app
 Author: M0ntyP
+
+v1.0a
+Updated caching function
+
+v1.1
+The API is a round behind with the cancellation of Round 6. Monaco should be Round 7 but its appearing as Round 6. Added 1 to the round number for the race preview
+
+v1.2
+Updating for changes to team colours for 2024 sesason
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -17,7 +24,7 @@ DEFAULT_TIMEZONE = "Australia/Adelaide"
 
 #F1_URL = "http://ergast.com/api/f1/"
 
-# Alternate URL thanks to @jvivona
+# Alternate URL thanks to @jvivona for the hosting :)
 F1_URL = "https://tidbyt.apis.ajcomputers.com/f1/api/"
 
 def main(config):
@@ -47,7 +54,6 @@ def main(config):
     RaceDate_Time = LocalRaceDate + " " + LocalRaceTime
     FormatRTime = time.parse_time(RaceDate_Time, format = "2006-01-02 15:04:00Z").in_location(timezone)
     RTimeDiff = FormatRTime - now
-    #print(RTimeDiff)
 
     # if less than 48 hrs since the last race start, show that
     if RTimeDiff.hours > -47:
@@ -96,6 +102,9 @@ def main(config):
             Session = "R"
 
     if Session == "":
+        # API feed is one round behind, so bumping by 1 to match the official F1 round number
+        CurrentRound = str(int(CurrentRound) + 1)
+
         # nothing has happened yet
         return render.Root(
             child = render.Column(
@@ -293,7 +302,7 @@ def getDriver(z, F1_JSON, Session):
             ConstructorID = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Constructor"]["constructorId"]
 
             # If its a Haas, use black color
-            if ConstructorID == "haas":
+            if ConstructorID == "haas" or ConstructorID == "sauber":
                 DriverFont = "#000"
 
             TeamColor = Team_Color(ConstructorID)
@@ -536,13 +545,13 @@ def Team_Color(ConstructorID):
         return ("#0f1c2c")
     if ConstructorID == "mclaren":
         return ("#fd8000")
-    if ConstructorID == "alfa":
-        return ("#a50e2d")
+    if ConstructorID == "sauber":
+        return ("#00df00")
     if ConstructorID == "aston_martin":
         return ("#015850")
     if ConstructorID == "haas":
         return ("#f7f7f7")
-    if ConstructorID == "alphatauri":
+    if ConstructorID == "rb":
         return ("#022948")
     if ConstructorID == "williams":
         return ("#041e41")
@@ -579,16 +588,9 @@ def get_schema():
     )
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()

@@ -173,6 +173,7 @@ def main(config):
                 if image_rep.status_code == 200:
                     image = image_rep.body()
 
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("image", image, ttl_seconds = 3600)
 
     return render.Root(

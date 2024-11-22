@@ -7,7 +7,7 @@ load("secret.star", "secret")
 load("time.star", "time")
 
 # tidbyt-rtpi-rotter
-KEY = "AV6+xWcEh5NwKoBQWuqhebPskYm6mM1A8qkaTsfhZu0DC7eYQG4PgEfsiHq2H9a0Yl2U+6RQXjsLpXIRBLhQnFWiFf+j3/NtMbffxZMhyYRCSSlJb5l0+eVi5BtxZDesmkQLFYIRKUxZMbAacUTkt3TT4OSVnW4OErY7bXAOAA=="
+KEY = "AV6+xWcE4VoXv5UpUq2c3zK5B5K1+sqEbwe94y0w0xjhMYBeLYdm0xyk8/baEAOvXDsbYHtageaL6hj7tknVAV9SQBS2Bz7v03TRSa7EVZ9p92dQCA3cAdYtCpPTM6FDwnxpi6MnoscsQ6/zsi7DKvf5t4vZYH90xZu57vwWHw=="
 
 DEFAULT_LOCATION = """
 {"lat":45.6,"lng":"-122.64","locality":"Portland, OR","timezone":"America/Los_Angeles"}
@@ -41,6 +41,8 @@ def main(config):
         if response.status_code != 200:
             fail("request failed with status %d", response.status_code)
         rep = response.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("stop", json.encode(rep), ttl_seconds = 30)
 
     # print(rep["resultSet"])

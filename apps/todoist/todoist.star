@@ -83,6 +83,7 @@ def main(config):
             else:
                 content = humanize.plural(int(num_tasks), "Task")
 
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_key, content, ttl_seconds = 60)
 
         if (content == NO_TASKS_CONTENT and not config.bool("show")):

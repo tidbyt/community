@@ -319,7 +319,8 @@ def main(config):
     duolingo_streak_daystart_cached = cache.get(duolingo_cache_key_streak_daystart)
 
     # Get time and location variables
-    timezone = config.get("timezone", DEFAULT_TIMEZONE)
+    timezone = config.get("$tz", DEFAULT_TIMEZONE)
+    print("Using timezone " + timezone)
 
     # DEBUG
     # print("DEBUG WARNING: Duolingo Username is set to saltedlolly manually.")
@@ -350,6 +351,7 @@ def main(config):
             print("Cached userId for username " + duolingo_username + ": " + duolingo_userid)
 
             # update userid cache timer
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(duolingo_cache_key_userid, duolingo_userid, ttl_seconds = 604800)
             display_error_msg = False
 
@@ -401,6 +403,8 @@ def main(config):
                 duolingo_userid = int(duolingo_main_json["users"][0]["id"])
                 if duolingo_userid != None:
                     print("Success! userId for username \"" + str(duolingo_username) + "\": " + str(duolingo_userid))
+
+                    # TODO: Determine if this cache call can be converted to the new HTTP cache.
                     cache.set(duolingo_cache_key_userid, str(duolingo_userid), ttl_seconds = 604800)
                     display_error_msg = False
                 else:
@@ -467,11 +471,15 @@ def main(config):
 
                 # Show error if username was not recognised
                 print("XP summary data retrieved from duolingo.com")
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_xpsummary_json, json.encode(duolingo_xpsummary_json), ttl_seconds = 900)
 
                 # Format current time into string
                 time_now_formatted = now.format("Mon, 02 Jan 2006 15:04:05 -0700")
                 print("Time Now (Formatted for cache): " + str(time_now_formatted))
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_xp_query_time, str(time_now_formatted), ttl_seconds = 900)
 
         # Setup dummy data for use on days with no data available
@@ -485,7 +493,7 @@ def main(config):
         else:
             # Lookup the date from the first 'date' value in JSON too see if it is today's data
             time_of_first_entry_unix_time = int(duolingo_xpsummary_json["summaries"][0]["date"])
-            time_of_first_entry = time.from_timestamp(time_of_first_entry_unix_time)
+            time_of_first_entry = time.from_timestamp(time_of_first_entry_unix_time).in_location("UTC")
             date_of_first_entry = time_of_first_entry.format("2006-01-02")
 
             # If the data is from yesterday, insert today's dummy data into JSON variable. (This will be replaced by the actual data once it becomes available.)
@@ -624,6 +632,7 @@ def main(config):
                 print("XP Count at Start of Day: " + str(duolingo_totalxp_daystart))
 
                 # Store start-of-day XP count in cache (for 24hrs)
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_totalxp_daystart, str(duolingo_totalxp_daystart), ttl_seconds = 86400)
 
                 # Now we cache the Streak at the start of the day, and store it in the cache
@@ -635,9 +644,11 @@ def main(config):
                 print("Streak at Start of Day: " + str(duolingo_streak_daystart))
 
                 # Store start-of-day XP count in cache (for 24hrs)
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_streak_daystart, str(duolingo_streak_daystart), ttl_seconds = 86400)
 
                 # Finally update the cache with the new date so this won't run again until tomorrow (stored for 24 hours)
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_saveddate, str(date_now), ttl_seconds = 86400)
 
             # Set variables for current state

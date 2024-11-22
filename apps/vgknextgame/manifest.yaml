@@ -1,0 +1,8 @@
+---
+id: vgk-next-game
+name: VGK Next Game
+summary: Shows next VGK Game
+desc: Shows the date of the next Vegas Golden Knights game.
+author: theimpossibleleap
+fileName: vgk_next_game.star
+packageName: vgknextgame

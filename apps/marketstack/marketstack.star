@@ -44,6 +44,8 @@ def main(config):
     else:
         data_raw = make_marketstack_request(type_query_to_make, api_token, company_name)
         is_error = is_response_error(data_raw)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("marketstack_rate", json.encode(data_raw), ttl_seconds = int(query_timer))
         if is_error == True:
             return error_view(data_raw)

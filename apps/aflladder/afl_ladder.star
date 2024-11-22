@@ -4,24 +4,30 @@ Summary: Shows the AFL Ladder
 Description: Shows the AFL (Australian Football League) Ladder.
 Author: M0ntyP 
 
-v1.1 - Reduced cache from 1hr to 10mins, just so the ladder updates quicker after a match has finished
+v1.1
+Reduced cache from 1hr to 10mins, just so the ladder updates quicker after a match has finished
+Moved to 4 teams per cycle instead of 3, so you can work out the top 4 and top 8 easier
+
+v1.1a
+Updated caching function
+
+v1.2
+Updated for 2024 season
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/52/ladders"
+LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/62/ladders"
 LADDER_CACHE = 600
 
 def main(config):
     RotationSpeed = config.get("speed", "3")
     renderCategory = []
 
-    # 6 pages of 3 teams
+    # 4.5 pages of 4 teams
     teamsToShow = 4
 
     LadderData = get_cachable_data(LADDER_URL, LADDER_CACHE)
@@ -125,18 +131,10 @@ def get_screen(x, LadderJSON):
     return output
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    data = cache.get(key)
-    if data != None:
-        #print("CACHED")
-        return base64.decode(data)
-
-    res = http.get(url = url)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()
 
@@ -152,14 +150,6 @@ def get_schema():
                 default = RotationOptions[1].value,
                 options = RotationOptions,
             ),
-            # schema.Dropdown(
-            #     id = "teams",
-            #     name = "Number of teams",
-            #     desc = "How many teams to display",
-            #     icon = "gear",
-            #     default = TeamOptions[0].value,
-            #     options = TeamOptions,
-            # ),
         ],
     )
 
@@ -298,15 +288,3 @@ RotationOptions = [
         value = "5",
     ),
 ]
-
-# TeamOptions = [
-#     schema.Option(
-#         display = "3",
-#         value = "3",
-#     ),
-#     schema.Option(
-#         display = "4",
-#         value = "4",
-#     ),
-
-# ]

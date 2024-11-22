@@ -358,6 +358,7 @@ def fetch_departures(station_id, extra_params = {}, duration_minutes = 1440, max
 
         data = response.json()
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, json.encode(data), ttl_seconds = CACHE_TTL_SECONDS)
 
         return data

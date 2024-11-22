@@ -1,0 +1,8 @@
+---
+id: today-on-kawara
+name: Today Series
+summary: Display today's date
+desc: Shows today's date in multiple languages and formats inspired by On Kawara's Today painting series.
+author: Joshua Nuesca
+fileName: today_on_kawara.star
+packageName: todayonkawara

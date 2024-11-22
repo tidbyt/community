@@ -752,6 +752,7 @@ def main(config):
         games_cache_key = "games_{}".format(username)
         cached_user = cache.get(user_cache_key)
         if cached_user == None:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(user_cache_key, "True", ttl_seconds = 3600)
         cached_games = cache.get(games_cache_key)
         if cached_games == None:
@@ -759,6 +760,7 @@ def main(config):
             if games_json == False:
                 games = FAMOUS_GAMES
             else:
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(games_cache_key, json.encode(games_json), ttl_seconds = 240)
                 games = get_games_dicts(games_json)
         else:

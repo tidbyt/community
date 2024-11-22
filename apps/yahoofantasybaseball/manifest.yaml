@@ -1,0 +1,8 @@
+---
+id: yahoofantasymlb
+name: YahooFantasyMLB
+summary: Fantasy Standings & Scores
+desc: Display standings or scores for a Yahoo Fantasy Baseball league (MLB).
+author: jweier
+fileName: yahoofantasymlb.star
+packageName: yahoofantasymlb

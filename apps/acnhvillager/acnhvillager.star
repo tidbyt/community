@@ -127,6 +127,8 @@ def get_villager_data():
         if rep.status_code != 200:
             fail(FAIL_MESSAGE % (ACNH_API_URL, rep.status_code))
         villager_data = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("villager_data", json.encode(villager_data), ttl_seconds = CACHE_TTL_SECONDS)
 
     return villager_data
@@ -143,6 +145,7 @@ def get_villager_icon(url):
     if res.status_code != 200:
         fail(FAIL_MESSAGE % (url, res.status_code))
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
     return res.body()
 

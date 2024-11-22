@@ -84,6 +84,8 @@ def main(config):
         if price_response.status_code != 200:
             fail("Request failed with status %d", price_response.status_code)
         json_response = price_response.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, json.encode(json_response), ttl_seconds = CACHE_TTL)
 
     prices = []

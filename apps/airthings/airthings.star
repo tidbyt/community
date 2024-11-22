@@ -82,7 +82,10 @@ def main(config):
     print(samples)
 
     co2 = samples["data"]["co2"]
-    pm25 = samples["data"]["pm25"]
+    if "pm25" in samples["data"]:
+        pm25 = samples["data"]["pm25"]
+    else:
+        pm25 = -1
     temp = samples["data"]["temp"]
     voc = samples["data"]["voc"]
     humidity = samples["data"]["humidity"]
@@ -143,6 +146,8 @@ def main(config):
         return []
 
     items = []
+    if pm25 == -1:
+        pm25 = "n/a"
     for (hide, reading, color, displayName) in [
         (hideCo2, co2, co2_color, "Co2"),
         (hidePm25, pm25, pm25_color, "Pm2.5"),
@@ -197,6 +202,7 @@ def get_samples(config, access_token, SAMPLES_CACHE_KEY):
     status = res.json()
 
     # Cache samples for 5 minutes
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(SAMPLES_CACHE_KEY, res.body(), 60 * 5)
 
     return status
@@ -224,6 +230,7 @@ def client_credentials_grant_flow(config, access_token_cache_key):
     if res.status_code == 200:
         print("Success")
     else:
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(access_token_cache_key, "")
         print("Error Fetching access_token: %s" % (res.body()))
         fail("token request failed with status code: %d - %s" % (res.status_code, res.body()))
@@ -232,6 +239,7 @@ def client_credentials_grant_flow(config, access_token_cache_key):
     access_token = token_params["access_token"]
     expires_in = token_params["expires_in"]
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(access_token_cache_key, access_token, ttl_seconds = int(expires_in) - 30)
     return access_token
 

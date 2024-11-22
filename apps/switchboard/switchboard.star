@@ -114,6 +114,8 @@ def main(config):
 
         # Store the retrieved data in cache
         res_json = res.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("sb_cached_json", json.encode(res_json), ttl_seconds = 60)
 
     # Retrieve values from json blob

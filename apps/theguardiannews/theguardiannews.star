@@ -8,14 +8,13 @@ Description: Gets latest new articles from The Guardian and displays up to 3 art
 
 # update - 2023-03-07 - back to the live website feed - now that their IT group has stablized everything.  add in 1st sentence of description
 
-load("cache.star", "cache")
 load("http.star", "http")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("xpath.star", "xpath")
 
-VERSION = 23066
+VERSION = 23132
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900
@@ -140,15 +139,12 @@ def get_schema():
 def get_cacheable_data(url, articlecount):
     if url == "intl":
         url = "international"  # this was changed during the switch in dec 2022 from guardian - keep our text for display - but convert
-    key = url
-    data = cache.get(key)
+
     articles = []
-    if data == None:
-        res = http.get(RSS_STUB.format(url))
-        if res.status_code != 200:
-            fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-        data = res.body()
-        cache.set(key, data, ttl_seconds = CACHE_TTL_SECONDS)
+    res = http.get(RSS_STUB.format(url), ttl_seconds = CACHE_TTL_SECONDS)
+    if res.status_code != 200:
+        fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+    data = res.body()
 
     data_xml = xpath.loads(data)
 

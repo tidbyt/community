@@ -167,6 +167,8 @@ def main(config):
         if rep.status_code != 200:
             fail("NHL API request failed with status %d", rep.status_code)
         nhldata = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("nhl_data/%s" % main_team_id, json.encode(nhldata), ttl_seconds = 3600)
     homeTeamID = nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["home"]["team"]["id"]
     awayTeamID = nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["away"]["team"]["id"]

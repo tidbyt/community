@@ -143,6 +143,8 @@ def main(config):
         if res.status_code != 200:
             return show_error_fetching_data()
         all_locations_movie_list = res.json()["hits"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("showtimes_data", json.encode(all_locations_movie_list), ttl_seconds = HOUR_IN_SECONDS)
     else:
         all_locations_movie_list = json.decode(all_locations_movie_list)

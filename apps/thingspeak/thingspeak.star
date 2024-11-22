@@ -70,6 +70,7 @@ def getData(config):
 
     # cache it 💰
     if resp.status_code == 200:
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheKey, json.encode(resp.json()), ttl_seconds = 60)  # 10 minute cache
 
     return struct(status_code = resp.status_code, data = resp.json())
@@ -179,6 +180,7 @@ def get_schema():
                 name = "Thingspeak Channel Id",
                 desc = "The id of the thingspeak channel.",
                 icon = "rss",
+                default = "2203073",
             ),
             schema.Text(
                 id = "apiKey",
@@ -198,7 +200,7 @@ def get_schema():
                 name = "Render as a plot view",
                 desc = "Should the app render as a plot view",
                 icon = "chartLine",
-                default = False,
+                default = True,
             ),
             schema.Text(
                 id = "prepend",

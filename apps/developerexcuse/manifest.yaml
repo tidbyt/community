@@ -1,0 +1,8 @@
+---
+id: developer-excuse
+name: Developer Excuse
+summary: Developer Excuse
+desc: Developer Excuse app generates playful and imaginative excuses to bring a smile to developers facing coding hiccups and bugs.
+author: masonwongcs
+fileName: developer_excuse.star
+packageName: developerexcuse

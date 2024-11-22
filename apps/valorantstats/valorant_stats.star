@@ -92,6 +92,8 @@ def getAPIDataCacheOrHTTP(val_tag_api_link, data, ttl_seconds):
         rep = http.get(val_tag_api_link)
         if rep.status_code != 200:
             fail("VALORANT API request failed with status %d", rep.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(val_tag_api_link, json.encode(rep.json()), ttl_seconds = ttl_seconds)
         data = rep.json()
         print("Hit API and cached data")
@@ -112,6 +114,7 @@ def getImage(url, ttl_seconds = 3600):
     if res.status_code != 200:
         return base64.decode("""iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAABKklEQVRYCe2VUY7DIAxEQ9UD9f6n6I3SDPCQMURVpUD6gbVbw2A8g4OTsG/b8XefPaEODCZ5Tv0Qn8gBZvCLiwNHASKdJcKSi7cImCHCk4uz3AFNZCMrQdkTU/ptBLD4YnCRf5/kqR7BScxQeAlYFQhHb+60h/p0hlm+tg13JyMc4RbTXNbDLP4tLibpvIgizuYcVGEiZh0PhtcGO/ZxJm9bATbLs/EXTLHeJEZm8yWk/hZkLAX6YD8/SVhy2EFvb17vt6EU8+8TcRpwJQdjrLknZY192f9XF9j2GPExIr8tQv8R2IjB4yVgVeD2ClTvAS58fnEyvcz7NhRP8y0Q6AOvUtDLXT2CXsBV5Mqjg4nDWhEwmhxSLyLeAS2OKjvE3lOJcgcAfODo+Qful09RLycDuQAAAABJRU5ErkJggg==""")
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

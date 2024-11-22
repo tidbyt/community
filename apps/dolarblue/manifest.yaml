@@ -1,0 +1,8 @@
+---
+id: dólar-blue
+name: Dólar Blue
+summary: ARS to USD exchange rate
+desc: View official and blue dollar exchange rates for USD to Argentine Peso (ARS).
+author: Connick Shields
+fileName: dolar_blue.star
+packageName: dolarblue

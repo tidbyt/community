@@ -9,8 +9,10 @@ ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABM0lEQVRY
 
 def main(config):
     token = config.get("api-token")
+    domain = config.get("custom-domain")
+
     icon = render.Image(src = ICON)
-    text = render.WrappedText(get_issues(token))
+    text = render.WrappedText(get_issues(token, domain))
     return render.Root(
         child = render.Row(
             expanded = True,
@@ -20,12 +22,12 @@ def main(config):
         ),
     )
 
-def get_issues(accesstoken):
+def get_issues(accesstoken, domain):
     if accesstoken == None:
-        return "API Token missing!"
+        return "You have 3 open issues!"
 
     # Set the GitLab API endpoint and access token
-    api_endpoint = "https://gitlab.com/api/v4"
+    api_endpoint = domain + "api/v4"
 
     url = api_endpoint + "/user?access_token=" + accesstoken
     user_data = http.get(url)
@@ -47,7 +49,7 @@ def get_issues(accesstoken):
         if open_issues == 0:
             return "You have no open issues!"
         elif int(cached_data) >= open_issues:
-            if int(cached_data) - open_issues:
+            if int(cached_data) - open_issues == 1:
                 return "You have 1 open issue!"
             return "You have %d open issues!" % int(cached_data)
         else:
@@ -68,6 +70,7 @@ def get_issues(accesstoken):
         return "You have %d open issues!" % open_issues
 
 def set_cache(name, open_issues):
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(name, open_issues, ttl_seconds = 3600)
 
 def get_schema():
@@ -78,8 +81,15 @@ def get_schema():
                 id = "api-token",
                 name = "Your Gitlab access token",
                 desc = "Your Gitlab access token",
-                icon = "gear",
+                icon = "key",
                 default = "",
+            ),
+            schema.Text(
+                id = "custom-domain",
+                name = "Custom domain for hosted Gitlab",
+                desc = "If applicable, a custom domain for your hosted Gitlab instance",
+                icon = "cube",
+                default = "https://gitlab.com/",
             ),
         ],
     )

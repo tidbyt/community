@@ -5,7 +5,6 @@ Description: Upcoming arrivals for a particular Tube, Elizabeth Line, DLR or Ove
 Author: dinosaursrarr
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
@@ -17,7 +16,7 @@ load("secret.star", "secret")
 ENCRYPTED_APP_KEY = "AV6+xWcEgG4Ru4ZCA4ggWDRK+4zP4YCk4pCZrLiuXoCVSc677Sipk1Wnrag92v1k4qfa9n8e9FuCdsoLbov5osfGWOWUCYDkR3xh/uEsXOLVJvAr8iUXf6RSac2PXnDZ//z+hhgBzVldDDI/9CD8K8MJa0u75SG9EhZYidD9OXh0NggRHeE="
 STATION_URL = "https://api.tfl.gov.uk/StopPoint"
 ARRIVALS_URL = "https://api.tfl.gov.uk/StopPoint/%s/Arrivals"
-NO_DATA_IN_CACHE = ""
+USER_AGENT = "Tidbyt tube"
 
 HOLBORN_ID = "940GZZLUHBN"
 
@@ -112,13 +111,6 @@ def app_key():
 def fetch_stations(loc):
     truncated_lat = math.round(1000.0 * float(loc["lat"])) / 1000.0  # Truncate to 3dp for better caching
     truncated_lng = math.round(1000.0 * float(loc["lng"])) / 1000.0  # Means to the nearest ~110 metres.
-    cache_key = "{},{}".format(truncated_lat, truncated_lng)
-
-    cached = cache.get(cache_key)
-    if cached == NO_DATA_IN_CACHE:
-        return None
-    if cached:
-        return json.decode(cached)
     resp = http.get(
         STATION_URL,
         params = {
@@ -131,16 +123,17 @@ def fetch_stations(loc):
             "modes": ",".join(MODES),
             "categories": "none",
         },
+        headers = {
+            "User-Agent": USER_AGENT,
+        },
+        ttl_seconds = 86400,  # Tube stations don't move often
     )
     if resp.status_code != 200:
         print("TFL station search failed with status ", resp.status_code)
-        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     if not resp.json().get("stopPoints"):
         print("TFL station search does not contain stops")
-        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
-    cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
     return resp.json()
 
 # API gives errors when searching for locations outside the United Kingdom.
@@ -272,22 +265,19 @@ def get_stations(location):
 
 # Lookup upcoming arrivals for our given station, or use cache if available.
 def fetch_arrivals(stop_id):
-    cached = cache.get(stop_id)
-    if cached == NO_DATA_IN_CACHE:
-        return None
-    if cached:
-        return json.decode(cached)
     resp = http.get(
         ARRIVALS_URL % stop_id,
         params = {
             "app_key": app_key(),
         },
+        headers = {
+            "User-Agent": USER_AGENT,
+        },
+        ttl_seconds = 30,
     )
     if resp.status_code != 200:
         print("TFL StopPoint request failed with status ", resp.status_code)
-        cache.set(stop_id, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
-    cache.set(stop_id, resp.body(), ttl_seconds = 30)
     return resp.json()
 
 # TFL response gives the times until a train arrives in seconds. Everyone is used
@@ -386,18 +376,16 @@ def render_arrivals_frame(arrivals):
 
 def render_arrivals(arrivals):
     if len(arrivals) == 0:
-        return [
-            render.Box(
-                width = 64,
-                child = render.WrappedText(
-                    content = "No arrivals data",
-                    width = 62,
-                    align = "center",
-                    color = ORANGE,
-                    font = FONT,
-                ),
+        return render.Box(
+            width = 64,
+            child = render.WrappedText(
+                content = "No arrivals data",
+                width = 62,
+                align = "center",
+                color = ORANGE,
+                font = FONT,
             ),
-        ]
+        )
 
     frames = []
     for i in range(0, len(arrivals), 3):

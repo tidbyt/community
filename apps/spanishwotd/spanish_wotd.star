@@ -7,23 +7,46 @@ Author: logancornelius
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
-load("html.star", "html")
 load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 
-DEFAULT_WHO = "world"
-
-SPANISH_DICTIONARY_URL_1 = "https://www.dictionaryapi.com/api/v3/references/spanish/json/"
-SPANISH_DICTIONARY_URL_2 = "?key=d5ccb112-d698-45d6-ad07-c17a7b829b8d"
 CACHE_KEY = "wotd"
 CACHE_LLAVE = "pdd"
-CACHE_TTL = 10800  # 3 hours
-WOTD_CALENDAR_URL = "https://www.merriam-webster.com/word-of-the-day/calendar"  # Most succinct wotd definition
+CACHE_TTL = 3600  # 1 hour
+SPANISH_DICT_WOTD_URL = "https://www.spanishdict.com/wordoftheday"
 
 def render_error():
     return render.Root(
         render.WrappedText("Something went wrong getting today's word!"),
     )
+
+def fetch_word_of_the_day():
+    wotd_resp = http.get(SPANISH_DICT_WOTD_URL)
+
+    if wotd_resp.status_code != 200:
+        return False
+
+    resp_body = wotd_resp.body()
+
+    pattern = r"window\.SD_COMPONENT_DATA\s*=(.*);"
+    matches = re.findall(pattern, resp_body)
+
+    if len(matches) == 0:
+        print("Failed to find word or definition from page")
+        return False
+
+    match = matches[0]
+
+    data = match.replace("window.SD_COMPONENT_DATA = ", "").replace(";", "")
+    parsed_data = json.decode(data)
+
+    wotd = parsed_data["wordOfTheDayData"]
+
+    return {
+        "word": wotd["wordDisplay"],
+        "definition": wotd["translationText"],
+    }
 
 def main():
     print("Starting")
@@ -36,38 +59,19 @@ def main():
         wotd_dict = json.decode(cached_wotd_dict)
         word = wotd_dict["word"]
         definition = wotd_dict["definition"]
-        definicion = wotd_dict["definicion"]
     else:
         print("Cache miss")
 
-        wotd_page_response = http.get(WOTD_CALENDAR_URL)
+        wotd_dict = fetch_word_of_the_day()
 
-        if wotd_page_response.status_code != 200:
-            print("Got code '%s' from page response" % wotd_page_response.status_code)
-            return render_error()
+        if not wotd_dict:
+            return render_error
 
-        selector = html(wotd_page_response.body())
-        word_parsed = selector.find(".wod-l-hover").first().text()
-        definition_parsed = selector.find(".definition-block").first().children().first().text()
+        word = wotd_dict["word"]
+        definition = wotd_dict["definition"]
 
-        if word_parsed == "" or definition_parsed == "":
-            print("Failed to find word or definition from page")
-            return render_error()
-
-        # Values begin with lower cased letters on the calendar note cards
-        word = word_parsed[0].upper() + word_parsed[1:] + ":"
-        definition = definition_parsed[0].upper() + definition_parsed[1:] + "."
-
-        word_info = http.get(SPANISH_DICTIONARY_URL_1 + word + SPANISH_DICTIONARY_URL_2)
-        if word_info.status_code != 200:
-            fail("Websters request failed with status %d", word_info.status_code)
-        definicion = word_info.json()[0]["shortdef"][0]
-
-        cache.set(
-            CACHE_KEY,
-            json.encode({"word": word, "definition": definition, "definicion": definicion}),
-            CACHE_TTL,
-        )
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
+        cache.set(CACHE_KEY, json.encode(wotd_dict), CACHE_TTL)
 
     return render.Root(
         child = render.Column(
@@ -76,12 +80,12 @@ def main():
                     child = render.Column(
                         children = [
                             render.WrappedText(
-                                content = word,
+                                content = word + ":",
                                 color = "#00eeff",
                                 font = "5x8",
                             ),
                             render.WrappedText(
-                                content = definicion,
+                                content = definition,
                                 font = "5x8",
                             ),
                         ],

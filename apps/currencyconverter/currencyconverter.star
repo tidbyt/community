@@ -668,6 +668,8 @@ def main(config):
 
         # calculate 5 minutes past the stated next update date to make sure it it'll be updated next time we call
         cache_time = int(exchange_data_decoded_json["time_next_update_unix"]) - int(time.now().in_location("UTC").unix) + 300
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(exchange_rate_url, json.encode(exchange_data_decoded_json), ttl_seconds = cache_time)
     else:
         exchange_data_decoded_json = json.decode(exchange_data_encoded_json)

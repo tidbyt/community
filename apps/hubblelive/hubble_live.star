@@ -133,6 +133,8 @@ def get_hst_live():
             cache_timeout = int(cache_timeout.seconds) if cache_timeout.seconds >= 0 else 0
         else:
             cache_timeout = DEFAULT_CACHE_TIMEOUT
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("cached_observation", json.encode(obs), ttl_seconds = cache_timeout)
 
     return obs

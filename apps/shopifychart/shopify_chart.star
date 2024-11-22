@@ -433,6 +433,8 @@ def cache_orders(orders, start_time, store_name, api_token):
     cache_key = get_cache_key(start_time, store_name, api_token)
     print("💾 caching orders with key {}".format(cache_key))
     json_orders = json.encode(orders)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, json_orders, ttl_seconds = 300)
 
 def get_cached_orders(start_time, store_name, api_token):

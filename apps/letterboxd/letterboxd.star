@@ -358,6 +358,7 @@ def check_cache(url, type = "body", lid = "", timeout = 300):
         if res.status_code != 200:
             fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(key, json.encode(res.json()), ttl_seconds = timeout)
         return res.json()
 
@@ -371,8 +372,11 @@ def check_cache(url, type = "body", lid = "", timeout = 300):
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
     if type == "identifier":
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(key, base64.encode(res.headers["X-Letterboxd-Identifier"]), ttl_seconds = timeout)
         return res.headers["X-Letterboxd-Identifier"]
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
     return res.body()
 
