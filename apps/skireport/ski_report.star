@@ -20,13 +20,41 @@ BLUE_SQUARE = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAE
 BLACK_DIAMOND = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAI0lEQVQIW2NkgIL/QMAIBCAumAAJwCRBEozIAnAJrCqxmQkAWm4UAkSaUWwAAAAASUVORK5CYII=""")
 SPACER = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAAEAAAAFCAYAAACEhIafAAAAC0lEQVQIW2NgwAEAABkAAUGqWyUAAAAASUVORK5CYII=""")
 
-#These are used for scraping the data from each site. most epic resort websites follow a similar structure. This doesn't work for the austrailian resorts
+#These are used for scraping the data from each site. most epic resort websites follow a similar structure. This doesn't work for the Australian resorts
 TERRAIN_URL_STUB = "the-mountain/mountain-conditions/terrain-and-lift-status.aspx"
 TERRAIN_URL_STUB_ALT = "the-mountain/mountain-conditions/lift-and-terrain-status.aspx"
 WEATHER_URL_STUB = "the-mountain/mountain-conditions/snow-and-weather-report.aspx"
 WEATHER_URL_STUB_ALT = "the-mountain/mountain-conditions/weather-report.aspx"
 
-RESORT_URLS = {
+#Info on Trail Conditions can be gotten by concatenating the API with the key
+APIM_RESORT_CODE_API = "https://apim-marketing-001.azure-api.net/FeedService/v1/Feed?resortName="
+APIM_RESORT_KEYS = {
+    "Big Sky": "bs",
+    "Brighton": "br",
+    "Cypress": "cy",
+    "Summit": "ss",
+    "Boyne Mountain": "bm",
+    "The Highlands": "th",
+    "Loon": "lm",
+    "Pleasant Mountain": "pm",
+    "Sugarloaf": "sl",
+    "Sunday River": "sr",
+}
+APIM_WEATHER_API = "https://apim-marketing-001.azure-api.net/weather/v2/TomorrowIOWeather?"
+APIM_LAT_LONGS = {
+    "Big Sky": "latitude=45.277146&longitude=-111.410592",
+    "Brighton": "latitude=40.598179&longitude=-111.583980",
+    "Cypress": "latitude=49.395827&longitude=-123.20454",
+    "Summit": "latitude=47.39233&longitude=-121.40009",
+    "Boyne Mountain": "latitude=45.165096&longitude=-84.929993",
+    "The Highlands": "latitude=45.469985&longitude=-84.935746",
+    "Loon": "latitude=44.055636&longitude=-71.628819",
+    "Pleasant Mountain": "latitude=44.0583086654824&longitude=-70.81515630515864",
+    "Sugarloaf": "latitude=45.0550099&longitude=-70.3112397",
+    "Sunday River": "latitude=44.475088&longitude=-70.900407",
+}
+
+RESORT_URLS_EPIC = {
     "Vail": "https://www.vail.com/",
     "Beaver Creek": "https://www.beavercreek.com/",
     "Breckenridge": "https://www.breckenridge.com/",
@@ -65,7 +93,7 @@ RESORT_URLS = {
 }
 
 def get_schema():
-    options = [schema.Option(display = resort, value = resort) for resort in RESORT_URLS.keys()]
+    options = [schema.Option(display = resort, value = resort) for resort in (RESORT_URLS_EPIC.keys() + APIM_RESORT_KEYS.keys())]
     return schema.Schema(
         version = "1",
         fields = [
@@ -73,12 +101,30 @@ def get_schema():
                 id = "resort",
                 name = "Ski Resort",
                 icon = "mountain",
-                desc = "The resort you want to show. North American Epic Pass Resorts only right now",
+                desc = "The resort you want to show. North American Epic Pass Resorts and Boyne Mountain Resort groups",
                 default = options[0].value,
                 options = options,
             ),
         ],
     )
+
+def difficultyToEnum(difficulty):
+    # This converts the Boyne resort difficulties to the mappings epic resorts use.
+    map = {
+        "beginner": 1,
+        "intermediate": 2,
+        "advanced": 3,
+        "expert": 4,
+        "Green": 1,
+        "Blue": 2,
+        "Black": 3,
+        "Double Black": 4,
+    }
+    if difficulty in map.keys():
+        return map[difficulty]
+
+    # Other is 5
+    return 5
 
 def trimToJSON(js_command):
     js_command = js_command.split("= ", 1)[1]
@@ -88,13 +134,15 @@ def Getweather_data(resort):
     """Pulls weather info from the weather page associated with the given resort
 
     Args:
-        resort (string): The Resort Name as listed in RESORT_URLS
+        resort (string): The Resort Name as listed in RESORT_URLS_EPIC
 
     Returns:
         dict: a dict containing the temperature, snowfall and description attributes. description is not currently used. Returns None if their is an error fetching the results.
     """
+    if resort in APIM_RESORT_KEYS.keys():
+        return getAPIMWeatherData(resort)
 
-    url = RESORT_URLS[resort] + WEATHER_URL_STUB
+    url = RESORT_URLS_EPIC[resort] + WEATHER_URL_STUB
     if (cache.get(url) != None):
         cached_string = cache.get(url)
         return json.decode(cached_string)
@@ -111,7 +159,7 @@ def Getweather_data(resort):
         if line.startswith("    FR.snowReportData = "):
             snowfall = json.decode(trimToJSON(line))["TwentyFourHourSnowfall"]["Inches"]
     if temperature == None:
-        url = RESORT_URLS[resort] + WEATHER_URL_STUB_ALT
+        url = RESORT_URLS_EPIC[resort] + WEATHER_URL_STUB_ALT
         r = http.get(url)
         response = r.body()
         for line in response.splitlines():
@@ -125,9 +173,7 @@ def Getweather_data(resort):
         return None
 
     results = dict(temperature = temperature, snowfall = snowfall, description = weather_description)
-    url = RESORT_URLS[resort] + WEATHER_URL_STUB
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
+    url = RESORT_URLS_EPIC[resort] + WEATHER_URL_STUB
     cache.set(url, json.encode(results), 600)
     return results
 
@@ -135,12 +181,15 @@ def getTerrain(resort):
     """Gets the Trail status from a particular resort by scraping the website associated with the resort
 
     Args:
-        resort (string): The Resort Name as listed in RESORT_URLS
+        resort (string): The Resort Name as listed in RESORT_URLS_EPIC
 
     Returns:
         _type_: _description_
     """
-    url = RESORT_URLS[resort] + TERRAIN_URL_STUB
+    if resort in APIM_RESORT_KEYS.keys():
+        return getAPIMTrailData(resort)
+
+    url = RESORT_URLS_EPIC[resort] + TERRAIN_URL_STUB
 
     #Check the Cache
     if cache.get(url) != None:
@@ -157,7 +206,7 @@ def getTerrain(resort):
             terrain_status_js_command = line
             break
     if terrain_status_js_command == None:
-        url = RESORT_URLS[resort] + TERRAIN_URL_STUB_ALT
+        url = RESORT_URLS_EPIC[resort] + TERRAIN_URL_STUB_ALT
         r = http.get(url)
         response = r.body()
         for line in response.splitlines():
@@ -165,7 +214,7 @@ def getTerrain(resort):
                 terrain_status_js_command = line
                 break
     if terrain_status_js_command == None:
-        print("error finding trail info on " + RESORT_URLS[resort])
+        print("error finding trail info on " + RESORT_URLS_EPIC[resort])
         return None
     terrain_status_js = trimToJSON(terrain_status_js_command)
 
@@ -205,10 +254,102 @@ def getTerrain(resort):
     for x in summary.keys():
         for y in summary[x].keys():
             summary[x][y] = repr(summary[x][y])
-    url = RESORT_URLS[resort] + TERRAIN_URL_STUB
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
+    url = RESORT_URLS_EPIC[resort] + TERRAIN_URL_STUB
     cache.set(url, json.encode(summary), 600)
+    return summary
+
+def getAPIMData(resort):
+    """Gets Resort data from the API associated with Boyne Resort Group
+
+    Args:
+        resort (string): The Resort Name as listed in APIM_RESORT_KEYS
+
+    Returns:
+        _type_: the JSON object associated with the api
+    """
+    url = APIM_RESORT_CODE_API + APIM_RESORT_KEYS[resort]
+
+    #Check the Cache
+    if cache.get(url) != None:
+        return json.decode(cache.get(url))
+
+    r = http.get(url)
+    cache.set(url, r.body(), 600)
+    return json.decode(r.body())
+
+def getAPIMWeatherData(resort):
+    """Gets weather data from the API associated with Boyne Resort Group
+
+    Args:
+        resort (string): The Resort Name as listed in APIM_RESORT_KEYS
+
+    Returns:
+        _type_: the weather data needed to render on the Tydbyt
+    """
+    data = getAPIMData(resort)
+
+    url = APIM_WEATHER_API + APIM_LAT_LONGS[resort]
+    if cache.get(url) != None:
+        json.decode(cache.get(url))
+
+    r = http.get(url)
+    temperature = "??"
+    if json.decode(r.body())["currentConditions"] != None:
+        temperature = repr(json.decode(r.body())["currentConditions"]["temperature"]["fahrenheit"])
+        temperature = temperature.split(".", 1)[0]
+    if len(temperature) > 3:
+        temperature = "??"
+    snowfall = data["currentConditions"]["resortLocations"]["location"][0]["snow24Hours"]["inches"]
+    if (len(snowfall) > 3):
+        snowfall = "??"
+
+    weather_description = data["currentConditions"]["resortLocations"]["location"][0]["primarySurface"]
+
+    results = dict(temperature = temperature, snowfall = snowfall, description = weather_description)
+    cache.set(url, json.encode(results), 600)
+    return results
+
+def getAPIMTrailData(resort):
+    """Gets weather data from the API associated with Boyne Resort Group
+
+    Args:
+        resort (string): The Resort Name as listed in APIM_RESORT_KEYS
+
+    Returns:
+        _type_: the trail data needed to render on the Tydbyt
+    """
+    data = getAPIMData(resort)
+    areas = data["facilities"]["areas"]["area"]
+    trails = []
+    for area in areas:
+        if area["trails"]["trail"] != None:
+            trails.extend(area["trails"]["trail"])
+    print(len(trails))
+    summary = {}
+    for trail in trails:
+        if trail["difficultyIcon"] == None:
+            difficulty_key = repr(difficultyToEnum(trail["difficulty"]))
+        else:
+            difficulty_key = repr(difficultyToEnum(trail["difficultyIcon"]))
+        if difficulty_key not in summary.keys():
+            summary[difficulty_key] = dict(open = 0, total = 1)
+        else:
+            summary[difficulty_key]["total"] += 1
+
+        if trail["status"] == "Open":
+            summary[difficulty_key]["open"] += 1
+    for x in ["1", "2", "3"]:
+        if x not in summary.keys():
+            summary[x] = dict(open = 0, total = 0)
+
+    summary.pop(5, None)
+    if "4" in summary.keys():
+        summary["3"]["open"] += summary["4"]["open"]
+        summary["3"]["total"] += summary["4"]["total"]
+    summary.pop("4", None)
+    for x in summary.keys():
+        for y in summary[x].keys():
+            summary[x][y] = repr(summary[x][y])
     return summary
 
 def titleRow(resort):
