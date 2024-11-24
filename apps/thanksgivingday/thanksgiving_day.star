@@ -6,7 +6,7 @@ Author: J. Alex Cooney
 """
 
 load("encoding/base64.star", "base64")
-load("math.star", "math")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("time.star", "time")
 
@@ -16,29 +16,30 @@ R0lGODlhIAAgAPcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 """)
 
 def main(config):
-    timezone = config.get("timezone") or "America/New_York"
-    now = time.now().in_location(timezone)
+    def getthanksgivingday(year):
+        nov30 = time.time(year = year, month = 11, day = 30, location = timezone)
+        day_of_week = humanize.day_of_week(nov30)
+        calc = day_of_week - 4
+        if calc >= 0:
+            day = 30 - calc
+        else:
+            day = 30 - (calc + 7)
 
-    thanksgiving_year = now.year
+        return day
 
-    thanksgiving_day = math.ceil(28 - (5 + now.year + now.year / 4 - now.year / 100 + now.year / 400) % 7)
-    if thanksgiving_year == 2024:
-        thanksgiving_day = 28
-    elif thanksgiving_year == 2025:
-        thanksgiving_day = 27
+    timezone = config.get("$tz", "America/New_York")
+    now = time.time(year = time.now().year, month = time.now().month, day = time.now().day, location = timezone)
 
-    if 11 == now.month:
-        if 0 > thanksgiving_day - now.day:
-            thanksgiving_year = now.year + 1
+    day = getthanksgivingday(now.year)
+    thanksgiving_day = time.time(year = now.year, month = 11, day = day, location = timezone)
+    if now >= thanksgiving_day:
+        next_year = now.year + 1
+        day = getthanksgivingday(next_year)
+        thanksgiving_day = time.time(year = next_year, month = 11, day = day, location = timezone)
 
-    if now.month > 11:
-        thanksgiving_year = now.year + 1
-
-    thanksgiving = time.time(year = thanksgiving_year, month = 11, day = thanksgiving_day, hour = 0, minute = 0, location = timezone)
-
-    print(thanksgiving)
-    days_til_thanksgiving = math.ceil(time.parse_duration(thanksgiving - now).seconds / 86400)
-    print(days_til_thanksgiving)
+    diff = thanksgiving_day - now
+    diff_days = abs(int(diff.hours / 24))
+    days_til_thanksgiving = diff_days
 
     return render.Root(
         delay = 1000,
