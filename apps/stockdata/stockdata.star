@@ -26,6 +26,29 @@ DEMO_RESPONSE_EOD = """
 {"meta":{"date_from":"2024-04-03","date_to":"2024-09-30","max_period_days":180},"data":[{"date":"2024-09-27T00:00:00.000Z","open":228.45,"high":229.5,"low":227.3,"close":227.76,"volume":718653},{"date":"2024-09-26T00:00:00.000Z","open":227.39,"high":228.48,"low":225.44,"close":227.58,"volume":876826},{"date":"2024-09-25T00:00:00.000Z","open":225.03,"high":227.26,"low":224.02,"close":226.38,"volume":917506},{"date":"2024-09-24T00:00:00.000Z","open":228.65,"high":229.34,"low":225.75,"close":227.44,"volume":715937},{"date":"2024-09-23T00:00:00.000Z","open":227.28,"high":229.44,"low":225.84,"close":226.49,"volume":1012914},{"date":"2024-09-20T00:00:00.000Z","open":230,"high":233.08,"low":227.65,"close":228.51,"volume":3653019},{"date":"2024-09-19T00:00:00.000Z","open":225.1,"high":229.81,"low":224.65,"close":228.89,"volume":2617886},{"date":"2024-09-18T00:00:00.000Z","open":217.55,"high":222.63,"low":217.55,"close":220.83,"volume":1204159},{"date":"2024-09-17T00:00:00.000Z","open":215.79,"high":216.9,"low":214.5,"close":216.85,"volume":949628},{"date":"2024-09-16T00:00:00.000Z","open":216.6,"high":217.2,"low":213.94,"close":216.46,"volume":1439857},{"date":"2024-09-13T00:00:00.000Z","open":223.67,"high":224.02,"low":221.93,"close":222.42,"volume":637411},{"date":"2024-09-12T00:00:00.000Z","open":222.44,"high":223.54,"low":219.84,"close":222.85,"volume":677202},{"date":"2024-09-11T00:00:00.000Z","open":221.43,"high":223.08,"low":217.91,"close":222.53,"volume":844035},{"date":"2024-09-10T00:00:00.000Z","open":218.85,"high":221.46,"low":216.78,"close":220.1,"volume":957387},{"date":"2024-09-09T00:00:00.000Z","open":220.92,"high":221.24,"low":216.72,"close":220.93,"volume":1605105},{"date":"2024-09-06T00:00:00.000Z","open":223.89,"high":225.23,"low":219.77,"close":220.87,"volume":1049640},{"date":"2024-09-05T00:00:00.000Z","open":221.65,"high":225.47,"low":221.54,"close":222.34,"volume":666189},{"date":"2024-09-04T00:00:00.000Z","open":221.66,"high":221.77,"low":217.49,"close":220.72,"volume":1275850},{"date":"2024-09-03T00:00:00.000Z","open":228.62,"high":229,"low":221.22,"close":222.72,"volume":893428},{"date":"2024-08-30T00:00:00.000Z","open":230.22,"high":230.4,"low":227.5,"close":228.88,"volume":732195},{"date":"2024-08-29T00:00:00.000Z","open":230.1,"high":232.92,"low":228.89,"close":229.82,"volume":962691},{"date":"2024-08-28T00:00:00.000Z","open":228.02,"high":229.85,"low":225.7,"close":226.4,"volume":666048},{"date":"2024-08-27T00:00:00.000Z","open":226,"high":228.85,"low":224.89,"close":228.13,"volume":580021},{"date":"2024-08-26T00:00:00.000Z","open":226.84,"high":227.27,"low":223.93,"close":227.26,"volume":537251},{"date":"2024-08-23T00:00:00.000Z","open":225.89,"high":228.22,"low":224.36,"close":226.83,"volume":746107},{"date":"2024-08-22T00:00:00.000Z","open":227.77,"high":228.33,"low":223.91,"close":224.7,"volume":750001},{"date":"2024-08-21T00:00:00.000Z","open":226.58,"high":227.97,"low":225.24,"close":226.34,"volume":576928},{"date":"2024-08-20T00:00:00.000Z","open":225.77,"high":227.17,"low":225.5,"close":226.53,"volume":518578},{"date":"2024-08-19T00:00:00.000Z","open":225.7,"high":225.93,"low":223.06,"close":225.87,"volume":637866},{"date":"2024-08-16T00:00:00.000Z","open":224.1,"high":226.81,"low":223.66,"close":226.06,"volume":459305},{"date":"2024-08-15T00:00:00.000Z","open":224.54,"high":225.35,"low":222.8,"close":224.69,"volume":719010},{"date":"2024-08-14T00:00:00.000Z","open":220.53,"high":223.02,"low":219.7,"close":221.6,"volume":620397},{"date":"2024-08-13T00:00:00.000Z","open":219.09,"high":221.87,"low":219.09,"close":221.09,"volume":588586},{"date":"2024-08-12T00:00:00.000Z","open":216.07,"high":219.5,"low":215.62,"close":217.59,"volume":564156},{"date":"2024-08-09T00:00:00.000Z","open":212.05,"high":216.78,"low":211.99,"close":216.16,"volume":910242},{"date":"2024-08-08T00:00:00.000Z","open":213.11,"high":214.2,"low":208.9,"close":213.27,"volume":836990},{"date":"2024-08-07T00:00:00.000Z","open":206.9,"high":213.63,"low":206.45,"close":209.83,"volume":723959},{"date":"2024-08-06T00:00:00.000Z","open":205.43,"high":209.98,"low":201.1,"close":207.14,"volume":1427786},{"date":"2024-08-05T00:00:00.000Z","open":199.08,"high":213.45,"low":196,"close":209.26,"volume":2546103},{"date":"2024-08-02T00:00:00.000Z","open":218.94,"high":225.57,"low":217.77,"close":219.81,"volume":2258503},{"date":"2024-08-01T00:00:00.000Z","open":224.33,"high":224.4,"low":217.03,"close":218.44,"volume":1305610},{"date":"2024-07-31T00:00:00.000Z","open":221.5,"high":223.81,"low":220.88,"close":222.15,"volume":547269},{"date":"2024-07-30T00:00:00.000Z","open":219.12,"high":220.27,"low":216.12,"close":218.67,"volume":558220},{"date":"2024-07-29T00:00:00.000Z","open":217.01,"high":219.28,"low":215.79,"close":218.2,"volume":380440},{"date":"2024-07-26T00:00:00.000Z","open":218.76,"high":219.48,"low":216.02,"close":218.03,"volume":659959},{"date":"2024-07-25T00:00:00.000Z","open":218.86,"high":220.81,"low":214.64,"close":217.48,"volume":641883},{"date":"2024-07-24T00:00:00.000Z","open":224.02,"high":224.77,"low":217.13,"close":218.63,"volume":1005202},{"date":"2024-07-23T00:00:00.000Z","open":224.37,"high":226.93,"low":222.68,"close":225,"volume":464841},{"date":"2024-07-22T00:00:00.000Z","open":227.34,"high":227.77,"low":223.09,"close":223.99,"volume":472464},{"date":"2024-07-19T00:00:00.000Z","open":224.8,"high":226.79,"low":223.31,"close":224.44,"volume":432814},{"date":"2024-07-18T00:00:00.000Z","open":230.16,"high":230.29,"low":222.45,"close":224.21,"volume":694731},{"date":"2024-07-17T00:00:00.000Z","open":229.45,"high":231.38,"low":226.65,"close":228.96,"volume":844950},{"date":"2024-07-16T00:00:00.000Z","open":235.12,"high":236.25,"low":232.38,"close":234.82,"volume":488522},{"date":"2024-07-15T00:00:00.000Z","open":236.5,"high":237.16,"low":233.12,"close":234.41,"volume":582872},{"date":"2024-07-12T00:00:00.000Z","open":228.99,"high":232.61,"low":228.69,"close":230.59,"volume":753526},{"date":"2024-07-11T00:00:00.000Z","open":231.43,"high":232.38,"low":225.77,"close":227.66,"volume":812086},{"date":"2024-07-10T00:00:00.000Z","open":229.38,"high":233.07,"low":229.29,"close":232.91,"volume":1112322},{"date":"2024-07-09T00:00:00.000Z","open":227.89,"high":229.38,"low":226.38,"close":228.69,"volume":514199},{"date":"2024-07-08T00:00:00.000Z","open":227.19,"high":227.84,"low":223.27,"close":227.81,"volume":623561},{"date":"2024-07-05T00:00:00.000Z","open":221.73,"high":226.45,"low":221.65,"close":226.35,"volume":761808},{"date":"2024-07-03T00:00:00.000Z","open":219.99,"high":221.53,"low":219.04,"close":221.53,"volume":567537},{"date":"2024-07-02T00:00:00.000Z","open":216.09,"high":220.36,"low":215.14,"close":220.36,"volume":610370},{"date":"2024-07-01T00:00:00.000Z","open":212.16,"high":217.51,"low":211.95,"close":216.7,"volume":848765},{"date":"2024-06-28T00:00:00.000Z","open":215.78,"high":216.06,"low":210.31,"close":210.48,"volume":1405410},{"date":"2024-06-27T00:00:00.000Z","open":214.76,"high":215.7,"low":212.37,"close":214.11,"volume":759724},{"date":"2024-06-26T00:00:00.000Z","open":211.45,"high":214.85,"low":210.66,"close":213.15,"volume":894971},{"date":"2024-06-25T00:00:00.000Z","open":209.19,"high":211.34,"low":208.64,"close":209.17,"volume":468248},{"date":"2024-06-24T00:00:00.000Z","open":207.61,"high":212.68,"low":206.63,"close":208.29,"volume":692661},{"date":"2024-06-21T00:00:00.000Z","open":210.43,"high":211.87,"low":207.22,"close":207.22,"volume":1483581},{"date":"2024-06-20T00:00:00.000Z","open":213.96,"high":214.22,"low":208.87,"close":209.67,"volume":886637},{"date":"2024-06-18T00:00:00.000Z","open":217.59,"high":218.61,"low":213,"close":214.32,"volume":1240386},{"date":"2024-06-17T00:00:00.000Z","open":213.27,"high":218.95,"low":212.75,"close":216.67,"volume":1856294},{"date":"2024-06-14T00:00:00.000Z","open":213.84,"high":215.12,"low":211.34,"close":212.57,"volume":1048424},{"date":"2024-06-13T00:00:00.000Z","open":214.66,"high":216.74,"low":211.62,"close":214.22,"volume":1702248},{"date":"2024-06-12T00:00:00.000Z","open":207.36,"high":220.2,"low":206.93,"close":213.12,"volume":3328339},{"date":"2024-06-11T00:00:00.000Z","open":193.67,"high":207.15,"low":193.64,"close":207.09,"volume":2713362},{"date":"2024-06-10T00:00:00.000Z","open":197.14,"high":197.27,"low":192.24,"close":193.15,"volume":1746167},{"date":"2024-06-07T00:00:00.000Z","open":194.8,"high":196.94,"low":194.16,"close":196.9,"volume":901053},{"date":"2024-06-06T00:00:00.000Z","open":195.69,"high":196.49,"low":194.18,"close":194.44,"volume":568378},{"date":"2024-06-05T00:00:00.000Z","open":195.42,"high":196.89,"low":194.9,"close":195.87,"volume":856513},{"date":"2024-06-04T00:00:00.000Z","open":194.69,"high":195.32,"low":193.11,"close":194.33,"volume":517116},{"date":"2024-06-03T00:00:00.000Z","open":192.95,"high":194.99,"low":192.55,"close":194.03,"volume":389854},{"date":"2024-05-31T00:00:00.000Z","open":191.32,"high":192.56,"low":189.92,"close":192.29,"volume":1343624},{"date":"2024-05-30T00:00:00.000Z","open":190.77,"high":192.18,"low":190.63,"close":191.26,"volume":707598},{"date":"2024-05-29T00:00:00.000Z","open":189.65,"high":192.24,"low":189.61,"close":190.37,"volume":741996},{"date":"2024-05-28T00:00:00.000Z","open":191.58,"high":192.98,"low":189.13,"close":190.08,"volume":837075},{"date":"2024-05-24T00:00:00.000Z","open":188.79,"high":190.56,"low":188.06,"close":190,"volume":469522},{"date":"2024-05-23T00:00:00.000Z","open":190.98,"high":190.98,"low":186.63,"close":186.91,"volume":723571},{"date":"2024-05-22T00:00:00.000Z","open":192.28,"high":192.82,"low":190.28,"close":190.96,"volume":410479},{"date":"2024-05-21T00:00:00.000Z","open":191.13,"high":192.72,"low":190.93,"close":192.37,"volume":561259},{"date":"2024-05-20T00:00:00.000Z","open":189.31,"high":191.91,"low":189.03,"close":191.05,"volume":963553},{"date":"2024-05-17T00:00:00.000Z","open":189.61,"high":190.79,"low":189.2,"close":189.9,"volume":435843},{"date":"2024-05-16T00:00:00.000Z","open":190.48,"high":191.09,"low":189.67,"close":189.93,"volume":735760},{"date":"2024-05-15T00:00:00.000Z","open":187.99,"high":190.63,"low":187.38,"close":189.73,"volume":888870},{"date":"2024-05-14T00:00:00.000Z","open":187.64,"high":188.3,"low":186.31,"close":187.4,"volume":581182},{"date":"2024-05-13T00:00:00.000Z","open":185.47,"high":187.1,"low":184.64,"close":186.29,"volume":1322434},{"date":"2024-05-10T00:00:00.000Z","open":184.97,"high":185.09,"low":182.14,"close":183.03,"volume":717646},{"date":"2024-05-09T00:00:00.000Z","open":182.54,"high":184.65,"low":182.14,"close":184.62,"volume":777690},{"date":"2024-05-08T00:00:00.000Z","open":182.89,"high":183.04,"low":181.47,"close":182.73,"volume":549698},{"date":"2024-05-07T00:00:00.000Z","open":183.58,"high":184.89,"low":181.33,"close":182.35,"volume":848552},{"date":"2024-05-06T00:00:00.000Z","open":182.37,"high":184.14,"low":180.43,"close":181.65,"volume":1066540},{"date":"2024-05-03T00:00:00.000Z","open":186.75,"high":186.99,"low":182.68,"close":183.36,"volume":3987616},{"date":"2024-05-02T00:00:00.000Z","open":172.46,"high":173.41,"low":170.9,"close":173.16,"volume":1308289},{"date":"2024-05-01T00:00:00.000Z","open":169.79,"high":172.7,"low":169.15,"close":169.34,"volume":602547},{"date":"2024-04-30T00:00:00.000Z","open":173.31,"high":174.98,"low":170.05,"close":170.12,"volume":619133},{"date":"2024-04-29T00:00:00.000Z","open":173.38,"high":176.03,"low":173.15,"close":173.54,"volume":1210079},{"date":"2024-04-26T00:00:00.000Z","open":169.86,"high":171.32,"low":169.19,"close":169.19,"volume":535997},{"date":"2024-04-25T00:00:00.000Z","open":169.53,"high":170.59,"low":168.18,"close":169.94,"volume":1291572},{"date":"2024-04-24T00:00:00.000Z","open":166.53,"high":169.29,"low":166.26,"close":168.99,"volume":787085},{"date":"2024-04-23T00:00:00.000Z","open":165.32,"high":167.05,"low":165.03,"close":166.81,"volume":781488},{"date":"2024-04-22T00:00:00.000Z","open":165.59,"high":167.25,"low":164.78,"close":165.91,"volume":933039},{"date":"2024-04-19T00:00:00.000Z","open":166.16,"high":166.39,"low":164.08,"close":164.96,"volume":1030130},{"date":"2024-04-18T00:00:00.000Z","open":168.03,"high":168.62,"low":166.56,"close":167.03,"volume":900164},{"date":"2024-04-17T00:00:00.000Z","open":169.55,"high":170.63,"low":168,"close":168,"volume":604497},{"date":"2024-04-16T00:00:00.000Z","open":171.67,"high":173.75,"low":168.27,"close":169.34,"volume":1175102},{"date":"2024-04-15T00:00:00.000Z","open":175.45,"high":176.61,"low":172.51,"close":172.7,"volume":2004619},{"date":"2024-04-12T00:00:00.000Z","open":174.26,"high":178.35,"low":174.23,"close":176.62,"volume":2324139},{"date":"2024-04-11T00:00:00.000Z","open":168.31,"high":175.46,"low":168.18,"close":175.05,"volume":1986958},{"date":"2024-04-10T00:00:00.000Z","open":168.85,"high":169.06,"low":167.12,"close":167.77,"volume":647371},{"date":"2024-04-09T00:00:00.000Z","open":168.72,"high":170.07,"low":168.35,"close":169.69,"volume":554828},{"date":"2024-04-08T00:00:00.000Z","open":169.07,"high":169.19,"low":168.24,"close":168.47,"volume":426050},{"date":"2024-04-05T00:00:00.000Z","open":169.56,"high":170.38,"low":168.97,"close":169.59,"volume":608935},{"date":"2024-04-04T00:00:00.000Z","open":170.44,"high":171.91,"low":168.84,"close":168.86,"volume":737347},{"date":"2024-04-03T00:00:00.000Z","open":168.75,"high":170.67,"low":168.62,"close":169.73,"volume":663613}]}
 """
 
+API_FIELDS = {
+    "stockdata": {
+        "data": "data",
+        "date": "date",
+        "meta": "meta",
+        "open": "open",
+        "close": "close",
+        "data_order_asc": True,
+        "time_format_intraday": "2006-01-02T15:04:05Z07:00",
+        "time_format_eod": "2006-01-02T15:04:05Z07:00",
+    },
+    "apistocks": {
+        "data": "Results",
+        "date": "Date",
+        "meta": "Metadata",
+        "open": "Open",
+        "close": "Close",
+        "data_order_asc": False,
+        "time_format_intraday": "2006-01-02 15:04",
+        "time_format_eod": "2006-01-02",
+    },
+}
+
 def main(config):
     api_token = config.get("api_token")
     symbol = config.get("symbol")
@@ -34,19 +57,24 @@ def main(config):
     extended_hours = config.bool("extended_hours", False)
     color_profit = get_preferences(config)
     ttl = int(config.get("ttl", "86400"))
-    query_type = config.get("query_type")
+    query_type = config.get("query_type", "intraday")
+    provider = config.get("provider", "stockdata")
     if missing_parameter:
         symbol = "AAPL"
+        provider = "stockdata"
         if query_type == "intraday":
             data_raw = json.decode(DEMO_RESPONSE_INTRADAY)
         else:
             data_raw = json.decode(DEMO_RESPONSE_EOD)
     else:
-        data_raw, status_code = make_stockdata_request(query_type, api_token, symbol, extended_hours, select_period, ttl)
+        if provider == "stockdata":
+            data_raw, status_code = make_stockdata_request(query_type, api_token, symbol, extended_hours, select_period, ttl)
+        else:
+            data_raw, status_code = make_apistocks_request(query_type, api_token, symbol, select_period, ttl)
         if status_code != 200:
             return error_view(str(status_code))
 
-    return get_data_select_period(data_raw, color_profit, select_period, symbol)
+    return get_data_select_period(data_raw, provider, query_type, color_profit, select_period, symbol)
 
 def check_inputs(api_token, symbol):
     missing_parameter = None
@@ -91,10 +119,14 @@ def display_percentage_change(last_price, previous_last_price):
     difference_percentage = (difference / previous_last_price) * 100
     return humanize.float("#,###.##", difference_percentage)
 
-def get_data_select_period(response, colors, select_period, symbol):
-    data = response["data"]
+def get_data_select_period(response, provider, query_type, colors, select_period, symbol):
+    data = response[API_FIELDS[provider]["data"]]
 
-    start_date = time.parse_time(data[0]["date"])
+    if not API_FIELDS[provider]["data_order_asc"]:
+        data = reversed(data)
+
+    time_format = API_FIELDS[provider]["time_format_%s" % query_type]
+    start_date = time.parse_time(data[0][API_FIELDS[provider]["date"]], time_format)
     start_date = time.parse_time(start_date.format("2006-01-02"), "2006-01-02")
     start_date -= (select_period - 1) * 24 * time.hour
 
@@ -105,8 +137,8 @@ def get_data_select_period(response, colors, select_period, symbol):
             record = entry["data"]
         else:
             record = entry
-        if time.parse_time(entry["date"]) < start_date:
-            previous_last_price = record["close"]
+        if time.parse_time(entry[API_FIELDS[provider]["date"]], time_format) < start_date:
+            previous_last_price = record[API_FIELDS[provider]["close"]]
             break
         list_data.append(record)
 
@@ -115,16 +147,16 @@ def get_data_select_period(response, colors, select_period, symbol):
     # If we don't know the previous close (e.g. because we display the full time
     # range like 7 days of intraday data), compare against the first open.
     if not previous_last_price:
-        previous_last_price = list_data[0]["open"]
+        previous_last_price = list_data[0][API_FIELDS[provider]["open"]]
 
     prices = []
     for entry in list_data:
-        value = entry["close"] - previous_last_price
+        value = entry[API_FIELDS[provider]["close"]] - previous_last_price
         prices.append(value)
 
     min_price = min(prices)
     max_price = max(prices)
-    last_price = list_data[-1]["close"]
+    last_price = list_data[-1][API_FIELDS[provider]["close"]]
 
     chart_data = []
     i = 0
@@ -280,7 +312,7 @@ def get_schema():
             value = "intraday",
         ),
         schema.Option(
-            display = "Historical Data (end-of-day price)",
+            display = "Historical Data (end-of-day close)",
             value = "eod",
         ),
     ]
@@ -322,8 +354,25 @@ def get_schema():
             schema.Text(
                 id = "api_token",
                 name = "API Token",
-                desc = "The API Token for your StockData",
+                desc = "The API token",
                 icon = "key",
+            ),
+            schema.Dropdown(
+                id = "provider",
+                name = "Data provider",
+                desc = "API",
+                icon = "database",
+                default = "stockdata",
+                options = [
+                    schema.Option(
+                        display = "stockdata.org",
+                        value = "stockdata",
+                    ),
+                    schema.Option(
+                        display = "apistocks.com",
+                        value = "apistocks",
+                    ),
+                ],
             ),
             schema.Dropdown(
                 id = "select_period",
@@ -352,7 +401,7 @@ def get_schema():
             schema.Toggle(
                 id = "extended_hours",
                 name = "Extended hours",
-                desc = "Show extended trading hours",
+                desc = "Show extended trading hours (StockData only)",
                 icon = "plugCircleBolt",
                 default = False,
             ),
@@ -407,6 +456,29 @@ def make_stockdata_request(query_type, api_token, symbol, extended_hours, select
             url += "&extended_hours=false"
 
     response = http.get(url, ttl_seconds = ttl)
+    if response.status_code != 200:
+        return None, response.status_code
+
+    return response.json(), 200
+
+def make_apistocks_request(query_type, api_token, symbol, select_period, ttl):
+    if query_type == "eod":
+        query_type = "daily"
+
+    url = "https://apistocks.p.rapidapi.com/{endpoint}?symbol={symbol}".format(
+        endpoint = query_type,
+        symbol = symbol,
+    )
+    if query_type == "daily":
+        date_end = time.now().in_location("America/New_York")
+        date_start = date_end - select_period * 24 * time.hour
+        url += "&dateStart=%s&dateEnd=%s" % (date_start.format("2006-01-02"), date_end.format("2006-01-02"))
+
+    headers = {
+        "x-rapidapi-host": "apistocks.p.rapidapi.com",
+        "x-rapidapi-key": api_token,
+    }
+    response = http.get(url, headers = headers, ttl_seconds = ttl)
     if response.status_code != 200:
         return None, response.status_code
 
