@@ -33,6 +33,7 @@ DEFAULT_TIMEZONE = "America/New_York"
 CACHE_TTL_SECONDS = 43200
 ENGLISH = "en"
 SPANISH = "es"
+GERMAN = "de"
 BIRTHS = "births"
 DEATHS = "deaths"
 EVENTS = "events"
@@ -65,6 +66,16 @@ LANG = {
         "b": "b. ",
         "d": "d. ",
         "Wikipedia error": "Wikipedia {} error.",
+    },
+    "de": {
+        "Today in History": "Geschichte heute",
+        "Include Births": "Mit Geburtstagen",
+        "Include random person who was born on this day.": "Eine zufällige Person, die am heutigen Tag geboren wurde, einbeziehen.",
+        "Include Deaths": "Mit Todestagen",
+        "Include random person who died on this day.": "Eine zufällige Person, die am heutigen Tag gestorben ist, einbeziehen.",
+        "b": "g. ",
+        "d": "t. ",
+        "Wikipedia error": "Fehler {} von Wikipedia.",
     },
 }
 
@@ -142,7 +153,7 @@ def get_schema():
         fields = [
             schema.Dropdown(
                 id = OPTDISPLANG,
-                name = "English / Español",
+                name = "English / Español / Deutsch",
                 desc = "",
                 icon = "hashtag",
                 default = ENGLISH,
@@ -154,6 +165,10 @@ def get_schema():
                     schema.Option(
                         display = "Español",
                         value = SPANISH,
+                    ),
+                    schema.Option(
+                        display = "Deutsch",
+                        value = GERMAN,
                     ),
                 ],
             ),
