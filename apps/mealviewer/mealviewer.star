@@ -1,4 +1,3 @@
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -15,18 +14,13 @@ def get_next_lunch(school_name):
         end.format("01-02-2006"),
     )
 
-    body = cache.get(url)
-    if body == None:
-        headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        }
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
 
-        response = http.get(url, headers = headers)
-        body = response.body()
-        cache.set(url, body, ttl_seconds = 3600)
-
-    data = json.decode(body)
+    response = http.get(url, headers = headers, ttl_seconds = 3600)
+    data = response.json()
 
     num_schedules = len(data["menuSchedules"])
 
