@@ -11,6 +11,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
+BLANK = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAMCAYAAABFohwTAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAABKADAAQAAAABAAAADAAAAAD1HLXDAAAADElEQVQIHWNgGD4AAADMAAH30YzJAAAAAElFTkSuQmCC")
+COLON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAMCAYAAABFohwTAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAABKADAAQAAAABAAAADAAAAAD1HLXDAAAAGUlEQVQIHWNgIA/8hwKQbibyjCBCF2m2AADUkw/1AKlPfQAAAABJRU5ErkJggg==")
 #############################
 # THAI NUMBERS
 TD_ZRO = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAADKADAAQAAAABAAAADAAAAAATDPpdAAAAQElEQVQoFWNgGPqAEd0L/4EAWYwRCJD5KGx0xSBJbGJgTTgl0DQxgVWTQJCsAcVsbM5CF8MIAQwF+EIJxTocHAA6px/vs8WNiAAAAABJRU5ErkJggg==")
@@ -23,9 +25,6 @@ TD_SIX = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IA
 TD_SEV = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAADKADAAQAAAABAAAADAAAAAATDPpdAAAAVklEQVQoFbXPMQ6AMAwDwIL4/5ehHi7qwECE6sWJGzvpGLtwTyT77C5oGy4brEx/TOhTmyn2SFh7NW6f9MkgPReUIWLgLOwPuAyEDK41Iy7DW7qhX/wAhwsr/8Q/cI8AAAAASUVORK5CYII=")
 TD_EGT = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAADKADAAQAAAABAAAADAAAAAATDPpdAAAAV0lEQVQoFc2QSQ7AIAwDgf//mTKHQaaqBOoJXxLHzgKlXIM+wDHt5CLNeKsNWbSWsQ5MvjNP4+8kN2TOQDhw+PLoFDQQuV9taXiLn5yi3f6EHE2oyY/jA61NN+lglROsAAAAAElFTkSuQmCC")
 TD_NNE = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAADKADAAQAAAABAAAADAAAAAATDPpdAAAAW0lEQVQoFbVPQQ4AIAiq/v/nihrMlrY6xEVUwErpF2oHssvrgRwZmMh97iAfFQIAzWSTLyI2FN6Itz/wtA1hsGq09Oa64C2VaIgMeIpn8mbDjwVgwkSjuQQn0gBTU0fOkXQb9gAAAABJRU5ErkJggg==")
-
-TD_BLANK = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAMCAYAAABFohwTAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAABKADAAQAAAABAAAADAAAAAD1HLXDAAAADElEQVQIHWNgGD4AAADMAAH30YzJAAAAAElFTkSuQmCC")
-TD_COLON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAMCAYAAABFohwTAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAABKADAAQAAAABAAAADAAAAAD1HLXDAAAAGUlEQVQIHWNgIA/8hwKQbibyjCBCF2m2AADUkw/1AKlPfQAAAABJRU5ErkJggg==")
 
 TD_DIGITS = [TD_ZRO, TD_ONE, TD_TWO, TD_THR, TD_FOU, TD_FIV, TD_SIX, TD_SEV, TD_EGT, TD_NNE]
 
@@ -71,7 +70,39 @@ TW_HALF = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABMAAAAOCAYAAADNGCeJAAAAa0lEQVR
 TW_NATEE = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABIAAAAOCAYAAAAi2ky3AAAAVUlEQVR4nO2PMQ6AMAwDz6j//7JZSFpQqkqIjd6Uwbk4sKmwjW0DtDfLgL8uleiqJkkUc+YkRaMyf0wvDPT9TkhinIoWZJMgRH5eWHCTjKJ8oQr9nBM1FjYLRY+cwwAAAABJRU5ErkJggg==")
 TW_YEE = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAcAAAAOCAYAAADjXQYbAAAAQklEQVR4nK2NSQ4AIAgDp8b/f7lexAXjxdhTgU6BJNvYNkDJx3ettTUWgJ+qomnzpTtJOiBFeplHuGZy5k6S24uPart8M+zMIuisAAAAAElFTkSuQmCC")
 TW_DIGITS = [TW_NEUNG, TW_1, TW_2, TW_3, TW_4, TW_5, TW_6, TW_7, TW_8, TW_9, TW_SIB]
-TW_BLANK = TD_BLANK
+#############################
+# KOREAN WORDS
+
+KW_1  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAT0lEQVR4nK2QwQoAIAhDNfz/X65TsCRzaO+Wy00m8pMJ3LSWMb6NdVRVLaeGyZFIpzEF+TLNL2TgNYbD8tkM3ny8xJZzxsi/xByFsMm7yAVm/kfmldHj0AAAAABJRU5ErkJggg==")
+KW_2  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAO0lEQVR4nGNgoAAwInP+////n6AGRkZGrBLEaEYGTKQopqpm6vmZroCRgYH0UGZgIML5hAwduKgaOM0Aq78UCG8Chh4AAAAASUVORK5CYII=")
+KW_3  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAASElEQVR4nMWQ2woAIAhDt+j/f3m9CjKxoDov4n0KvECSogWA4Yo6pOYd/jXPKrlzPxRwg8pvk2R7m5Po/KTK3RbjLdlXsLJPWQuTS8kLcEsTAAAAAElFTkSuQmCC")
+KW_4  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAQklEQVR4nGNgoAf4////f2SagYGBgQldkhTARFjJYNTMgk+SUDjg1czIyMiIz6BB4mdcfkR2PlbNuBTgAxQ5myIAAGZDGBMSVfZeAAAAAElFTkSuQmCC")
+KW_5  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAd0lEQVR4nNVUQQ7AIAgri///cncZiXE4YOKS9aZAoZUI/AEkWcV1VBEpZsON980rAAARkbrRusYkuYP8CaVWq4DePV6YFkSJozHvnFZsKbCealQemjaT59Vq3MxbKk4OqmiAb8vXG39DRvFbl5Yaexu9pXH0yzwBdquTmxYhxSoAAAAASUVORK5CYII=")
+KW_6  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAd0lEQVR4nNVTQQ7AIAizi///cndaQhhDwV7Wm0DaKnWMP4EkTzkuhRGLL1O+PrMmAKiNvYRJ0gtFNSmynUW91XPaPg3awhmJr63OJeESaWDa9kqpjm6b5QAA0q+n2nFrrhMiifAzmKawQBgl/Bgrst3wSYV313MDYwrTTUBJf5MAAAAASUVORK5CYII=")
+KW_7  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAeUlEQVR4nMVT2xaAIAiDjv//y/TWsSmXldneBMdAh8hPUAyYmV1JVcUcxmY8V8zhDuTszMDleok+vlL4eFooE8ma/ESYxqo/rkxcdvXM0eyfu67eCXqCaI+jiTDfKkWrjTFPfxN+s6ciceNYu+GFXQYYhNM1IKaKcALzX3fUjbNCIgAAAABJRU5ErkJggg==")
+KW_8  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAgklEQVR4nNVUQQ7AIAhrE///5e7kwojg0HlYbwKlJRCBP0GSdjntpBGSjDgPYd8gI1ZEUmFJ8uRRrILpSrKCUc7H3ux8a8dVg8BkBbsTr+DYxCTpb8S+S8KdNDLgBWa9WuTOO1xFZOKeuIvbZEX0zXHZmhYVraDC/+TL7LATZfcAABcObXv9xS8NlAAAAABJRU5ErkJggg==")
+KW_9  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAdklEQVR4nNVTWw6AMAijxvtfuX65xKVDO1mM/VoYUMoj4g8gySrf/X05Y8LzDQApcV+lCrjD05hGTJJ9kLJlyNor82QBqnUuqfrfMueVsJdrtDAA8EmrnZwRBec0M/eLeuXU2yqXqylWM3Lv2BmFhSWKK+AoPgABSX/PzMd2egAAAABJRU5ErkJggg==")
+KW_A  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAU0lEQVR4nLWQSQ4AIAgDaeL/v4wnDCpbXOYIpVCIXsGKSJMWPYOtngl5QfotiiEAgLWoNBz9wBRUMo/NAKAb+tQvTO5pNhk6vcr9dnVz6lrhKnMHK/1fx3nkKB8AAAAASUVORK5CYII=")
+KW_B  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAgklEQVR4nM1TQQ7AIAizif//8nZyYR2yCjNZb4KlWKS1P+AwiO5k+FMeJ2YXI+EIzOsjCAA2AQAjnnXA1uJYV7q1RBbyiiqQhJVXpRuqzFiJ8ce7XsyzzFoYwdb8rPib1fyBOycVEc+NHQ7dkN1vd49VcgXsyGOdtls2dOyhMuNV7gmAg5PTORkUbwAAAABJRU5ErkJggg==")
+KW_C  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAfElEQVR4nMVUWw7AIAijye5/ZfaxaBiTCAhZ/xRoeSnRT4A8MDNPA4Cv++OzsslYU2zFqQMtoui9hWsE6WwAYNxHSd3CO8ikqpJwCXvFdn4tM45iVqxnaW11FY7JMx2ArspL4umG9d7TqFq011Z3vFeXMFH/UpnC6T83iBu7eV/8RoBRPAAAAABJRU5ErkJggg==")
+
+# S for Sino Korean
+KW_S1  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAVElEQVR4nL1SywoAIAjT6P9/2U6GhvkK2qm0zTkC+AkiIj7PW4OBiFhSlLWzLu/DE4ymuuQIiiwtsWVv+g6MH0mBVFhdKGUrcZPUdVT6JC3VDJ52XnbfO/VQCnj9AAAAAElFTkSuQmCC")
+KW_S2  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAP0lEQVR4nGNgoCf4////fxibBZ8kIyMjI1mmYuPjEsMuSMBAJqKdhQWMRM0ogNSoQkkkjIyMjGQnElJdR5GfAUzFM+1LXBrBAAAAAElFTkSuQmCC")
+KW_S3  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAARklEQVR4nGNgoDb4////f2LEmSixZOA0YwCYv7D5+z8SwKmRWD5BCWRxnJqJARRpRgeMpJrMyMjIiFWCkGaqpjAWUm1HBgA6PUfKH+u6hAAAAABJRU5ErkJggg==")
+KW_S4  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAATUlEQVR4nL2RwQoAIAhDt+j/f9lOgsQkpejdlMmmAr8wM4v1qIgy5HCVt8MeuRJdOpNkO8bupmoHAGbXQKbKdox9qTkdJzvi1ataPHVeYuU/20zB8k0AAAAASUVORK5CYII=")
+KW_S5  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAQklEQVR4nGNgGCjAiC7w/////zgVMzJiqCdKI155QhqxqWMiRgNRgFRnUy/ASHUJRX6mSDMjAwPx0YSikRT/Ux0AAM5RJ+5g92YTAAAAAElFTkSuQmCC")
+KW_S6  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAARklEQVR4nK1QSRIAIAiS/v9nO0tjasRR2dRMAHjg7p6SgYPfEl73lVA24P2/m6dAlTZuwWaZ+ZomhvROQhC8Po3NpdqSeAMAIjPnMmZSLAAAAABJRU5ErkJggg==")
+KW_S7  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAVklEQVR4nK2SOw4AIAhDxXj/K9fFQRH0JdoRaMuvlAeYD0jSUmBmPu9jGLN4yxy3FqmbBm7OFalRzMqRezoeKQ7Jp4VlueudQ9LXO1NXpEqw/S0ijZk7c99P0uY1jB4AAAAASUVORK5CYII=")
+KW_S8  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAVElEQVR4nL2SMQ7AMAwCTdX/f/myNBVLE5yht6HIGKxU/QWA6/vrwZGktvNOX1vHBe1hHqqsc4r313RLhgCi40UpXCQJZoqjbb4g+iQtx5Q3+0nfAba4N/R6/4G8AAAAAElFTkSuQmCC")
+KW_S9  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAN0lEQVR4nGNgGCjAiMz5////f4IaGBkZCanBCtANZyLLlAHXzMjAQFxAYWgkFHCEDB2iATZwmgHVYRALsx+PpAAAAABJRU5ErkJggg==")
+KW_SA  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAARUlEQVR4nGNgoDb4////f2LkmCixhLqaYc7C53S8NjMyMjKS7Ax027DZjtVFuJxJjIGUAWJNRFbHQhUnkWMzRYmEImcDAFeJP9ee3oytAAAAAElFTkSuQmCC")
+
+KW_HOUR  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAQElEQVR4nGNgoCf4////fxibiZACfACrZmLBwGnGADD/4vI3zvBAl8CmEKtmYm3CUEcoapDlCcYzzQDVbKZIMwDk8jvTX9Z3KAAAAABJRU5ErkJggg==")
+KW_MIN  = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAYAAADwikbvAAAAP0lEQVR4nGNgoBb4////f1LkmSixjIVU23GCIepsUgEjubYxMjIy4lVAyFCUACPVBRSFNgog1WYUTxOjGTmgAEB0K+8483jVAAAAAElFTkSuQmCC")
+
+KW_HOURS = [KW_1, KW_2, KW_3, KW_4, KW_5, KW_6, KW_7, KW_8, KW_9, KW_A, KW_B, KW_C]
+KW_MINUTES = [KW_S1, KW_S2, KW_S3, KW_S4, KW_S5, KW_S6, KW_S7, KW_S8, KW_S9, KW_SA]
 #############################
 
 DEFAULT_LOCATION = {
@@ -93,10 +124,20 @@ def main(config):
         clock = render_roman_clock(current_time)
     if config.get("clocktype") == "thaiwords":
         clock = render_thaiwords_clock(current_time)
+    if config.get("clocktype") == "koreanwords":
+        clock = render_korean_clock(current_time)
 
     return render.Root(
         delay = 500,
         child = clock,
+    )
+
+def centered_row(images):
+    return render.Row(
+        expanded = True,
+        main_align = "center",
+        cross_align = "center",
+        children = [render.Image(img) for img in images],
     )
 
 def render_thai_time(hh, mm, separator):
@@ -120,14 +161,44 @@ def render_thai_clock(current_time):
     mm = current_time.format("04")
     return render.Animation(
         children = [
-            render_thai_time(hh, mm, TD_COLON),
-            render_thai_time(hh, mm, TD_BLANK),
+            render_thai_time(hh, mm, COLON),
+            render_thai_time(hh, mm, BLANK),
+        ],
+    )
+
+def img_of_koreanwords_minutes (minutes): 
+    if minutes == 0: return []
+    ten = minutes // 10 
+    unit = minutes % 10 
+    img_ten = KW_MINUTES[ten-1]
+    img_unit = KW_MINUTES[unit-1]
+    if ten == 0: 
+        return [img_unit, KW_MIN]
+    if ten == 1: 
+        return [KW_MINUTES[9], img_unit, KW_MIN]
+    return [img_ten, KW_MINUTES[9], img_unit, KW_MIN]
+
+def render_koreanwords_time(hours, minutes):
+    if minutes == 0: return [centered_row([KW_HOURS[hours-1], KW_HOUR])]
+    return [centered_row([KW_HOURS[hours-1], KW_HOUR]), centered_row(img_of_koreanwords_minutes(minutes))]
+
+def render_korean_clock(current_time):
+    hh = current_time.format("03")
+    mm = current_time.format("04")
+    return render.Animation(
+        children = [
+            render.Box(
+                render.Column(
+                    cross_align = "center",
+                    children = render_koreanwords_time(int(hh), int(mm)),
+                ),
+            ),
         ],
     )
 
 def img_of_thaiwords_minutes(minutes):
     if minutes == 0:
-        return [TW_BLANK]
+        return [BLANK]
     if minutes == 1:
         return [TW_DIGITS[0], TW_NATEE]
     if minutes <= 10:
@@ -145,21 +216,13 @@ def img_of_thaiwords_minutes(minutes):
     return [TW_DIGITS[minutes // 10], TW_SIB, TW_DIGITS[minutes % 10]]
 
 def render_thaiwords_time(hours, minutes):
-    def row(images):
-        return render.Row(
-            expanded = True,
-            main_align = "center",
-            cross_align = "center",
-            children = [render.Image(img) for img in images],
-        )
-
     if hours == 0 and minutes == 15:
-        return [row([TW_HOURS[0]]), row(img_of_thaiwords_minutes(15) + [TW_NATEE])]
+        return [centered_row([TW_HOURS[0]]), centered_row(img_of_thaiwords_minutes(15) + [TW_NATEE])]
 
     onerow = (minutes == 0) or (minutes == 30 and hours != 11) or (hours == 12 and minutes <= 10)
     if onerow:
-        return [row([TW_HOURS[hours]] + img_of_thaiwords_minutes(minutes))]
-    return [row([TW_HOURS[hours]]), row(img_of_thaiwords_minutes(minutes))]
+        return [centered_row([TW_HOURS[hours]] + img_of_thaiwords_minutes(minutes))]
+    return [centered_row([TW_HOURS[hours]]), centered_row(img_of_thaiwords_minutes(minutes))]
 
 def render_thaiwords_clock(current_time):
     hh = current_time.format("15")
@@ -222,6 +285,10 @@ def get_schema():
                         display = "Thai Words",
                         value = "thaiwords",
                     ),
+                    schema.Option(
+                        display = "Korean Words", 
+                        value = "koreanwords"
+                    )
                 ],
             ),
         ],
