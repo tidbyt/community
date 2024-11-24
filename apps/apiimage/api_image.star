@@ -19,6 +19,7 @@ def main(config):
     response_path = config.get("response_path", "")
     request_headers = config.get("request_headers", "")
     debug_output = config.bool("debug_output", False)
+    base_url = config.str("base_url", "")
     fit_screen = config.bool("fit_screen", False)
     ttl_seconds = config.get("ttl_seconds", 20)
     ttl_seconds = int(ttl_seconds)
@@ -26,16 +27,16 @@ def main(config):
     if debug_output:
         print("------------------------------")
         print("CONFIG - api_url: " + api_url)
+        print("CONFIG - base_url: " + base_url)
         print("CONFIG - response_path: " + response_path)
         print("CONFIG - request_headers: " + request_headers)
         print("CONFIG - debug_output: " + str(debug_output))
         print("CONFIG - fit_screen: " + str(fit_screen))
         print("CONFIG - ttl_seconds: " + str(ttl_seconds))
 
-    return get_image(api_url, response_path, request_headers, debug_output, fit_screen, ttl_seconds)
+    return get_image(api_url, base_url, response_path, request_headers, debug_output, fit_screen, ttl_seconds)
 
-def get_image(api_url, response_path, request_headers, debug_output, fit_screen, ttl_seconds):
-    base_url = ""
+def get_image(api_url, base_url, response_path, request_headers, debug_output, fit_screen, ttl_seconds):
     failure = False
     message = ""
 
@@ -130,9 +131,9 @@ def get_image(api_url, response_path, request_headers, debug_output, fit_screen,
                             if debug_output:
                                 print("Response content type JSON")
 
-                            api_url_array = api_url.split("/")
-                            if len(api_url_array) > 2:
-                                base_url = api_url_array[0] + "//" + api_url_array[2]
+                            # api_url_array = api_url.split("/")
+                            # if len(api_url_array) > 2:
+                            #     base_url = api_url_array[0] + "//" + api_url_array[2]
 
                             if type(output) == "string" and output.startswith("http") == False and (base_url == "" or base_url.startswith("http") == False):
                                 failure = True
@@ -148,7 +149,7 @@ def get_image(api_url, response_path, request_headers, debug_output, fit_screen,
                                 else:
                                     url = output
 
-                                img = get_data(url, debug_output, {}, ttl_seconds)
+                                img = get_data(url, debug_output, headerMap, ttl_seconds)
 
                                 if debug_output:
                                     print("Image URL: " + url)
@@ -293,15 +294,14 @@ def get_schema():
                 id = "api_url",
                 name = "API URL",
                 desc = "The API URL. Supports JSON or image types.",
-                icon = "",
+                icon = "globe",
                 default = "",
-                # default = "https://dog.ceo/api/breeds/image/random",
             ),
             schema.Text(
                 id = "response_path",
                 name = "JSON response path",
                 desc = "A comma separated path to the image URL in the response JSON. Use `[rand]` to choose a random index. eg. `json_key_1, 0, [rand], json_key_to_image_url`",
-                icon = "",
+                icon = "code",
                 default = "",
                 # default = "message",
             ),
@@ -309,29 +309,36 @@ def get_schema():
                 id = "request_headers",
                 name = "Request headers",
                 desc = "Comma separated key:value pairs to build the request headers. eg, `x-api-key:abc123,content-type:application/json`",
-                icon = "",
+                icon = "code",
                 default = "",
             ),
             schema.Dropdown(
                 id = "ttl_seconds",
                 name = "Refresh rate",
                 desc = "Refresh data at the specified interval. Useful for when an endpoint serves random images.",
-                icon = "",
+                icon = "clock",
                 default = ttl_options[1].value,
                 options = ttl_options,
+            ),
+            schema.Text(
+                id = "base_url",
+                name = "Base URL",
+                desc = "The base URL if needed",
+                icon = "globe",
+                default = "",
             ),
             schema.Toggle(
                 id = "fit_screen",
                 name = "Fit screen",
                 desc = "Fit image on screen.",
-                icon = "",
+                icon = "arrowsLeftRightToLine",
                 default = False,
             ),
             schema.Toggle(
                 id = "debug_output",
                 name = "Toggle debug messages",
                 desc = "Toggle debug messages. Will display the messages on the display if enabled.",
-                icon = "",
+                icon = "bug",
                 default = False,
             ),
         ],

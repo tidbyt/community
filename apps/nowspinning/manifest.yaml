@@ -1,0 +1,6 @@
+---
+id: now-spinning
+name: Now Spinning
+summary: Showcase your music
+desc: Displays the name and cover of an artist's album. Not connected to any music service, you need to manually change the album. Type the album name to view available options, include the artist's name to help refine results.
+author: Daniel Sitnik

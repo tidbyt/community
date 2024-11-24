@@ -30,6 +30,11 @@ PARTY_COLORS = {
     "REP_BG": "#f77272",
 }
 
+PARTY_LEADERS = {
+    "DEM": "HARRIS",
+    "REP": "TRUMP",
+}
+
 def main(config):
     period = config.get(PERIOD, DEFAULT_PERIOD)
     type = config.get(TYPE, DEFAULT_TYPE)
@@ -77,15 +82,15 @@ def main(config):
                             render.Column(
                                 main_align = "start",
                                 children = [
-                                    render.Text("HARRIS", font = FONT, color = PARTY_COLORS["DEM"]),
+                                    render.Text(PARTY_LEADERS["DEM"], font = FONT, color = PARTY_COLORS["DEM"]),
                                     render.Text(print_num(latest_data["dem"]), font = FONT, color = PARTY_COLORS["DEM"]),
                                     render.Text(print_num(latest_data["rep"]), font = FONT, color = PARTY_COLORS["REP"]),
-                                    render.Text("TRUMP", font = FONT, color = PARTY_COLORS["REP"]),
+                                    render.Text(PARTY_LEADERS["REP"], font = FONT, color = PARTY_COLORS["REP"]),
                                 ] if dem_leading_rep else [
-                                    render.Text("HARRIS", font = FONT, color = PARTY_COLORS["REP"]),
+                                    render.Text(PARTY_LEADERS["REP"], font = FONT, color = PARTY_COLORS["REP"]),
                                     render.Text(print_num(latest_data["rep"]), font = FONT, color = PARTY_COLORS["REP"]),
                                     render.Text(print_num(latest_data["dem"]), font = FONT, color = PARTY_COLORS["DEM"]),
-                                    render.Text("TRUMP", font = FONT, color = PARTY_COLORS["DEM"]),
+                                    render.Text(PARTY_LEADERS["DEM"], font = FONT, color = PARTY_COLORS["DEM"]),
                                 ],
                             ),
                     ),
