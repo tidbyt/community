@@ -14,8 +14,14 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
+#get dates to ping api
+today = time.now()
+todayf = today.format("2006-01-02")
+yesterday = today - time.parse_duration("86400s")
+yesterdayf = yesterday.format("2006-01-02")
+
 #this is the API service for news
-NEWS_URL = "http://newsapi.org/v2/top-headlines?sources=google-news-in&apiKey="
+NEWS_URL = "http://newsapi.org/v2/everything?q=india&searchIn=description&sortBy=popularity&from={}&to={}&domains=indiatimes.com,livemint.com,thehindu.com,indianexpress.com&language=en&apiKey=".format(yesterdayf, todayf)
 
 def main(config):
     # set default api key
@@ -23,7 +29,7 @@ def main(config):
 
     #intialize headline randomizer
     random.seed(time.now().unix // 60)
-    shift = random.number(0, 5)
+    shift = random.number(0, 95)
 
     #Display error if no API found
     if DEFAULT_API == None:

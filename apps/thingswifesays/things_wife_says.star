@@ -59,8 +59,8 @@ def main(config):
                     render.Box(
                         color = "#333333",  #remove color background if picture is used
                         child = render.Image(src = WIFE),
-                        width = 28,
-                        height = 28,
+                        width = 22,
+                        height = 30,
                     ),
                     render.Box(
                         child = render.Marquee(
@@ -69,14 +69,14 @@ def main(config):
                             offset_end = 6,
                             child = render.WrappedText(
                                 content = phrase,
-                                width = 30,
+                                width = 40,
                                 # color="#f44336"
                             ),
                             scroll_direction = "vertical",
                         ),
-                        width = 34,
+                        width = 42,
                         height = 32,
-                        padding = 2,
+                        padding = 1,
                     ),
                 ],
             ),

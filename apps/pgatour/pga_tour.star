@@ -63,6 +63,10 @@ Updated Player Name Mapping logic to stop partial ID matches
 
 v2.7
 Bug fix - During play, the completed round scores were showing the previous round's score
+
+v2.8
+Fixed situation that when play is suspended, "state" value = "post" (round is complete) and does not show in progress scores for the suspended round,
+Also, updated title bar to show that play is suspended 
 """
 
 load("encoding/json.star", "json")
@@ -195,6 +199,13 @@ def main(config):
             stage = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["detail"]
             state = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["state"]
 
+            # Noted situation that when play is suspended, "state" value = "post" (round is complete) and does not show in progress scores for the suspended round
+            if leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["name"] == "STATUS_SUSPENDED":
+                state = "in"
+                ProgressTitle = "PLAY SUSP"
+            else:
+                ProgressTitle = TournamentName
+
             # shortening status messages
             stage = stage.replace("Final", "F")
             stage = stage.replace("Round 1", "R1")
@@ -222,7 +233,7 @@ def main(config):
                             render.Column(
                                 children = [
                                     render.Column(
-                                        children = getPlayerProgress(x, entries, entries2, TournamentName, TitleColor, ColorGradient, stage, state, timezone, PlayerMapping),
+                                        children = getPlayerProgress(x, entries, entries2, ProgressTitle, TitleColor, ColorGradient, stage, state, timezone, PlayerMapping),
                                     ),
                                 ],
                             ),
@@ -447,9 +458,6 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
                                 RoundScore = t[i]["linescores"][RoundNumber]["value"]
                                 ProgressStr = str(int(RoundScore))
 
-                            # print(playerName)
-                            # print(ProgressStr)
-
                 else:
                     ProgressStr = "PO"
 
@@ -467,7 +475,6 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
                     if playerID == t[i]["id"]:
                         CompletedRound = len(t[i]["linescores"]) - 2
 
-                        #print(CompletedRound)
                         RoundScore = t[i]["linescores"][CompletedRound]["value"]
                         ProgressStr = str(int(RoundScore))
 

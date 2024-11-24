@@ -12,15 +12,15 @@ load("schema.star", "schema")
 DEF_CON_URL = "https://www.defconlevel.com/current-level.php"
 CACHE_TTL_SECONDS = 259200
 FONT = "6x13"
-DEF_CON_COLORS = ["#fff", "#e13426", "#ff0", "#21a650", "#298cc1"]
+DEF_CON_COLORS = ["#fff", "#ff0000", "#ffff00", "#00ff00", "#0000ff"]
 
 display_options = [
-    schema.Option(value = "5", display = "Defcon 5 - Maximum Readiness"),
-    schema.Option(value = "4", display = "Defcon 4 - Risk of Impending Attack"),
-    schema.Option(value = "3", display = "Defcon 3 - High Caution"),
-    schema.Option(value = "2", display = "Defcon 2 - Above Normal Readiness"),
-    schema.Option(value = "1", display = "Defcon 1 - Normal Readiness"),
-    schema.Option(value = "0", display = "Actual Defcon Level"),
+    schema.Option(value = "5", display = "DEFCON 5 - Normal Readiness"),
+    schema.Option(value = "4", display = "DEFCON 4 - Above Normal Readiness"),
+    schema.Option(value = "3", display = "DEFCON 3 - High Caution"),
+    schema.Option(value = "2", display = "DEFCON 2 - Risk of Impending Attack"),
+    schema.Option(value = "1", display = "DEFCON 1 - Maximum Readiness"),
+    schema.Option(value = "0", display = "Actual DEFCON Level"),
 ]
 
 def main(config):
@@ -63,8 +63,6 @@ def main(config):
     )
 
 def render_defcon_display(animate, position):
-    print(animate)
-    print(position)
     if animate:
         return render.Animation(children = get_defcon_display(position))
     else:

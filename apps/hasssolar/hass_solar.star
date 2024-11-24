@@ -312,13 +312,14 @@ def render_entity(entity, absolute_value = False, convert_to_kw = False, with_un
         return ""
 
     value = float(state)
-    if absolute_value:
-        value = abs(value)
 
     unit = unit_for_entity(entity)
     if unit == "W" and convert_to_kw:
         unit = "kW"
         value = value / 1000.0
+
+    if absolute_value or unit == "%" or unit == "kWh":
+        value = abs(value)
 
     if dec == None:
         if value < 9.95:

@@ -5,23 +5,38 @@ Description: For a selected team, this app shows the scorecard for a current mat
 Author: adilansari
 
 v 1.0 - Intial version with T20/ODI match support
+v 1.1 - Using CricBuzz API for match data and adding Test match support
 """
 
+load("bsoup.star", "bsoup")
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-TEAM_HOME_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/team/home?lang=en&teamId="
-MATCH_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId={series_id}&matchId={match_id}&latest=true"
-TEAM_HOME_API_CACHE_TTL = 600  # 10 minutes
-MATCH_API_CACHE_TTL = 60  # 1 minute
-TIME_FORMAT = "2006-01-02T15:04:00.000Z"
+# API
+TEAM_SCHEDULE_URL = "https://www.cricbuzz.com/cricket-team/{team_name}/{team_id}/schedule"
+TEAM_RESULTS_URL = "https://www.cricbuzz.com/cricket-team/{team_name}/{team_id}/results"
+MATCH_COMM_URL = "https://www.cricbuzz.com/api/cricket-match/{match_id}/full-commentary/0"
+LIVE_SCORE_URL = "https://www.cricbuzz.com/api/cricket-match/commentary/{match_id}"
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
+
+# Timings
+ONE_HOUR = 3600  # 1 hour
+ONE_MINUTE = 60  # 1 minute
+DEFAULT_SCREEN = render.Root(
+    child = render.WrappedText(
+        content = "Match cannot be displayed. Please choose a different team.",
+        font = "tom-thumb",
+    ),
+)
 
 # Config
 DEFAULT_TIMEZONE = "America/New_York"
-DEFAULT_TEAM_ID = "6"
+DEFAULT_TEAM_ID = "2"
 DEFAULT_PAST_RESULT_DAYS = 3
 ALWAYS_SHOW_FIXTURES_SCHEMA_KEY = "Always"
 
@@ -40,207 +55,206 @@ def main(config):
     now = time.now().in_location(tz)
     team_settings = team_settings_by_id[team_id]
     if not team_settings:
-        return []
-    team_api_resp = get_cachable_data(TEAM_HOME_URL + team_settings.objectId, TEAM_HOME_API_CACHE_TTL)
-    team_data = json.decode(team_api_resp)
-    fixtures = team_data.get("content", {}).get("recentFixtures", [])
-    results = team_data.get("content", {}).get("recentResults", [])
-
+        return DEFAULT_SCREEN
+    result_match_ids = get_cached_past_match_ids(team_settings.id, team_settings.name)
+    scheduled_match_ids = get_cached_scheduled_match_ids(team_settings.id, team_settings.name)
     current_match, past_match, next_match = None, None, None
-    for fixture in fixtures:
-        if fixture["format"] not in ["T20", "ODI"]:
+    for match_id in result_match_ids:
+        match_api_resp = fetch_match_comm(match_id)
+        if not match_api_resp or "matchHeader" not in match_api_resp:
             continue
-        if str(fixture["teams"][0]["team"]["id"]) not in team_settings_by_id:
+        if str(match_api_resp["matchHeader"]["team1"]["id"]) not in team_settings_by_id:
             continue
-        if str(fixture["teams"][1]["team"]["id"]) not in team_settings_by_id:
+        if str(match_api_resp["matchHeader"]["team2"]["id"]) not in team_settings_by_id:
             continue
-        if fixture["state"] == "LIVE":
-            current_match = fixture
-        else:
-            next_match = fixture
+        past_match = match_api_resp
         break
-    for result in results:
-        if result["format"] not in ["T20", "ODI"]:
+    for match_id in scheduled_match_ids:
+        match_api_resp = fetch_match_comm(match_id)
+        if not match_api_resp:
             continue
-        if str(result["teams"][0]["team"]["id"]) not in team_settings_by_id:
+        if "matchHeader" not in match_api_resp:
             continue
-        if str(result["teams"][1]["team"]["id"]) not in team_settings_by_id:
+        if str(match_api_resp["matchHeader"]["team1"]["id"]) not in team_settings_by_id:
             continue
-        past_match = result
+        if str(match_api_resp["matchHeader"]["team2"]["id"]) not in team_settings_by_id:
+            continue
+        next_match = match_api_resp
         break
+
+    if next_match:
+        live_inning = next_match.get("miniscore", {}).get("inningsId", 0)
+        if live_inning > 0:
+            current_match = next_match
 
     match_to_render, render_fn = None, None
     if current_match:
-        match_to_render, render_fn = current_match, render_current_limited_ov_match
-
+        match_to_render, render_fn = current_match, render_current_match
     if past_match and not match_to_render:
-        match_time = time.parse_time(past_match["startTime"], TIME_FORMAT).in_location(tz)
+        match_time = time.from_timestamp(int(past_match["matchHeader"]["matchCompleteTimestamp"] / 1000)).in_location(tz)
         result_days_duration = time.parse_duration("{}h".format(result_days * 24))
-        if match_time + result_days_duration >= now:
+        if now <= match_time + result_days_duration:
             match_to_render, render_fn = past_match, render_past_match
-
     if next_match and not match_to_render:
         if fixture_days == ALWAYS_SHOW_FIXTURES_SCHEMA_KEY:
             match_to_render, render_fn = next_match, render_next_match
         else:
-            match_time = time.parse_time(next_match["startTime"], TIME_FORMAT).in_location(tz)
+            match_time = time.from_timestamp(int(next_match["matchHeader"]["matchStartTimestamp"] / 1000)).in_location(tz)
             fixture_days_duration = time.parse_duration("{}h".format(int(fixture_days) * 24))
-            print("match_time: {} fixture_days_duration: {} now: {}".format(match_time, fixture_days_duration, now))
             if now > match_time - fixture_days_duration:
                 match_to_render, render_fn = next_match, render_next_match
 
     if not match_to_render:
         return []
-    series_id, match_id = match_to_render["series"]["objectId"], match_to_render["objectId"]
-    print("match_id: {} series_id: {}, at {}".format(match_id, series_id, now))
+    print("rendering match id {} at {} with state {}".format(match_to_render["matchHeader"]["matchId"], now, match_to_render["matchHeader"]["state"]))
+    return render_fn(match_to_render, tz)
 
-    # past match result
-    match_api_resp = get_cachable_data(MATCH_URL.format(series_id = series_id, match_id = match_id), MATCH_API_CACHE_TTL)
-    match_data = json.decode(match_api_resp)
-    return render_fn(match_data, tz)
-
-def render_current_limited_ov_match(match_data, tz):
+def render_current_match(match, tz):
     print(tz)
-    team_1_id, team_2_id = "", ""
-    team_1_abbr, team_2_abbr = "", ""
-    team_1_score, team_1_wickets, team_1_overs = 0, 0, 0
-    team_2_score, team_2_wickets, team_2_overs = 0, 0, 0
+    match_data = fetch_live_score(match["matchHeader"]["matchId"])
+    details, scorecard = match_data["matchHeader"], match_data["miniscore"]
+    is_test_match = details["matchFormat"].lower() == "test"
+    team_scores = [
+        {
+            "id": "",
+            "abbr": "",
+            "score": 0,
+            "wickets": 0,
+            "overs": 0,
+            "player_row_1": None,
+            "player_row_2": None,
+            "team_settings": None,
+        },
+        {
+            "id": "",
+            "abbr": "",
+            "score": 0,
+            "wickets": 0,
+            "overs": 0,
+            "team_settings": None,
+        },
+    ]
+    live_inning = scorecard.get("inningsId", 0)
+    if live_inning == 0 or "matchScoreDetails" not in scorecard:
+        return render_next_match(match_data, tz)
+    for ing in scorecard["matchScoreDetails"]["inningsScoreList"]:
+        if live_inning == ing["inningsId"]:
+            team_scores[0]["id"] = ing["batTeamId"]
+            team_scores[0]["abbr"] = ing["batTeamName"]
 
-    last_wkt = {}
-
-    # match teams to live innings
-    live_inning = match_data["match"]["liveInning"]
-    for tm in match_data["match"]["teams"]:
-        if tm["inningNumbers"] and tm["inningNumbers"][0] == live_inning:
-            team_1_id = tm["team"]["id"]
-            team_1_abbr = tm["team"]["abbreviation"]
-        else:
-            team_2_id = tm["team"]["id"]
-            team_2_abbr = tm["team"]["abbreviation"]
-    for ing in match_data["scorecard"]["innings"]:
-        if ing["inningNumber"] == live_inning:
-            team_1_score = ing["runs"]
-            team_1_wickets = ing["wickets"]
-            team_1_overs = ing["overs"]
-            last_wkt = ing["inningWickets"][-1]
-        elif live_inning == 2:
-            team_2_score = ing["runs"]
-            team_2_wickets = ing["wickets"]
-            team_2_overs = ing["overs"]
-    team_1_settings = team_settings_by_id[str(team_1_id)]
-    team_2_settings = team_settings_by_id[str(team_2_id)]
-    row_team_1 = render_team_score_row(team_1_abbr, team_1_score, team_1_wickets, team_1_overs, team_1_settings.fg_color, team_1_settings.bg_color)
-    row_team_2 = render_team_score_row(team_2_abbr, team_2_score, team_2_wickets, team_2_overs, team_2_settings.fg_color, team_2_settings.bg_color)
-
-    live_bat = match_data["livePerformance"]["batsmen"]
-    bat_1_name = live_bat[0]["player"]["longName"]
-    bat_1_runs = live_bat[0].get("runs", 0)
-    bat_1_balls = live_bat[0].get("balls", 0)
-    if len(live_bat) >= 2:
-        bat_2_name = live_bat[1]["player"]["longName"]
-        bat_2_runs = live_bat[1].get("runs", 0)
-        bat_2_balls = live_bat[1].get("balls", 0)
+    if details["matchTeamInfo"][0]["battingTeamId"] == team_scores[0]["id"]:
+        team_scores[1]["id"] = details["matchTeamInfo"][0]["bowlingTeamId"]
+        team_scores[1]["abbr"] = details["matchTeamInfo"][0]["bowlingTeamShortName"]
     else:
-        bat_2_name = last_wkt["player"]["longName"]
-        bat_2_runs = last_wkt.get("runs", 0)
-        bat_2_balls = last_wkt.get("balls", 0)
+        team_scores[1]["id"] = details["matchTeamInfo"][0]["battingTeamId"]
+        team_scores[1]["abbr"] = details["matchTeamInfo"][0]["battingTeamShortName"]
 
-    row_bat_1 = render_batsmen_row(bat_1_name, bat_1_runs, bat_1_balls, team_1_settings.fg_color)
-    row_bat_2 = render_batsmen_row(bat_2_name, bat_2_runs, bat_2_balls, team_1_settings.fg_color)
-    last_6_balls = []
-    for ball in match_data["recentBallCommentary"]["ballComments"][:6]:
-        if ball["isWicket"]:
-            last_6_balls.append("W")
-        elif ball["isSix"]:
-            last_6_balls.append("6")
-        elif ball["isFour"] == 1:
-            last_6_balls.append("4")
-        elif ball["byes"] > 0:
-            last_6_balls.append("{}b".format(ball["byes"]))
-        elif ball["legbyes"] > 0:
-            last_6_balls.append("{}lb".format(ball["legbyes"]))
-        elif ball["wides"] > 0:
-            last_6_balls.append("{}wd".format(ball["wides"]))
-        elif ball["noballs"] > 0:
-            last_6_balls.append("{}nb".format(ball["noballs"]))
-        else:
-            last_6_balls.append("{}".format(ball["totalRuns"]))
-    status_row_last_6 = render_status_row(" ".join(last_6_balls))
-    status_rows = [status_row_last_6] * 4
+    for ts in team_scores:
+        ts["team_settings"] = team_settings_by_id[str(ts["id"])]
 
-    match_status_data = match_data["match"]["statusData"]["statusTextLangData"]
-    if live_inning == 2:
-        need_runs = match_status_data["requiredRuns"]
-        if match_status_data["remainingOvers"]:
-            rem = match_status_data["remainingOvers"]
+    for ing in reversed(scorecard["matchScoreDetails"]["inningsScoreList"]):
+        ts = team_scores[0] if ing["batTeamId"] == team_scores[0]["id"] else team_scores[1]
+        if is_test_match:
+            in_score = str(ing["score"])
+            if ing["wickets"] < 10:
+                in_score = "{}/{}{}".format(ing["score"], ing["wickets"], "d" if ing["isDeclared"] else "")
+            if ts["score"]:
+                ts["score"] = "{} & {}".format(ts["score"], in_score)
+            else:
+                ts["score"] = in_score
         else:
-            rem = match_status_data["remainingBalls"]
-        reqd_runs_status = "{} runs in {}".format(need_runs, rem)
-        status_rows[0] = render_status_row(reqd_runs_status)
-        status_rows[1] = render_status_row("Reqd Rate: {}".format(match_status_data["rrr"]))
-        status_rows[2] = render_status_row(reqd_runs_status)
+            ts["score"] = ing["score"]
+            ts["wickets"] = ing["wickets"]
+            ts["overs"] = ing["overs"]
+
+    for k, m in [("batsmanStriker", "player_row_1"), ("batsmanNonStriker", "player_row_2")]:
+        if scorecard.get(k, {}):
+            name = scorecard[k]["batName"]
+            runs = scorecard[k]["batRuns"]
+            balls = scorecard[k]["batBalls"]
+            if not name:
+                name = " ".join(scorecard.get("lastWicket", "Wicket Out").split(" ")[:2])
+                runs = "out"
+            ts = team_scores[0] if scorecard["batTeam"]["teamId"] == team_scores[0]["id"] else team_scores[1]
+            ts[m] = render_batsmen_row(name, runs, balls, ts["team_settings"].fg_color)
+
+    row_team_1 = render_team_score_row(team_scores[0]["abbr"], team_scores[0]["score"], team_scores[0]["wickets"], team_scores[0]["overs"], team_scores[0]["team_settings"].fg_color, team_scores[0]["team_settings"].bg_color)
+    row_team_2 = render_team_score_row(team_scores[1]["abbr"], team_scores[1]["score"], team_scores[1]["wickets"], team_scores[1]["overs"], team_scores[1]["team_settings"].fg_color, team_scores[1]["team_settings"].bg_color)
+    statuses, render_columns = ["", "", "", ""], []
+    default_match_status = ""
+    if is_test_match:
+        day_number, match_state = details.get("dayNumber", 0), details["state"].lower()
+        default_match_status = "Day {} {}".format(day_number, match_state)
+        overs_rem = scorecard.get("oversRem", 0)
+        if overs_rem > 0:
+            statuses[2] = "Overs rem - {}".format(humanize.float("#.#", float(overs_rem)))
+        else:
+            statuses[2] = "{} Innings".format(humanize.ordinal(int(live_inning)))
+        need_runs = scorecard.get("remRunsToWin", 0)
+        if need_runs == 0 and scorecard.get("target", 0) > 0:
+            need_runs = scorecard.get("target", 0) - scorecard["batTeam"]["teamScore"]
+        if need_runs > 0:
+            statuses[0] = "{} runs to win".format(need_runs)
     else:
-        status_rows[1] = render_status_row("Run Rate: {}".format(match_status_data["crr"]))
-        status_rows[3] = render_status_row("Run Rate: {}".format(match_status_data["crr"]))
+        recent_balls = scorecard["recentOvsStats"].split(" ")
+        last_6_balls = []
+        for b in reversed(recent_balls):
+            if len(last_6_balls) == 6:
+                break
+            if b in ["|", "..."]:
+                continue
+            last_6_balls.append(b)
+        default_match_status = "..." + " ".join(reversed(last_6_balls))
+        current_run_rate = "Run Rate: {}".format(humanize.float("#.#", float(scorecard["currentRunRate"])))
+        statuses[1] = current_run_rate
+        if live_inning == 2:
+            need_runs = scorecard["remRunsToWin"]
+            statuses[0] = "{} runs to win".format(need_runs)
+            reqd_run_rate = "Reqd Rate: {}".format(humanize.float("#.#", float(scorecard["requiredRunRate"])))
+            statuses[2] = reqd_run_rate
 
+    for i in range(len(statuses)):
+        if not statuses[i]:
+            statuses[i] = default_match_status
+        render_columns.append(
+            render.Column(
+                children = [
+                    row_team_1,
+                    team_scores[0]["player_row_1"],
+                    team_scores[0]["player_row_2"],
+                    row_team_2,
+                    render_status_row(statuses[i]),
+                ],
+            ),
+        )
     return render.Root(
         delay = int(4000),
         child = render.Animation(
-            children = [
-                render.Column(
-                    children = [
-                        row_team_1,
-                        row_bat_1,
-                        row_bat_2,
-                        row_team_2,
-                        status_rows[0],
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        row_team_1,
-                        row_bat_1,
-                        row_bat_2,
-                        row_team_2,
-                        status_rows[1],
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        row_team_1,
-                        row_bat_1,
-                        row_bat_2,
-                        row_team_2,
-                        status_rows[2],
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        row_team_1,
-                        row_bat_1,
-                        row_bat_2,
-                        row_team_2,
-                        status_rows[3],
-                    ],
-                ),
-            ],
+            children = render_columns,
         ),
     )
 
 def render_next_match(match_data, tz):
-    match = match_data["match"]
-    team_1_id, team_1_name = match["teams"][0]["team"]["id"], match["teams"][0]["team"]["name"]
-    team_2_id, team_2_name = match["teams"][1]["team"]["id"], match["teams"][1]["team"]["name"]
+    details = match_data["matchHeader"]
+    match_start_time = time.from_timestamp(int(details["matchStartTimestamp"] / 1000)).in_location(tz)
+    match_time_status = match_start_time.format("Jan 2 - 3:04 PM")
 
-    team_1_settings = team_settings_by_id[str(team_1_id)]
-    team_2_settings = team_settings_by_id[str(team_2_id)]
+    team_1_id, team_1_name = str(details["team1"]["id"]), details["team1"]["name"]
+    team_2_id, team_2_name = str(details["team2"]["id"]), details["team2"]["name"]
 
-    match_start_time = time.parse_time(match["startTime"], TIME_FORMAT).in_location(tz)
-    match_time_status = match_start_time.format("Jan 2 3:04 PM")
-    match_title_status = match["title"]
-    match_venue_status = match["ground"]["town"]["name"]
-    if len(match_venue_status) < 12:
-        match_venue_status = "{}, {}".format(match_venue_status, match["ground"]["country"]["abbreviation"])
+    team_1_settings = team_settings_by_id[team_1_id]
+    team_2_settings = team_settings_by_id[team_2_id]
+
+    match_title_status = details["matchDescription"]
+    match_venue_status = details["venue"]["city"]
+    if len(match_venue_status) < 14:
+        country = details["venue"]["country"]
+        for tm in team_settings_by_id.values():
+            if country.lower() == tm.name.lower():
+                country = tm.abbr
+                break
+
+        match_venue_status = "{}, {}".format(match_venue_status, country)
 
     team_1_row = render_team_row(team_1_name, team_1_settings.fg_color, team_1_settings.bg_color)
     vs_row = render.Row(
@@ -251,9 +265,11 @@ def render_next_match(match_data, tz):
         ],
     )
     team_2_row = render_team_row(team_2_name, team_2_settings.fg_color, team_2_settings.bg_color)
-    match_time_status_row = render_status_row(match_time_status)
     match_venue_status_row = render_status_row(match_venue_status)
     match_title_status_row = render_status_row(match_title_status)
+    match_state = details["state"].lower()
+    match_state_status = match_time_status if match_state in ["preview", "upcoming"] else match_state
+    match_state_status_row = render_status_row(match_state_status)
     return render.Root(
         delay = int(4000),
         child = render.Animation(
@@ -271,7 +287,7 @@ def render_next_match(match_data, tz):
                         team_1_row,
                         vs_row,
                         team_2_row,
-                        match_time_status_row,
+                        match_state_status_row,
                     ],
                 ),
                 render.Column(
@@ -279,7 +295,7 @@ def render_next_match(match_data, tz):
                         team_1_row,
                         vs_row,
                         team_2_row,
-                        match_time_status_row,
+                        match_state_status_row,
                     ],
                 ),
                 render.Column(
@@ -295,161 +311,165 @@ def render_next_match(match_data, tz):
     )
 
 def render_past_match(match, tz):
-    match_start = time.parse_time(match["match"]["startDate"], TIME_FORMAT).in_location(tz)
+    details, scorecard = match["matchHeader"], match["miniscore"]
+    is_test_match = details["matchFormat"].lower() == "test"
+    match_start = time.from_timestamp(int(details["matchStartTimestamp"] / 1000)).in_location(tz)
     match_dt_status = match_start.format("Jan 2 2006")
 
-    team_1_id, team_2_id = "", ""
-    team_1_abbr, team_2_abbr = "", ""
-    team_1_score, team_1_wickets, team_1_overs = 0, 0, 0
-    team_2_score, team_2_wickets, team_2_overs = 0, 0, 0
+    team_scores = [
+        {
+            "id": details["matchTeamInfo"][0]["battingTeamId"],
+            "abbr": details["matchTeamInfo"][0]["battingTeamShortName"],
+            "score": 0,
+            "wickets": 0,
+            "overs": 0,
+            "player_row": None,
+            "team_settings": None,
+        },
+        {
+            "id": details["matchTeamInfo"][0]["bowlingTeamId"],
+            "abbr": details["matchTeamInfo"][0]["bowlingTeamShortName"],
+            "score": 0,
+            "wickets": 0,
+            "overs": 0,
+            "player_row": None,
+            "team_settings": None,
+        },
+    ]
 
-    # find top batsmen from both teams
-    bat_1_name, bat_2_name = "", ""
-    bat_1_runs, bat_2_runs = 0, 0
-    bat_1_balls, bat_2_balls = 0, 0
+    for ts in team_scores:
+        ts["team_settings"] = team_settings_by_id[str(ts["id"])]
 
-    # find top bowler from both teams
-    bowl_1_name, bowl_2_name = "", ""
-    bowl_1_overs, bowl_2_overs = 0, 0
-    bowl_1_runs, bowl_2_runs = 0, 0
-    bowl_1_wickets, bowl_2_wickets = 0, 0
+    for ing in reversed(scorecard["matchScoreDetails"]["inningsScoreList"]):
+        ts = team_scores[0] if ing["batTeamId"] == team_scores[0]["id"] else team_scores[1]
+        if is_test_match:
+            in_score = str(ing["score"])
+            if ing["wickets"] < 10:
+                in_score = "{}/{}{}".format(ing["score"], ing["wickets"], "d" if ing["isDeclared"] else "")
+            if ts["score"]:
+                ts["score"] = "{} & {}".format(ts["score"], in_score)
+            else:
+                ts["score"] = in_score
+        else:
+            ts["score"] = ing["score"]
+            ts["wickets"] = ing["wickets"]
+            ts["overs"] = ing["overs"]
 
-    for ing in match["scorecardSummary"]["innings"]:
-        if ing["inningNumber"] == 1:
-            team_1_id = ing["team"]["id"]
-            team_1_abbr = ing["team"]["abbreviation"]
-            team_1_score = ing["runs"]
-            team_1_wickets = ing["wickets"]
-            team_1_overs = ing["overs"]
-            for batter in ing["inningBatsmen"]:
-                if not bat_1_name or batter["runs"] > bat_1_runs:
-                    bat_1_name = batter["player"]["longName"]
-                    bat_1_runs = batter["runs"]
-                    bat_1_balls = batter["balls"]
-            for bowler in ing["inningBowlers"]:
-                if not bowl_2_name or bowler["wickets"] > bowl_2_wickets or (bowler["wickets"] == bowl_2_wickets and bowler["conceded"] < bowl_2_runs):
-                    bowl_2_name = bowler["player"]["longName"]
-                    bowl_2_overs = bowler["overs"]
-                    bowl_2_runs = bowler["conceded"]
-                    bowl_2_wickets = bowler["wickets"]
-        if ing["inningNumber"] == 2:
-            team_2_id = ing["team"]["id"]
-            team_2_abbr = ing["team"]["abbreviation"]
-            team_2_score = ing["runs"]
-            team_2_wickets = ing["wickets"]
-            team_2_overs = ing["overs"]
-            for batter in ing["inningBatsmen"]:
-                if not bat_2_name or batter["runs"] > bat_2_runs:
-                    bat_2_name = batter["player"]["longName"]
-                    bat_2_runs = batter["runs"]
-                    bat_2_balls = batter["balls"]
-            for bowler in ing["inningBowlers"]:
-                if not bowl_1_name or bowler["wickets"] > bowl_1_wickets or (bowler["wickets"] == bowl_1_wickets and bowler["conceded"] < bowl_1_runs):
-                    bowl_1_name = bowler["player"]["longName"]
-                    bowl_1_overs = bowler["overs"]
-                    bowl_1_runs = bowler["conceded"]
-                    bowl_1_wickets = bowler["wickets"]
-    status_data = match["match"]["statusData"]
+    # find last innings batsman and bowler
+    if len(scorecard.get("bowlerStriker", {})) > 0:
+        name = scorecard["bowlerStriker"]["bowlName"]
+        ovs = scorecard["bowlerStriker"]["bowlOvs"]
+        runs = scorecard["bowlerStriker"]["bowlRuns"]
+        wkts = scorecard["bowlerStriker"]["bowlWkts"]
+        ts = team_scores[0] if scorecard["batTeam"]["teamId"] != team_scores[0]["id"] else team_scores[1]
+        ts["player_row"] = render_bowler_row(name, ovs, runs, wkts, ts["team_settings"].fg_color)
 
-    if status_data["statusTextLangData"]["winnerTeamId"] == team_1_id:
-        match_result_status = "{} by".format(team_1_abbr)
-    elif status_data["statusTextLangData"]["winnerTeamId"] == team_2_id:
-        match_result_status = "{} by".format(team_2_abbr)
-    else:
-        match_result_status = "Match tied"  # just skip a tied match for now
+    if len(scorecard.get("batsmanStriker", {})) > 0:
+        name = scorecard["batsmanStriker"]["batName"]
+        runs = scorecard["batsmanStriker"]["batRuns"]
+        balls = scorecard["batsmanStriker"]["batBalls"]
+        ts = team_scores[0] if scorecard["batTeam"]["teamId"] == team_scores[0]["id"] else team_scores[1]
+        ts["player_row"] = render_batsmen_row(name, runs, balls, ts["team_settings"].fg_color)
 
-    if "runs" in status_data["statusTextLangKey"]:
-        match_result_status = "{} {} runs".format(match_result_status, status_data["statusTextLangData"]["wonByRuns"])
-    elif "wickets" in status_data["statusTextLangKey"]:
-        match_result_status = "{} {} wkts".format(match_result_status, status_data["statusTextLangData"]["wonByWickets"])
+    match_result_status = details["status"]
+    if "result" in details:
+        result = details["result"]
+        if result["resultType"] == "tie":
+            match_result_status = "Match tied"
+        elif result["resultType"] == "noresult":
+            match_result_status = "Match abandoned"
+        elif result["resultType"] == "draw":
+            match_result_status = "Match draw"
+        else:
+            win_type = " runs" if result["winByRuns"] else " wkts"
+            inn_win = "in & " if result["winByInnings"] else ""
+            win_by = "by " + inn_win + str(result["winningMargin"]) + win_type
+            win_team_abbr = team_scores[0]["abbr"] if result["winningteamId"] == team_scores[0]["id"] else team_scores[1]["abbr"]
+            match_result_status = win_team_abbr + " " + win_by
 
-    team_1_settings = team_settings_by_id[str(team_1_id)]
-    team_2_settings = team_settings_by_id[str(team_2_id)]
+    team_1_score_row = render_team_score_row(team_scores[0]["abbr"], team_scores[0]["score"], team_scores[0]["wickets"], team_scores[0]["overs"], team_scores[0]["team_settings"].fg_color, team_scores[0]["team_settings"].bg_color)
+    team_1_player_row = team_scores[0]["player_row"]
+    team_2_score_row = render_team_score_row(team_scores[1]["abbr"], team_scores[1]["score"], team_scores[1]["wickets"], team_scores[1]["overs"], team_scores[1]["team_settings"].fg_color, team_scores[1]["team_settings"].bg_color)
+    team_2_player_row = team_scores[1]["player_row"]
+    match_result_status_row = render_status_row(match_result_status)
+    match_dt_status_row = render_status_row(match_dt_status)
 
-    team_1_score_row = render_team_score_row(team_1_abbr, team_1_score, team_1_wickets, team_1_overs, team_1_settings.fg_color, team_1_settings.bg_color)
-    team_1_bat_row = render_batsmen_row(bat_1_name, bat_1_runs, bat_1_balls, team_1_settings.fg_color)
-    team_1_bowl_row = render_bowler_row(bowl_1_name, bowl_1_overs, bowl_1_runs, bowl_1_wickets, team_1_settings.fg_color)
-    team_2_score_row = render_team_score_row(team_2_abbr, team_2_score, team_2_wickets, team_2_overs, team_2_settings.fg_color, team_2_settings.bg_color)
-    team_2_bat_row = render_batsmen_row(bat_2_name, bat_2_runs, bat_2_balls, team_2_settings.fg_color)
-    team_2_bowl_row = render_bowler_row(bowl_2_name, bowl_2_overs, bowl_2_runs, bowl_2_wickets, team_2_settings.fg_color)
+    columns = []
+    for i in range(4):
+        stat_row = match_dt_status_row if i == 3 else match_result_status_row
+        columns.append(
+            render.Column(
+                children = [
+                    team_1_score_row,
+                    team_1_player_row,
+                    team_2_score_row,
+                    team_2_player_row,
+                    stat_row,
+                ],
+            ),
+        )
     return render.Root(
         delay = int(4000),
         child = render.Animation(
-            children = [
-                render.Column(
-                    children = [
-                        team_1_score_row,
-                        team_1_bat_row,
-                        team_2_score_row,
-                        team_2_bowl_row,
-                        render_status_row(match_result_status),
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        team_1_score_row,
-                        team_1_bat_row,
-                        team_2_score_row,
-                        team_2_bowl_row,
-                        render_status_row(match_result_status),
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        team_1_score_row,
-                        team_1_bowl_row,
-                        team_2_score_row,
-                        team_2_bat_row,
-                        render_status_row(match_dt_status),
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        team_1_score_row,
-                        team_1_bowl_row,
-                        team_2_score_row,
-                        team_2_bat_row,
-                        render_status_row(match_result_status),
-                    ],
-                ),
-            ],
+            children = columns,
         ),
     )
 
 def render_team_score_row(abbr, score, wickets, overs, fg_color, bg_color):
-    if wickets == 10:
-        score_display = "{}({})".format(score, overs)
-    elif score == 0 and wickets == 0 and overs == 0:
+    wkt_display, over_display = "", ""
+    if overs:
+        over_display = " {}".format(rounded_overs(overs))
+    if overs and wickets != 10:
+        wkt_display = "/{}".format(wickets)
+
+    if not score and not wickets:
         score_display = "-"
     else:
-        score_display = "{}/{}({})".format(score, wickets, overs)
-    return render.Box(
+        score_display = "{}{}{}".format(score, wkt_display, over_display)
+
+    split_score = score_display.split(" ")
+    score_columns = [
+        render.Text(content = split_score[0], color = fg_color, font = SML_FONT),
+    ]
+    for s in split_score[1:]:
+        txt = render.Text(content = s, color = fg_color, font = SML_FONT)
+        txt = render.Padding(pad = (2, 0, 0, 0), child = txt)
+        score_columns.append(txt)
+
+    rendered_display = render.Box(
         height = 7,
         color = bg_color,
-        padding = 1,
-        child = render.Row(
-            expanded = True,
-            main_align = "space_between",
-            children = [
-                render.Column(
-                    main_align = "start",
-                    children = [render.Text(content = abbr, color = fg_color, font = LRG_FONT)],
-                ),
-                render.Column(
-                    main_align = "end",
-                    children = [render.Text(content = score_display, color = fg_color, font = SML_FONT)],
-                ),
-            ],
+        child = render.Padding(
+            pad = (1, 0, 0, 0),
+            child = render.Row(
+                expanded = True,
+                main_align = "space_between",
+                children = [
+                    render.Row(
+                        children = [render.Text(content = abbr, color = fg_color, font = LRG_FONT)],
+                    ),
+                    render.Row(
+                        children = score_columns,
+                    ),
+                ],
+            ),
         ),
     )
 
+    return rendered_display
+
 def render_batsmen_row(name, runs, balls, fg_color = WHITE_COLOR, bg_color = ""):
     left_text = reduce_player_name(name)
-    right_text = "{}({})".format(runs, balls)
+    balls_text = "({})".format(balls) if balls else ""
+    right_text = "{}{}".format(runs, balls_text)
     return render_player_row(left_text, right_text, fg_color, bg_color)
 
 def render_bowler_row(name, overs, runs, wickets, fg_color = WHITE_COLOR, bg_color = ""):
     left_text = reduce_player_name(name)
+
+    # remove decimal from overs
+    overs = rounded_overs(overs)
+    overs = str(int(overs)) if overs > 10 else str(overs)
     right_text = "{}-{}-{}".format(overs, runs, wickets)
     return render_player_row(left_text, right_text, fg_color, bg_color)
 
@@ -457,19 +477,22 @@ def render_player_row(left_text, right_text, fg_color, bg_color):
     return render.Box(
         height = 6,
         color = bg_color,
-        child = render.Row(
-            expanded = True,
-            main_align = "space_between",
-            children = [
-                render.Column(
-                    main_align = "start",
-                    children = [render.Text(content = left_text, color = fg_color, font = "tom-thumb")],
-                ),
-                render.Column(
-                    main_align = "end",
-                    children = [render.Text(content = right_text, color = fg_color, font = SML_FONT)],
-                ),
-            ],
+        child = render.Padding(
+            pad = (1, 0, 0, 0),
+            child = render.Row(
+                expanded = True,
+                main_align = "space_between",
+                children = [
+                    render.Column(
+                        cross_align = "start",
+                        children = [render.Text(content = left_text, color = fg_color, font = "tom-thumb")],
+                    ),
+                    render.Column(
+                        cross_align = "end",
+                        children = [render.Text(content = right_text, color = fg_color, font = SML_FONT)],
+                    ),
+                ],
+            ),
         ),
     )
 
@@ -488,71 +511,71 @@ def render_team_row(name, fg_color, bg_color):
     )
 
 def render_status_row(text, fg_color = WHITE_COLOR, bg_color = BLACK_COLOR):
-    return render.Row(
-        children = [
+    text_split = text.split(" ")
+    content_columns = []
+    for s in text_split:
+        content_columns.append(
             render.Padding(
-                pad = (0, 1, 0, 0),
-                child = render.Box(
-                    height = 5,
-                    color = bg_color,
-                    child = render.Text(content = text, color = fg_color, font = SML_FONT),
-                ),
+                pad = (1, 0, 1, 0),
+                child = render.Text(content = s, color = fg_color, font = SML_FONT),
             ),
-        ],
+        )
+
+    return render.Padding(
+        pad = (0, 1, 0, 0),
+        child = render.Box(
+            height = 5,
+            color = bg_color,
+            child = render.Row(
+                main_align = "center",
+                expanded = True,
+                children = content_columns,
+            ),
+        ),
     )
 
 def reduce_player_name(name):
     first, last = name.split(" ")[0], name.split(" ")[-1]
     display = first[0] + "." + last
-    if len(display) <= 8:
+    if len(display) <= 7:
         return display
     else:
-        return last[:8]
+        return last[:7]
 
-def _team_setting(id, objId, name, abbr, fg_color, bg_color):
+def rounded_overs(overs):
+    if overs % 1 > 0.5:
+        return int(overs) + 1
+    elif overs % 1 == 0:
+        return int(overs)
+    return overs
+
+def _team_setting(id, name, abbr, fg_color, bg_color):
     return {
         "id": str(id),
-        "objectId": objId,
         "name": name,
         "abbr": abbr,
         "fg_color": fg_color,
         "bg_color": bg_color,
     }
 
-team_england = struct(**_team_setting("1", "1", "England", "ENG", "#FFFFFF", "#CE1124"))
-team_australia = struct(**_team_setting("2", "2", "Australia", "AUS", "#FFCE00", "#006A4A"))
-team_south_africa = struct(**_team_setting("3", "3", "South Africa", "SA", "#FFB81C", "#007749"))
-team_west_indies = struct(**_team_setting("4", "4", "West Indies", "WI", "#f2b10e", "#660000"))
-team_new_zealand = struct(**_team_setting("5", "5", "New Zealand", "NZ", "#FFFFFF", "#008080"))
-team_india = struct(**_team_setting("6", "6", "India", "IND", "#FFFFFF", "#050CEB"))
-team_pakistan = struct(**_team_setting("7", "7", "Pakistan", "PAK", "#FFFFFF", "#115740"))
-team_sri_lanka = struct(**_team_setting("8", "8", "Sri Lanka", "SL", "#EB7400", "#0A2351"))
-team_zimbabwe = struct(**_team_setting("9", "9", "Zimbabwe", "ZIM", "#FCE300", "#EF3340"))
-team_usa = struct(**_team_setting("11", "11", "USA", "USA", "#B31942", "#003087"))
-team_netherlands = struct(**_team_setting("15", "15", "Netherlands", "NED", "#FFFFFF", "#FF4F00"))
-team_bangladesh = struct(**_team_setting("25", "25", "Bangladesh", "BAN", "#F42A41", "#006A4E"))
-team_ireland = struct(**_team_setting("29", "29", "Ireland", "IRE", "#169B62", "#FF883E"))
-team_scotland = struct(**_team_setting("30", "30", "Scotland", "SCO", "#FFFFFF", "#005EB8"))
-team_afghanistan = struct(**_team_setting("40", "40", "Afghanistan", "AFG", "#007A36", "#D32011"))
-
 team_settings_by_id = {
     ts.id: ts
     for ts in [
-        team_afghanistan,
-        team_australia,
-        team_bangladesh,
-        team_england,
-        team_india,
-        team_ireland,
-        team_netherlands,
-        team_new_zealand,
-        team_pakistan,
-        team_scotland,
-        team_sri_lanka,
-        team_south_africa,
-        team_usa,
-        team_west_indies,
-        team_zimbabwe,
+        struct(**_team_setting("96", "Afghanistan", "AFG", "#D32011", BLACK_COLOR)),
+        struct(**_team_setting("4", "Australia", "AUS", "#FFCE00", "#006A4A")),
+        struct(**_team_setting("6", "Bangladesh", "BAN", "#F42A41", "#006A4E")),
+        struct(**_team_setting("9", "England", "ENG", "#FFFFFF", "#CE1124")),
+        struct(**_team_setting("2", "India", "IND", "#FFAC1C", "#050CEB")),
+        struct(**_team_setting("27", "Ireland", "IRE", "#169B62", "#FF883E")),
+        struct(**_team_setting("24", "Netherlands", "NED", "#FFFFFF", "#FF4F00")),
+        struct(**_team_setting("13", "New Zealand", "NZ", "#FFFFFF", "#008080")),
+        struct(**_team_setting("3", "Pakistan", "PAK", "#FFFFFF", "#115740")),
+        struct(**_team_setting("23", "Scotland", "SCO", "#FFFFFF", "#005EB8")),
+        struct(**_team_setting("11", "South Africa", "SA", "#FFB81C", "#007749")),
+        struct(**_team_setting("5", "Sri Lanka", "SL", "#EB7400", "#0A2351")),
+        struct(**_team_setting("15", "United States", "USA", "#B31942", "#003087")),
+        struct(**_team_setting("10", "West Indies", "WI", "#f2b10e", "#660000")),
+        struct(**_team_setting("12", "Zimbabwe", "ZIM", "#FCE300", "#EF3340")),
     ]
 }
 
@@ -637,9 +660,86 @@ def get_schema():
         ],
     )
 
-def get_cachable_data(url, timeout):
-    res = http.get(url = url, ttl_seconds = timeout)
+def get_cached_past_match_ids(team_id, team_name):
+    team_name = team_name.lower().replace(" ", "-")
+    res = _get_cached_match_ids(TEAM_RESULTS_URL.format(team_name = team_name, team_id = team_id), "teams-results")
+    return res
 
+def get_cached_scheduled_match_ids(team_id, team_name):
+    team_name = team_name.lower().replace(" ", "-")
+    res = _get_cached_match_ids(TEAM_SCHEDULE_URL.format(team_name = team_name, team_id = team_id), "teams-schedule")
+    return res
+
+def _get_cached_match_ids(url, span_id):
+    cached_data = cache.get(url)
+    if cached_data:
+        print("---HIT for {}".format(url))
+        return json.decode(cached_data)
+    print("--MISS for {}".format(url))
+    res = fetch_url(url)
+    page = bsoup.parseHtml(res)
+    spans = page.find_all("span")
+    result_span = None
+    for span in spans:
+        if span_id in str(span):
+            result_span = span
+            break
+    if not result_span:
+        return None
+    links = result_span.find_all("a")
+    match_ids = []
+    for link in links:
+        href = link.attrs().get("href", "")
+        if "cricket-scores" in href:
+            url_split = href.strip().split("/")
+            if len(url_split) > 2:
+                if url_split[2] not in match_ids:
+                    match_ids.append(url_split[2])
+
+    # cache the upcoming/past fixtures for 1 hour as this data is not expected to change frequently
+    cache.set(url, json.encode(match_ids), ONE_HOUR)
+    return match_ids
+
+def fetch_match_comm(match_id):
+    url = MATCH_COMM_URL.format(match_id = match_id)
+    json_resp = {}
+    cached_data = cache.get(url)
+    if cached_data:
+        print("---HIT for {}".format(url))
+        json_resp = json.decode(cached_data)
+        return json_resp.get("matchDetails")
+
+    print("--MISS for {}".format(url))
+    json_resp = json.decode(fetch_url(url))
+
+    cache_ttl = 5 * ONE_MINUTE
+    match_state = json_resp.get("matchDetails", {}).get("matchHeader", {}).get("state", "Preview").lower()
+    if match_state in ["complete", "abandon", "upcoming"]:
+        # completed/way in future matches can be cached for longer as they are less likely to change now
+        cache_ttl = 4 * ONE_HOUR
+    if match_state in ["preview"]:
+        # matches about to start within next 1 day
+        cache_ttl = ONE_HOUR
+
+    cache.set(url, json.encode(json_resp), cache_ttl)
+    return json_resp.get("matchDetails")
+
+def fetch_live_score(match_id):
+    url = LIVE_SCORE_URL.format(match_id = match_id)
+    cached_data = cache.get(url)
+    if cached_data:
+        print("---HIT for {}".format(url))
+        return json.decode(cached_data)
+    print("--MISS for {}".format(url))
+    json_resp = json.decode(fetch_url(url))
+    cache.set(url, json.encode(json_resp), ONE_MINUTE)
+    return json_resp
+
+def fetch_url(url):
+    res = http.get(url = url, headers = {"User-Agent": USER_AGENT})
+
+    if res.status_code == 204:
+        cache.set(url, json.encode({}), 5 * ONE_MINUTE)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
