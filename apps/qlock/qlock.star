@@ -75,7 +75,8 @@ def main(config):
 
     hours = now.hour % 12 or 12
     minutes = now.minute
-    seconds = now.second
+
+    # seconds = now.second
     month = now.month
     day = now.day
 
@@ -86,10 +87,12 @@ def main(config):
 
     time_digits = (
         render_digits(hours, 2, FONT_LG, COLOR_LIGHT, spacing = 2) +
-        [render.Box(width = 10, height = 1)] +
-        render_digits(minutes, 2, FONT_LG, COLOR_LIGHT, spacing = 2) +
-        [render.Box(width = 10, height = 1)] +
-        render_digits(seconds, 2, FONT_LG, COLOR_LIGHT, spacing = 2)
+        [render.Box(width = 14, height = 1)] +
+        render_digits(minutes, 2, FONT_LG, COLOR_LIGHT, spacing = 2)
+        # rendering seconds is stupidly dificult
+        # +
+        # [render.Box(width = 10, height = 1)] +
+        # render_digits(seconds, 2, FONT_LG, COLOR_LIGHT, spacing = 2)
     )
 
     beats_render = render_digits(beats, 3)
@@ -114,18 +117,19 @@ def main(config):
                         to_binary(hours // 10, 4),
                         render.Box(width = 4, height = 1),
                         to_binary(hours % 10, 4),
-                        render.Box(width = 12, height = 1),
+                        render.Box(width = 16, height = 1),
                         to_binary(minutes // 10, 4),
                         render.Box(width = 4, height = 1),
                         to_binary(minutes % 10, 4),
-                        render.Box(width = 12, height = 1),
-                        to_binary(seconds // 10, 4),
-                        render.Box(width = 4, height = 1),
-                        to_binary(seconds % 10, 4),
+                        # rendering seconds is stupidly dificult
+                        # render.Box(width = 12, height = 1),
+                        # to_binary(seconds // 10, 4),
+                        # render.Box(width = 4, height = 1),
+                        # to_binary(seconds % 10, 4),
                     ],
                 ),
                 render.Padding(
-                    pad = (4, 0, 4, 0),
+                    pad = (12, 0, 12, 0),
                     child = render.Row(
                         expanded = True,
                         main_align = "space_between",
