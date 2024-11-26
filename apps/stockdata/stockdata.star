@@ -322,6 +322,14 @@ def get_schema():
             value = "60",
         ),
         schema.Option(
+            display = "5 minutes",
+            value = "300",
+        ),
+        schema.Option(
+            display = "10 minutes",
+            value = "600",
+        ),
+        schema.Option(
             display = "15 minutes",
             value = "900",
         ),
@@ -335,7 +343,7 @@ def get_schema():
         ),
         schema.Option(
             display = "2 hours",
-            value = "3600",
+            value = "7200",
         ),
         schema.Option(
             display = "1 day",
