@@ -32,7 +32,7 @@ def main(config):
 
     day = getthanksgivingday(now.year)
     thanksgiving_day = time.time(year = now.year, month = 11, day = day, location = timezone)
-    if now >= thanksgiving_day:
+    if now > thanksgiving_day:
         next_year = now.year + 1
         day = getthanksgivingday(next_year)
         thanksgiving_day = time.time(year = next_year, month = 11, day = day, location = timezone)
