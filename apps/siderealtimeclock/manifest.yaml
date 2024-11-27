@@ -1,0 +1,6 @@
+---
+id: sidereal-time
+name: Sidereal Time
+summary: A sidereal time clock
+desc: A clock that shows the current sidereal time and (optionally) the local time.
+author: Daniel Sitnik
