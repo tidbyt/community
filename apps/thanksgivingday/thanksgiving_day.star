@@ -27,7 +27,7 @@ def main(config):
 
         return day
 
-    timezone = config.get("$tz", "America/New_York")
+    timezone = config.get("timezone") or "America/New_York"
     now = time.time(year = time.now().year, month = time.now().month, day = time.now().day, location = timezone)
 
     day = getthanksgivingday(now.year)
@@ -39,7 +39,13 @@ def main(config):
 
     diff = thanksgiving_day - now
     diff_days = abs(int(diff.hours / 24))
-    days_til_thanksgiving = diff_days
+
+    if diff_days > 1:
+        text = "%s\nDays!" % diff_days
+    elif diff_days == 1:
+        text = "%s\nDay!" % diff_days
+    else:
+        text = "Happy\nTurkey\nDay!!"
 
     return render.Root(
         delay = 1000,
@@ -51,8 +57,8 @@ def main(config):
             children = [
                 render.Image(src = TRK_ICON),
                 render.WrappedText(
-                    content = "%s\ndays!" % days_til_thanksgiving,
-                    font = "Dina_r400-6",
+                    content = text,
+                    font = "5x8",
                     color = "#a60e00",
                     align = "center",
                 ),
