@@ -14,6 +14,13 @@ timestamp = time.now().format("2006-01-02")
 
 vgkNextGameWeek = "https://api-web.nhle.com/v1/club-schedule/VGK/week/" + timestamp
 
+def convertTime(utcTimestamp):
+    t = time.parse_time(utcTimestamp)
+    pst = t.in_location("US/Pacific")
+    pst.format("2006-01-02T15:04:05Z07:00")
+
+    return pst.format("3:04PM")
+
 def main():
     response = http.get(vgkNextGameWeek.format(ttl_seconds = 3600))
 
@@ -24,11 +31,14 @@ def main():
 
     if len(d["games"]) == 0:
         nextStartDate = "> 1 week"
+        nextStartTime = ""
         nextHomeTeam = ""
         nextAwayTeam = ""
         at = "Go Knights"
     else:
         nextStartDate = d["games"][0]["gameDate"]
+        nextStartTime = convertTime(d["games"][0]["startTimeUTC"])
+
         nextStartDate = nextStartDate.split("-")
         year = nextStartDate.pop(0)
         nextStartDate.append(year)
@@ -52,9 +62,10 @@ def main():
                             render.Box(
                                 child = render.Column(
                                     children = [
-                                        render.Text(content = "NEXT GAME:", font = "tom-thumb", color = "B4975A"),
+                                        render.Text(content = "NEXT GAME:", font = "tom-thumb", color = "C8102E"),
+                                        render.Text(content = "" + nextAwayTeam + at + nextHomeTeam, font = "tom-thumb", color = "B4975A"),
                                         render.Text(content = "" + nextStartDate, font = "tom-thumb"),
-                                        render.Text(content = "" + nextAwayTeam + at + nextHomeTeam, font = "tom-thumb"),
+                                        render.Text(content = "" + nextStartTime, font = "tom-thumb"),
                                     ],
                                 ),
                             ),
