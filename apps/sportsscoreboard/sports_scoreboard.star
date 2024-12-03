@@ -322,6 +322,7 @@ def main(config):
         )
 
     return render.Root(
+        show_full_animation = True,
         delay = 350,
         child = render.Marquee(
             child = render.Column(

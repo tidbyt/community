@@ -22,7 +22,7 @@ PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2Jl
 
 def main(config):
     # Setup and validate config
-    DD_SITE = config.get("site") or "datadoghq.com"
+    DD_SITE = config.get("dd_site") or "datadoghq.com"
     DD_API_URL = "https://api.{}/api/v1".format(DD_SITE)
     DD_API_KEY = config.get("api_key") or DEFAULT_API_KEY
     DD_APP_KEY = config.get("app_key") or DEFAULT_APP_KEY
@@ -38,6 +38,7 @@ def main(config):
     if DD_API_KEY == None or DD_APP_KEY == None:
         return renderer("Set Datadog API and APP Key", fake_chart_data())
 
+    print("Making request to {}/{}".format(DD_DASHBOARD_API, DASHBOARD_ID))
     dashboard_json = http.get(
         "{}/{}".format(DD_DASHBOARD_API, DASHBOARD_ID),
         headers = {"DD-API-KEY": DD_API_KEY, "DD-APPLICATION-KEY": DD_APP_KEY, "Accept": "application/json"},
@@ -63,7 +64,10 @@ def main(config):
 
     # If no chart name was provided, use the first widget
     if widget == None:
-        widget = dashboard_json.get("widgets")[0]
+        for w in dashboard_json.get("widgets"):
+            if w.get("definition", {}).get("type") == "timeseries":
+                widget = w
+                break
 
     # check if the widget is a timeseries and if not, show an error
     if widget.get("definition").get("type") != "timeseries":
@@ -71,7 +75,7 @@ def main(config):
             cross_align = "center",
             main_align = "center",
             children = [
-                render.WrappedText(content = "First widget on dashboard is not a timeseries."),
+                render.WrappedText(content = "Requested widget on dashboard is not a timeseries."),
             ],
         )
         return render.Root(child = child)

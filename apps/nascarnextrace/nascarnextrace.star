@@ -12,6 +12,7 @@ Author: jvivona
 # 20230918 - jvivona - fixed marquee spacing for playoff drivers / points as we go through rounds and # of drivers drops below 9
 # 20231106 - jvivona - move data sources to gihub to take backpressure off datacenter
 # 20231107 - jvivona - cleanup for loop range
+# 20240918 - jvivona - add highlight for folks clinched into playoff rounds
 
 load("animation.star", "animation")
 load("encoding/json.star", "json")
@@ -21,7 +22,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23311
+VERSION = 24262
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900
@@ -251,7 +252,7 @@ def playoff(data):
     positions = len(data) if len(data) <= 9 else 9
 
     for i in range(positions):
-        text[int(math.mod(i, 3))] = text[int(math.mod(i, 3))] + "{} {} {} {} / {}    ".format(data[i]["playoff_rank"], data[i]["driver_first_name"][0:1], text_justify_trunc(10, data[i]["driver_last_name"], "left"), text_justify_trunc(4, str(data[i]["playoff_points"]), "right"), text_justify_trunc(2, str(data[i]["playoff_race_wins"]), "right"))
+        text[int(math.mod(i, 3))] = text[int(math.mod(i, 3))] + "{} {} {} {} / {}{}   ".format(data[i]["playoff_rank"], data[i]["driver_first_name"][0:1], text_justify_trunc(10, data[i]["driver_last_name"], "left"), text_justify_trunc(4, str(data[i]["playoff_points"]), "right"), text_justify_trunc(2, str(data[i]["playoff_race_wins"]), "right"), "*" if data[i]["is_clinch"] else " ")
 
     # during playoffs - each round cuts people out - 16 in 1st, 12 in 2nd, 8 in 3rd, 4 in final - the api call will handle the number of drivers - so we need to handle spacing to make the scrolls work
     # we only need to worry about 3rd round and final round - since we only display 9 drivers (for time) anyway

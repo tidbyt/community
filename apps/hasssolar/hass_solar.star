@@ -231,51 +231,62 @@ def render_fail(rep):
     content = json.decode(rep.body())
     return render.Root(render.Box(render.WrappedText(str(rep.status_code) + " : " + content["String"], color = RED)))
 
-def fetch_entity(entity_id, config):
-    if DEBUG or config.get(HA_URL) == None:
-        if entity_id.startswith("entity_energy"):
-            return {
-                "entity_id": "{}".format(entity_id),
-                "state": "130.12",
-                "attributes": {
-                    "state_class": "total_increasing",
-                    "unit_of_measurement": "kWh",
-                    "device_class": "energy",
-                },
-            }
-        elif entity_id.startswith("entity_soc"):
-            return {
-                "entity_id": "{}".format(entity_id),
-                "state": "80",
-                "attributes": {
-                    "raw_soc": 80,
-                    "state_class": "measurement",
-                    "unit_of_measurement": "%",
-                    "device_class": "energy",
-                },
-            }
-        elif entity_id.startswith("entity_autarky"):
-            return {
-                "entity_id": "{}".format(entity_id),
-                "state": "97",
-                "attributes": {
-                    "state_class": "measurement",
-                    "unit_of_measurement": "%",
-                },
-            }
-        else:
-            return {
-                "entity_id": "{}".format(entity_id),
-                "state": "9886.0",
-                "attributes": {
-                    "state_class": "measurement",
-                    "unit_of_measurement": "W",
-                    "device_class": "power",
-                },
-            }
+def dummy_entity(entity_id):
+    if entity_id.startswith("entity_energy"):
+        return {
+            "entity_id": "{}".format(entity_id),
+            "state": "130.12",
+            "attributes": {
+                "state_class": "total_increasing",
+                "unit_of_measurement": "kWh",
+                "device_class": "energy",
+            },
+        }
+    elif entity_id.startswith("entity_soc"):
+        return {
+            "entity_id": "{}".format(entity_id),
+            "state": "80",
+            "attributes": {
+                "raw_soc": 80,
+                "state_class": "measurement",
+                "unit_of_measurement": "%",
+                "device_class": "energy",
+            },
+        }
+    elif entity_id.startswith("entity_autarky"):
+        return {
+            "entity_id": "{}".format(entity_id),
+            "state": "97",
+            "attributes": {
+                "state_class": "measurement",
+                "unit_of_measurement": "%",
+            },
+        }
+    else:
+        return {
+            "entity_id": "{}".format(entity_id),
+            "state": "9886.0",
+            "attributes": {
+                "state_class": "measurement",
+                "unit_of_measurement": "W",
+                "device_class": "power",
+            },
+        }
 
-    entity_id = config.get(entity_id)
+def fetch_entity(entity_key, config, default_unit):
+    raw_values = config.bool("raw_values", False)
+    if DEBUG or (config.get(HA_URL) == None and not raw_values):
+        return dummy_entity(entity_key)
+
+    entity_id = config.get(entity_key)
     if entity_id:
+        if raw_values:
+            return {
+                "state": "{}".format(entity_id),
+                "attributes": {
+                    "unit_of_measurement": default_unit,
+                },
+            }
         rep = http.get(config.get(HA_URL) + "/api/states/" + entity_id, ttl_seconds = 10, headers = {
             "Authorization": "Bearer " + config.get(HA_TOKEN),
         })
@@ -301,13 +312,14 @@ def render_entity(entity, absolute_value = False, convert_to_kw = False, with_un
         return ""
 
     value = float(state)
-    if absolute_value:
-        value = abs(value)
 
     unit = unit_for_entity(entity)
     if unit == "W" and convert_to_kw:
         unit = "kW"
         value = value / 1000.0
+
+    if absolute_value or unit == "%" or unit == "kWh":
+        value = abs(value)
 
     if dec == None:
         if value < 9.95:
@@ -334,21 +346,21 @@ def main(config):
     lang = config.get("lang", "en")
 
     # fetch data from HA
-    energy_consumption = fetch_entity(ENTITY_ENERGY_CONSUMPTION, config)
-    energy_production = fetch_entity(ENTITY_ENERGY_PRODUCTION, config)
-    energy_ev_day = fetch_entity(ENTITY_ENERGY_EV_DAY, config)
-    energy_ev_week = fetch_entity(ENTITY_ENERGY_EV_WEEK, config)
-    energy_ev_month = fetch_entity(ENTITY_ENERGY_EV_MONTH, config)
-    power_solar = fetch_entity(ENTITY_POWER_SOLAR, config)
-    power_grid = fetch_entity(ENTITY_POWER_GRID, config)
-    power_load = fetch_entity(ENTITY_POWER_LOAD, config)
-    power_battery = fetch_entity(ENTITY_POWER_BATTERY, config)
-    soc_battery = fetch_entity(ENTITY_SOC_BATTERY, config)
-    soc_ev = fetch_entity(ENTITY_SOC_EV, config)
-    autarky_day = fetch_entity(ENTITY_AUTARKY_DAY, config)
-    autarky_week = fetch_entity(ENTITY_AUTARKY_WEEK, config)
-    autarky_month = fetch_entity(ENTITY_AUTARKY_MONTH, config)
-    autarky_year = fetch_entity(ENTITY_AUTARKY_YEAR, config)
+    energy_consumption = fetch_entity(ENTITY_ENERGY_CONSUMPTION, config, "kWh")
+    energy_production = fetch_entity(ENTITY_ENERGY_PRODUCTION, config, "kWh")
+    energy_ev_day = fetch_entity(ENTITY_ENERGY_EV_DAY, config, "kWh")
+    energy_ev_week = fetch_entity(ENTITY_ENERGY_EV_WEEK, config, "kWh")
+    energy_ev_month = fetch_entity(ENTITY_ENERGY_EV_MONTH, config, "kWh")
+    power_solar = fetch_entity(ENTITY_POWER_SOLAR, config, "W")
+    power_grid = fetch_entity(ENTITY_POWER_GRID, config, "W")
+    power_load = fetch_entity(ENTITY_POWER_LOAD, config, "W")
+    power_battery = fetch_entity(ENTITY_POWER_BATTERY, config, "W")
+    soc_battery = fetch_entity(ENTITY_SOC_BATTERY, config, "%")
+    soc_ev = fetch_entity(ENTITY_SOC_EV, config, "%")
+    autarky_day = fetch_entity(ENTITY_AUTARKY_DAY, config, "%")
+    autarky_week = fetch_entity(ENTITY_AUTARKY_WEEK, config, "%")
+    autarky_month = fetch_entity(ENTITY_AUTARKY_MONTH, config, "%")
+    autarky_year = fetch_entity(ENTITY_AUTARKY_YEAR, config, "%")
 
     frames = []
 
@@ -1133,6 +1145,13 @@ def get_schema():
                     schema.Option(display = "Deutsch", value = "de"),
                     schema.Option(display = "English", value = "en"),
                 ],
+            ),
+            schema.Toggle(
+                id = "raw_values",
+                name = "Entity IDs as raw values",
+                desc = "Don't call the HA API and use entity IDs as raw values.",
+                icon = "globe",
+                default = False,
             ),
         ],
     )

@@ -3,7 +3,7 @@ Applet: Nightscout
 Summary: Displays Nightscout CGM Data
 Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data (BG, Trend, Delta, IOB, COB) from Nightscout. Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock.
 For support, join the Nightscout for Tidbyt Facebook group.
-(v2.5.1)
+(v2.6.2)
 Authors: Paul Murphy, Jason Hanson, Jeremy Tavener
 """
 
@@ -29,7 +29,7 @@ COLOR_BRIGHT_GREEN = "#03FF20"
 COLOR_DARK_GREEN = "#087C15"
 COLOR_BLUE = "#00D0FF"
 COLOR_DARK_BLUE = "#0676FF"
-COLOR_PURPLE = "#009"
+COLOR_PURPLE = "#7701FF"
 COLOR_MAGENTA = "#FF00D0"
 COLOR_GREY = "#777"
 COLOR_WHITE = "#fff"
@@ -46,7 +46,13 @@ DEFAULT_SHOW_GRAPH = True
 DEFAULT_SHOW_GRAPH_HOUR_BARS = True
 DEFAULT_GRAPH_HEIGHT = 300
 DEFAULT_CLOCK_OPTION = "Clock"
+DEFAULT_CLOCK_COLOR = COLOR_ORANGE
 DEFAULT_ID_BORDER_COLOR = COLOR_BLACK
+DEFAULT_IN_RANGE_BG_COLOR = COLOR_GREEN
+DEFAULT_HIGH_BG_COLOR = COLOR_YELLOW
+DEFAULT_LOW_BG_COLOR = COLOR_YELLOW
+DEFAULT_URGENT_HIGH_COLOR = COLOR_RED
+DEFAULT_URGENT_LOW_COLOR = COLOR_RED
 DEFAULT_SHOW_24_HOUR_TIME = False
 DEFAULT_NIGHT_MODE = False
 GRAPH_BOTTOM = 40
@@ -64,8 +70,6 @@ DEFAULT_LOCATION = """
 }
 """
 
-DEFAULT_NSID = ""
-DEFAULT_NSHOST = ""
 DEFAULT_NSURL = ""
 DEFAULT_NSTOKEN = ""
 
@@ -78,8 +82,6 @@ def main(config):
     lat, lng = float(loc["lat"]), float(loc["lng"])
     sun_rise = sunrise.sunrise(lat, lng, now)
     sun_set = sunrise.sunset(lat, lng, now)
-    nightscout_id = config.get("nightscout_id", DEFAULT_NSID)
-    nightscout_host = config.get("nightscout_host", DEFAULT_NSHOST)
     nightscout_url = config.get("nightscout_url", DEFAULT_NSURL)
     nightscout_token = config.get("nightscout_token", DEFAULT_NSTOKEN)
     show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
@@ -98,33 +100,33 @@ def main(config):
 
     display_unit = config.get("display_unit", DEFAULT_DISPLAY_UNIT)
     clock_option = config.get("clock_option", DEFAULT_CLOCK_OPTION)
+    clock_color = config.get("clock_color", DEFAULT_CLOCK_COLOR)
+    iob_color = config.get("iob_color", DEFAULT_CLOCK_COLOR)
+    cob_color = config.get("cob_color", DEFAULT_CLOCK_COLOR)
     id_border_color = config.get("id_border_color", DEFAULT_ID_BORDER_COLOR)
+    in_range_color = config.get("in_range_color", DEFAULT_IN_RANGE_BG_COLOR)
+    high_color = config.get("high_color", DEFAULT_HIGH_BG_COLOR)
+    low_color = config.get("low_color", DEFAULT_LOW_BG_COLOR)
+    urgent_high_color = config.get("urgent_high_color", DEFAULT_URGENT_HIGH_COLOR)
+    urgent_low_color = config.get("urgent_low_color", DEFAULT_URGENT_LOW_COLOR)
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
     nightscout_iob = "n/a"
     nightscout_cob = "n/a"
-
-    if nightscout_url == "" and nightscout_id != "" and nightscout_host != "":
-        nightscout_url = nightscout_id + "." + nightscout_host
-
-    print(nightscout_url)
 
     if nightscout_url != "":
         sample_data = False
 
         nightscout_data, status_code = get_nightscout_data(nightscout_url, nightscout_token, show_graph, display_unit)
 
-        if status_code == 503:
-            print("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
-            return display_failure("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
-        elif status_code > 200:
-            return display_failure("Nightscout Error: " + str(status_code))
+        if status_code > 200:
+            return display_failure("Nightscout Error: " + str(status_code) + " " + HTTPstatusMessages[str(status_code)])
     else:
         nightscout_data, status_code = {
             "api_version": "n/a",
-            "sgv_current": "85",
-            "sgv_delta": "-2" if display_unit == "mgdl" else float("-0.1"),
-            "latest_reading_date_string": (time.now() - time.parse_duration("3m")),
+            "sgv_current": "92",
+            "sgv_delta": "+5" if display_unit == "mgdl" else float("+0.3"),
+            "latest_reading_date_string": (time.now() - time.parse_duration("3m10s")),
             "direction": "Flat",
             "iob": "0.00u",
             "cob": "0.0g",
@@ -141,19 +143,19 @@ def main(config):
                 ((time.now() - time.parse_duration("168m")).unix, 160),
                 ((time.now() - time.parse_duration("163m")).unix, 172),
                 ((time.now() - time.parse_duration("158m")).unix, 184),
-                ((time.now() - time.parse_duration("153m")).unix, 175),
-                ((time.now() - time.parse_duration("148m")).unix, 170),
-                ((time.now() - time.parse_duration("143m")).unix, 167),
-                ((time.now() - time.parse_duration("138m")).unix, 156),
-                ((time.now() - time.parse_duration("133m")).unix, 152),
-                ((time.now() - time.parse_duration("128m")).unix, 140),
-                ((time.now() - time.parse_duration("123m")).unix, 137),
-                ((time.now() - time.parse_duration("118m")).unix, 129),
-                ((time.now() - time.parse_duration("113m")).unix, 121),
-                ((time.now() - time.parse_duration("108m")).unix, 118),
-                ((time.now() - time.parse_duration("103m")).unix, 113),
-                ((time.now() - time.parse_duration("98m")).unix, 108),
-                ((time.now() - time.parse_duration("93m")).unix, 106),
+                ((time.now() - time.parse_duration("153m")).unix, 187),
+                ((time.now() - time.parse_duration("148m")).unix, 190),
+                ((time.now() - time.parse_duration("143m")).unix, 186),
+                ((time.now() - time.parse_duration("138m")).unix, 183),
+                ((time.now() - time.parse_duration("133m")).unix, 175),
+                ((time.now() - time.parse_duration("128m")).unix, 165),
+                ((time.now() - time.parse_duration("123m")).unix, 160),
+                ((time.now() - time.parse_duration("118m")).unix, 155),
+                ((time.now() - time.parse_duration("113m")).unix, 145),
+                ((time.now() - time.parse_duration("108m")).unix, 140),
+                ((time.now() - time.parse_duration("103m")).unix, 135),
+                ((time.now() - time.parse_duration("98m")).unix, 125),
+                ((time.now() - time.parse_duration("93m")).unix, 110),
                 ((time.now() - time.parse_duration("88m")).unix, 104),
                 ((time.now() - time.parse_duration("83m")).unix, 101),
                 ((time.now() - time.parse_duration("78m")).unix, 97),
@@ -171,7 +173,7 @@ def main(config):
                 ((time.now() - time.parse_duration("18m")).unix, 90),
                 ((time.now() - time.parse_duration("13m")).unix, 88),
                 ((time.now() - time.parse_duration("8m")).unix, 87),
-                ((time.now() - time.parse_duration("3m")).unix, 85),
+                ((time.now() - time.parse_duration("3m")).unix, 92),
             ],
         }, 0
         sample_data = True
@@ -238,12 +240,15 @@ def main(config):
     print("oldest_reading_target:", OLDEST_READING_TARGET)
     print("reading_mins_ago:", reading_mins_ago)
 
+    #reading_mins_ago = 5
     if (reading_mins_ago < 1):
-        human_reading_ago = "< 1 min ago"
+        human_reading_ago = "<1 min ago"
     elif (reading_mins_ago == 1):
         human_reading_ago = "1 min ago"
     else:
-        human_reading_ago = str(reading_mins_ago) + " mins ago"
+        hours_ago = str(int(reading_mins_ago / 60))
+        mins_ago = int(math.mod(int(reading_mins_ago), 60))
+        human_reading_ago = (hours_ago + ":" + ("0" + str(mins_ago) if mins_ago < 10 else str(mins_ago)) + " ago") if int(hours_ago) > 0 else str(mins_ago) + " mins ago"
 
     print("human_reading_ago:", human_reading_ago)
 
@@ -255,35 +260,56 @@ def main(config):
     color_delta = COLOR_YELLOW
     color_arrow = COLOR_YELLOW
     color_ago = COLOR_GREY
-    color_graph_urgent_high = COLOR_RED
-    color_graph_high = COLOR_YELLOW
-    color_graph_normal = COLOR_GREEN
-    color_graph_low = COLOR_YELLOW
-    color_graph_urgent_low = COLOR_RED
+    color_graph_urgent_high = urgent_high_color
+    color_graph_high = high_color
+    color_graph_normal = in_range_color
+    color_graph_low = low_color
+    color_graph_urgent_low = urgent_low_color
     color_graph_lines = COLOR_GREY
-    color_clock = COLOR_ORANGE
+    color_clock = clock_color
+    color_iob = iob_color
+    color_cob = cob_color
     color_id_border = id_border_color
 
+    lg_clock_row = []
+    sm_clock_row = []
     if (reading_mins_ago > 5):
         # The information is stale (i.e. over 5 minutes old) - overrides everything.
         color_reading = COLOR_GREY
         color_delta = COLOR_GREY
         color_arrow = COLOR_GREY
         color_ago = COLOR_GREY
+        color_iob = COLOR_GREY
+        color_cob = COLOR_GREY
         direction = "None"
-        str_delta = "old"
+        str_delta = human_reading_ago
         ago_dashes = ">" + str(reading_mins_ago)
-        full_ago_dashes = human_reading_ago
-    elif (sgv_current_mgdl <= normal_high and sgv_current_mgdl >= normal_low):
-        # We're in the normal range, so use green.
-        color_reading = COLOR_GREEN
-        color_delta = COLOR_GREEN
-        color_arrow = COLOR_GREEN
-    elif (sgv_current_mgdl >= urgent_high or sgv_current_mgdl <= urgent_low):
-        # We're in the urgent range, so use red.
-        color_reading = COLOR_RED
-        color_delta = COLOR_RED
-        color_arrow = COLOR_RED
+        full_ago_dashes = ""
+    elif (sgv_current_mgdl < normal_high and sgv_current_mgdl > normal_low):
+        # We're in the normal range, so use in_range_color.
+        color_reading = in_range_color
+        color_delta = in_range_color
+        color_arrow = in_range_color
+    elif (sgv_current_mgdl >= normal_high and sgv_current_mgdl < urgent_high):
+        # We're in the  high range, so use high_color.
+        color_reading = high_color
+        color_delta = high_color
+        color_arrow = high_color
+    elif (sgv_current_mgdl >= urgent_high):
+        # We're in the urgent high range, so use urgent_high_color.
+        color_reading = urgent_high_color
+        color_delta = urgent_high_color
+        color_arrow = urgent_high_color
+    elif (sgv_current_mgdl <= normal_low and sgv_current_mgdl > urgent_low):
+        # We're in the  low range, so use low_color.
+        color_reading = low_color
+        color_delta = low_color
+        color_arrow = low_color
+    elif (sgv_current_mgdl <= urgent_low):
+        # We're in the urgent low range, so use urgent_low_color.
+        color_reading = urgent_low_color
+        color_delta = urgent_low_color
+        color_arrow = urgent_low_color
     print("night_mode:", night_mode)
     if (night_mode and (now > sun_set or now < sun_rise)):
         color_reading = COLOR_NIGHT
@@ -298,223 +324,63 @@ def main(config):
         color_graph_lines = COLOR_NIGHT
         color_clock = COLOR_NIGHT
 
-    if clock_option == "Clock":
-        lg_string = [
-            render.Stack(
-                children = [
-                    render.Box(
-                        height = 32,
-                        width = 64,
-                        color = color_id_border,
-                        child = render.Box(
-                            height = 30,
-                            width = 62,
-                            color = COLOR_BLACK,
+    #If there's no clock/iob/cob row
+    if clock_option == "None":
+        #If there's no clock row and no left column
+
+        if (reading_mins_ago > 5):
+            one_column_delta_row = [
+                render.Box(
+                    width = 2,
+                    height = 17,
+                ),
+                render.Row(
+                    cross_align = "center",
+                    main_align = "center",
+                    expanded = True,
+                    children = [
+                        render.WrappedText(
+                            content = str_delta.replace("0", "O"),
+                            font = "5x8",
+                            color = color_delta,
+                            align = "center",
+                            linespacing = -3,
                         ),
-                    ),
-                    render.Column(
-                        main_align = "start",
-                        cross_align = "center",
-                        children = [
-                            render.Box(height = 1),
-                            render.Row(
-                                cross_align = "center",
-                                main_align = "space_evenly",
-                                expanded = True,
-                                children = [
-                                    render.Animation(
-                                        children = [
-                                            render.Text(
-                                                content = now.format("15:04" if show_24_hour_time else "3:04 PM"),
-                                                font = "6x13",
-                                                color = color_clock,
-                                            ),
-                                            render.Text(
-                                                content = now.format("15 04" if show_24_hour_time else "3 04 PM"),
-                                                font = "6x13",
-                                                color = color_clock,
-                                            ),
-                                        ],
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    render.Column(
-                        main_align = "start",
-                        cross_align = "center",
-                        children = [
-                            render.Box(height = 13),
-                            render.Row(
-                                cross_align = "center",
-                                main_align = "center",
-                                expanded = True,
-                                children = [
-                                    render.Text(
-                                        content = str_current,
-                                        font = "6x13",
-                                        color = color_reading,
-                                    ),
-                                    render.Text(
-                                        content = " " + str_delta.replace("0", "O"),
-                                        font = "tb-8",
-                                        color = color_delta,
-                                        offset = -1,
-                                    ),
-                                    render.Text(
-                                        content = " " + ARROWS[direction],
-                                        font = "tb-8",
-                                        color = color_arrow,
-                                        offset = -1,
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    render.Column(
-                        main_align = "start",
-                        cross_align = "center",
-                        children = [
-                            render.Box(height = 26),
-                            render.Row(
-                                cross_align = "center",
-                                main_align = "space_evenly",
-                                expanded = True,
-                                children = [
-                                    render.Text(
-                                        content = full_ago_dashes,
-                                        font = "tom-thumb",
-                                        color = color_ago,
-                                        offset = 0,
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-        ]
-
-        sm_string = [
-            render.WrappedText(
-                content = now.format("15:04" if show_24_hour_time else "3:04"),
-                font = "tom-thumb",
-                color = color_clock,
-                width = left_col_width,
-                align = "center",
-            ),
-            render.WrappedText(
-                content = now.format("15 04" if show_24_hour_time else "3 04"),
-                font = "tom-thumb",
-                color = color_clock,
-                width = left_col_width,
-                align = "center",
-            ),
-        ]
-
-    elif clock_option == "IOB" or clock_option == "COB":
-        lg_string = [
-            render.Stack(
-                children = [
-                    render.Box(
-                        height = 32,
-                        width = 64,
-                        color = color_id_border,
-                        child = render.Box(
-                            height = 30,
-                            width = 62,
-                            color = COLOR_BLACK,
+                    ],
+                ),
+            ]
+        else:
+            one_column_delta_row = [
+                render.Box(
+                    width = 2,
+                    height = 16,
+                ),
+                render.Row(
+                    cross_align = "center",
+                    main_align = "center",
+                    expanded = True,
+                    children = [
+                        render.Box(
+                            width = 2,
+                            height = 1,
                         ),
-                    ),
-                    render.Column(
-                        main_align = "start",
-                        cross_align = "center",
-                        children = [
-                            render.Box(height = 1),
-                            render.Row(
-                                cross_align = "center",
-                                main_align = "space_evenly",
-                                expanded = True,
-                                children = [
-                                    render.Animation(
-                                        children = [
-                                            render.Text(
-                                                content = nightscout_iob if clock_option == "IOB" else nightscout_cob,
-                                                font = "6x13",
-                                                color = color_clock,
-                                            ),
-                                        ],
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    render.Column(
-                        main_align = "start",
-                        cross_align = "center",
-                        children = [
-                            render.Box(height = 13),
-                            render.Row(
-                                cross_align = "center",
-                                main_align = "center",
-                                expanded = True,
-                                children = [
-                                    render.Text(
-                                        content = str_current,
-                                        font = "6x13",
-                                        color = color_reading,
-                                    ),
-                                    render.Text(
-                                        content = " " + str_delta.replace("0", "O"),
-                                        font = "tb-8",
-                                        color = color_delta,
-                                        offset = -1,
-                                    ),
-                                    render.Text(
-                                        content = " " + ARROWS[direction],
-                                        font = "tb-8",
-                                        color = color_arrow,
-                                        offset = -1,
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    render.Column(
-                        main_align = "start",
-                        cross_align = "center",
-                        children = [
-                            render.Box(height = 26),
-                            render.Row(
-                                cross_align = "center",
-                                main_align = "space_evenly",
-                                expanded = True,
-                                children = [
-                                    render.Text(
-                                        content = full_ago_dashes,
-                                        font = "tom-thumb",
-                                        color = color_ago,
-                                        offset = 0,
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-        ]
+                        render.Text(
+                            content = str_delta.replace("0", "O"),
+                            font = "6x13",
+                            color = color_delta,
+                            offset = 0,
+                        ),
+                        render.Text(
+                            content = " " + ARROWS[direction],
+                            font = "tb-8",
+                            color = color_arrow,
+                            offset = 0,
+                        ),
+                    ],
+                ),
+            ]
 
-        sm_string = [
-            render.WrappedText(
-                content = nightscout_iob if clock_option == "IOB" else nightscout_cob,
-                font = "tom-thumb",
-                color = color_clock,
-                width = left_col_width,
-                align = "center",
-            ),
-        ]
-    else:
-        lg_string = [
+        one_column_string = [
             render.Stack(
                 children = [
                     render.Box(
@@ -540,7 +406,7 @@ def main(config):
                                         content = str_current,
                                         font = "10x20",
                                         color = color_reading,
-                                        offset = 1,
+                                        offset = 0,
                                     ),
                                 ],
                             ),
@@ -549,34 +415,289 @@ def main(config):
                     render.Column(
                         main_align = "start",
                         cross_align = "center",
-                        children = [
-                            render.Box(height = 15),
-                            render.Row(
-                                cross_align = "center",
-                                main_align = "center",
-                                expanded = True,
-                                children = [
-                                    render.Text(
-                                        content = str_delta.replace("0", "O"),
-                                        font = "6x13",
-                                        color = color_delta,
-                                        offset = 0,
-                                    ),
-                                    render.Text(
-                                        content = " " + ARROWS[direction],
-                                        font = "tb-8",
-                                        color = color_arrow,
-                                        offset = 0,
-                                    ),
-                                ],
-                            ),
-                        ],
+                        children = one_column_delta_row,
                     ),
                     render.Column(
                         main_align = "start",
                         cross_align = "center",
                         children = [
                             render.Box(height = 26),
+                            render.Row(
+                                cross_align = "center",
+                                main_align = "space_evenly",
+                                expanded = True,
+                                children = [
+                                    render.Text(
+                                        content = full_ago_dashes,
+                                        font = "tom-thumb",
+                                        color = color_ago,
+                                        offset = -1,
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ]
+
+        # If there's no clock row and there is a left column
+
+        if (reading_mins_ago > 5):
+            left_delta_row = [
+                render.WrappedText(
+                    content = str_delta.replace("0", "O"),
+                    font = "CG-pixel-3x5-mono",
+                    color = color_delta,
+                    linespacing = 2,
+                    width = left_col_width,
+                    height = 14,
+                    align = "center",
+                ),
+            ]
+        else:
+            left_delta_row = [
+                render.Text(
+                    content = str_delta.replace("0", "O"),
+                    font = "tb-8",
+                    color = color_delta,
+                    offset = 0,
+                ),
+                render.Box(
+                    height = 1,
+                    width = 1,
+                ),
+                render.Text(
+                    content = ARROWS[direction],
+                    font = "5x8",
+                    color = color_arrow,
+                    offset = 0,
+                ),
+            ]
+
+        left_column_string = [
+            render.Row(
+                children = [
+                    render.Box(
+                        height = 3,
+                        width = 1,
+                    ),
+                ],
+            ),
+            render.Row(
+                children = [
+                    render.WrappedText(
+                        content = str_current,
+                        font = "6x13",
+                        color = color_reading,
+                        width = left_col_width,
+                        height = 14,
+                        align = "center",
+                    ),
+                ],
+            ),
+            render.Row(
+                children = left_delta_row,
+            ),
+            render.Row(
+                children = [
+                    render.Box(
+                        height = 2,
+                        width = 1,
+                    ),
+                ],
+            ),
+            render.Row(
+                main_align = "start",
+                cross_align = "start",
+                children = [
+                    render.WrappedText(
+                        content = full_ago_dashes,
+                        font = "tom-thumb",
+                        color = color_ago,
+                        width = left_col_width,
+                        align = "center",
+                    ),
+                ],
+            ),
+        ]
+
+        #IF THERE'S A CLOCK ROW
+    else:
+        if clock_option == "Clock":
+            lg_clock_row = [
+                render.Box(height = 1),
+                render.Row(
+                    cross_align = "center",
+                    main_align = "space_evenly",
+                    expanded = True,
+                    children = [
+                        render.Animation(
+                            children = [
+                                render.Text(
+                                    content = now.format("15:04" if show_24_hour_time else "3:04 PM"),
+                                    font = "6x13",
+                                    color = color_clock,
+                                ),
+                                render.Text(
+                                    content = now.format("15 04" if show_24_hour_time else "3 04 PM"),
+                                    font = "6x13",
+                                    color = color_clock,
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+            ]
+
+            sm_clock_row = [
+                render.WrappedText(
+                    content = now.format("15:04" if show_24_hour_time else "3:04"),
+                    font = "tom-thumb",
+                    color = color_clock,
+                    width = left_col_width,
+                    align = "center",
+                    height = 6,
+                ),
+                render.WrappedText(
+                    content = now.format("15 04" if show_24_hour_time else "3 04"),
+                    font = "tom-thumb",
+                    color = color_clock,
+                    width = left_col_width,
+                    align = "center",
+                    height = 6,
+                ),
+            ]
+
+        elif clock_option == "IOB" or clock_option == "COB":
+            lg_clock_row = [
+                render.Box(height = 14),
+                render.Row(
+                    cross_align = "center",
+                    main_align = "space_evenly",
+                    expanded = True,
+                    children = [
+                        render.Text(
+                            content = nightscout_iob if clock_option == "IOB" else nightscout_cob,
+                            font = "6x13",
+                            color = color_iob if clock_option == "IOB" else color_cob,
+                        ),
+                    ],
+                ),
+            ]
+
+            sm_clock_row = [
+                render.WrappedText(
+                    content = nightscout_iob if clock_option == "IOB" else nightscout_cob,
+                    font = "tom-thumb",
+                    color = color_iob if clock_option == "IOB" else color_cob,
+                    width = left_col_width,
+                    align = "center",
+                    height = 6,
+                ),
+            ]
+
+        # If there's a clock row and a no left column or graph
+        if (reading_mins_ago > 5):
+            one_column_delta_row = [
+                render.Box(
+                    width = 2,
+                    height = 14 if clock_option == "Clock" else 1,
+                ),
+                render.Row(
+                    cross_align = "center",
+                    main_align = "start",
+                    expanded = True,
+                    children = [
+                        render.Box(
+                            width = 7,
+                            height = 18,
+                        ),
+                        render.WrappedText(
+                            content = str_current,
+                            font = "6x13",
+                            color = color_reading,
+                            width = 18,
+                            align = "center",
+                            height = 18,
+                        ),
+                        render.Box(
+                            width = 4,
+                            height = 18,
+                        ),
+                        render.WrappedText(
+                            content = str_delta.replace("0", "O"),
+                            font = "tom-thumb",
+                            color = color_delta,
+                            align = "center",
+                            width = 30,
+                            linespacing = 0,
+                            height = 14,
+                        ),
+                        render.Box(
+                            width = 5,
+                            height = 18,
+                        ),
+                    ],
+                ),
+            ]
+        else:
+            one_column_delta_row = [
+                render.Box(height = 14 if clock_option == "Clock" else 1),
+                render.Row(
+                    cross_align = "center",
+                    main_align = "center",
+                    expanded = True,
+                    children = [
+                        render.Text(
+                            content = str_current,
+                            font = "6x13",
+                            color = color_reading,
+                        ),
+                        render.Text(
+                            content = " " + str_delta.replace("0", "O"),
+                            font = "tb-8",
+                            color = color_delta,
+                            offset = -1,
+                        ),
+                        render.Text(
+                            content = " " + ARROWS[direction],
+                            font = "tb-8",
+                            color = color_arrow,
+                            offset = -1,
+                        ),
+                    ],
+                ),
+            ]
+
+        one_column_string = [
+            render.Stack(
+                children = [
+                    render.Box(
+                        height = 32,
+                        width = 64,
+                        color = color_id_border,
+                        child = render.Box(
+                            height = 30,
+                            width = 62,
+                            color = COLOR_BLACK,
+                        ),
+                    ),
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = lg_clock_row,
+                    ),
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = one_column_delta_row,
+                    ),
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
+                            render.Box(height = 27),
                             render.Row(
                                 cross_align = "center",
                                 main_align = "space_evenly",
@@ -596,13 +717,89 @@ def main(config):
             ),
         ]
 
-        sm_string = [
-            render.Box(
-                width = left_col_width,
-                height = 6,
+        # If there's a clock row in the left column and a graph in the right
+        if (reading_mins_ago > 5):
+            left_delta_row = [
+                render.WrappedText(
+                    content = str_delta.replace("0", "O"),
+                    font = "CG-pixel-3x5-mono",
+                    color = color_delta,
+                    linespacing = 1,
+                    width = left_col_width - 0,
+                    height = 12,
+                    align = "center",
+                ),
+            ]
+        else:
+            left_delta_row = [
+                render.Text(
+                    content = str_delta.replace("0", "O"),
+                    font = "tb-8",
+                    color = color_delta,
+                    offset = 0,
+                ),
+                render.Box(
+                    height = 9,
+                    width = 1,
+                ),
+                render.Text(
+                    content = ARROWS[direction],
+                    font = "5x8",
+                    color = color_arrow,
+                    offset = 0,
+                ),
+            ]
+
+        left_column_string = [
+            render.Row(
+                children = [
+                    render.Box(
+                        height = 1,
+                        width = 1,
+                    ),
+                ],
+            ),
+            render.Row(
+                main_align = "center",
+                cross_align = "start",
+                children = [
+                    render.WrappedText(
+                        content = str_current,
+                        font = "6x13",
+                        color = color_reading,
+                        width = left_col_width,
+                        height = 12,
+                        align = "center",
+                    ),
+                ],
+            ),
+            render.Row(
+                children = left_delta_row,
+            ),
+            render.Row(
+                main_align = "center",
+                cross_align = "start",
+                children = [
+                    render.Animation(
+                        sm_clock_row,
+                    ),
+                ],
+            ),
+            render.Row(
+                main_align = "center",
+                cross_align = "start",
+                children = [
+                    render.Text(
+                        content = full_ago_dashes,
+                        font = "tom-thumb",
+                        color = color_ago,
+                        offset = 1,
+                    ),
+                ],
             ),
         ]
 
+    #One column display
     if not show_graph:
         output = [
             render.Box(
@@ -615,12 +812,14 @@ def main(config):
                             cross_align = "center",
                             main_align = "space_between",
                             expanded = True,
-                            children = lg_string,
+                            children = one_column_string,
                         ),
                     ],
                 ),
             ),
         ]
+
+        #Two column display
     else:
         # high and low lines
         graph_plot = []
@@ -644,16 +843,16 @@ def main(config):
 
             graph_point_color = color_graph_normal
 
-            if this_point > normal_high:
+            if this_point >= normal_high:
                 graph_point_color = color_graph_high
 
-            if this_point > urgent_high:
+            if this_point >= urgent_high:
                 graph_point_color = color_graph_urgent_high
 
-            if this_point < normal_low:
+            if this_point <= normal_low:
                 graph_point_color = color_graph_low
 
-            if this_point < urgent_low:
+            if this_point <= urgent_low:
                 graph_point_color = color_graph_urgent_low
 
             if show_graph_hour_bars:
@@ -722,61 +921,9 @@ def main(config):
                                         ),
                                         render.Column(
                                             cross_align = "center",
+                                            main_align = "start",
                                             expanded = True,
-                                            children = [
-                                                render.Row(
-                                                    children = [
-                                                        render.WrappedText(
-                                                            content = str_current,
-                                                            font = "6x13",
-                                                            color = color_reading,
-                                                            width = left_col_width,
-                                                            height = 12,
-                                                            align = "center",
-                                                        ),
-                                                    ],
-                                                ),
-                                                render.Row(
-                                                    children = [
-                                                        render.Text(
-                                                            content = str_delta.replace("0", "O"),
-                                                            font = "tb-8",
-                                                            color = color_delta,
-                                                            offset = 1,
-                                                        ),
-                                                        render.Box(
-                                                            height = 1,
-                                                            width = 1,
-                                                        ),
-                                                        render.Text(
-                                                            content = ARROWS[direction],
-                                                            font = "5x8",
-                                                            color = color_arrow,
-                                                            offset = 1,
-                                                        ),
-                                                    ],
-                                                ),
-                                                render.Row(
-                                                    children = [
-                                                        render.Animation(
-                                                            sm_string,
-                                                        ),
-                                                    ],
-                                                ),
-                                                render.Row(
-                                                    main_align = "start",
-                                                    cross_align = "start",
-                                                    children = [
-                                                        render.WrappedText(
-                                                            content = full_ago_dashes,
-                                                            font = "tom-thumb",
-                                                            color = color_ago,
-                                                            width = left_col_width,
-                                                            align = "center",
-                                                        ),
-                                                    ],
-                                                ),
-                                            ],
+                                            children = left_column_string,
                                         ),
                                         render.Column(
                                             cross_align = "start",
@@ -894,19 +1041,94 @@ def display_unit_options(display_unit):
             icon = "rulerVertical",
             default = str(graph_height),
         ),
+        schema.Color(
+            id = "in_range_color",
+            name = "In Range Color",
+            desc = "Color of readings when BG is in range (Between the High and Low values)",
+            icon = "brush",
+            default = DEFAULT_IN_RANGE_BG_COLOR,
+            palette = [
+                COLOR_BLACK,
+                COLOR_WHITE,
+                COLOR_GREY,
+                COLOR_RED,
+                COLOR_DARK_RED,
+                COLOR_PINK,
+                COLOR_ORANGE,
+                COLOR_YELLOW,
+                COLOR_BRIGHT_GREEN,
+                COLOR_GREEN,
+                COLOR_DARK_GREEN,
+                COLOR_BLUE,
+                COLOR_DARK_BLUE,
+                COLOR_PURPLE,
+                COLOR_MAGENTA,
+                COLOR_BRIGHT_RED,
+            ],
+        ),
         schema.Text(
             id = display_unit + "_normal_high",
-            name = "Normal High Threshold (in " + unit + ")",
-            desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(normal_high) + ")",
+            name = "High Threshold (in " + unit + ")",
+            desc = "High Readings Threshold (default " + str(normal_high) + ")",
             icon = "droplet",
             default = str(normal_high),
         ),
+        schema.Color(
+            id = "high_color",
+            name = "High BG Color",
+            desc = "Color of readings when BG is above the High Threshold and Below the Urgent High Threshold",
+            icon = "brush",
+            default = DEFAULT_HIGH_BG_COLOR,
+            palette = [
+                COLOR_BLACK,
+                COLOR_WHITE,
+                COLOR_GREY,
+                COLOR_RED,
+                COLOR_DARK_RED,
+                COLOR_PINK,
+                COLOR_ORANGE,
+                COLOR_YELLOW,
+                COLOR_BRIGHT_GREEN,
+                COLOR_GREEN,
+                COLOR_DARK_GREEN,
+                COLOR_BLUE,
+                COLOR_DARK_BLUE,
+                COLOR_PURPLE,
+                COLOR_MAGENTA,
+                COLOR_BRIGHT_RED,
+            ],
+        ),
         schema.Text(
             id = display_unit + "_normal_low",
-            name = "Normal Low Threshold (in " + unit + ")",
+            name = "Low Threshold (in " + unit + ")",
             desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(normal_low) + ")",
             icon = "droplet",
             default = str(normal_low),
+        ),
+        schema.Color(
+            id = "low_color",
+            name = "Low BG Color",
+            desc = "Color of readings when BG is below the Low Threshold and Above the Urgent Low Threshold",
+            icon = "brush",
+            default = DEFAULT_LOW_BG_COLOR,
+            palette = [
+                COLOR_BLACK,
+                COLOR_WHITE,
+                COLOR_GREY,
+                COLOR_RED,
+                COLOR_DARK_RED,
+                COLOR_PINK,
+                COLOR_ORANGE,
+                COLOR_YELLOW,
+                COLOR_BRIGHT_GREEN,
+                COLOR_GREEN,
+                COLOR_DARK_GREEN,
+                COLOR_BLUE,
+                COLOR_DARK_BLUE,
+                COLOR_PURPLE,
+                COLOR_MAGENTA,
+                COLOR_BRIGHT_RED,
+            ],
         ),
         schema.Text(
             id = display_unit + "_urgent_high",
@@ -915,12 +1137,62 @@ def display_unit_options(display_unit):
             icon = "droplet",
             default = str(urgent_high),
         ),
+        schema.Color(
+            id = "urgent_high_color",
+            name = "Urgent High BG Color",
+            desc = "Color of readings when BG is Above the Urgent High Threshold",
+            icon = "brush",
+            default = DEFAULT_URGENT_HIGH_COLOR,
+            palette = [
+                COLOR_BLACK,
+                COLOR_WHITE,
+                COLOR_GREY,
+                COLOR_RED,
+                COLOR_DARK_RED,
+                COLOR_PINK,
+                COLOR_ORANGE,
+                COLOR_YELLOW,
+                COLOR_BRIGHT_GREEN,
+                COLOR_GREEN,
+                COLOR_DARK_GREEN,
+                COLOR_BLUE,
+                COLOR_DARK_BLUE,
+                COLOR_PURPLE,
+                COLOR_MAGENTA,
+                COLOR_BRIGHT_RED,
+            ],
+        ),
         schema.Text(
             id = display_unit + "_urgent_low",
             name = "Urgent Low Threshold (in " + unit + ")",
             desc = "Anything below this is displayed red (Default " + str(urgent_low) + ")",
             icon = "droplet",
             default = str(urgent_low),
+        ),
+        schema.Color(
+            id = "urgent_low_color",
+            name = "Urgent Low BG Color",
+            desc = "Color of readings when BG is Below the Urgent Low Threshold",
+            icon = "brush",
+            default = DEFAULT_URGENT_LOW_COLOR,
+            palette = [
+                COLOR_BLACK,
+                COLOR_WHITE,
+                COLOR_GREY,
+                COLOR_RED,
+                COLOR_DARK_RED,
+                COLOR_PINK,
+                COLOR_ORANGE,
+                COLOR_YELLOW,
+                COLOR_BRIGHT_GREEN,
+                COLOR_GREEN,
+                COLOR_DARK_GREEN,
+                COLOR_BLUE,
+                COLOR_DARK_BLUE,
+                COLOR_PURPLE,
+                COLOR_MAGENTA,
+                COLOR_BRIGHT_RED,
+            ],
         ),
     ]
 
@@ -981,7 +1253,7 @@ def get_schema():
                 name = "ID Border Color",
                 desc = "Color of the border. Used for differentiating between multiple T1D's in a household",
                 icon = "idBadge",
-                default = COLOR_BLACK,
+                default = DEFAULT_ID_BORDER_COLOR,
                 palette = [
                     COLOR_BLACK,
                     COLOR_WHITE,
@@ -1035,6 +1307,81 @@ def get_schema():
                 icon = "gear",
                 default = clock_options[1].value,
                 options = clock_options,
+            ),
+            schema.Color(
+                id = "clock_color",
+                name = "Clock Color",
+                desc = "Color of clock",
+                icon = "brush",
+                default = DEFAULT_CLOCK_COLOR,
+                palette = [
+                    COLOR_BLACK,
+                    COLOR_WHITE,
+                    COLOR_GREY,
+                    COLOR_RED,
+                    COLOR_DARK_RED,
+                    COLOR_PINK,
+                    COLOR_ORANGE,
+                    COLOR_YELLOW,
+                    COLOR_BRIGHT_GREEN,
+                    COLOR_GREEN,
+                    COLOR_DARK_GREEN,
+                    COLOR_BLUE,
+                    COLOR_DARK_BLUE,
+                    COLOR_PURPLE,
+                    COLOR_MAGENTA,
+                    COLOR_BRIGHT_RED,
+                ],
+            ),
+            schema.Color(
+                id = "iob_color",
+                name = "IOB Color",
+                desc = "Color of IOB display",
+                icon = "brush",
+                default = DEFAULT_CLOCK_COLOR,
+                palette = [
+                    COLOR_BLACK,
+                    COLOR_WHITE,
+                    COLOR_GREY,
+                    COLOR_RED,
+                    COLOR_DARK_RED,
+                    COLOR_PINK,
+                    COLOR_ORANGE,
+                    COLOR_YELLOW,
+                    COLOR_BRIGHT_GREEN,
+                    COLOR_GREEN,
+                    COLOR_DARK_GREEN,
+                    COLOR_BLUE,
+                    COLOR_DARK_BLUE,
+                    COLOR_PURPLE,
+                    COLOR_MAGENTA,
+                    COLOR_BRIGHT_RED,
+                ],
+            ),
+            schema.Color(
+                id = "cob_color",
+                name = "COB Color",
+                desc = "Color of COB display",
+                icon = "brush",
+                default = DEFAULT_CLOCK_COLOR,
+                palette = [
+                    COLOR_BLACK,
+                    COLOR_WHITE,
+                    COLOR_GREY,
+                    COLOR_RED,
+                    COLOR_DARK_RED,
+                    COLOR_PINK,
+                    COLOR_ORANGE,
+                    COLOR_YELLOW,
+                    COLOR_BRIGHT_GREEN,
+                    COLOR_GREEN,
+                    COLOR_DARK_GREEN,
+                    COLOR_BLUE,
+                    COLOR_DARK_BLUE,
+                    COLOR_PURPLE,
+                    COLOR_MAGENTA,
+                    COLOR_BRIGHT_RED,
+                ],
             ),
             schema.Toggle(
                 id = "show_24_hour_time",
@@ -1189,15 +1536,6 @@ def get_nightscout_data_v1(nightscout_url, nightscout_token, display_unit):
     # Request latest entries from the Nightscout URL
     resp = http.get(json_url, headers = headers)
     if resp.status_code != 200:
-        # If Error, Get the JSON object from the cache
-        nightscout_data_cached = cache.get(key)
-        if nightscout_data_cached != None:
-            print("NS Error - displaying cached data")
-            return json.decode(nightscout_data_cached), 0
-
-        # If it's not in the cache, return the NS error.
-        print("NS Error - Display Error")
-
         return {}, resp.status_code
 
     latest_reading = resp.json()[0]
@@ -1246,11 +1584,22 @@ def mgdl_to_mmol(mgdl):
 def display_failure(msg):
     return render.Root(
         max_age = 120,
-        child = render.WrappedText(
+        child = render.Box(
+            color = COLOR_RED,
             width = 64,
-            content = msg,
-            color = COLOR_NIGHT,
-            font = "tom-thumb",
+            height = 32,
+            child = render.Box(
+                color = "#000",
+                width = 62,
+                height = 30,
+                child = render.WrappedText(
+                    width = 60,
+                    content = msg,
+                    color = COLOR_NIGHT,
+                    font = "tom-thumb",
+                    align = "center",
+                ),
+            ),
         ),
     )
 
@@ -1267,4 +1616,73 @@ ARROWS = {
     "Error": "?",
     "Dash": "-",
     "NOT COMPUTABLE": "?",
+}
+
+HTTPstatusMessages = {
+    "200": "OK",
+    "201": "Created",
+    "202": "Accepted",
+    "203": "Non-Authoritative Information",
+    "204": "No Content",
+    "205": "Reset Content",
+    "206": "Partial Content",
+    "207": "Multi-Status (WebDAV)",
+    "208": "Already Reported (WebDAV)",
+    "226": "IM Used",
+    "300": "Multiple Choices",
+    "301": "Moved Permanently",
+    "302": "Found",
+    "303": "See Other",
+    "304": "Not Modified",
+    "305": "Use Proxy",
+    "306": "(Unused)",
+    "307": "Temporary Redirect",
+    "308": "Permanent Redirect (experimental)",
+    "400": "Bad Request",
+    "401": "Unauthorized",
+    "402": "Payment Required",
+    "403": "Forbidden",
+    "404": "Not Found",
+    "405": "Method Not Allowed",
+    "406": "Not Acceptable",
+    "407": "Proxy Authentication Required",
+    "408": "Request Timeout",
+    "409": "Conflict",
+    "410": "Gone",
+    "411": "Length Required",
+    "412": "Precondition Failed",
+    "413": "Request Entity Too Large",
+    "414": "Request-URI Too Long",
+    "415": "Unsupported Media Type",
+    "416": "Requested Range Not Satisfiable",
+    "417": "Expectation Failed",
+    "418": "I'm a teapot (RFC 2324)",
+    "420": "Enhance Your Calm (Twitter)",
+    "422": "Unprocessable Entity (WebDAV)",
+    "423": "Locked (WebDAV)",
+    "424": "Failed Dependency (WebDAV)",
+    "425": "Reserved for WebDAV",
+    "426": "Upgrade Required",
+    "428": "Precondition Required",
+    "429": "Too Many Requests",
+    "431": "Request Header Fields Too Large",
+    "444": "No Response (Nginx)",
+    "449": "Retry With (Microsoft)",
+    "450": "Blocked by Windows Parental Controls (Microsoft)",
+    "451": "Unavailable For Legal Reasons",
+    "499": "Client Closed Request (Nginx)",
+    "500": "Internal Server Error",
+    "501": "Not Implemented",
+    "502": "Bad Gateway",
+    "503": "Service Unavailable",
+    "504": "Gateway Timeout",
+    "505": "HTTP Version Not Supported",
+    "506": "Variant Also Negotiates (Experimental)",
+    "507": "Insufficient Storage (WebDAV)",
+    "508": "Loop Detected (WebDAV)",
+    "509": "Bandwidth Limit Exceeded (Apache)",
+    "510": "Not Extended",
+    "511": "Network Authentication Required",
+    "598": "Network read timeout error",
+    "599": "Network connect timeout error",
 }
