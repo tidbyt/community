@@ -40,7 +40,7 @@ def main():
         nextStartTime = convertTime(d["games"][0]["startTimeUTC"])
 
         nextStartDate = nextStartDate.split("-")
-        year = nextStartDate.pop(0)
+        year = nextStartDate.pop(0)[2:4]
         nextStartDate.append(year)
         nextStartDate = "-".join(nextStartDate)
 
