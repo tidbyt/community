@@ -78,7 +78,7 @@ def main(config):
         "client_id",
     )
     client_secret = secret.decrypt(
-        "AV6+xWcEZuh8G2FXn03PHZITYHtF/oL7Le4fYLo/OV52OGolnzs4l3/vmv8KC/j8vxtf2fQYmarFevJ/TNNvVD4YckNG+GpiLG4Azf0JdMSFj7E9uvbtSjue3Tj9sQOOdA8g8L7CGcQ25HFYLoc5K6zJkK6dpiwMzk69Y+vXGikWYejubyM=",
+        "AV6+xWcEghHB4IYtF4KGd4dBFfKi4eiY9kyAQp9NHc/Lpe+IF6YkwIOyT/09XYEmZJZnUFmcgbIeot1x6JZgzIp9gEwvfHboAIN3L0r7iTrjQTylskTkGB2oQ/0Unkmii//7khorLAJ6CW3UxN6BnRuK9prp6gfHynAFwOykcPMArz5TMQ8=",
     ) or config.get(
         "client_secret",
     )
@@ -87,9 +87,9 @@ def main(config):
     region = config.get("region", DEFAULT_REGION)
 
     blizzard_auth_url = "https://oauth.battle.net/token?grant_type=client_credentials"
-    blizzard_profile_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s?namespace=profile-%s&locale=en_US&access_token=" % (region, realm_name, character_name, region)
-    blizzard_mythic_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s/mythic-keystone-profile?namespace=profile-%s&locale=en_US&access_token=" % (region, realm_name, character_name, region)
-    blizzard_raid_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s/encounters/raids?namespace=profile-%s&locale=en_US&access_token=" % (region, realm_name, character_name, region)
+    blizzard_profile_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s?namespace=profile-%s&locale=en_US" % (region, realm_name, character_name, region)
+    blizzard_mythic_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s/mythic-keystone-profile?namespace=profile-%s&locale=en_US" % (region, realm_name, character_name, region)
+    blizzard_raid_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s/encounters/raids?namespace=profile-%s&locale=en_US" % (region, realm_name, character_name, region)
 
     access_token = get_auth_token(blizzard_auth_url, client_id, client_secret)
 
@@ -269,7 +269,10 @@ def get_auth_token(url, id, secret):
     return token
 
 def fetch_data(url, token):
-    response = http.get("%s%s" % (url, token), ttl_seconds = 300)
+    headers = {
+        "Authorization": "Bearer %s" % token,
+    }
+    response = http.get(url, headers = headers, ttl_seconds = 300)
     if response.status_code != 200:
         print("Blizzard request failed with status %d" % response.status_code)
         return None

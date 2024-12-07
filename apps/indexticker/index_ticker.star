@@ -5,8 +5,8 @@ Description: Display ticker and stats for stock indices.
 Author: M0ntyP
 
 v1.1 - Added BSE and NIFTY indices
-
 v1.2 - Added toggle for showing % change or pts change
+v1.3 - Added NIKKEI, Europe 350, Global 100, Global 1200, NZX50 indices; support null indicator values in chart
 """
 
 load("animation.star", "animation")
@@ -25,6 +25,21 @@ FONT = "tom-thumb"
 
 INDEX_PREFIX = "https://query1.finance.yahoo.com/v8/finance/chart/%5E"
 INDEX_SUFFIX = "?metrics=high?&interval="
+
+INDEX_MAP = {
+    "axjo": "ASX 200",
+    "dji": "Dow Jones",
+    "speup": "Europe 350",
+    "spg100": "Global 100",
+    "spg1200": "Global 1200",
+    "ixic": "NASDAQ",
+    "n225": "NIKKEI",
+    "nz50": "NZX 50",
+    "ftse": "FTSE",
+    "gspc": "S&P 500",
+    "BSESN": "BSE",
+    "NSEI": "NIFTY",
+}
 
 def main(config):
     IndexSelection = config.get("Index", "axjo")
@@ -102,26 +117,24 @@ def print_chart(INDEX_JSON, TotalTicks, LastClose, Interval):
     TickIndex = []
     Data = []
 
-    for i in range(0, TotalTicks, 1):
-        # handle multiple Nones in a row
-        # loop until you dont find one and break
+    previous_tick = LastClose
 
+    for i in range(TotalTicks):
         CurrentTick = INDEX_JSON["chart"]["result"][0]["indicators"]["quote"][0]["close"][i]
+
         if CurrentTick == None:
-            CurrentTick = INDEX_JSON["chart"]["result"][0]["indicators"]["quote"][0]["close"][i - 1]
+            CurrentTick = previous_tick
+        else:
+            previous_tick = CurrentTick
 
         TickList.append(CurrentTick)
         TickIndex.append(i)
-        Percentage_Change = TickList[i] - LastClose
-        Percentage_Change = Percentage_Change / LastClose
-        Percentage_Change = Percentage_Change * 100
+
+        Percentage_Change = (CurrentTick - LastClose) / LastClose * 100
         DataElement = TickIndex[i], Percentage_Change
         Data.append(DataElement)
 
-    ChartWidth = len(Data)
-
-    if ChartWidth > 64:
-        ChartWidth = 64
+    ChartWidth = min(len(Data), 64)
 
     if Interval == "YTD":
         ChartWidth = int(ChartWidth * 1.23)
@@ -168,7 +181,7 @@ def print_chart(INDEX_JSON, TotalTicks, LastClose, Interval):
     )
 
 def print_market(Current, DisplayDiff, DiffColor, IndexSelection, Interval):
-    Title = getTitle(IndexSelection)
+    Title = getTitle(IndexSelection).upper()
     return render.Column(
         children = [
             render.Row(
@@ -205,23 +218,7 @@ def print_market(Current, DisplayDiff, DiffColor, IndexSelection, Interval):
     )
 
 def getTitle(IndexSelection):
-    if IndexSelection == "axjo":
-        return ("ASX 200")
-    elif IndexSelection == "dji":
-        return ("Dow Jones")
-    elif IndexSelection == "ixic":
-        return ("NASDAQ")
-    elif IndexSelection == "n225":
-        return ("NIKKEI")
-    elif IndexSelection == "ftse":
-        return ("FTSE")
-    elif IndexSelection == "gspc":
-        return ("S&P 500")
-    elif IndexSelection == "BSESN":
-        return ("BSE")
-    elif IndexSelection == "NSEI":
-        return ("NIFTY")
-    return ""
+    return INDEX_MAP.get(IndexSelection, "")
 
 def get_schema():
     return schema.Schema(
@@ -254,38 +251,8 @@ def get_schema():
     )
 
 IndexOptions = [
-    schema.Option(
-        display = "ASX 200",
-        value = "axjo",
-    ),
-    schema.Option(
-        display = "Dow Jones",
-        value = "dji",
-    ),
-    schema.Option(
-        display = "NASDAQ",
-        value = "ixic",
-    ),
-    schema.Option(
-        display = "S&P 500",
-        value = "gspc",
-    ),
-    # schema.Option(
-    #     display = "NIKKEI",
-    #     value = "n225",
-    # ),
-    schema.Option(
-        display = "FTSE",
-        value = "ftse",
-    ),
-    schema.Option(
-        display = "BSE",
-        value = "BSESN",
-    ),
-    schema.Option(
-        display = "NIFTY",
-        value = "NSEI",
-    ),
+    schema.Option(display = title, value = value)
+    for value, title in INDEX_MAP.items()
 ]
 
 RangeOptions = [

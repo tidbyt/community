@@ -243,6 +243,17 @@ def get_current_nfl_week():
         else:
             return []
 
+def get_current_nfl_year():
+    current_year = "2024"
+    current_year_url = SLEEPER_API_BASE_URL + "/state/nfl"
+    current_year_response = http.get(current_year_url)
+    current_year_response_json = current_year_response.json()
+    if current_year_response_json != None:
+        current_year = str(current_year_response_json["league_season"])
+        return current_year
+    else:
+        return []
+
 def get_current_matchup(league_id, roster_id, current_week):
     matchup_id = ""
     roster_ids_in_matchup = {}
@@ -397,7 +408,9 @@ def get_current_leagues(username):
         else:
             return []
 
-    leagues_url = SLEEPER_API_BASE_URL + "/user/" + user_id + "/leagues/nfl/" + SLEEPER_GAME_KEY
+    league_year = get_current_nfl_year()
+
+    leagues_url = SLEEPER_API_BASE_URL + "/user/" + user_id + "/leagues/nfl/" + league_year
     print(leagues_url)
     leagues_response = http.get(leagues_url)
     leagues_response_json = leagues_response.json()

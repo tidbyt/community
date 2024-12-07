@@ -58,14 +58,14 @@ SHORTENED_WORDS = """
 """
 ALT_COLOR = """
 {
-    "OKC": "#007AC1",
-    "GS": "#1D428A",
-    "PHI": "#006BB6"
+    "GS": "#1D428A"
 }
 """
 ALT_LOGO = """
 {
-    "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png"
+    "HOU": "https://b.fssta.com/uploads/application/nba/team-logos/Rockets-alternate.png",
+    "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png",
+    "TOR": "https://b.fssta.com/uploads/application/nba/team-logos/Raptors-alternate.png"
 }
 """
 MAGNIFY_LOGO = """
@@ -73,7 +73,6 @@ MAGNIFY_LOGO = """
     "BOS": 18,
     "CHA": 18,
     "DEN": 14,
-    "HOU": 20,
     "LAL": 18,
     "MIL": 18,
     "NO": 24,
@@ -83,7 +82,7 @@ MAGNIFY_LOGO = """
     "PHX": 18,
     "PHI": 14,
     "SA": 18,
-    "TOR": 14,
+    "TOR": 13,
     "WSH": 14
 }
 """
