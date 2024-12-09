@@ -73,10 +73,31 @@ def get_schema():
                 id = "resort",
                 name = "Ski Resort",
                 icon = "mountain",
-                desc = "The resort you want to show. North American Epic Pass Resorts only right now",
+                desc = "The resort you want to show. North American Epic Pass Resorts only right now.",
                 default = options[0].value,
                 options = options,
             ),
+            schema.Toggle(
+                id = "celsius",
+                name = "Display in Celsius?",
+                desc = "Display in Celsius (default is fahrenheit).",
+                icon = "temperatureLow",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "metric",
+                name = "Display in metric?",
+                desc = "Display in snowfall in metric (default is inches).",
+                icon = "ruler",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_snowfall_period",
+                name = "Show snowfall time period?",
+                desc = "Display \"24h\" hint on snowfall depth.",
+                icon = "clock",
+                default = True,
+            )
         ],
     )
 
@@ -84,19 +105,24 @@ def trimToJSON(js_command):
     js_command = js_command.split("= ", 1)[1]
     return js_command[:len(js_command) - 2]
 
-def Getweather_data(resort):
+def Getweather_data(resort, use_celsius, use_metric):
     """Pulls weather info from the weather page associated with the given resort
 
     Args:
         resort (string): The Resort Name as listed in RESORT_URLS
+        use_celsius (bool): Use Celsius for temperature measurement
+        use_metric (bool): Use centimeters for
 
     Returns:
         dict: a dict containing the temperature, snowfall and description attributes. description is not currently used. Returns None if their is an error fetching the results.
     """
+    depth_subfield = "Centimeters" if use_metric else "Inches"
+    temp_subfield = "CurrentTempMetric" if use_celsius else "CurrentTempStandard"
 
     url = RESORT_URLS[resort] + WEATHER_URL_STUB
-    if (cache.get(url) != None):
-        cached_string = cache.get(url)
+    cache_key = depth_subfield + "_" + temp_subfield + "_" + url
+    if cache.get(cache_key) != None:
+        cached_string = cache.get(cache_key)
         return json.decode(cached_string)
     r = http.get(url)
     response = r.body()
@@ -106,10 +132,10 @@ def Getweather_data(resort):
     for line in response.splitlines():
         if line.startswith("    FR.forecasts = "):
             temp_data = json.decode(trimToJSON(line))
-            temperature = humanize.ftoa(temp_data[0]["CurrentTempStandard"])
+            temperature = humanize.ftoa(temp_data[0][temp_subfield])
             weather_description = temp_data[0]["ForecastData"][0]["WeatherIconStatus"]
         if line.startswith("    FR.snowReportData = "):
-            snowfall = json.decode(trimToJSON(line))["TwentyFourHourSnowfall"]["Inches"]
+            snowfall = json.decode(trimToJSON(line))["TwentyFourHourSnowfall"][depth_subfield]
     if temperature == None:
         url = RESORT_URLS[resort] + WEATHER_URL_STUB_ALT
         r = http.get(url)
@@ -117,18 +143,17 @@ def Getweather_data(resort):
         for line in response.splitlines():
             if line.startswith("    FR.forecasts = "):
                 temp_data = json.decode(trimToJSON(line))
-                temperature = humanize.ftoa(temp_data[0]["CurrentTempStandard"])
+                temperature = humanize.ftoa(temp_data[0][temp_subfield])
                 weather_description = temp_data[0]["ForecastData"][0]["WeatherIconStatus"]
             if line.startswith("    FR.snowReportData = "):
-                snowfall = json.decode(trimToJSON(line))["TwentyFourHourSnowfall"]["Inches"]
+                snowfall = json.decode(trimToJSON(line))["TwentyFourHourSnowfall"][depth_subfield]
     if temperature == None or snowfall == None:
         return None
 
     results = dict(temperature = temperature, snowfall = snowfall, description = weather_description)
-    url = RESORT_URLS[resort] + WEATHER_URL_STUB
 
     # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(url, json.encode(results), 600)
+    cache.set(cache_key, json.encode(results), 600)
     return results
 
 def getTerrain(resort):
@@ -267,18 +292,18 @@ def trailStatusColumn(resort):
         ],
     )
 
-def lowerRow(resort):
+def lowerRow(resort, use_celsius, use_metric, show_snowfall_period):
     return render.Row(
         expanded = True,
         main_align = "space_around",
         children = [
-            weather(resort),
+            weather(resort, use_celsius, use_metric, show_snowfall_period),
             trailStatusColumn(resort),
         ],
     )
 
-def weather(resort):
-    weather_data = Getweather_data(resort)
+def weather(resort, use_celsius, use_metric, show_snowfall_period):
+    weather_data = Getweather_data(resort, use_celsius, use_metric)
     if weather_data == None:
         return render.Column(
             expanded = True,
@@ -289,23 +314,30 @@ def weather(resort):
             ],
         )
 
+    temp_unit_part = "°C" if use_celsius else "°F"
+    depth_hint = "24h:" if show_snowfall_period else ""
+    snowfall_unit_part = "cm" if use_metric else "\""
+
     return render.Column(
         expanded = True,
         main_align = "space_around",
         cross_align = "center",
         children = [
-            render.Text(weather_data["temperature"] + "°"),
-            render.Text("24h:" + weather_data["snowfall"] + "\"", font = "tom-thumb"),
+            render.Text(weather_data["temperature"] + temp_unit_part),
+            render.Marquee(render.Text(depth_hint + weather_data["snowfall"] + snowfall_unit_part, font = "tom-thumb"), align="center", width=30)
         ],
     )
 
 def main(config):
     resort = config.str("resort", "Vail")
+    use_celsius = config.bool("celsius", False)
+    use_metric = config.bool("metric", False)
+    show_snowfall_period = config.bool("show_snowfall_period", True)
     return render.Root(
         child = render.Column(
             children = [
                 titleRow(resort),
-                lowerRow(resort),
+                lowerRow(resort, use_celsius, use_metric, show_snowfall_period),
             ],
         ),
     )
