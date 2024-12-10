@@ -21,7 +21,7 @@ HIRO_API_BASE_URL = "https://api.hiro.so/"
 LATEST_BLOCK_URL = "extended/v2/blocks?limit=1"
 
 STACKS_ICON = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAD6ADAAQAAAABAAAADwAAAAAHNtsJAAAAuUlEQVQoFaWS0Q3CMAxEE8RcrMAnI3QEEANUZQRG4JMVuljRNXrVxQkChD9q++o7W45z6tjltCwRnh45R2zvAKTD0VHiIugim5qIfRLk4udnSgjsBEXi+TpUDM/VgAlXclX5Q5JjV7jqdhvvCQ+O1/gN2UekEC8xTORq2/rhBRS+8w35284SbBamznR3T+xTrO8clxaXFHPeuunsyp/ivy5sI6sLl9M7U40q4zQVV2QBMkRKVr5OAn8BFhJVltCgJdgAAAAASUVORK5CYII=
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAD6ADAAQAAAABAAAADwAAAAAHNtsJAAAAvElEQVQoFaWSsRECMQwEZfiKaIEWyEkgoh4iSMhpgRao6BmY08/+yLIZYHDwks6+O72tYp017lbPDA/ne2mwCEBarrcR9nw0c8EoMquJ2CNllcftYggstJmJ19Ox4sRaBnTo5OrkD0XJrnDlttkfjAhOVPsNObbIQaLEWP7vFMR4AOxdHPLGt87iNRcmZ9xjJI9m/s750vIl5Zq3bpyj8qf8rwmbyXJhcnpjqla1GE3lFVmAFiJTNX0jCfwFz/JY29KXSsoAAAAASUVORK5CYII=
 """)
 
 def config_schema():
@@ -120,7 +120,7 @@ def main(config):
                                     render.Row(
                                         cross_align = "center",
                                         children = [
-                                            render.Text("B%s" % sats_stx_rate, color = "#FFD700"),
+                                            render.Text("B%s" % sats_stx_rate, color = "#FD9D41"),
                                         ],
                                     ),
                                     render.Row(
