@@ -21,7 +21,7 @@ HIRO_API_BASE_URL = "https://api.hiro.so/"
 LATEST_BLOCK_URL = "extended/v2/blocks?limit=1"
 
 STACKS_ICON = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAD6ADAAQAAAABAAAADwAAAAAHNtsJAAAAvElEQVQoFaWSsRECMQwEZfiKaIEWyEkgoh4iSMhpgRao6BmY08/+yLIZYHDwks6+O72tYp017lbPDA/ne2mwCEBarrcR9nw0c8EoMquJ2CNllcftYggstJmJ19Ox4sRaBnTo5OrkD0XJrnDlttkfjAhOVPsNObbIQaLEWP7vFMR4AOxdHPLGt87iNRcmZ9xjJI9m/s750vIl5Zq3bpyj8qf8rwmbyXJhcnpjqla1GE3lFVmAFiJTNX0jCfwFz/JY29KXSsoAAAAASUVORK5CYII=
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAD6ADAAQAAAABAAAADwAAAAAHNtsJAAAAw0lEQVQoFZ2Suw0CMRBEbe4qogWqILqEnFrISYioghao6JDR+PSsYW2ExAbe78xY9uY0sPW0L7E8X5+5q3kB0HRYvFzjNaVK6CSNTcARKLK8HrcEwU7NCMzHcyNV33MJcMMK1sA/lqMqJFIr90vBU8fX65Pg/YrEeJExJz97ojgOxL7nHRgVHyKOxN2DaYAh98QQydcviY8mdR+OOX/dKTvzr7gtQ1T/BkRV/QZWwuaM1lQgGaup+AOsggySLdtOB1F/A9ldZSk6ykFXAAAAAElFTkSuQmCC
 """)
 
 def config_schema():
@@ -107,8 +107,6 @@ def main(config):
                                 children = [
                                     render.Image(
                                         src = STACKS_ICON,
-                                        width = 16,
-                                        height = 16,
                                     ),
                                     render.Text("%s" % block_height),
                                 ],
