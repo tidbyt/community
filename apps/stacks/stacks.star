@@ -70,7 +70,7 @@ def main(config):
     else:
         usd_stx_rate = "?"
 
-    print("STX/USD: %s" % usd_stx_rate)
+    print("USD/STX: %s" % usd_stx_rate)
 
     # Setup Hiro Headers
     hiro_api_key = secret.decrypt(SECRET_HIRO_API_KEY) or config.get("hiro_api_key") or DEFAULT_HIRO_API_KEY
