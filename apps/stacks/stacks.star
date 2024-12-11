@@ -134,8 +134,8 @@ def main(config):
                     render.Marquee(
                         width = 64,
                         child = render.Text("%s" % time_ago, color = "#919191"),
-                        offset_start = 5,
-                        offset_end = 32,
+                        offset_start = 0,
+                        offset_end = 0,
                     ),
                 ],
         ),
