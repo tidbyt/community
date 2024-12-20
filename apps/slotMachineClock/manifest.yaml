@@ -1,6 +1,6 @@
 ---
 id: slotmachineclock
-name: slotMachineClock
+name: SlotMachineClock
 summary: Clock displaying time via slot machine
 desc: 12 hour clock displaying the time by spinning through slot machine icons before displaying the time.
 author: Rob-Keys
