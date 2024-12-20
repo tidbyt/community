@@ -131,8 +131,8 @@ def render_frame(image, position, frames):  #given an image, its horizontal disp
     trans_child_children = [
         renderedImage,
     ]
-    for i in range(position):
-        trans_child_children.insert(i, blank_image)
+    for _ in range(position):
+        trans_child_children.insert(0, blank_image)
     return animation.Transformation(
         duration = frames,
         delay = 0,
@@ -147,11 +147,9 @@ def render_frame(image, position, frames):  #given an image, its horizontal disp
 def render_frame_list(images, position, waitTime, movementFrames, loops, loopFrames):  #combines the starting frame, looping
     new_frames = []  #gif, finishing gif, and final frame
     new_frames.append(render_frame(images[0], position, waitTime))  #all into one list of Animation objects.
-    cheese=0
     if (len(images) > 3):  #Meant to be played as a Sequence
-        for num_times in range(loops):
+        for _ in range(loops):
             new_frames.append(render_frame(images[3], position, loopFrames))
-            cheese+=num_times   #lint avoider
     new_frames.append(render_frame(images[1], position, movementFrames))
     new_frames.append(render_frame(images[2], position, 1500))
     return new_frames
