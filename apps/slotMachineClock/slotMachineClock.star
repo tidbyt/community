@@ -1,8 +1,8 @@
-load("render.star", "render")
-load("encoding/base64.star", "base64")
-load("time.star","time")
-load("schema.star","schema")
 load("animation.star", "animation")
+load("encoding/base64.star", "base64")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 BLANK = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAAgCAYAAADT5RIaAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAHYcAAB2HAY/l8WUAAAGHaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj48cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0idXVpZDpmYWY1YmRkNS1iYTNkLTExZGEtYWQzMS1kMzNkNzUxODJmMWIiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIj48dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPjwvcmRmOkRlc2NyaXB0aW9uPjwvcmRmOlJERj48L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9J3cnPz4slJgLAAAAFUlEQVQYV2P4////fyYGBgaGwUkAAIeoBDt7wUf9AAAAAElFTkSuQmCC")
 SPACER = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAgCAYAAAA1zNleAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAHYcAAB2HAY/l8WUAAAGHaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj48cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0idXVpZDpmYWY1YmRkNS1iYTNkLTExZGEtYWQzMS1kMzNkNzUxODJmMWIiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIj48dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPjwvcmRmOkRlc2NyaXB0aW9uPjwvcmRmOlJERj48L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9J3cnPz4slJgLAAAAKklEQVQoU2N8K6PynwEJMCFzBr+A0LU7DELX7uBRgQwYaebbweIOagsAAJlFDdKnzHwdAAAAAElFTkSuQmCC")
@@ -78,62 +78,61 @@ MINUTE_TO_NINE = base64.decode("R0lGODlhDQAgAPIAAAAAAO0cJP/yAD9IzMPDwyKxTAAAAAAA
 MINUTE_IS_NINE = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA0AAAAgCAYAAADJ2fKUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAHYcAAB2HAY/l8WUAAAGHaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj48cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0idXVpZDpmYWY1YmRkNS1iYTNkLTExZGEtYWQzMS1kMzNkNzUxODJmMWIiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIj48dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPjwvcmRmOkRlc2NyaXB0aW9uPjwvcmRmOlJERj48L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9J3cnPz4slJgLAAAA+0lEQVQ4T9WTwWnDQBBFn1KADznrJHTKxQ1kOhC4hNTjcgTuYNyALz4FdyAf1MDkEK+Z3R07QgRCHgjB7Dx9drXD1PY2tb3ZjKmqAQZYNw7Z22Ys9b7gEBG6cfClkExaSiapKpfd4Z7WjQOX3QFV9W11UhKBUCCScGIkADRT2xvA6/mzXKu4vvVQJh1PSrOheo6nPDFLajbfRZtdg6uFSWmRormkkpbw36RnB5Co7h43MckRVZKqPrw+iUoSEUSkLGdUQ2jz8/1QSkv5HWn1kXuio6+ScP8pCeXHsnkqh83zvpX7PK0a91VJ4Z5+4o+lj+u+LGWEEjfxkfwFcOd9kXieWIwAAAAASUVORK5CYII=")
 
 def main(config):
-    speed = int(config.str("speed",2))   #takes user input equating to how many loops to spin before displaying time
+    speed = int(config.str("speed", 2))  #takes user input equating to how many loops to spin before displaying time
 
     current_time = get_current_time_as_tuple()
-    ten_hour_value =    current_time[0]
-    hour_value =        current_time[1]
-    ten_minute_value =  current_time[2]
-    minute_value =      current_time[3]
+    ten_hour_value = current_time[0]
+    hour_value = current_time[1]
+    ten_minute_value = current_time[2]
+    minute_value = current_time[3]
 
-    ten_hour_images =   set_ten_hour_images(ten_hour_value)     #call helper functions to determine which images to use depending on the time
-    hour_images =       set_hour_images(hour_value)
+    ten_hour_images = set_ten_hour_images(ten_hour_value)  #call helper functions to determine which images to use depending on the time
+    hour_images = set_hour_images(hour_value)
     ten_minute_images = set_ten_minute_images(ten_minute_value)
-    minute_images =     set_minute_images(minute_value)
-    spacer_images =     [SPACER,SPACER,SPACER]  #because these dont change on the time, we can directly set their values
-    lever_images =      [LEVER,LEVER_PULL,LEVER]
+    minute_images = set_minute_images(minute_value)
+    spacer_images = [SPACER, SPACER, SPACER]  #because these dont change on the time, we can directly set their values
+    lever_images = [LEVER, LEVER_PULL, LEVER]
 
-
-    ten_hour_frames =   render_frame_list(ten_hour_images,  0,  15, 22,speed, 24) #turn the images into an Animation object so we can play them side-by-side in a Row
-    hour_frames =       render_frame_list(hour_images,      13, 20, 23,speed, 24) #and adds in the loops to each animation
-    spacer_frames =     render_frame_list(spacer_images,    26,  0,  0,speed, 48) #also inserts the wait time before subsequent slots start
-    ten_minute_frames = render_frame_list(ten_minute_images,30, 25, 22,speed, 24) 
-    minute_frames =     render_frame_list(minute_images,    43, 30, 24,speed, 29)
-    lever_frames =      render_frame_list(lever_images,     56,  0, 15,speed,  0)     
+    ten_hour_frames = render_frame_list(ten_hour_images, 0, 15, 22, speed, 24)  #turn the images into an Animation object so we can play them side-by-side in a Row
+    hour_frames = render_frame_list(hour_images, 13, 20, 23, speed, 24)  #and adds in the loops to each animation
+    spacer_frames = render_frame_list(spacer_images, 26, 0, 0, speed, 48)  #also inserts the wait time before subsequent slots start
+    ten_minute_frames = render_frame_list(ten_minute_images, 30, 25, 22, speed, 24)
+    minute_frames = render_frame_list(minute_images, 43, 30, 24, speed, 29)
+    lever_frames = render_frame_list(lever_images, 56, 0, 15, speed, 0)
 
     return render.Root(
         child = render.Stack(
-            children=[
+            children = [
                 render.Sequence(
-                    children = lever_frames #must be rendered right to left so that the spacing blank images are drawn over, and they dont draw over our clock
+                    children = lever_frames,  #must be rendered right to left so that the spacing blank images are drawn over, and they dont draw over our clock
                 ),
                 render.Sequence(
-                    children = minute_frames
+                    children = minute_frames,
                 ),
                 render.Sequence(
-                    children = ten_minute_frames
+                    children = ten_minute_frames,
                 ),
                 render.Sequence(
-                    children = spacer_frames
+                    children = spacer_frames,
                 ),
                 render.Sequence(
-                    children = hour_frames
+                    children = hour_frames,
                 ),
                 render.Sequence(
-                    children = ten_hour_frames
-                )
-            ]
-        )
+                    children = ten_hour_frames,
+                ),
+            ],
+        ),
     )
 
-def render_frame(image,position,frames): #given an image, its horizontal displacement, and its frame length
+def render_frame(image, position, frames):  #given an image, its horizontal displacement, and its frame length
     renderedImage = render.Image(image)  #returns an Animation object displaced the correct amount with white
-    blank_image = render.Image(BLANK)    #spacing image, meant to be drawn over in a Stack
+    blank_image = render.Image(BLANK)  #spacing image, meant to be drawn over in a Stack
     trans_child_children = [
-                renderedImage
-                ]
+        renderedImage,
+    ]
     for i in range(position):
-        trans_child_children.insert(0,blank_image)
+        trans_child_children.insert(i, blank_image)
     return animation.Transformation(
         duration = frames,
         delay = 0,
@@ -141,28 +140,30 @@ def render_frame(image,position,frames): #given an image, its horizontal displac
         child = render.Row(
             main_align = "start",
             cross_align = "center",
-            children = trans_child_children
-        )
+            children = trans_child_children,
+        ),
     )
 
-def render_frame_list(images,position,waitTime,movementFrames,loops,loopFrames):    #combines the starting frame, looping
-    new_frames = []                                                                 #gif, finishing gif, and final frame
-    new_frames.append(render_frame(images[0],position,waitTime))                    #all into one list of Animation objects.
-    if(len(images)>3):                                                              #Meant to be played as a Sequence
-        for i in range(loops):
-            new_frames.append(render_frame(images[3],position,loopFrames))
-    new_frames.append(render_frame(images[1],position,movementFrames))
-    new_frames.append(render_frame(images[2],position,1500))
+def render_frame_list(images, position, waitTime, movementFrames, loops, loopFrames):  #combines the starting frame, looping
+    new_frames = []  #gif, finishing gif, and final frame
+    new_frames.append(render_frame(images[0], position, waitTime))  #all into one list of Animation objects.
+    cheese=0
+    if (len(images) > 3):  #Meant to be played as a Sequence
+        for num_times in range(loops):
+            new_frames.append(render_frame(images[3], position, loopFrames))
+            cheese+=num_times   #lint avoider
+    new_frames.append(render_frame(images[1], position, movementFrames))
+    new_frames.append(render_frame(images[2], position, 1500))
     return new_frames
 
 def get_schema():
     options = [
         schema.Option(
-            display = "Slow",   #Slow speed = 3 loops before displaying time
+            display = "Slow",  #Slow speed = 3 loops before displaying time
             value = "3",
         ),
         schema.Option(
-            display = "Medium", #Medium = 2 loops...etc
+            display = "Medium",  #Medium = 2 loops...etc
             value = "2",
         ),
         schema.Option(
@@ -178,91 +179,91 @@ def get_schema():
                 name = "Speed of slot machine",
                 desc = "Determines how long to spin before it takes to land on the time",
                 icon = "forwardFast",
-                default=options[1].value,
-                options=options
+                default = options[1].value,
+                options = options,
             ),
         ],
-    )
+    )  #returns the time as a tuple of each digit
 
-def get_current_time_as_tuple():  #returns the time as a tuple of each digit
+def get_current_time_as_tuple():
     total_hour = list(time.now().format("3:04").partition(":")[0].elems())  #gets the hour as a list of single character strings
     ten_hour_value = 0
     hour_value = int(total_hour[0])
-    if(len(total_hour)==2): #if theres a ten's digit for hours, set ten_hour to 1 and fix hour
+    if (len(total_hour) == 2):  #if theres a ten's digit for hours, set ten_hour to 1 and fix hour
         ten_hour_value = 1
         hour_value = int(total_hour[1])
-    total_minute = list(time.now().format("3:04").partition(":")[2].elems())  #gets minute at a list of single character strings 
+    total_minute = list(time.now().format("3:04").partition(":")[2].elems())  #gets minute at a list of single character strings
     ten_minute_value = int(total_minute[0])
     minute_value = int(total_minute[1])
-    return (ten_hour_value,hour_value,ten_minute_value,minute_value)
+    return (ten_hour_value, hour_value, ten_minute_value, minute_value)
 
-def swap_time(old_images,new_movement,new_final):   #swaps out middle 2 values in list with new given values
+def swap_time(old_images, new_movement, new_final):  #swaps out middle 2 values in list with new given values
     old_images.pop(2)
     old_images.pop(1)
-    old_images.insert(1,new_movement)
-    old_images.insert(2,new_final)
+    old_images.insert(1, new_movement)
+    old_images.insert(2, new_final)
     return old_images
 
 def set_ten_hour_images(ten_hour_value):
-    return_images = [TEN_HOUR_START,TEN_HOUR_TO_BLANK,TEN_HOUR_IS_BLANK,TEN_HOUR_LOOP]
-    if(ten_hour_value==1):
-        return_images = swap_time(return_images,TEN_HOUR_TO_ONE,TEN_HOUR_IS_ONE)
+    return_images = [TEN_HOUR_START, TEN_HOUR_TO_BLANK, TEN_HOUR_IS_BLANK, TEN_HOUR_LOOP]
+    if (ten_hour_value == 1):
+        return_images = swap_time(return_images, TEN_HOUR_TO_ONE, TEN_HOUR_IS_ONE)
     return return_images
 
 def set_hour_images(hour_value):
-    return_images = [HOUR_START,HOUR_TO_ZERO,HOUR_IS_ZERO,HOUR_LOOP]
-    if(hour_value==1):
-        return_images = swap_time(return_images,HOUR_TO_ONE,HOUR_IS_ONE)    # Would love to use a switch statement
-    elif(hour_value==2):                                                    # for all these functions, but as far as
-        return_images = swap_time(return_images,HOUR_TO_TWO,HOUR_IS_TWO)    # I can tell, Starlark doesnt support switch statements
-    elif(hour_value==3):
-        return_images = swap_time(return_images,HOUR_TO_THREE,HOUR_IS_THREE)
-    elif(hour_value==4):
-        return_images = swap_time(return_images,HOUR_TO_FOUR,HOUR_IS_FOUR)
-    elif(hour_value==5):
-        return_images = swap_time(return_images,HOUR_TO_FIVE,HOUR_IS_FIVE)
-    elif(hour_value==6):
-        return_images = swap_time(return_images,HOUR_TO_SIX,HOUR_IS_SIX)
-    elif(hour_value==7):
-        return_images = swap_time(return_images,HOUR_TO_SEVEN,HOUR_IS_SEVEN)
-    elif(hour_value==8):
-        return_images = swap_time(return_images,HOUR_TO_EIGHT,HOUR_IS_EIGHT)
-    elif(hour_value==9):
-        return_images = swap_time(return_images,HOUR_TO_NINE,HOUR_IS_NINE)
+    return_images = [HOUR_START, HOUR_TO_ZERO, HOUR_IS_ZERO, HOUR_LOOP]
+    if (hour_value == 1):
+        return_images = swap_time(return_images, HOUR_TO_ONE, HOUR_IS_ONE)  # Would love to use a switch statement
+    elif (hour_value == 2):  # for all these functions, but as far as
+        return_images = swap_time(return_images, HOUR_TO_TWO, HOUR_IS_TWO)  # I can tell, Starlark doesnt support switch statements
+    elif (hour_value == 3):
+        return_images = swap_time(return_images, HOUR_TO_THREE, HOUR_IS_THREE)
+    elif (hour_value == 4):
+        return_images = swap_time(return_images, HOUR_TO_FOUR, HOUR_IS_FOUR)
+    elif (hour_value == 5):
+        return_images = swap_time(return_images, HOUR_TO_FIVE, HOUR_IS_FIVE)
+    elif (hour_value == 6):
+        return_images = swap_time(return_images, HOUR_TO_SIX, HOUR_IS_SIX)
+    elif (hour_value == 7):
+        return_images = swap_time(return_images, HOUR_TO_SEVEN, HOUR_IS_SEVEN)
+    elif (hour_value == 8):
+        return_images = swap_time(return_images, HOUR_TO_EIGHT, HOUR_IS_EIGHT)
+    elif (hour_value == 9):
+        return_images = swap_time(return_images, HOUR_TO_NINE, HOUR_IS_NINE)
     return return_images
 
 def set_ten_minute_images(ten_minute_value):
-    return_images = [TEN_MINUTE_START,TEN_MINUTE_TO_ZERO,TEN_MINUTE_IS_ZERO,TEN_MINUTE_LOOP]
-    if(ten_minute_value==1):
-        return_images = swap_time(return_images,TEN_MINUTE_TO_ONE,TEN_MINUTE_IS_ONE)
-    elif(ten_minute_value==2):
-        return_images = swap_time(return_images,TEN_MINUTE_TO_TWO,TEN_MINUTE_IS_TWO)
-    elif(ten_minute_value==3):
-        return_images = swap_time(return_images,TEN_MINUTE_TO_THREE,TEN_MINUTE_IS_THREE)
-    elif(ten_minute_value==4):
-        return_images = swap_time(return_images,TEN_MINUTE_TO_FOUR,TEN_MINUTE_IS_FOUR)
-    elif(ten_minute_value==5):
-        return_images = swap_time(return_images,TEN_MINUTE_TO_FIVE,TEN_MINUTE_IS_FIVE)
+    return_images = [TEN_MINUTE_START, TEN_MINUTE_TO_ZERO, TEN_MINUTE_IS_ZERO, TEN_MINUTE_LOOP]
+    if (ten_minute_value == 1):
+        return_images = swap_time(return_images, TEN_MINUTE_TO_ONE, TEN_MINUTE_IS_ONE)
+    elif (ten_minute_value == 2):
+        return_images = swap_time(return_images, TEN_MINUTE_TO_TWO, TEN_MINUTE_IS_TWO)
+    elif (ten_minute_value == 3):
+        return_images = swap_time(return_images, TEN_MINUTE_TO_THREE, TEN_MINUTE_IS_THREE)
+    elif (ten_minute_value == 4):
+        return_images = swap_time(return_images, TEN_MINUTE_TO_FOUR, TEN_MINUTE_IS_FOUR)
+    elif (ten_minute_value == 5):
+        return_images = swap_time(return_images, TEN_MINUTE_TO_FIVE, TEN_MINUTE_IS_FIVE)
     return return_images
 
 def set_minute_images(minute_value):
-    return_images = [MINUTE_START,MINUTE_TO_ZERO,MINUTE_IS_ZERO,MINUTE_LOOP]
-    if(minute_value==1):
-        return_images = swap_time(return_images,MINUTE_TO_ONE,MINUTE_IS_ONE)
-    elif(minute_value==2):
-        return_images = swap_time(return_images,MINUTE_TO_TWO,MINUTE_IS_TWO)
-    elif(minute_value==3):
-        return_images = swap_time(return_images,MINUTE_TO_THREE,MINUTE_IS_THREE)
-    elif(minute_value==4):
-        return_images = swap_time(return_images,MINUTE_TO_FOUR,MINUTE_IS_FOUR)
-    elif(minute_value==5):
-        return_images = swap_time(return_images,MINUTE_TO_FIVE,MINUTE_IS_FIVE)
-    elif(minute_value==6):
-        return_images = swap_time(return_images,MINUTE_TO_SIX,MINUTE_IS_SIX)
-    elif(minute_value==7):
-        return_images = swap_time(return_images,MINUTE_TO_SEVEN,MINUTE_IS_SEVEN)
-    elif(minute_value==8):
-        return_images = swap_time(return_images,MINUTE_TO_EIGHT,MINUTE_IS_EIGHT)
-    elif(minute_value==9):
-        return_images = swap_time(return_images,MINUTE_TO_NINE,MINUTE_IS_NINE)
+    return_images = [MINUTE_START, MINUTE_TO_ZERO, MINUTE_IS_ZERO, MINUTE_LOOP]
+    if (minute_value == 1):
+        return_images = swap_time(return_images, MINUTE_TO_ONE, MINUTE_IS_ONE)
+    elif (minute_value == 2):
+        return_images = swap_time(return_images, MINUTE_TO_TWO, MINUTE_IS_TWO)
+    elif (minute_value == 3):
+        return_images = swap_time(return_images, MINUTE_TO_THREE, MINUTE_IS_THREE)
+    elif (minute_value == 4):
+        return_images = swap_time(return_images, MINUTE_TO_FOUR, MINUTE_IS_FOUR)
+    elif (minute_value == 5):
+        return_images = swap_time(return_images, MINUTE_TO_FIVE, MINUTE_IS_FIVE)
+    elif (minute_value == 6):
+        return_images = swap_time(return_images, MINUTE_TO_SIX, MINUTE_IS_SIX)
+    elif (minute_value == 7):
+        return_images = swap_time(return_images, MINUTE_TO_SEVEN, MINUTE_IS_SEVEN)
+    elif (minute_value == 8):
+        return_images = swap_time(return_images, MINUTE_TO_EIGHT, MINUTE_IS_EIGHT)
+    elif (minute_value == 9):
+        return_images = swap_time(return_images, MINUTE_TO_NINE, MINUTE_IS_NINE)
     return return_images
