@@ -50,8 +50,8 @@ FLORIDA_LIGHTHOUSES = [
 ]
 
 MAP_CITIES_COLOR = "#f00"
-VISITED_COLOR = "FFFF00" #"#9b870c"
-UNVISITED_COLOR = "565a06" #"#f5e31d"
+VISITED_COLOR = "FFFF00"  #"#9b870c"
+UNVISITED_COLOR = "565a06"  #"#f5e31d"
 BRIGHT_OUTLINE_COLOR = "#fff"
 DULL_OUTLINE_COLOR = "#111"
 
@@ -136,7 +136,6 @@ def get_map_points(map_coordinates, map_area, pixel_area, config = []):
                     map_array[x][y] = 1
             else:
                 map_array[x][y] = 1
-
 
     return map_array
 
