@@ -144,7 +144,7 @@ def main(config):
     else:
         #Recipe Display
         random_coffee_id = random.number(0, len(COFFEE_DATA) - 1)
-        children.append(add_padding_to_child_element(render.Image(src = COFFEE_CUP_IMAGE, width = 20),-3))
+        children.append(add_padding_to_child_element(render.Image(src = COFFEE_CUP_IMAGE, width = 20), -3))
         children.append(add_padding_to_child_element(render.Marquee(width = 44, child = render.Text(content = COFFEE_DATA[random_coffee_id]["Coffee Drink"], color = COFFEE_PALETTE["Cream"], font = COFFEE_FONT)), 16))
         children.append(add_padding_to_child_element(render.Marquee(width = 64, child = render.Text(content = COFFEE_DATA[random_coffee_id]["Description"], color = COFFEE_PALETTE["Warm Cinnamon"], font = COFFEE_FONT)), 0, 14))
         children.append(add_padding_to_child_element(render.Marquee(width = 64, offset_end = 64, offset_start = (4 * (len(COFFEE_DATA[random_coffee_id]["Description"]))), child = render.Text(content = COFFEE_DATA[random_coffee_id]["Proportions"], color = COFFEE_PALETTE["Caramel"], font = COFFEE_FONT)), 0, 23))
