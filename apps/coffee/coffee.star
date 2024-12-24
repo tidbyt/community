@@ -235,20 +235,20 @@ def get_schema():
         version = "1",
         fields = [
             schema.Dropdown(
-                id = "display_type",
-                icon = "tv",
-                name = "What to display",
-                desc = "What do you want this to display?",
-                options = display_type,
-                default = display_type[1].value,
-            ),
-            schema.Dropdown(
                 id = "scroll",
                 name = "Scroll",
                 desc = "Scroll Speed",
                 icon = "scroll",
                 options = scroll_speed_options,
                 default = scroll_speed_options[0].value,
+            ),
+            schema.Dropdown(
+                id = "display_type",
+                icon = "tv",
+                name = "What to display",
+                desc = "What do you want this to display?",
+                options = display_type,
+                default = display_type[1].value,
             ),
             schema.Generated(
                 id = "coffee_types",
