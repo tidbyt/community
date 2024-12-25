@@ -9,6 +9,12 @@ API Swagger URL: https://timetableapi.ptv.vic.gov.au/swagger/ui/index
 
 Changelog:
 - v1.0 - First release to Tidbyt
+- v1.1:
+    - Update Route 11 - Add stops: D14, D15, D16, D17, D18
+    - Update Route 30 - Add stops: D1, D2
+    - Update Route 48 - Add stops: D14, D15, D16, D17, D18
+    - Update Route 70 - Add stops: D2, D3, D4, D5, D6, D10, D11, 7A, 7B, 7C, 7D
+    - Update Route 75 - Add stops: D2, D3, D4, D5, D6
 """
 
 load("hmac.star", "hmac")
@@ -1479,6 +1485,26 @@ Route6StopOptions = [
 ]
 Route11StopOptions = [
     schema.Option(
+        display = "D14: Southern Cross Stn/Collins St",
+        value = "2479,D14: Southern Cross Stn/Collins St",
+    ),
+    schema.Option(
+        display = "D15: Batman's Hill/Collins St",
+        value = "2489,D15: Batman's Hill/Collins St",
+    ),
+    schema.Option(
+        display = "D16: Harbour Esp/Collins St",
+        value = "2696,D16: Harbour Esp/Collins St",
+    ),
+    schema.Option(
+        display = "D17: Merchant St/Collins St",
+        value = "2490,D17: Merchant St/Collins St",
+    ),
+    schema.Option(
+        display = "D18: Bourke St/Collins St",
+        value = "2890,D18: Bourke St/Collins St",
+    ),
+    schema.Option(
         display = "1: Spencer St/Collins St",
         value = "2496,1: Spencer St/Collins St",
     ),
@@ -2507,6 +2533,14 @@ Route19StopOptions = [
 ]
 Route30StopOptions = [
     schema.Option(
+        display = "D1: Docklands Stadium/La Trobe St",
+        value = "2869,D1: Docklands Stadium/La Trobe St",
+    ),
+    schema.Option(
+        display = "D2: Central Pier/Harbour Esp",
+        value = "2049,D2: Central Pier/Harbour Esp",
+    ),
+    schema.Option(
         display = "1: Spencer St/La Trobe St",
         value = "3271,1: Spencer St/La Trobe St",
     ),
@@ -2618,6 +2652,26 @@ Route35StopOptions = [
     ),
 ]
 Route48StopOptions = [
+    schema.Option(
+        display = "D14: Southern Cross Stn/Collins St",
+        value = "2479,D14: Southern Cross Stn/Collins St",
+    ),
+    schema.Option(
+        display = "D15: Batman's Hill/Collins St",
+        value = "2489,D15: Batman's Hill/Collins St",
+    ),
+    schema.Option(
+        display = "D16: Harbour Esp/Collins St",
+        value = "2696,D16: Harbour Esp/Collins St",
+    ),
+    schema.Option(
+        display = "D17: Merchant St/Collins St",
+        value = "2490,D17: Merchant St/Collins St",
+    ),
+    schema.Option(
+        display = "D18: Bourke St/Collins St",
+        value = "2890,D18: Bourke St/Collins St",
+    ),
     schema.Option(
         display = "1: Spencer St/Collins St",
         value = "2496,1: Spencer St/Collins St",
@@ -4223,6 +4277,34 @@ Route67StopOptions = [
 ]
 Route70StopOptions = [
     schema.Option(
+        display = "D2: Central Pier/Harbour Esp",
+        value = "2049,D2: Central Pier/Harbour Esp",
+    ),
+    schema.Option(
+        display = "D3: Stadium Precinct - Bourke St/Harbour Esp",
+        value = "2870,D3: Stadium Precinct - Bourke St/Harbour Esp",
+    ),
+    schema.Option(
+        display = "D4: Docklands Park/Harbour Esp",
+        value = "2871,D4: Docklands Park/Harbour Esp",
+    ),
+    schema.Option(
+        display = "D5: South Wharf/Wurundjeri Way",
+        value = "2872,D5: South Wharf/Wurundjeri Way",
+    ),
+    schema.Option(
+        display = "D6: Victoria Police Centre/Flinders St",
+        value = "2875,D6: Victoria Police Centre/Flinders St",
+    ),
+    schema.Option(
+        display = "D10: NewQuay Prom/Docklands Dr",
+        value = "2783,D10: NewQuay Prom/Docklands Dr",
+    ),
+    schema.Option(
+        display = "D11: Waterfront City/Docklands Dr",
+        value = "2876,D11: Waterfront City/Docklands Dr",
+    ),
+    schema.Option(
         display = "1: Spencer St/Flinders St",
         value = "3318,1: Spencer St/Flinders St",
     ),
@@ -4245,6 +4327,22 @@ Route70StopOptions = [
     schema.Option(
         display = "6: Russell St/Flinders St",
         value = "2097,6: Russell St/Flinders St",
+    ),
+    schema.Option(
+        display = "7A: William Barak Bridge/Melbourne Park",
+        value = "2482,7A: William Barak Bridge/Melbourne Park",
+    ),
+    schema.Option(
+        display = "7B: Rod Laver Arena/MCG Gates 1-3",
+        value = "2171,7B: Rod Laver Arena/MCG Gates 1-3",
+    ),
+    schema.Option(
+        display = "7C: MCG Gates 4-7/John Cain Arena",
+        value = "2140,7C: MCG Gates 4-7/John Cain Arena",
+    ),
+    schema.Option(
+        display = "7D: Olympic Boulevard",
+        value = "2100,7D: Olympic Boulevard",
     ),
     schema.Option(
         display = "8: Richmond Stn/Swan St",
@@ -4858,6 +4956,26 @@ Route72StopOptions = [
     ),
 ]
 Route75StopOptions = [
+    schema.Option(
+        display = "D2: Central Pier/Harbour Esp",
+        value = "2049,D2: Central Pier/Harbour Esp",
+    ),
+    schema.Option(
+        display = "D3: Stadium Precinct - Bourke St/Harbour Esp",
+        value = "2870,D3: Stadium Precinct - Bourke St/Harbour Esp",
+    ),
+    schema.Option(
+        display = "D4: Docklands Park/Harbour Esp",
+        value = "2871,D4: Docklands Park/Harbour Esp",
+    ),
+    schema.Option(
+        display = "D5: South Wharf/Wurundjeri Way",
+        value = "2872,D5: South Wharf/Wurundjeri Way",
+    ),
+    schema.Option(
+        display = "D6: Victoria Police Centre/Flinders St",
+        value = "2875,D6: Victoria Police Centre/Flinders St",
+    ),
     schema.Option(
         display = "1: Spencer St/Flinders St",
         value = "3318,1: Spencer St/Flinders St",
