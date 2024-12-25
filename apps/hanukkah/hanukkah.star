@@ -25,10 +25,8 @@ def get_hanukkah_dates(year):
     return hanukkah_first_day, hanukkah_last_day
 
 def main(config):
-    timezone = config.get("timezone") or "America/New_York"
-    if not time.is_valid_timezone(timezone):
-        timezone = "America/New_York"
-    current_time = time.now().in_location(timezone)
+    tz = config.get("$tz", "America/New_York")
+    current_time = time.now().in_location(tz)
     current_year = current_time.year
 
     if current_year > 2030:
