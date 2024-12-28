@@ -419,7 +419,7 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
     LeaderTeeTime = s[0]["status"]["teeTime"]
     LeaderTeeTimeFormat = time.parse_time(LeaderTeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
     TimeDiff = LeaderTeeTimeFormat - time.now()
-    print(TimeDiff)
+    #print(TimeDiff)
     if TimeDiff.hours < 12:
         ShowTeeTimes = True
 
