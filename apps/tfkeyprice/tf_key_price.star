@@ -18,7 +18,7 @@ def main(config):
     return render.Root(
         child = render.Row(
             children = [
-                render.Image(src=TF2_ICON),
+                render.Image(src = TF2_ICON),
                 render.Column(
                     children = [
                         render.Marquee(
