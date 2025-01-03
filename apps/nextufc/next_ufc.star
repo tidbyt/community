@@ -38,7 +38,6 @@ def main():
         nowyear_plus_one = nowyear + 1
 
         url1 = "https://www.espn.com/mma/schedule/_/year/" + str(nowyear_plus_one)
-        print(url1)
         rep1 = http.get(url1, ttl_seconds = 3600)
 
         if rep1.status_code != 200:
@@ -95,8 +94,8 @@ def main():
                         color = "#a61212",
                         child = render.Marquee(
                             width = 64,
-                            offset_start = 9,
-                            offset_end = 9,
+                            offset_start = 64,
+                            offset_end = 64,
                             align = "center",
                             child = render.Text(
                                 content = event,
