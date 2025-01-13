@@ -21,8 +21,6 @@ def convertTime(utcTimestamp):
 
     return pst.format("3:04PM")
 
-
-
 def main():
     response = http.get(vgkNextGameWeek.format(ttl_seconds = 3600))
 
@@ -72,8 +70,8 @@ def main():
                                             children = [
                                                 render.Text(content = "" + nextStartTime, font = "tom-thumb"),
                                                 render.Text(content = "" + nextStartTime.replace(":", " "), font = "tom-thumb"),
-                                            ]
-                                        )
+                                            ],
+                                        ),
                                     ],
                                 ),
                             ),
