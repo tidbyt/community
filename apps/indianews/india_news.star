@@ -29,7 +29,7 @@ def main(config):
 
     #intialize headline randomizer
     random.seed(time.now().unix // 60)
-    shift = random.number(0, 95)
+    shift = random.number(0, 80)
 
     #Display error if no API found
     if DEFAULT_API == None:
@@ -58,14 +58,50 @@ def main(config):
         if rep.status_code != 200:
             title = ["Error getting data!!!!", "", "", ""]
         else:
-            #get top 3 newest headlines
+            #get top 3 newest headlines, excluding market/industry news
             title = []
-            for i in range(4):
-                j = i + shift
-                title.append((rep.json()["articles"][j]["title"]).split(" - ")[0])
+            excluded_patterns = [
+            "economictimes.indiatimes.com/markets/",
+            "livemint.com/industry/",
+            "www.livemint.com/companies/",
+            "economictimes.indiatimes.com/wealth/",
+            "economictimes.indiatimes.com/industry/",
+            "timesofindia.indiatimes.com/city/ahmedabad/",
+            "timesofindia.indiatimes.com/city/bengaluru/",
+            "timesofindia.indiatimes.com/sports/",
+            "economictimes.indiatimes.com/news/sports/",
+            "timesofindia.indiatimes.com/tv/",
+            "timesofindia.indiatimes.com/education/",
+            "timesofindia.indiatimes.com/entertainment/english/hollywood/"
+            ]
+            max_articles = len(rep.json()["articles"])
+            for j in range(max_articles):
+                if len(title) >= 4:
+                    break
+
+                article = rep.json()["articles"][(j + shift) % max_articles]
+                article_url = article["url"]
+                article_title = article["title"].split(" - ")[0]
+            
+                # Check if URL contains any excluded patterns
+                should_exclude = False
+                for pattern in excluded_patterns:
+                    if pattern in article_url:
+                        should_exclude = True
+                        break
+            
+                if not should_exclude:
+                    title.append(article_title)
+
+            # If we don't have enough headlines after filtering, pad with empty strings
+            for _ in range(4 - len(title)):
+                title.append("")
 
             #format strings so they are all the same length (leads to better scrolling)
-            max_len = max([len(x) for x in title])
+            lengths = []
+            for x in title:
+                lengths.append(len(x))
+            max_len = max(lengths)
 
             #add padding to shorter titles
             for i, x in enumerate(title):
