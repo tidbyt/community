@@ -61,18 +61,18 @@ def main(config):
             #get top 3 newest headlines, excluding market/industry news
             title = []
             excluded_patterns = [
-            "economictimes.indiatimes.com/markets/",
-            "livemint.com/industry/",
-            "www.livemint.com/companies/",
-            "economictimes.indiatimes.com/wealth/",
-            "economictimes.indiatimes.com/industry/",
-            "timesofindia.indiatimes.com/city/ahmedabad/",
-            "timesofindia.indiatimes.com/city/bengaluru/",
-            "timesofindia.indiatimes.com/sports/",
-            "economictimes.indiatimes.com/news/sports/",
-            "timesofindia.indiatimes.com/tv/",
-            "timesofindia.indiatimes.com/education/",
-            "timesofindia.indiatimes.com/entertainment/english/hollywood/"
+                "economictimes.indiatimes.com/markets/",
+                "livemint.com/industry/",
+                "www.livemint.com/companies/",
+                "economictimes.indiatimes.com/wealth/",
+                "economictimes.indiatimes.com/industry/",
+                "timesofindia.indiatimes.com/city/ahmedabad/",
+                "timesofindia.indiatimes.com/city/bengaluru/",
+                "timesofindia.indiatimes.com/sports/",
+                "economictimes.indiatimes.com/news/sports/",
+                "timesofindia.indiatimes.com/tv/",
+                "timesofindia.indiatimes.com/education/",
+                "timesofindia.indiatimes.com/entertainment/english/hollywood/",
             ]
             max_articles = len(rep.json()["articles"])
             for j in range(max_articles):
@@ -82,14 +82,14 @@ def main(config):
                 article = rep.json()["articles"][(j + shift) % max_articles]
                 article_url = article["url"]
                 article_title = article["title"].split(" - ")[0]
-            
+
                 # Check if URL contains any excluded patterns
                 should_exclude = False
                 for pattern in excluded_patterns:
                     if pattern in article_url:
                         should_exclude = True
                         break
-            
+
                 if not should_exclude:
                     title.append(article_title)
 
