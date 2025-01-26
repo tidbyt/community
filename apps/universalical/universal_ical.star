@@ -103,7 +103,6 @@ def get_calendar_render_data(now, usersTz, event, show_expanded_time_window):
     shouldRenderSummary = event["detail"]["isToday"] or show_expanded_time_window
     if not shouldRenderSummary:
         baseObject["hasEvent"] = False
-        print("we're doing it.")
         return baseObject
 
     startTime = time.from_timestamp(int(event["start"])).in_location(usersTz)
