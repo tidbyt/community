@@ -14,9 +14,7 @@ def main(config):
         config.get("$tz", DEFAULT_TIMEZONE),
     )
 
-
-    show_expanded_time_window = config.str("show_expanded_time_window", DEFAULT_SHOW_EXPANDED_TIME_WINDOW)
-
+    show_expanded_time_window = config.bool("show_expanded_time_window", DEFAULT_SHOW_EXPANDED_TIME_WINDOW)
 
     ics_url = config.str("ics_url", DEFAULT_ICS_URL)
     if (ics_url == None):
@@ -78,6 +76,7 @@ def get_expanded_time_text_copy(event, now, eventStart):
 
 def get_calendar_text_copy(event, now, eventStart, show_expanded_time_window):
     DEFAULT = eventStart.format("at 3:04 PM")
+
     if not event["detail"]["isToday"] and not show_expanded_time_window:
         return DONE_TEXT
     elif event["detail"] and show_expanded_time_window:
@@ -97,8 +96,6 @@ def get_calendar_render_data(now, usersTz, event, show_expanded_time_window):
     if not event:
         baseObject["hasEvent"] = False
         return baseObject
-
-    #print (show_expanded_time_window)
     
     shouldRenderSummary = event["detail"]["isToday"] or show_expanded_time_window
     if not shouldRenderSummary:
