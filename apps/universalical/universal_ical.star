@@ -104,6 +104,8 @@ def get_calendar_text_copy(event, now, eventStart, eventEnd, show_expanded_time_
 
     if not event["detail"]["isToday"] and not show_expanded_time_window:
         return DONE_TEXT
+    elif event["detail"]["isToday"] and not event["detail"]["inProgress"]:
+        return DEFAULT
     elif event["detail"] and show_expanded_time_window:
         return get_expanded_time_text_copy(event, now, eventStart, eventEnd, show_full_names)
     elif event["detail"] and not event["detail"]["isAllDay"] and event["detail"]["minutesUntilStart"] <= 5:
