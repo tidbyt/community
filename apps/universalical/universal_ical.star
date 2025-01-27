@@ -15,6 +15,7 @@ def main(config):
     )
 
     show_expanded_time_window = config.bool("show_expanded_time_window", DEFAULT_SHOW_EXPANDED_TIME_WINDOW)
+    show_full_names = config.bool("show_full_names", DEFAULT_SHOW_FULL_NAMES)
 
     ics_url = config.str("ics_url", DEFAULT_ICS_URL)
     if (ics_url == None):
@@ -31,13 +32,13 @@ def main(config):
     event = ics.json()["data"]
  
     if not event:
-        return build_calendar_frame(now, timezone, event, show_expanded_time_window)
+        return build_calendar_frame(now, timezone, event, show_expanded_time_window, show_full_names)
     elif event["detail"]["inProgress"]:
         return build_event_frame(event)
     elif event["detail"]:
-        return build_calendar_frame(now, timezone, event, show_expanded_time_window)
+        return build_calendar_frame(now, timezone, event, show_expanded_time_window, show_full_names)
     else:
-        return build_calendar_frame(now, timezone, event, show_expanded_time_window)
+        return build_calendar_frame(now, timezone, event, show_expanded_time_window, show_full_names)
 
 def get_calendar_text_color(event):
     DEFAULT = "#ff83f3"
@@ -51,42 +52,42 @@ def get_calendar_text_color(event):
 def should_animate_text(event):
     return event["detail"]["minutesUntilStart"] <= 5
 
-def get_tomorrow_text_copy(eventStart):
+def get_tomorrow_text_copy(eventStart, show_full_names):
     DEFAULT = eventStart.format("TMRW 3:04 PM")
-    if DEFAULT_SHOW_FULL_NAMES:
+    if show_full_names:
         return eventStart.format("Tomorrow at 3:04 PM")
     else:
         return DEFAULT
 
-def get_this_week_text_copy(eventStart):
+def get_this_week_text_copy(eventStart, show_full_names):
     DEFAULT = eventStart.format("Mon at 3:04 PM")
-    if DEFAULT_SHOW_FULL_NAMES:
+    if show_full_names:
         return eventStart.format("Monday at 3:04 PM")
     else:
         return DEFAULT
 
-def get_expanded_time_text_copy(event, now, eventStart):
+def get_expanded_time_text_copy(event, now, eventStart, show_full_names):
     DEFAULT = "in %s" % humanize.relative_time(now, eventStart)
     if event["detail"]["isTomorrow"]:
-        return get_tomorrow_text_copy(eventStart)
+        return get_tomorrow_text_copy(eventStart , show_full_names)
     elif event["detail"]["isThisWeek"]:
-        return get_this_week_text_copy(eventStart)
+        return get_this_week_text_copy(eventStart, show_full_names)
     else:
         return DEFAULT
 
-def get_calendar_text_copy(event, now, eventStart, show_expanded_time_window):
+def get_calendar_text_copy(event, now, eventStart, show_expanded_time_window, show_full_names):
     DEFAULT = eventStart.format("at 3:04 PM")
 
     if not event["detail"]["isToday"] and not show_expanded_time_window:
         return DONE_TEXT
     elif event["detail"] and show_expanded_time_window:
-        return get_expanded_time_text_copy(event, now, eventStart)
+        return get_expanded_time_text_copy(event, now, eventStart, show_full_names)
     elif event["detail"] and event["detail"]["minutesUntilStart"] <= 5:
         return "in %d min" % event["detail"]["minutesUntilStart"]
     else:
         return DEFAULT
 
-def get_calendar_render_data(now, usersTz, event, show_expanded_time_window):
+def get_calendar_render_data(now, usersTz, event, show_expanded_time_window, show_full_names):
     baseObject = {
         "currentMonth": now.format("Jan").upper(),
         "currentDay": humanize.ordinal(now.day),
@@ -106,7 +107,7 @@ def get_calendar_render_data(now, usersTz, event, show_expanded_time_window):
     eventObject = {
         "summary": get_event_summary(event["name"]),
         "eventStartTimestamp": startTime,
-        "copy": get_calendar_text_copy(event, now, startTime, show_expanded_time_window),
+        "copy": get_calendar_text_copy(event, now, startTime, show_expanded_time_window, show_full_names),
         "textColor": get_calendar_text_color(event),
         "shouldAnimateText": should_animate_text(event),
         "hasEvent": True,
@@ -196,8 +197,8 @@ def get_calendar_bottom(data):
         ),
     ]
 
-def build_calendar_frame(now, usersTz, event, show_expanded_time_window):
-    data = get_calendar_render_data(now, usersTz, event, show_expanded_time_window)
+def build_calendar_frame(now, usersTz, event, show_expanded_time_window, show_full_names):
+    data = get_calendar_render_data(now, usersTz, event, show_expanded_time_window, show_full_names)
 
     # top half displays the calendar icon and date
     top = get_calendar_top(data)
@@ -325,7 +326,7 @@ P_TRUNCATE_EVENT_SUMMARY = "truncate_event_summary"
 DONE_TEXT = "DONE FOR THE DAY :-)"
 DEFAULT_SHOW_EXPANDED_TIME_WINDOW = False
 DEFAULT_TRUNCATE_EVENT_SUMMARY = True
-DEFAULT_SHOW_FULL_NAMES = True
+DEFAULT_SHOW_FULL_NAMES = False
 DEFAULT_TIMEZONE = "America/New_York"
 FRAME_DELAY = 500
 LAMBDA_URL = "https://6bfnhr9vy7.execute-api.us-east-1.amazonaws.com/ics-next-event"
