@@ -1,0 +1,8 @@
+---
+id: fredscanner-alert
+name: FredScanner Alert
+summary: Displays latest fire call
+desc: This app displays the latest fire call for Frederick, MD. USA.
+author: WaveJam
+fileName: fredscanner_alert.star
+packageName: fredscanneralert

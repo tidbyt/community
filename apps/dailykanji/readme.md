@@ -6,4 +6,4 @@ The Kanji is displayed on the left half of the screen. Then there is the meaning
 
 If you wonder why Japanese characters have two pronunciations, you can visit this website for a detailed explanation: https://teamjapanese.com/onyomi-vs-kunyomi/
 
-![Daily Kanji for Tidbyt](dailykanji.gif)
+![Daily Kanji for Tidbyt](dailykanji.webp)

@@ -1,0 +1,8 @@
+---
+id: progressclock
+name: Progress Clock
+summary: See today's progress
+desc: See the time displayed & how much of the day has passed, as represented by a graph.
+author: Jeffery Bennett
+fileName: progressclock.star
+packageName: progressclock

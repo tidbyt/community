@@ -1,0 +1,8 @@
+---
+id: co2-signal
+name: CO2 Signal
+summary: Local power CO2 intensity
+desc: Shows the carbon intensity of your local electricity.
+author: Harper Trow
+fileName: co2_signal.star
+packageName: co2signal

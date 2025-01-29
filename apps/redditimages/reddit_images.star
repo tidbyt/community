@@ -9,10 +9,10 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("time.star", "time")
 
 DEFAULT_SUBREDDITS = ["blackcats", "aww", "eyebleach", "itookapicture", "cats", "pic", "otters", "plants"]
 APPROVED_FILETYPES = [".png", ".jpg", ".jpeg", ".bmp"]
@@ -27,8 +27,8 @@ fO5PI9OqOcPICMhohiJzt1o+5JQ3VtjJtKTy+L7dvZIpognBcHV4MFxJbEoV1apx+8wZJiX9bkJCjmhC
 YOhHSGUgGreaxu4jnp/bZzyDMdcnBfMH+p/AM/kQywMAAAAASUVORK5CYII=
 """)
 REDDIT_CLIENT_SECRET = """
-AV6+xWcE5oCvVzEiwnC1sRhCNmYm3yI3ly1JHsJ3envLlTFg24l79fJqIMEG1MCqy9irWINFUhmbeZoitmB+AllR
-PpL3aVbaTuT5bxw6Z940l0Jno0foSu769oiGALWQ9g5ouWnegIHMlsXKzpqJ05x30hIbA4vQNdn4pZkDv+dHwLxU
+AV6+xWcEQDjYVKYw9hSu4lxuC1MdSDyFJ3zXnGwK7/HBdz3nQRdorFSj40AXh3my9VvqL7ZAf8dvBNgPkpQz4a59
+SR1PButYX8EpyWhfH6RnR+laCcDbZBbZVLw19R2e6SwjO/XuSmSUXX4vRknYwfDR6VD+Ps40k8ljftkXDPB2UIoQ
 """
 
 def main(config):
@@ -93,8 +93,7 @@ def main(config):
 
 # Gets a random number from 0 to the number specified (non-inclusive).
 def getRandomNumber(max):
-    seed = time.now().unix
-    return seed % max
+    return random.number(0, max - 1)
 
 # Combines the default subs (if applicable) with any custom subs inputted.
 def combineSubs(config):
@@ -217,7 +216,7 @@ def setRandomPost(allImagePosts, subname):
         print("Post picked is:")
         print(chosen["title"] + " | " + chosen["id"])
         return {
-            "url": chosen["url"],
+            "url": chosen["preview"]["images"][0]["resolutions"][0]["url"].replace("&amp;", "&"),
             "sub": chosen["subreddit_name_prefixed"],
             "id": chosen["id"],
             "title": chosen["title"],

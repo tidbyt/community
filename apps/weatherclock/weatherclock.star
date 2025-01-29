@@ -18,6 +18,7 @@ WEATHER_FONT = "CG-pixel-3x5-mono"
 TIME_NIGHT_COLOR = "#333333"
 TEMPS_COLOR = "#FFFFFF"
 HUMIDITY_COLOR = "#0000FF"
+MESSAGE_COLOR = "#E60000"
 TIME_FORMAT_SEPARATOR = "3:04 PM"
 TIME_FORMAT_NO_SEPARATOR = "3 04 PM"
 TTL_SECONDS = 60
@@ -39,6 +40,7 @@ def main(config):
     icon = ""
     sTemps = ""
     sHumidity = ""
+    sMessage = ""
 
     location = config.get("location")
     loc = json.decode(location) if location else json.decode(str(DEFAULT_LOCATION))
@@ -93,10 +95,17 @@ def main(config):
             weather = http.get(openWeatherURL, ttl_seconds = TTL_SECONDS)  # Using the new HTTP Caching Client
 
         if weatherAPI == "" or weather.status_code != 200 or "error" in weather.json():
+            wID = 801
+            sTemps = "68 * 64"
+            sHumidity = "48%"
+            dn = True
+            sMessage = "No weather API Key"
+        elif weather.status_code != 200 or "error" in weather.json():
             wID = 0
             sTemps = "--- * ---"
             sHumidity = "---%"
             dn = True
+            sMessage = "No weather data"
         else:
             wID = int(weather.json()["weather"][0]["id"])
             if DEBUG:
@@ -151,7 +160,7 @@ def main(config):
 
     else:
         # DAY MODE
-        return dayScreen(now, icon, sTemps, sHumidity)
+        return dayScreen(now, icon, sTemps, sHumidity, sMessage)
 
 def get_schema():
     return schema.Schema(
@@ -205,7 +214,7 @@ def nightModeTimesSchema(night_mode):
     else:
         return []
 
-def dayScreen(now, icon, sTemps, sHumidity):
+def dayScreen(now, icon, sTemps, sHumidity, sMessage):
     return render.Root(
         delay = 500,
         max_age = 120,
@@ -254,6 +263,21 @@ def dayScreen(now, icon, sTemps, sHumidity):
                             font = WEATHER_FONT,
                             align = "left",
                             width = 44,
+                        ),
+                    ),
+                ),
+                render.Padding(
+                    pad = (20, 11, 0, 0),
+                    child = render.Box(
+                        width = 44,
+                        height = 8,
+                        child = render.Marquee(
+                            width = 44,
+                            child = render.Text(
+                                content = sMessage,
+                                color = MESSAGE_COLOR,
+                                font = WEATHER_FONT,
+                            ),
                         ),
                     ),
                 ),

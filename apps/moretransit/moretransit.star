@@ -131,7 +131,12 @@ def main(config):
         all_arrivals_to_stop = sorted(all_arrivals_to_stop, key = lambda x: x[0])
 
         for (eta, color, name) in all_arrivals_to_stop:
-            if eta > MIN_MINUTES and len(renderable_subways) < MAX_SUBWAYS:
+            min_minutes = config.get("minTime")
+            if min_minutes == None or not min_minutes.isdigit():
+                min_minutes = MIN_MINUTES
+            else:
+                min_minutes = int(min_minutes)
+            if eta > min_minutes and len(renderable_subways) < MAX_SUBWAYS:
                 renderer = overlay_subway
                 if config.bool("useStacked"):
                     renderer = stack_subway
@@ -157,7 +162,7 @@ def main(config):
     root_cols.append(render.Row(children = [render.Text("    " + title, font = "tom-thumb")], main_align = "center"))
     return render.Root(render.Column(root_cols))
 
-def getSchema():
+def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
@@ -190,18 +195,21 @@ def getSchema():
                 name = "Minimum ETA",
                 desc = "Omit vehicles closer than this ETA (in minutes), if that would make you sad that you couldn't walk to the station in time.",
                 default = "9",
+                icon = "hourglass",
             ),
             schema.Toggle(
                 id = "disableStation2",
                 name = "Disable second station",
                 default = False,
                 desc = "Disable the second station, only show one line.",
+                icon = "xmark",
             ),
             schema.Toggle(
                 id = "useStacked",
                 name = "Stack Times",
                 default = False,
                 desc = "Stack the arrival times under the line instead of overlaying them",
+                icon = "list",
             ),
         ],
     )

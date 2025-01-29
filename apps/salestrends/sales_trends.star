@@ -5,8 +5,13 @@ Description: Show daily, weekly, monthly and/or yearly sales numbers.
 Author: Shopify
 """
 
+######################
+# Mods - jvivona 20230715
+# - updated to use new cache system
+# - remove need for cache module
+######################
+
 load("animation.star", "animation")
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -200,24 +205,14 @@ R0lGODlhQAAgALMAAAAAAEv9hUr+hUv+hEv+hXjf/3ne/3nf/nnf/+/VBPDVA/DUBPDVBAAAAAAAAAAA
 APP_ID = "shopify_sales_trends"
 
 def api_fetch(counter_id, request_config):
-    cache_key = "{}/{}/{}".format(counter_id, APP_ID, base64.encode(json.encode(request_config)))
-    cached_value = cache.get(cache_key)
-    if cached_value != None:
-        print("Hit! Displaying cached data.")
-        api_response = json.decode(cached_value)
-        return api_response
-    else:
-        print("Miss! Calling Counter API.")
-        url = "{}/tidbyt/api/{}/{}".format(SHOPIFY_COUNTER_API_HOST, counter_id, APP_ID)
-        rep = http.post(url, body = json.encode({"config": request_config}), headers = {"Content-Type": "application/json"})
-        if rep.status_code != 200:
-            print("Counter API request failed with status {}".format(rep.status_code))
-            return None
-        api_response = rep.json()
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(cache_key, json.encode(api_response), ttl_seconds = CACHE_TTL)
-        return api_response
+    url = "{}/tidbyt/api/{}/{}".format(SHOPIFY_COUNTER_API_HOST, counter_id, APP_ID)
+    rep = http.post(url, body = json.encode({"config": request_config}), headers = {"Content-Type": "application/json"}, ttl_seconds = CACHE_TTL)
+    if rep.status_code != 200:
+        print("Counter API request failed with status {}".format(rep.status_code))
+        return None
+    api_response = rep.json()
+    print(api_response)
+    return api_response
 
 # Error View
 # Renders an error message

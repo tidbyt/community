@@ -74,7 +74,7 @@ def listing(url, height):
 
     dtstart_list = re.match(r"DTSTART;VALUE=DATE:(.{4})(.{2})(.{2})", ical)
     dtend_list = re.match(r"DTEND;VALUE=DATE:(.{4})(.{2})(.{2})", ical)
-    summary_list = re.match(r"SUMMARY:(.+)", ical)
+    summary_list = re.match(r"SUMMARY:([^\r\n]+)", ical)
     event_list = zip(dtstart_list, dtend_list, summary_list)
     now = time.now()
 

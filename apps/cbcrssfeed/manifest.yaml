@@ -1,0 +1,8 @@
+---
+id: cbc-rss-feed
+name: CBC RSS Feed
+summary: Display CBC RSS News Feeds
+desc: Uses CBC.cs RSS feeds to display headlines.
+author: jvivona
+fileName: cbc_rss_feed.star
+packageName: cbcrssfeed

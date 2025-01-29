@@ -15,15 +15,15 @@ load("secret.star", "secret")
 load("time.star", "time")
 
 DEFAULT_DISPLAY_NAME = secret.decrypt("""
-AV6+xWcEj0nmtoLiblYJL8Tu387oZYnoFkMIzs29sUMlHtqDcNuaBDSg
-7Mj273WhCIabva6fjNByv9oXUG5H4w37zN/Gx4zvft3gNUz78DA+EvU2I
-yDSVa7edZ4GbA0C1AO23gtUDzQYoGXipSU/TZM2awA=
+AV6+xWcEQzMLYpoXESTHjum6eunoCR0xllGtKSVY7mqZhMvFklc8EOND
+BOB8N0rTqWD0zVPiK7oM8DX+JSF49Edq/+tHIldHRpjToMx0ojWk0/tn
+vF/v05SPqQdbpH1Rhcarl4u/Olur28JCGs7Ne1Cu2bU=
 """) or "Placeholder"
 
 DEFAULT_DISPLAY_NAME_CODE = secret.decrypt("""
-AV6+xWcEW+/hIGws+9QhH2NgI0+0JougGvaPg7F/8xvI+ur1XLEQwVe0e
-zt+7SSJi1TXsj2/CT3QoquSVwf7EVzQl+xsHfGq/iacJZ/gc1Pcp+fHje
-/hvHBNx1wnsomBWLrKhIXi4yXOoA==
+AV6+xWcEdNoPkccJeNCM054AamFiuw9WZBrnh5QZqJeVZYXek9J5ObQBg
+fLx/16F8yXlEwXf+Bz3FuZtvbwX6sQgvyHZVfhdBta8ZwGivPqmhqW430
+4lua+JG0HZlRN+7A0omSRgzkDbnA==
 """) or "1234"
 
 API_BASE_URL = "https://www.bungie.net/platform"
@@ -38,9 +38,9 @@ def main(config):
     displayed_character = ""
 
     api_key = secret.decrypt("""
-        AV6+xWcEJkWKqhbjZP7GMtxbpczsXzsEZTDdc8v4kQxRCXPYO6aVT6HktYA192wnXxYXpnbCOL3oBilA
-        WOH0pjJxlI5mlmWRZHEbBC2IY7AZ2MM0DUe56sGlqI70M0Zo+2dO0umHJyNA08AXdYGmjIgZYc6OfPQh
-        NyM95zq5qE69cen4TO0=
+        AV6+xWcEa0PWnbSGOs6uaaycU788pvVazw2uNol96VTG7uJDCuhWFPR7m7Ak4obvv9BR+dJLrbDo5NVE
+        3hlX15hL20d39sGIlFT8jCi801zXvTBz8B+F/GEjmOcQRSWhiEExGURjDim3ZjHNU/dLyTJH72OZ+9vD
+        6oeiR880ujBdIQq8ZDg=
         """) or config.get("dev_api_key")
 
     character_cached = cache.get("character" + display_name + display_name_code)

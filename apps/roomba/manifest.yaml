@@ -1,0 +1,8 @@
+---
+id: roomba
+name: Roomba
+summary: Shows status of Roomba
+desc: Shows status of Roomba and Braava (i7/i7+, 980, 960, 900, e5, 690, 675, m6, etc.) Require setting up a local server to host the data. See https://github.com/tidbyt/community/blob/869d527834126fd02989dae3bd8ebeceb355600d/apps/roomba/README.md for more information. Can setup custom API key or leave blank.
+author: noahpodgurski
+fileName: roomba.star
+packageName: roomba

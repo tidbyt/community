@@ -1,0 +1,8 @@
+---
+id: mealviewer
+name: MealViewer
+summary: MealViewer Next Lunch
+desc: Shows the next school day lunch entree from MealViewer.
+author: Jed Schmidt
+fileName: mealviewer.star
+packageName: mealviewer

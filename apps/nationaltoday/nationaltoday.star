@@ -7,7 +7,7 @@ Author: rs7q5
 
 #nationalToday.star
 #Created 20220130 RIS
-#Last Modified 20230516 RIS
+#Last Modified 20231122 RIS
 
 load("http.star", "http")
 load("qrcode.star", "qrcode")
@@ -16,6 +16,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 BASE_URL = "https://nationaltoday.com/what-is-today/"
+BASE_URL2 = "https://nationaltoday.com/today/"  #used in case what-is-today gives 404
 
 QR_CODE = qrcode.generate(
     url = BASE_URL,
@@ -30,6 +31,9 @@ def main(config):
 
     #get the data
     rep = http.get(url = BASE_URL, ttl_seconds = 1800)  #cache for 30 minutes
+    if rep.status_code != 200:
+        rep = http.get(url = BASE_URL2, ttl_seconds = 1800)  #cache for 30 minutes
+
     if rep.status_code != 200:
         holiday_txt = ["Error", "Could not get holidays!!!!"]
     else:

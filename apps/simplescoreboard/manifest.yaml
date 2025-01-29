@@ -1,0 +1,8 @@
+---
+id: simple-scoreboard
+name: Simple Scoreboard
+summary: Simple Team Scoreboard
+desc: A simple display for keeping score for various home games like Cornhole, Bocce, Shuffleboard, etc.
+author: Blkhwks19
+fileName: simple_scoreboard.star
+packageName: simplescoreboard

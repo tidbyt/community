@@ -9,8 +9,10 @@ ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABM0lEQVRY
 
 def main(config):
     token = config.get("api-token")
+    domain = config.get("custom-domain")
+
     icon = render.Image(src = ICON)
-    text = render.WrappedText(get_issues(token))
+    text = render.WrappedText(get_issues(token, domain))
     return render.Root(
         child = render.Row(
             expanded = True,
@@ -20,12 +22,12 @@ def main(config):
         ),
     )
 
-def get_issues(accesstoken):
+def get_issues(accesstoken, domain):
     if accesstoken == None:
         return "You have 3 open issues!"
 
     # Set the GitLab API endpoint and access token
-    api_endpoint = "https://gitlab.com/api/v4"
+    api_endpoint = domain + "api/v4"
 
     url = api_endpoint + "/user?access_token=" + accesstoken
     user_data = http.get(url)
@@ -81,6 +83,13 @@ def get_schema():
                 desc = "Your Gitlab access token",
                 icon = "key",
                 default = "",
+            ),
+            schema.Text(
+                id = "custom-domain",
+                name = "Custom domain for hosted Gitlab",
+                desc = "If applicable, a custom domain for your hosted Gitlab instance",
+                icon = "cube",
+                default = "https://gitlab.com/",
             ),
         ],
     )

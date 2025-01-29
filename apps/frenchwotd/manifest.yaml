@@ -1,0 +1,8 @@
+---
+id: french-wotd
+name: French WOTD
+summary: French word of the day
+desc: Pick a random french word for each day and display definition in English.
+author: tavdog
+fileName: french_wotd.star
+packageName: frenchwotd

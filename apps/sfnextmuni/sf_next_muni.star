@@ -5,7 +5,6 @@ Description: Shows the predicted arrival times from 511.org for a given SF Muni 
 Author: Martin Strauss
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -33,7 +32,7 @@ ROUTES_URL = "https://api.511.org/transit/lines?format=json&api_key=%s&operator_
 STOPS_URL = "https://api.511.org/transit/stops?format=json&api_key=%s&operator_id=SF"
 ALERTS_URL = "https://api.511.org/transit/servicealerts?format=json&api_key=%s&agency=SF"
 
-API_KEY_SECRET = "AV6+xWcE6z4U+vmciPBh5GdNyXKcko8fcKl17jwemkRKegnos3/IkVg0pN1OICdKLqW6y/0vEK6mqBJKo791YHZo0Y4wYzb+3YufFeh5GG8F/dNuYVkiQWT1vJKq6njp43a6BJeTIgdqTKTNriMa6GKKL/lV6Ezkr7UFaOM0HVaiSnnx/Y6EhFWN"
+API_KEY_SECRET = "AV6+xWcEae1/w/g0/fc1chDa3ueiTNg5areqHTlKBSpte2a6zWT3PaXGXlrkIHDssdZkVE5fsQTTd+a7FHQoK15rkrvmYWW7cnzmpZUsiM7Bv/XPKaQSg1HXLQig87WCwJJbvArawxI/Q4jiZYK5Up5/AMGLbBfpQSYFBI6kpq5IMNzVlvw5SGiv"
 API_KEY = secret.decrypt(API_KEY_SECRET)
 
 # Colours for Muni Metro/Street Car lines
@@ -217,7 +216,7 @@ def get_schema():
 def fetch_stops(api_key):
     stops = {}
 
-    (_, raw_stops) = fetch_cached(STOPS_URL % api_key, 86400)
+    raw_stops = fetch_cached(STOPS_URL % api_key, 86400)
 
     if type(raw_stops) != "string" and "Contents" in raw_stops:
         stops.update([(stop["id"], stop) for stop in raw_stops["Contents"]["dataObjects"]["ScheduledStopPoint"]])
@@ -249,7 +248,7 @@ def get_route_list():
             ),
         ]
 
-    (_, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
+    routes = fetch_cached(ROUTES_URL % API_KEY, 86400)
     if type(routes) == "string":
         return []
 
@@ -275,27 +274,16 @@ def square_distance(lat1, lon1, lat2, lon2):
     return latitude_difference * latitude_difference + longitude_difference * longitude_difference
 
 def fetch_cached(url, ttl):
-    cached = cache.get(url)
-    timestamp = cache.get("timestamp::%s" % url)
-    if cached and timestamp:
-        return (int(timestamp), json.decode(cached))
-    else:
-        res = http.get(url)
-        if res.status_code != 200:
-            print("511.org request to %s failed with status %d", (url, res.status_code))
-            return (time.now().unix, res.body().lstrip("\ufeff"))
+    res = http.get(url, ttl_seconds = ttl)
+    if res.status_code != 200:
+        print("511.org request to %s failed with status %d", (sanitize(url), res.status_code))
+        return res.body().lstrip("\ufeff")
 
-        # Trim off the UTF-8 byte-order mark
-        body = res.body().lstrip("\ufeff")
-        data = json.decode(body)
-        timestamp = time.now().unix
+    # Trim off the UTF-8 byte-order mark
+    body = res.body().lstrip("\ufeff")
+    data = json.decode(body)
 
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(url, body, ttl_seconds = ttl)
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(("timestamp::%s" % url), str(timestamp), ttl_seconds = ttl)
-        return (timestamp, data)
+    return data
 
 def higher_priority_than(pri, threshold):
     return threshold == "Low" or pri == "High" or threshold == pri
@@ -323,7 +311,7 @@ def main(config):
 def getPredictions(api_key, config, stop):
     stopId = stop["value"]
     stopTitle = stop["display"]
-    (_, data) = fetch_cached(PREDICTIONS_URL % api_key, 240)
+    data = fetch_cached(PREDICTIONS_URL % api_key, 240)
     if type(data) == "string":
         return (data, [], [])
 
@@ -390,7 +378,7 @@ def getPredictions(api_key, config, stop):
         seconds = predictedTimes[0] - time.now().unix
         minutes = int(seconds / 60)
 
-        titleKey = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
+        titleKey = (routeTag, routeTag) if config.get("prediction_format") in ("short", "medium", "two_line_four_times") else (routeTag, destTitle)
         if titleKey not in prediction_map:
             prediction_map[titleKey] = []
 
@@ -406,7 +394,7 @@ def getPredictions(api_key, config, stop):
     return (stopTitle, routes, output)
 
 def getMessages(api_key, config, routes, stopId):
-    (_, data) = fetch_cached(ALERTS_URL % api_key, 240)
+    data = fetch_cached(ALERTS_URL % api_key, 240)
     if type(data) == "string":
         return [data]
 
@@ -440,6 +428,9 @@ def getMessages(api_key, config, routes, stopId):
 
     return messages
 
+def sanitize(txt):
+    return txt.replace(API_KEY, "API_KEY") if API_KEY else txt
+
 def renderOutput(stopTitle, output, messages, config):
     lines = 4
     height = 32
@@ -458,7 +449,7 @@ def renderOutput(stopTitle, output, messages, config):
                 children = [
                     render.Marquee(
                         width = 64,
-                        child = render.Text(stopTitle),
+                        child = render.Text(sanitize(stopTitle)),
                     ),
                     render.Box(
                         width = 64,
@@ -503,7 +494,7 @@ def renderOutput(stopTitle, output, messages, config):
                     ),
                     render.Marquee(
                         width = 64,
-                        child = render.Text("      ".join(messages), font = "tom-thumb"),
+                        child = render.Text(sanitize("      ".join(messages)), font = "tom-thumb"),
                     ),
                 ],
                 main_align = "end",
@@ -560,12 +551,12 @@ def shortPredictions(output, lines):
                             render.Row(
                                 children = [
                                     render.Circle(
-                                        child = render.Text(routeTag, font = "tom-thumb", color = "#000000" if routeTag in MUNI_BLACK_TEXT else "#ffffff"),
+                                        child = render.Text(routeTag[0], font = "tom-thumb", color = "#000000" if routeTag[0] in MUNI_BLACK_TEXT else "#ffffff"),
                                         diameter = 7,
-                                        color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
+                                        color = MUNI_COLORS[routeTag[0]] if routeTag[0] in MUNI_COLORS else "#000000",
                                     ),
                                     render.Text(" "),
-                                    render.Text(",".join(predictions[:2]), font = "tom-thumb"),
+                                    render.Text(sanitize(",".join(predictions[:2])), font = "tom-thumb"),
                                     render.Text(" "),
                                 ],
                                 main_align = "space_around",
@@ -615,20 +606,20 @@ def getLongRow(routeTag, destination, predictions, config):
     if "xlong" == config.get("prediction_format", DEFAULT_CONFIG["prediction_format"]):
         row.append(
             render.Marquee(
-                child = render.Text(destination, font = "tom-thumb"),
+                child = render.Text(sanitize(destination), font = "tom-thumb"),
                 width = 40,
             ),
         )
         row.append(
             render.Marquee(
-                child = render.Text((" " if len(predictions[0]) < 2 else "") + predictions[0], font = "tom-thumb"),
+                child = render.Text(sanitize((" " if len(predictions[0]) < 2 else "") + predictions[0]), font = "tom-thumb"),
                 width = 10,
             ),
         )
     elif "long" == config.get("prediction_format", DEFAULT_CONFIG["prediction_format"]):
         row.append(
             render.Marquee(
-                child = render.Text(destination, font = "tom-thumb"),
+                child = render.Text(sanitize(destination), font = "tom-thumb"),
                 width = 30,
             ),
         )
@@ -636,7 +627,7 @@ def getLongRow(routeTag, destination, predictions, config):
         nextTwoPredictions = " " * (5 - len(nextTwoPredictions)) + nextTwoPredictions
         row.append(
             render.Marquee(
-                child = render.Text(nextTwoPredictions, font = "tom-thumb"),
+                child = render.Text(sanitize(nextTwoPredictions), font = "tom-thumb"),
                 width = 20,
             ),
         )
@@ -646,7 +637,7 @@ def getLongRow(routeTag, destination, predictions, config):
         if "two_line_dest" == config.get("prediction_format", DEFAULT_CONFIG["prediction_format"]):
             row.append(
                 render.Marquee(
-                    child = render.Text(destination),
+                    child = render.Text(sanitize(destination)),
                     width = 25,
                 ),
             )
@@ -655,14 +646,14 @@ def getLongRow(routeTag, destination, predictions, config):
 
         row.append(
             render.Marquee(
-                child = render.Text(",".join([prediction for prediction in predictions[:max_predictions]])),
+                child = render.Text(sanitize(",".join([prediction for prediction in predictions[:max_predictions]]))),
                 width = max_width,
             ),
         )
     else:
         row.append(
             render.Marquee(
-                child = render.Text("%s min" % " & ".join([prediction for prediction in predictions[:2]]), font = "tom-thumb"),
+                child = render.Text(sanitize("%s min" % " & ".join([prediction for prediction in predictions[:2]])), font = "tom-thumb"),
                 width = 50,
             ),
         )

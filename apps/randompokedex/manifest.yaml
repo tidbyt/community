@@ -1,0 +1,8 @@
+---
+id: random-pokedex
+name: Random Pokedex
+summary: Random Pokedex entry
+desc: Display a random Pokemon along with its typing and optional shiny version.
+author: Kerry Bassett
+fileName: random_pokedex.star
+packageName: randompokedex

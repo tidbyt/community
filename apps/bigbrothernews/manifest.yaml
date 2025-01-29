@@ -1,0 +1,8 @@
+---
+id: big-brother-news
+name: Big Brother News
+summary: Ticker for Big Blagger
+desc: Shows the top story from bigblagger.co.uk.
+author: meejle
+fileName: big_brother_news.star
+packageName: bigbrothernews
