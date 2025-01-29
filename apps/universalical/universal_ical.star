@@ -361,7 +361,7 @@ P_SHOW_FULL_NAMES = "show_full_names"
 P_TRUNCATE_EVENT_SUMMARY = "truncate_event_summary"
 
 DONE_TEXT = "DONE FOR THE DAY :-)"
-DEFAULT_SHOW_EXPANDED_TIME_WINDOW = False
+DEFAULT_SHOW_EXPANDED_TIME_WINDOW = True
 DEFAULT_TRUNCATE_EVENT_SUMMARY = True
 DEFAULT_SHOW_FULL_NAMES = False
 DEFAULT_TIMEZONE = "America/New_York"
@@ -370,4 +370,5 @@ LAMBDA_URL = "https://6bfnhr9vy7.execute-api.us-east-1.amazonaws.com/ics-next-ev
 #this is the original AWS Lambda URL that is hosting the helper function
 #LAMBDA_URL = "https://xmd10xd284.execute-api.us-east-1.amazonaws.com/ics-next-event"
 CALENDAR_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAAXNSR0IArs4c6QAAAE9JREFUKFNjZGBgYJgzZ87/lJQURlw0I0xRYEMHw/qGCgZ0GqSZ8a2Myv8aX1eGls27GXDRYEUg0/ABxv///xOn6OjRowzW1tYMuOghaxIAD/ltSOskB+YAAAAASUVORK5CYII=")
-DEFAULT_ICS_URL = "https://www.phpclasses.org/browse/download/1/file/63438/name/example.ics"
+#this is a weird calendar but its the only public ics that reliably has events every week
+DEFAULT_ICS_URL = "https://calendar.google.com/calendar/ical/ht3jlfaac5lfd6263ulfh4tql8%40group.calendar.google.com/public/basic.ics"
