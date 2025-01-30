@@ -8,7 +8,6 @@ Author: Ken Winke
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
-load("schema.star", "schema")
 
 KEXP_PLAY = "https://api.kexp.org/v2/plays/?format=json&limit=2"
 KEXP_SHOW = "https://api.kexp.org/v1/show/?format=json&limit=1"
@@ -42,8 +41,6 @@ def api_error():
 
 def now_playing(song, artist, album):
     return render.Root(
-        delay = 29,
-        max_age = 600,
         child = render.Column(
             children = [
                 render.Stack(
@@ -99,8 +96,6 @@ def main():
     host = jshow.json()["results"][0]["hosts"][0].get("name", "")
     if host == "":
         host = "KEXP DJ"
-    if len(jshow.json()["results"][0]["hosts"]) > 1:
-    	host = host + ", " + jshow.json()["results"][0]["hosts"][1].get("name")
 
     song = jplay.json()["results"][0].get("song", host)
     artist = jplay.json()["results"][0].get("artist", "Airbreak")
@@ -123,10 +118,3 @@ def main():
         album = KEXP_VINYL
 
     return now_playing(song, artist, album)
-
-def get_schema():
-    return schema.Schema(
-        version = "1",
-        fields = [
-        ],
-    )
