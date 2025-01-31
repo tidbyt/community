@@ -18,14 +18,18 @@ def main(config):
     show_full_names = config.bool("show_full_names", DEFAULT_SHOW_FULL_NAMES)
 
     ics_url = config.str("ics_url", DEFAULT_ICS_URL)
+    show_in_progress = config.bool("show_in_progress", DEFAULT_SHOW_IN_PROGRESS)
+
     if (ics_url == None):
         fail("ICS_URL not set in config")
 
     now = time.now().in_location(timezone)
     ics = http.post(
         url = LAMBDA_URL,
-        json_body = {"icsUrl": ics_url, "tz": timezone},
+        json_body = {"icsUrl": ics_url, "tz": timezone, "showInProgress": show_in_progress},
     )
+
+
     if (ics.status_code != 200):
         fail("Failed to fetch ICS file")
 
@@ -351,6 +355,13 @@ def get_schema():
                 default = DEFAULT_SHOW_FULL_NAMES,
                 icon = "calendar",
             ),
+            schema.Toggle(
+                id = P_SHOW_IN_PROGRESS,
+                name = "Show Events In Progress",
+                desc = "Show events that are currently happening.",
+                default = DEFAULT_SHOW_IN_PROGRESS,
+                icon = "calendar",
+            ),
         ],
     )
 
@@ -358,12 +369,14 @@ P_LOCATION = "location"
 P_ICS_URL = "ics_url"
 P_SHOW_EXPANDED_TIME_WINDOW = "show_expanded_time_window"
 P_SHOW_FULL_NAMES = "show_full_names"
+P_SHOW_IN_PROGRESS = "show_in_progress"
 P_TRUNCATE_EVENT_SUMMARY = "truncate_event_summary"
 
 DONE_TEXT = "DONE FOR THE DAY :-)"
 DEFAULT_SHOW_EXPANDED_TIME_WINDOW = True
 DEFAULT_TRUNCATE_EVENT_SUMMARY = True
 DEFAULT_SHOW_FULL_NAMES = False
+DEFAULT_SHOW_IN_PROGRESS = True
 DEFAULT_TIMEZONE = "America/New_York"
 FRAME_DELAY = 500
 LAMBDA_URL = "https://6bfnhr9vy7.execute-api.us-east-1.amazonaws.com/ics-next-event"
