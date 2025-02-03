@@ -61,11 +61,5 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Text(
-                id = "who",
-                name = "Who?",
-                desc = "Who to say hello to.",
-                icon = "user",
-            ),
         ],
     )
