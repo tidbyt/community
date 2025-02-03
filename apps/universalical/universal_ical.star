@@ -19,6 +19,19 @@ def main(config):
 
     ics_url = config.str("ics_url", DEFAULT_ICS_URL)
     show_in_progress = config.bool("show_in_progress", DEFAULT_SHOW_IN_PROGRESS)
+    
+    # get all day variable, set default to "showAllDay"
+    all_day_behavior = config.get("all_day", "showAllDay")
+    if (all_day_behavior == "onlyShowAllDay"):
+        only_show_all_day = True
+        include_all_day = True        
+    elif (all_day_behavior == "noShowAllDay"):
+        include_all_day = False
+        only_show_all_day = False
+    else:
+        # default behavior is to show all day
+        include_all_day = True
+        only_show_all_day = False
 
     if (ics_url == None):
         fail("ICS_URL not set in config")
@@ -26,7 +39,7 @@ def main(config):
     now = time.now().in_location(timezone)
     ics = http.post(
         url = LAMBDA_URL,
-        json_body = {"icsUrl": ics_url, "tz": timezone, "showInProgress": show_in_progress},
+        json_body = {"icsUrl": ics_url, "tz": timezone, "showInProgress": show_in_progress, "includeAllDayEvents": include_all_day, "onlyShowAllDayEvents": only_show_all_day},
     )
 
 
@@ -325,6 +338,23 @@ def get_event_summary(summary):
         return summary
 
 def get_schema():
+
+
+    options = [
+        schema.Option(
+            display = "Show All Day Events",
+            value = "showAllDay",
+        ),
+        schema.Option(
+            display = "Only Show All Day Events",
+            value = "onlyShowAllDay",
+        ),
+        schema.Option(
+            display = "Don't Show All Day Events",
+            value = "noShowAllDay",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -362,6 +392,14 @@ def get_schema():
                 default = DEFAULT_SHOW_IN_PROGRESS,
                 icon = "calendar",
             ),
+            schema.Dropdown(
+                id = P_ALL_DAY,
+                name = "Show All Day Events",
+                desc = "Turn on or off display of all day events.",
+                default = options[0].value,
+                options = options,
+                icon = "calendar",
+            ),
         ],
     )
 
@@ -371,6 +409,7 @@ P_SHOW_EXPANDED_TIME_WINDOW = "show_expanded_time_window"
 P_SHOW_FULL_NAMES = "show_full_names"
 P_SHOW_IN_PROGRESS = "show_in_progress"
 P_TRUNCATE_EVENT_SUMMARY = "truncate_event_summary"
+P_ALL_DAY = "all_day"
 
 DONE_TEXT = "DONE FOR THE DAY :-)"
 DEFAULT_SHOW_EXPANDED_TIME_WINDOW = True
