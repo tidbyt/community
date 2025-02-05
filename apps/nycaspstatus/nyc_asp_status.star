@@ -1,7 +1,7 @@
 """
 Applet: NYC ASP Status
 Summary: Daily NYC ASP status update
-Description: Shows if New York City alternate side parking (street cleaning) rules are in effect for today (and next day after 3PM).
+Description: Checks if NYC alternate side parking (street cleaning) rules are in effect for today (and tomorrow after 3PM).
 Author: Adam Wojciechowski
 """
 
@@ -23,7 +23,7 @@ RED_IMG = "PD94bWwgdmVyc2lvbj0iMS4wIj8+Cjxzdmcgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiI
 GREEN_IMG = "PD94bWwgdmVyc2lvbj0iMS4wIj8+Cjxzdmcgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6c3ZnPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTIwIDEyMCIgdmVyc2lvbj0iMS4xIiB4bWw6c3BhY2U9InByZXNlcnZlIj4KIDxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LnN0MHtmaWxsOiNGRkZGRkY7fQoJLnN0MXtmaWxsOiMwMEZGMDA7fQoJLnN0MntmaWxsOm5vbmU7c3Ryb2tlOiMwMEZGMDA7c3Ryb2tlLXdpZHRoOjY7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLW1pdGVybGltaXQ6MTA7fTwvc3R5bGU+CiA8ZyBjbGFzcz0ibGF5ZXIiPgogIDx0aXRsZT5MYXllciAxPC90aXRsZT4KICA8Y2lyY2xlIGNsYXNzPSJzdDAiIGN4PSI2MCIgY3k9IjYwIiBpZD0ic3ZnXzEiIG9wYWNpdHk9IjAiIHI9IjU0LjUiLz4KICA8ZyBpZD0ic3ZnXzIiPgogICA8ZyBpZD0ic3ZnXzMiPgogICAgPGcgaWQ9InN2Z180Ij4KICAgICA8cGF0aCBjbGFzcz0ic3QxIiBkPSJtNTkuOSwwLjFjLTMzLjEsMCAtNjAsMjYuOSAtNjAsNjBzMjYuOSw2MCA2MCw2MHM2MCwtMjYuOSA2MCwtNjBzLTI2LjksLTYwIC02MCwtNjB6bTAsMTEwYy0yNy42LDAgLTUwLC0yMi40IC01MCwtNTBzMjIuNCwtNTAgNTAsLTUwczUwLDIyLjQgNTAsNTBzLTIyLjQsNTAgLTUwLDUweiIgaWQ9InN2Z181Ii8+CiAgICAgPGcgaWQ9InN2Z182Ij4KICAgICAgPHBhdGggY2xhc3M9InN0MSIgZD0ibTgyLjksNjUuOWMtMy41LDIuOSAtOC42LDQuNCAtMTUuMSw0LjRsLTEyLjUsMGwwLDIxLjZsLTEyLjUsMGwwLC02MC4ybDI1LjgsMGM2LDAgMTAuNywxLjYgMTQuMiw0LjdjMy41LDMuMSA1LjMsNy45IDUuMywxNC40YzAuMSw3LjEgLTEuNywxMi4xIC01LjIsMTUuMXptLTkuNiwtMjEuN2MtMS42LC0xLjMgLTMuOCwtMiAtNi43LC0ybC0xMS4zLDBsMCwxNy43bDExLjMsMGMyLjksMCA1LjEsLTAuNyA2LjcsLTIuMmMxLjYsLTEuNCAyLjQsLTMuNyAyLjQsLTYuOWMwLC0zLjEgLTAuOCwtNS4zIC0yLjQsLTYuNnoiIGlkPSJzdmdfNyIvPgogICAgIDwvZz4KICAgIDwvZz4KICAgPC9nPgogICA8ZyBpZD0ic3ZnXzgiPgogICAgPGxpbmUgY2xhc3M9InN0MiIgaWQ9InN2Z185IiB4MT0iMTYuMyIgeDI9IjgzLjQiIHkxPSIyMy4yIiB5Mj0iODMuMiIvPgogICAgPGcgaWQ9InN2Z18xMCI+CiAgICAgPHBvbHlnb24gY2xhc3M9InN0MSIgaWQ9InN2Z18xMSIgcG9pbnRzPSIxMDAsNzUuNyA3NC45LDk0LjMgNjUuOSw5MS44IDkyLjEsNzIuOSAgICAiLz4KICAgICA8ZyBpZD0ic3ZnXzEyIj4KICAgICAgPHBvbHlnb24gY2xhc3M9InN0MCIgaWQ9InN2Z18xMyIgcG9pbnRzPSI3NC45LDk0LjMgNzQuOSw5OS4yIDY1LjksOTYuNSA2NS45LDkxLjggICAgICIgdHJhbnNmb3JtPSJtYXRyaXgoMSAwIDAgMSAwIDApIi8+CiAgICAgIDxwb2x5Z29uIGNsYXNzPSJzdDAiIGlkPSJzdmdfMTQiIHBvaW50cz0iOTkuNyw4MS4zIDc0LjksOTkuMiA3NC45LDk0LjMgMTAwLDc1LjcgICAgICIvPgogICAgIDwvZz4KICAgIDwvZz4KICAgPC9nPgogIDwvZz4KIDwvZz4KPC9zdmc+"
 
 def main(config):
-    showApp  = config.bool("showOnlySuspended", DEFAULT_SHOW_APP)
+    showApp = config.bool("showOnlySuspended", DEFAULT_SHOW_APP)
 
     status = get_asp_status(URL + "fromdate=%s&todate=%s" % (display_date()[0].format("2006-01-02"), display_date()[1].format("2006-01-02")), 300)
 
@@ -34,42 +34,41 @@ def main(config):
     return render.Root(
         render.Box(
             child = render.Row(
-            expanded=True,
-            main_align="space_between",
-            cross_align="center",
-            children = [
-                render.Image(
-                src = base64.decode(img_picker(status)),
-                height = 20,
-                width = 20
-                ),
-                render.Column(
-                    cross_align = "center",
-                    children = [
-
-                #render.Text(status[0])
-                render.Marquee(
-                    height = 8,
-                    width = 42,
-                    align = "center",
-                    scroll_direction = "horizontal",
-                    child = render.WrappedText(status[0])
+                expanded = True,
+                main_align = "space_between",
+                cross_align = "center",
+                children = [
+                    render.Image(
+                        src = base64.decode(img_picker(status)),
+                        height = 20,
+                        width = 20,
                     ),
-                render.Text(display_date()[2]),
-                render.Marquee(
-                    height = 8,
-                    width = 42,
-                    align = "center",
-                    scroll_direction = "horizontal",
-                    child = render.WrappedText("%s %s %s" % (months[display_date()[0].month], days[display_date()[0].day],status[1]))
-                    )
-                    ]
-                )
-            ]
-        )
+                    render.Column(
+                        cross_align = "center",
+                        children = [
 
+                            #render.Text(status[0])
+                            render.Marquee(
+                                height = 8,
+                                width = 42,
+                                align = "center",
+                                scroll_direction = "horizontal",
+                                child = render.WrappedText(status[0]),
+                            ),
+                            render.Text(display_date()[2]),
+                            render.Marquee(
+                                height = 8,
+                                width = 42,
+                                align = "center",
+                                scroll_direction = "horizontal",
+                                child = render.WrappedText("%s %s %s" % (months[display_date()[0].month], days[display_date()[0].day], status[1])),
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ),
     )
-)
 
 def get_asp_status(url, timeout):
     headers = {"Cache-Control": "no-cache", "Ocp-Apim-Subscription-Key": API_KEY}
@@ -77,6 +76,7 @@ def get_asp_status(url, timeout):
     if response.status_code != 200:
         return ["ERROR", "- Couldn't load ASP status"]
         #fail("status %d from %s: %s" % (response.status_code, url, response.body()))
+
     asp_status = response.json()["days"][0]["items"][0]["status"]
     if asp_status == "SUSPENDED":
         asp_exception = response.json()["days"][0]["items"][0]["exceptionName"]
@@ -104,7 +104,6 @@ def img_picker(status):
     else:
         return RED_IMG
 
-
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -114,7 +113,7 @@ def get_schema():
                 name = "Show Only When Suspended",
                 desc = "Show this app only when alternate side parking rules are suspended.",
                 icon = "eye",
-                default = False
+                default = False,
             ),
-        ]
+        ],
     )
