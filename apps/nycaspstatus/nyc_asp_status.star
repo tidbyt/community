@@ -1,7 +1,7 @@
 """
 Applet: NYC ASP Status
 Summary: Daily NYC ASP status update
-Description: Checks if NYC alternate side parking (street cleaning) rules are in effect for today (and tomorrow after 3PM).
+Description: Shows if New York City alternate side parking (street cleaning) rules are in effect for today (and next day after 3PM).
 Author: Adam Wojciechowski
 """
 
