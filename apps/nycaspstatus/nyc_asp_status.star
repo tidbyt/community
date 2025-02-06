@@ -35,27 +35,26 @@ def main(config):
         render.Box(
             child = render.Row(
                 expanded = True,
-                main_align = "space_between",
+                main_align = "center",
                 cross_align = "center",
                 children = [
                     render.Image(
                         src = base64.decode(img_picker(status)),
-                        height = 20,
-                        width = 20,
+                        height = 18,
+                        width = 18,
                     ),
                     render.Column(
                         cross_align = "center",
                         children = [
 
-                            #render.Text(status[0])
                             render.Marquee(
                                 height = 8,
-                                width = 42,
+                                width = 45,
                                 align = "center",
                                 scroll_direction = "horizontal",
                                 child = render.WrappedText(status[0]),
                             ),
-                            render.Text(display_date()[2]),
+                            render.WrappedText(display_date()[2]),
                             render.Marquee(
                                 height = 8,
                                 width = 42,
@@ -80,7 +79,7 @@ def get_asp_status(url, timeout):
     asp_status = response.json()["days"][0]["items"][0]["status"]
     if asp_status == "SUSPENDED":
         asp_exception = response.json()["days"][0]["items"][0]["exceptionName"]
-        return [asp_status, asp_exception]
+        return [asp_status, "- " + asp_exception]
     if asp_status == "NOT IN EFFECT":
         asp_exception = response.json()["days"][0]["items"][0]["details"]
         return [asp_status, ""]
