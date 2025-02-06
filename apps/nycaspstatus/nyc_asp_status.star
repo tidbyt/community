@@ -46,7 +46,6 @@ def main(config):
                     render.Column(
                         cross_align = "center",
                         children = [
-
                             render.Marquee(
                                 height = 8,
                                 width = 45,
