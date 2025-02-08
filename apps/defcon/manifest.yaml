@@ -2,5 +2,5 @@
 id: defcon
 name: DefCon
 summary: Displays DefCon Status
-desc: Displays current DefCon status.
+desc: Source defconlevel.com.
 author: Robert Ison

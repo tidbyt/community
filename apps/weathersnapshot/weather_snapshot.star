@@ -17,8 +17,11 @@ PROD_API_KEYS = [
     "AV6+xWcE711ngp2EzjNy3mzxTrppOGkYHMVq8THvJ/BTDOW0zjYloFnLTqmNb03383CWwj6CH9EiItfTE+5TBy2Un0D04m9Edi3IuGIAFnfJhRaKJe7ctGZIWFc6BMG6jLjFBcX2+cGKQ8W40tGqXb4u7nKEcNFkSaRUT+deO5e55TaH36g=",
 ]
 
-# Only query APIs once per 6 hours
+# Default cache value. Only query APIs once per 6 hours.
 CACHE_TTL_SEC = 60 * 60 * 6
+
+# Cache value for more frequent updates, every 10 mins.
+FREQ_CACHE_TTL_SEC = 60 * 10
 
 # Functions to calculate USA AQI based on pollutant data
 
@@ -95,25 +98,33 @@ DEFAULT_LOCATION = """
 }
 """
 
-def fetch(url, request_name):
-    rep = http.get(url, ttl_seconds = CACHE_TTL_SEC)
+def fetch(url, request_name, freq_update):
+    if freq_update:
+        rep = http.get(url, ttl_seconds = FREQ_CACHE_TTL_SEC)
+    else:
+        rep = http.get(url, ttl_seconds = CACHE_TTL_SEC)
+
     if rep.status_code != 200:
         fail(request_name + " request failed with status " + str(rep.status_code) + ": " + rep.body())
     return rep.json()
 
-def fetch_weather_data(lat, long, api_key):
-    current_weather_url = "https://api.openweathermap.org/data/3.0/onecall?lat=" + lat + "&lon=" + long + "&exclude=minutely,hourly,daily,alerts&appid=" + api_key
-    return fetch(current_weather_url, "Weather")
+def fetch_weather_data(lat, long, api_key, freq_update):
+    current_weather_url = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + long + "&appid=" + api_key
+    return fetch(current_weather_url, "Weather", freq_update)
 
-def fetch_aqi_data(lat, long, api_key):
+def fetch_aqi_data(lat, long, api_key, freq_update):
     now = time.now()
 
-    # End = current time rounded down to nearest CACHE_TTL_SEC. Start = 24h before end
-    end = math.round(now.unix / CACHE_TTL_SEC) * CACHE_TTL_SEC
+    # End = current time rounded down to nearest CACHE_TTL_SEC/FREQ_CACHE_TTL_SEC. Start = 24h before end
+    if freq_update:
+        end = math.round(now.unix / FREQ_CACHE_TTL_SEC) * FREQ_CACHE_TTL_SEC
+    else:
+        end = math.round(now.unix / CACHE_TTL_SEC) * CACHE_TTL_SEC
+
     start = end - (60 * 60 * 24)
     historical_aqi_url = "http://api.openweathermap.org/data/2.5/air_pollution/history?lat=" + lat + "&lon=" + long + "&start=" + "%d" % start + "&end=" + "%d" % end + "&appid=" + api_key
 
-    return fetch(historical_aqi_url, "AQI")
+    return fetch(historical_aqi_url, "AQI", freq_update)
 
 # Functions to select the correct icon
 
@@ -192,26 +203,33 @@ def main(config):
     lat = str(location["lat"])
     long = str(location["lng"])
 
-    api_key = get_api_key(long)
+    #update api key and cache value if a personal api key is provided
+    personal_api_key = config.get("api_key", "")
+    if personal_api_key == "":
+        api_key = get_api_key(long)
+        freq_update = False
+    else:
+        api_key = personal_api_key
+        freq_update = True
 
     if api_key in (None, ""):
         print("DEV_API_KEY not provided, using static data instead")
-        weather_response = json.decode('{"timezone": "America/New_York", "timezone_offset": -18000.0, "current": {"visibility": 10000.0, "pressure": 1027.0, "humidity": 47.0, "dew_point": 262.68, "wind_speed": 7.6, "clouds": 0.0, "wind_deg": 316.0, "uvi": 1.51, "wind_gust": 7.6, "weather": [{"id": 800.0, "main": "Clear", "description": "clear sky", "icon": "01d"}], "temp": 271.44, "feels_like": 264.77}, "lat": 40.6894, "lon": -73.9858}')
+        weather_response = json.decode('{"coord":{"lon":-73.9442,"lat":40.6782},"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04d"}],"base":"stations","main":{"temp":298.78,"feels_like":298.86,"temp_min":297.67,"temp_max":300.26,"pressure":1014,"humidity":56,"sea_level":1014,"grnd_level":1013},"visibility":10000,"wind":{"speed":7.2,"deg":50},"clouds":{"all":75},"dt":1726865771,"sys":{"type":2,"id":2037026,"country":"US","sunrise":1726828907,"sunset":1726872982},"timezone":-14400,"id":5110302,"name":"Brooklyn","cod":200}')
         aqi_response = json.decode('{"coord": {"lon": -73.9442, "lat": 40.6782}, "list": [{"main": {"aqi": 5.0}, "components": {"co": 4058.84, "no": 522.14, "no2": 161.77, "o3": 1.97, "so2": 29.56, "pm2_5": 243.74, "pm10": 298.49, "nh3": 38.51}, "dt": 1.7086104e+09}, {"dt": 1.708614e+09, "main": {"aqi": 5.0}, "components": {"nh3": 25.33, "co": 4486.08, "no": 565.05, "no2": 197.41, "o3": 5.81, "so2": 26.94, "pm2_5": 289.75, "pm10": 343.57}}, {"main": {"aqi": 4.0}, "components": {"o3": 31.47, "so2": 30.99, "pm2_5": 64.35, "pm10": 77.48, "nh3": 6.78, "co": 1121.52, "no": 88.51, "no2": 101.45}, "dt": 1.7086176e+09}, {"main": {"aqi": 3.0}, "components": {"nh3": 3.58, "co": 674.25, "no": 35.32, "no2": 67.17, "o3": 51.5, "so2": 21.22, "pm2_5": 37.09, "pm10": 45.63}, "dt": 1.7086212e+09}, {"dt": 1.7086248e+09, "main": {"aqi": 2.0}, "components": {"so2": 18.12, "pm2_5": 23.33, "pm10": 29.68, "nh3": 2.85, "co": 507.36, "no": 21.68, "no2": 49.35, "o3": 60.08}}, {"components": {"no2": 50.72, "o3": 51.5, "so2": 18.6, "pm2_5": 16.89, "pm10": 22.6, "nh3": 3.39, "co": 473.98, "no": 15.42}, "dt": 1.7086284e+09, "main": {"aqi": 2.0}}, {"main": {"aqi": 2.0}, "components": {"pm10": 19.2, "nh3": 4.12, "co": 480.65, "no": 13.75, "no2": 54.15, "o3": 41.49, "so2": 20.27, "pm2_5": 13.42}, "dt": 1.708632e+09}, {"main": {"aqi": 2.0}, "components": {"so2": 17.41, "pm2_5": 10.52, "pm10": 15.77, "nh3": 3.77, "co": 453.95, "no": 7.38, "no2": 53.47, "o3": 36.48}, "dt": 1.7086356e+09}, {"main": {"aqi": 2.0}, "components": {"so2": 14.54, "pm2_5": 9.94, "pm10": 14.28, "nh3": 3.14, "co": 447.27, "no": 2.12, "no2": 55.52, "o3": 33.26}, "dt": 1.7086392e+09}, {"main": {"aqi": 2.0}, "components": {"pm10": 14.95, "nh3": 2.72, "co": 460.63, "no": 0.38, "no2": 58.95, "o3": 31.11, "so2": 12.76, "pm2_5": 11.16}, "dt": 1.7086428e+09}, {"main": {"aqi": 2.0}, "components": {"nh3": 2.57, "co": 480.65, "no": 0.34, "no2": 61.69, "o3": 29.33, "so2": 11.21, "pm2_5": 13.33, "pm10": 17.27}, "dt": 1.7086464e+09}, {"main": {"aqi": 2.0}, "components": {"o3": 28.97, "so2": 10.25, "pm2_5": 14.66, "pm10": 18.9, "nh3": 2.63, "co": 494.0, "no": 0.37, "no2": 62.38}, "dt": 1.70865e+09}, {"dt": 1.7086536e+09, "main": {"aqi": 2.0}, "components": {"o3": 29.33, "so2": 10.01, "pm2_5": 14.13, "pm10": 18.6, "nh3": 2.57, "co": 487.33, "no": 0.31, "no2": 59.63}}, {"main": {"aqi": 2.0}, "components": {"no": 0.36, "no2": 58.95, "o3": 27.9, "so2": 9.78, "pm2_5": 13.49, "pm10": 18.05, "nh3": 2.53, "co": 480.65}, "dt": 1.7086572e+09}, {"dt": 1.7086608e+09, "main": {"aqi": 2.0}, "components": {"co": 453.95, "no": 0.21, "no2": 53.47, "o3": 31.11, "so2": 9.54, "pm2_5": 11.63, "pm10": 15.53, "nh3": 2.25}}, {"main": {"aqi": 2.0}, "components": {"no": 0.04, "no2": 41.47, "o3": 43.27, "so2": 9.54, "pm2_5": 8.34, "pm10": 11.06, "nh3": 1.6, "co": 397.21}, "dt": 1.7086644e+09}, {"main": {"aqi": 1.0}, "components": {"o3": 52.21, "so2": 9.89, "pm2_5": 7.06, "pm10": 9.23, "nh3": 1.38, "co": 363.83, "no": 0.01, "no2": 34.96}, "dt": 1.708668e+09}, {"main": {"aqi": 2.0}, "components": {"o3": 45.42, "so2": 8.7, "pm2_5": 9.2, "pm10": 12.2, "nh3": 1.39, "co": 390.53, "no": 0.03, "no2": 41.13}, "dt": 1.7086716e+09}, {"main": {"aqi": 2.0}, "components": {"so2": 7.63, "pm2_5": 13.7, "pm10": 18.56, "nh3": 1.6, "co": 460.63, "no": 0.29, "no2": 54.84, "o3": 27.54}, "dt": 1.7086752e+09}, {"main": {"aqi": 2.0}, "components": {"pm10": 25.29, "nh3": 1.95, "co": 534.06, "no": 1.52, "no2": 65.8, "o3": 13.23, "so2": 7.99, "pm2_5": 18.46}, "dt": 1.7086788e+09}, {"main": {"aqi": 3.0}, "components": {"o3": 3.67, "so2": 8.94, "pm2_5": 22.98, "pm10": 30.93, "nh3": 2.28, "co": 600.82, "no": 5.87, "no2": 74.71}, "dt": 1.7086824e+09}, {"main": {"aqi": 3.0}, "components": {"no2": 78.83, "o3": 0.28, "so2": 9.42, "pm2_5": 29.01, "pm10": 37.41, "nh3": 2.63, "co": 694.28, "no": 19.22}, "dt": 1.708686e+09}, {"main": {"aqi": 3.0}, "components": {"co": 974.66, "no": 64.37, "no2": 84.31, "o3": 0.0, "so2": 9.3, "pm2_5": 45.99, "pm10": 57.38, "nh3": 4.56}, "dt": 1.7086896e+09}, {"main": {"aqi": 4.0}, "components": {"nh3": 6.52, "co": 1375.2, "no": 128.75, "no2": 94.59, "o3": 0.06, "so2": 10.37, "pm2_5": 68.18, "pm10": 83.16}, "dt": 1.7086932e+09}]}')
     else:
-        weather_response = fetch_weather_data(lat, long, api_key)
-        aqi_response = fetch_aqi_data(lat, long, api_key)
+        weather_response = fetch_weather_data(lat, long, api_key, freq_update)
+        aqi_response = fetch_aqi_data(lat, long, api_key, freq_update)
 
-    temperature_kelvin = weather_response["current"]["temp"]
+    temperature_kelvin = weather_response["main"]["temp"]
     if temperature_display == "Celsius":
         temperature = temperature_kelvin - 273.15
     else:
         temperature = (temperature_kelvin - 273.15) * 1.8 + 32
 
-    humidity = int(weather_response["current"]["humidity"])
+    humidity = int(weather_response["main"]["humidity"])
     humidity_icon = base64.decode(get_humidity_icon(humidity))
 
-    weather_id = weather_response["current"]["weather"][0]["id"]
+    weather_id = weather_response["weather"][0]["id"]
     weather_icon = base64.decode(get_weather_icon(weather_id))
 
     aqi = calculate_aqi(aqi_response["list"])
@@ -239,7 +257,7 @@ def main(config):
                         cross_align = "center",
                         children = [
                             render.Padding(
-                                pad = (0, 3, 0, 1),
+                                pad = (1, 3, 0, 1),
                                 child = render.Text(font = "tb-8", content = str(humidity)),
                             ),
                             render.Image(src = humidity_icon),
@@ -276,6 +294,12 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Text(
+                id = "api_key",
+                name = "API Key",
+                desc = "(Optional) Free v2.5 OpenWeather API Key. If provided, offers more frequent weather updates.",
+                icon = "key",
+            ),
             schema.Location(
                 id = "location",
                 name = "Location",
