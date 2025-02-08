@@ -395,7 +395,7 @@ def main(config):
     now = time.now()
 
     if (stages["data"]["festSchedules"] and stages["data"]["currentFest"]):
-        use_timetable = len(stages["data"]["currentFest"].get("timetable", [])) > 0
+        use_timetable = len(stages["data"]["currentFest"].get("timetable") or []) > 0
         if (now >= time.parse_time(stages["data"]["currentFest"]["startTime"]) and now <= time.parse_time(stages["data"]["currentFest"]["endTime"])):
             teams = stages["data"]["currentFest"]["teams"]
 
@@ -403,7 +403,7 @@ def main(config):
                 tricol_timetable = [parseTimetableEntry(entry) for entry in stages["data"]["currentFest"]["timetable"]]
                 tricol_stage = getCurrentMatch(tricol_timetable, now).tricolor_stage
             else:
-                tricol_stage = stages["data"]["currentFest"]["tricolorStage"]["name"]
+                tricol_stage = stages["data"]["currentFest"]["tricolorStages"][0]["name"]
 
             splatfest_colours = [
                 rgb2hex([teams[0]["color"]["r"] * 150, teams[0]["color"]["g"] * 150, teams[0]["color"]["b"] * 150]),
