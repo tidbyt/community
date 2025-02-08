@@ -412,11 +412,7 @@ def main(config):
             ]
 
             splatfest = struct(
-<<<<<<< HEAD
-                tricolor_stage = tricol_stage,
-=======
                 tricolor_stage = stages["data"]["currentFest"]["tricolorStages"][0]["name"],
->>>>>>> ff6686db (Switch tricolor stages to array)
                 start_time = time.parse_time(stages["data"]["currentFest"]["startTime"]),
                 halftime = time.parse_time(stages["data"]["currentFest"]["midtermTime"]),
                 end_time = time.parse_time(stages["data"]["currentFest"]["endTime"]),
