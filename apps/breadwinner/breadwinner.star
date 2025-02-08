@@ -155,14 +155,14 @@ def get_schema():
                 id = "starter_id",
                 name = "Starter Name",
                 desc = "Name of the Breadwinner starter.",
-                icon = "locationDot",
+                icon = "gear",
                 default = "breadberry"
             ),
             schema.Text(
                 id = "user_id",
                 name = "Breadwinner ID",
                 desc = "Breadwinner User ID.",
-                icon = "calendar",
+                icon = "gear",
                 default = "fred",
             ),
         ],
