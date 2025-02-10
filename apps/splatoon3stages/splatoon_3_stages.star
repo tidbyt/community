@@ -435,14 +435,14 @@ def main(config):
     }
     if (eggstra_on):
         current_match = getCurrentMatch(parsed_data.eggstra, now)
-        if (current_match):
+        if (current_match.setting):
             frames["eggstra"] = generateFrame(current_match.setting, "eggstra", time.parse_time(current_match.end_time) - now)
         else:
             eggstra_on = False
 
     if (big_run_on):
         current_match = getCurrentMatch(parsed_data.bigrun, now)
-        if (current_match):
+        if (current_match.setting):
             frames["bigrun"] = generateFrame(current_match.setting, "bigrun", time.parse_time(current_match.end_time) - now)
         else:
             big_run_on = False
