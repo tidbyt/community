@@ -271,7 +271,7 @@ def get_schema():
 
     options = [
         schema.Option(
-            display = "Farenheit",
+            display = "Fahrenheit",
             value = "imperial",
         ),
         schema.Option(
