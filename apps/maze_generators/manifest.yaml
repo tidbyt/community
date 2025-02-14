@@ -1,0 +1,6 @@
+---
+id: maze-generators
+name: Maze Generators
+summary: Generates mazes
+desc: Generates mazes using different maze generation algorithms. Currently supported are Hilbert, Binary Tree, Depth-First Search, Aldous-Broder, Recursive Division, and Fractal Tesselation.
+author: SwinkyWorks
