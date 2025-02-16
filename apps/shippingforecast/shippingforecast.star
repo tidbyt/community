@@ -93,6 +93,9 @@ def is_proper_float(s):
             return False
     return True
 
+def round_to_two_decimals(number):
+    return int(number * 100 + 0.5) / 100.0
+
 def parse_location(location):
     splitLocation = location.split(",")
 
@@ -112,7 +115,11 @@ def parse_location(location):
 
     print("latitude: " + lat + " longitude: " + lon)
 
-    return lat, lon
+    # reduce to 2 decimal places
+    roundedLat = round_to_two_decimals(float(lat))
+    roundedLon = round_to_two_decimals(float(lon))
+
+    return roundedLat, roundedLon
 
 def main(config):
     location = config.get("location", "")
@@ -121,7 +128,7 @@ def main(config):
     api_key = secret.decrypt(API_KEY) or config.get("dev_api_key")
 
     if api_key != None:
-        url = FORECAST_URL + "?lat=" + lat + "&lon=" + lon
+        url = FORECAST_URL + "?lat=" + str(lat) + "&lon=" + str(lon)
         headers = {"authorization": "Bearer " + api_key}
         rep = http.get(url, headers = headers, ttl_seconds = 1200)
         if rep.status_code == 200:
@@ -185,7 +192,7 @@ def get_schema():
             schema.Text(
                 id = "location",
                 name = "Location",
-                desc = "The forecast location's coordinates in decimal degrees (latitude, longitude). For example: 57.5979648, -13.6939501",
+                desc = "The forecast location's coordinates in decimal degrees (latitude, longitude). For example: 57.59, -13.69",
                 icon = "compass",
             ),
         ],
