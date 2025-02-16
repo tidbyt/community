@@ -1,7 +1,8 @@
 """
 Applet: News Mix
 Summary: News from multiple sources
-Description: Display rotating headlines from your choice of major news sources. See top stories from three different feeds. Customize colors and scroll speed for your perfect news reading experience.
+Description: Display rotating headlines from your choice of major news sources. See up to 9 top stories from 3 different feeds. 
+             Customize colors and scroll speed for your perfect news reading experience.
 Author: Weiqi Ma
 """
 
