@@ -1,5 +1,5 @@
-id: wsj-news
-name: WSJ News
+id: wsj
+name: WSJ
 summary: Wall Street Journal News
 desc: Display Wall Street Journal news headlines from various RSS feeds. Choose from sections like World News, Markets, and more, with configurable article counts.
 author: Shimmy Savitsky
