@@ -71,7 +71,7 @@ def render_article(news):
             render.WrappedText(
                 content = article[0],
                 color = ARTICLE_SUB_TITLE_COLOR,
-                font = ARTICLE_SUB_TITLE_FONT,
+                font = ARTICLE_SUB_TITLE_FONT
             )
         )
         news_text.append(render.Box(width = 64, height = 8, color = SPACER_COLOR))
@@ -126,15 +126,16 @@ def get_cacheable_data(url, articlecount):
     articles = []
     res = http.get(RSS_STUB.format(url), ttl_seconds = CACHE_TTL_SECONDS)
     if res.status_code != 200:
-        fail("Request to %s failed with status code: %d - %s" % (RSS_STUB.format(url), res.status_code, res.body()))
-    
+        fail("Request to %s failed with status code: %d - %s" % (
+        RSS_STUB.format(url), 
+        res.status_code, 
+        res.body(),
+))
     data = res.body()
     data_xml = xpath.loads(data)
-
     # Get all item elements and limit to articlecount
     items = data_xml.query_all("//item")
     total_items = min(articlecount, len(items) if items else 0)
-    
     # Fetch articles
     for i in range(total_items):
         title_query = "//item[{}]/title".format(i + 1)
@@ -142,9 +143,7 @@ def get_cacheable_data(url, articlecount):
         title = data_xml.query(title_query) or "No Title"
         desc = data_xml.query(desc_query) or ""
         articles.append((title, str(desc).replace("None", "")))
-    
     # Fallback if no articles
     if not articles:
         articles.append(("No news available", ""))
-    
     return articles
