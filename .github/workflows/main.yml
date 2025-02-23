@@ -23,7 +23,7 @@ jobs:
         uses: SamhammerAG/last-successful-build-action@v7
         with:
           branch: "main"
-          workflow: "Build and Release"
+          workflow: "Build and Test"
           verify: true
           token: "${{ secrets.GITHUB_TOKEN }}"
 
