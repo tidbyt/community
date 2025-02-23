@@ -1,0 +1,40 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup build agent
+        run: ./.github/scripts/setup.sh
+
+      - name: Find last successful build
+        id: lastsuccess
+        uses: SamhammerAG/last-successful-build-action@v7
+        with:
+          branch: "main"
+          workflow: "Build and Release"
+          verify: true
+          token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Determine targets
+        id: targets
+        run: ./.github/scripts/determine-targets.sh
+        env:
+          BASE_SHA: ${{ steps.lastsuccess.outputs.sha }}
+          HEAD_SHA: ${{ github.sha }}
+
+      - name: Check modified apps
+        run: ./.github/scripts/check-apps.sh
+        env:
+          TARGETS: "${{ steps.targets.outputs.targets }}"
