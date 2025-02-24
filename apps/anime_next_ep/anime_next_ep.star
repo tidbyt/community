@@ -32,8 +32,6 @@ def main(config):
     next_episode = media.get("nextAiringEpisode")
     status = media["status"]  # Get the status field
 
-    cover_image = fetch_image(cover_url)
-
     # Full-width title at the top
     title_display = render.Marquee(
         child = render.Text(title, font = "tb-8", color = "#FFFFFF"),
@@ -49,14 +47,7 @@ def main(config):
                 render.Row(
                     # Bottom: Image + Episode Info
                     children = [
-                        render.Padding(
-                            child = render.Image(
-                                # Left: Anime Cover Image
-                                width = 18,
-                                src = cover_image,
-                            ),
-                            pad = (0, 0, 1, 0),
-                        ),
+                        render_cover(cover_url),
                         next_episode_info(next_episode, status),  # Right: Airing Info OR "Finished Airing"
                     ],
                 ),
@@ -74,6 +65,19 @@ def fetch_image(image_url):
         return None  # Fail gracefully if image request fails
 
     return response.body()
+
+def render_cover(image_url):
+    cover_image = fetch_image(image_url)
+    if cover_image == None:
+        return None
+    return render.Padding(
+        child = render.Image(
+            # Left: Anime Cover Image
+            width = 18,
+            src = cover_image,
+        ),
+        pad = (0, 0, 1, 0),
+    )
 
 def not_found(id):
     return render.Root(
