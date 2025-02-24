@@ -13,7 +13,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 ANILIST_ENDPOINT = "https://graphql.anilist.co"
-DEFAULT_ANIME_ID = 21 # One Piece
+DEFAULT_ANIME_ID = 21  # One Piece
 
 def main(config):
     unsanitized_anime_id = config.str("anime_id", str(DEFAULT_ANIME_ID))
