@@ -26,3 +26,6 @@ BUILD.bazel
 *.webp
 *.gif
 *.tar.gz
+
+# allow thumbnails in app folders
+!apps/**/*.webp
