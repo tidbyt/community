@@ -73,6 +73,9 @@ Found bug that was showing incorrect winner for matches where there was a retire
 
 v1.13
 Only show players if both names are listed in the scheduled match, prevents blank rows from appearing
+
+v1.14 
+Updated for 2025 season
 """
 
 load("encoding/json.star", "json")
@@ -82,8 +85,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-SLAM_LIST = ["154-2024", "188-2024", "172-2024", "189-2024"]
-MASTERS_LIST = ["411-2024", "713-2024", "42-2024", "413-2024", "421-2024", "414-2024", "718-2024", "421-2024", "13-2024", "315-2024"]
+SLAM_LIST = ["154-2025", "188-2025", "172-2025", "189-2025"]
+MASTERS_LIST = ["411-2025", "713-2025", "42-2025", "413-2025", "421-2025", "414-2025", "718-2025", "421-2025", "13-2025", "315-2025"]
 
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 ATP_SCORES_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard"
@@ -131,7 +134,7 @@ def main(config):
             if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
                 # Sometimes results for both ATP & WTA will be listed, so check if the first "groupings" is Mens Singles
                 # and if so, Womens Singles will be next (GroupingsID = 1)
-                if ATP_JSON["events"][x]["groupings"][GroupingsID]["grouping"]["slug"] == "womens-singles":
+                if ATP_JSON["events"][x]["groupings"][GroupingsID]["grouping"]["slug"] != "mens-singles":
                     GroupingsID = 1
                 TotalMatches = len(ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"])
 
@@ -361,7 +364,7 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
             Player1NameColor = "#fff"
             Player2NameColor = "#fff"
 
-            if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "womens-singles":
+            if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] != "mens-singles":
                 GroupingsID = 1
 
             # pop the index from the list and go straight to that match
@@ -615,7 +618,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             # pop the index from the list and go straight to that match
             x = CompletedMatchList.pop()
 
-            if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "womens-singles":
+            if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] != "mens-singles":
                 GroupingsID = 1
 
             Player1_Name = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
@@ -905,7 +908,7 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
             # pop the index from the list and go straight to that match
             x = ScheduledMatchList.pop()
 
-            if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "womens-singles":
+            if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] != "mens-singles":
                 GroupingsID = 1
 
             # check that we have players before displaying them or display blank line
