@@ -40,6 +40,9 @@ Reduced MATCH_CACHE from 24hrs to 6hrs as it wasn't refreshing the data quickly 
 
 v2.4.1
 Bug fix - needed to convert draws to string value for team records
+
+v2.5
+Updated for 2025 season
 """
 
 load("encoding/json.star", "json")
@@ -49,17 +52,17 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 DEFAULT_TIMEZONE = "Australia/Adelaide"
-DEFAULT_TEAM = "10"  # Geelong
+DEFAULT_TEAM = "10"  # Geelong #gocats
 
-MATCHES_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=62"
-LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/62/ladders"
-ROUND_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=62&roundNumber="
+MATCHES_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=73"
+LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/73/ladders"
+ROUND_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=73&roundNumber="
 TEAM_SUFFIX = "&teamId="
 
 SQUIGGLE_PREFIX = "https://api.squiggle.com.au/?q=games;round="
 INCOMPLETE_SUFFIX = ";complete=!100"
 COMPLETE_SUFFIX = ";complete=100"
-YEAR_SUFFIX = ";year=2024"
+YEAR_SUFFIX = ";year=2025"
 
 MATCH_CACHE = 21600
 LADDER_CACHE = 86400
@@ -108,6 +111,7 @@ def main(config):
 
     # Use the Squiggle API for live games, cache data for 30 secs
     SQUIGGLE_URL = SQUIGGLE_PREFIX + CurrentRound + INCOMPLETE_SUFFIX
+
     #print(SQUIGGLE_URL)
 
     LiveData = get_cachable_data(SQUIGGLE_URL, LIVE_CACHE)
@@ -421,6 +425,7 @@ def main(config):
 
             # We have a live game!
             if status == "LIVE":
+                #print("LIVE")
                 LiveOutput = showLiveGame(CurrentRoundJSON, LiveJSON, IncompleteMatches, x)
                 renderDisplay.extend(LiveOutput)
 
@@ -453,6 +458,9 @@ def showLiveGame(CurrentRoundJSON, LiveJSON, IncompleteMatches, x):
     HomeTeamName = CurrentRoundJSON["matches"][x]["home"]["team"]["name"]
     AwayTeam = CurrentRoundJSON["matches"][x]["away"]["team"]["id"]
     AwayTeamName = CurrentRoundJSON["matches"][x]["away"]["team"]["name"]
+
+    # print(HomeTeamName)
+    # print(AwayTeamName)
 
     # get the abbreviated name, font and background colors for each team
     home_team_abb = getTeamAbbFromID(HomeTeam)
