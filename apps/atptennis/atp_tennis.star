@@ -76,6 +76,9 @@ Only show players if both names are listed in the scheduled match, prevents blan
 
 v1.14 
 Updated for 2025 season
+
+v1.14.1
+Bug fix - for when there is a tournament listed in the data feed but has null info
 """
 
 load("encoding/json.star", "json")
@@ -109,7 +112,7 @@ def main(config):
     diffTournStart = 0
     GroupingsID = 0
 
-    TestID = "421-2024"
+    TestID = "421-2025"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     ShowScheduled = config.get("ScheduledOn", "false")
@@ -324,9 +327,13 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
     # This is usually how the tournaments are referred to, so use this in the title bar
     # if tournament hasn't started yet (using our 10 field test), the city information cannot be gathered so we'll default to the official title
     if SelectedTourneyID not in SLAM_LIST:
-        TourneyLocation = JSON["events"][EventIndex]["groupings"][0]["competitions"][0]["venue"]["fullName"]
-        CommaIndex = TourneyLocation.index(",")
-        TourneyCity = TourneyLocation[:CommaIndex]
+        # Also check we have matches listed, have seen 2 entries for same event/tournament
+        if len(JSON["events"][EventIndex]["groupings"]) > 0:
+            TourneyLocation = JSON["events"][EventIndex]["groupings"][0]["competitions"][0]["venue"]["fullName"]
+            CommaIndex = TourneyLocation.index(",")
+            TourneyCity = TourneyLocation[:CommaIndex]
+        else:
+            TourneyCity = JSON["events"][EventIndex]["name"]
 
         # Due to Best of 3 format in non-slams we can allow for 15 chars in a player's surname
         SurnameLen = 15
@@ -574,9 +581,13 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
     # This is usually how the tournaments are referred to, so use this in the title bar
     # if tournament hasn't started yet (using our 10 field test), the city information cannot be gathered so we'll default to the official title
     if SelectedTourneyID not in SLAM_LIST:
-        TourneyLocation = JSON["events"][EventIndex]["groupings"][0]["competitions"][0]["venue"]["fullName"]
-        CommaIndex = TourneyLocation.index(",")
-        TourneyCity = TourneyLocation[:CommaIndex]
+        # Also check we have matches listed, have seen 2 entries for same event/tournament
+        if len(JSON["events"][EventIndex]["groupings"]) > 0:
+            TourneyLocation = JSON["events"][EventIndex]["groupings"][0]["competitions"][0]["venue"]["fullName"]
+            CommaIndex = TourneyLocation.index(",")
+            TourneyCity = TourneyLocation[:CommaIndex]
+        else:
+            TourneyCity = JSON["events"][EventIndex]["name"]
 
         # 15 chars in surname when not a slam
         SurnameLen = 15
