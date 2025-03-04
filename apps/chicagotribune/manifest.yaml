@@ -1,8 +1,8 @@
 ---
 id: chicago-tribune
 name: Chicago Tribune
-summary: Chicago News
-desc: Latest headlines from the Chicago Tribune.
+summary: Chicago Tribune News
+desc: Latest news, sports and other topics from the Chicago Tribune. Choose from either the latest headlines or the latest story.
 author: sgomez72
 fileName: chicago_tribune.star
 packageName: chicagotribune
