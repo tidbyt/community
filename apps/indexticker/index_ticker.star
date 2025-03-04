@@ -283,7 +283,9 @@ RangeOptions = [
 ]
 
 def get_cachable_data(url, timeout):
-    res = http.get(url = url, ttl_seconds = timeout)
+    res = http.get(url = url, ttl_seconds = timeout, headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+    })
 
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
