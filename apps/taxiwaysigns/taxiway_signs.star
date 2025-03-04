@@ -10,8 +10,9 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
+sign_font = "6x13"
 signage_types = {1: "Location", 2: "Direction", 3: "Hold"}
-sign_combinations = [[3], [1, 3], [2, 1, 2], [1, 3], [2, 1, 2], [1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]]
+sign_combinations = [[1, 3], [2, 1, 2], [1, 3], [2, 1, 2], [1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]]
 
 def main():
     return render.Root(
@@ -101,11 +102,11 @@ def get_set_of_taxiway_ids(num):
 
 def get_single_box(type, text, width):
     if type == signage_types[1]:
-        return render.Box(width = width, height = 32, color = "#ffbe02", child = render.Box(width = width - 2, height = 30, color = "#000", child = render.Text(text, color = "#ffbe02", font = "6x13")))
+        return render.Box(width = width, height = 32, color = "#ffbe02", child = render.Box(width = width - 2, height = 30, color = "#000", child = render.Text(text, color = "#ffbe02", font = sign_font)))
     elif type == signage_types[2]:
-        return render.Box(width = width, height = 32, color = "#ffbe02", child = render.Text(text, color = "#000", font = "6x13"))
+        return render.Box(width = width, height = 32, color = "#ffbe02", child = render.Text(text, color = "#000", font = sign_font))
     else:  #type == signage_types[3]:
-        return render.Box(width = width, height = 32, color = "#d52124", child = render.Text(text, color = "#fff", font = "6x13"))
+        return render.Box(width = width, height = 32, color = "#d52124", child = render.Text(text, color = "#fff", font = sign_font))
 
 def randomize(min, max):
     now = time.now()
