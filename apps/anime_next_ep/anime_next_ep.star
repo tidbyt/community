@@ -5,13 +5,13 @@ Description: Tells when the next episode of an anime is via anilist.
 Author: brianmakesthings
 """
 
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/json.star", "json")
 
 ANILIST_ENDPOINT = "https://graphql.anilist.co"
 DEFAULT_ANIME_ID = 21  # One Piece
@@ -119,10 +119,8 @@ def search(pattern):
 
     def format_search_result(media):
         return schema.Option(display = media["title"]["romaji"], value = str(int(media["id"])))
-    
 
     return [format_search_result(media) for media in result_list]
-
 
 def fetch_airing_info(anime_id):
     query = {
