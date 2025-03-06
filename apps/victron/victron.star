@@ -6,6 +6,7 @@ Author: jduncc
 """
 
 load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 
@@ -28,8 +29,7 @@ def main(config):
         }
 
     else:
-        installationIndex = config.get("installation_index", 0)
-
+        installationIndex = int(config.get("installation_index", 0))
         user = vrm_api(VRM_URL_USER, token, 600)
 
         if (user["success"] != True):
@@ -97,8 +97,8 @@ def main(config):
                                 expanded = True,
                                 main_align = "space_evenly",
                                 children = [
-                                    render.Text("%d DC" % parsed_diag["DCRaw"]),
-                                    render.Text(color = pvp_color, content = "%d PV" % parsed_diag["PVPRaw"]),
+                                    render.Text("%s DC" % math.floor(float(parsed_diag["DCRaw"]))),
+                                    render.Text(color = pvp_color, content = "%s PV" % math.floor(float(parsed_diag["PVPRaw"]))),
                                 ],
                             ),
                         ],

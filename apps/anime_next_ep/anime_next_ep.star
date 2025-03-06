@@ -5,6 +5,7 @@ Description: Tells when the next episode of an anime is via anilist.
 Author: brianmakesthings
 """
 
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("re.star", "re")
@@ -16,10 +17,13 @@ ANILIST_ENDPOINT = "https://graphql.anilist.co"
 DEFAULT_ANIME_ID = 21  # One Piece
 
 def main(config):
-    unsanitized_anime_id = config.str("anime_id", str(DEFAULT_ANIME_ID))
     id = DEFAULT_ANIME_ID
-    if is_numeric(unsanitized_anime_id):
-        id = int(unsanitized_anime_id)
+    selection = config.get("anime_name")
+    if selection != None:
+        parsed_selection = json.decode(selection)["value"]
+        unsanitized_anime_id = parsed_selection
+        if is_numeric(unsanitized_anime_id):
+            id = int(unsanitized_anime_id)
 
     airing_info = fetch_airing_info(id)
 
@@ -106,6 +110,18 @@ def next_episode_info(next_episode, status):
         )
     )
 
+def search(pattern):
+    results = search_possible_anime(pattern)
+    if results == None:
+        return []
+
+    result_list = results["data"]["Page"]["media"]
+
+    def format_search_result(media):
+        return schema.Option(display = media["title"]["romaji"], value = str(int(media["id"])))
+
+    return [format_search_result(media) for media in result_list]
+
 def fetch_airing_info(anime_id):
     query = {
         "query": """
@@ -140,15 +156,45 @@ def fetch_airing_info(anime_id):
 
     return response.json()
 
+def search_possible_anime(pattern):
+    query = {
+        "query": """
+        query ($pattern: String) {
+            Page(perPage: 10) { 
+                media(search: $pattern, type: ANIME, sort: [TRENDING_DESC, SEARCH_MATCH]) {
+                    id
+                    title {
+                        romaji
+                    }
+                }
+            }
+        }
+        """,
+        "variables": {"pattern": pattern},
+    }
+
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    response = http.post(ANILIST_ENDPOINT, headers = headers, json_body = query)
+
+    if response.status_code != 200:
+        return None
+
+    return response.json()
+
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Text(
-                id = "anime_id",
-                name = "id",
-                desc = "Anilist Anime ID ex. 21",
+            schema.Typeahead(
+                id = "anime_name",
+                name = "name",
+                desc = "Anime name",
                 icon = "tv",
+                handler = search,
             ),
         ],
     )
