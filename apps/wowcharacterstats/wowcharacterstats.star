@@ -69,7 +69,7 @@ DEFAULT_REGION = "us"
 DEFAULT_AUTH_TTL = 86399
 
 CURRENT_EXPANSION = "The War Within"
-CURRENT_INSTANCE = "Nerub-ar Palace"
+CURRENT_INSTANCE = "Liberation of Undermine"
 
 def main(config):
     client_id = secret.decrypt(
@@ -90,7 +90,7 @@ def main(config):
     blizzard_profile_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s?namespace=profile-%s&locale=en_US" % (region, realm_name, character_name, region)
     blizzard_mythic_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s/mythic-keystone-profile?namespace=profile-%s&locale=en_US" % (region, realm_name, character_name, region)
     blizzard_raid_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s/encounters/raids?namespace=profile-%s&locale=en_US" % (region, realm_name, character_name, region)
-
+   
     access_token = get_auth_token(blizzard_auth_url, client_id, client_secret)
 
     if access_token == None:
