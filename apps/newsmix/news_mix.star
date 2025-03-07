@@ -66,7 +66,7 @@ def main(config):
     selected_feeds = {
         config.str("feed1", "WSJ US News"): AVAILABLE_FEEDS[config.str("feed1", "WSJ US News")],
         config.str("feed2", "WSJ World News"): AVAILABLE_FEEDS[config.str("feed2", "WSJ World News")],
-        config.str("feed3", "NYT Home Page"): AVAILABLE_FEEDS[config.str("feed3", "NYT Home Page")],
+        config.str("feed3", "BBC Top Stories"): AVAILABLE_FEEDS[config.str("feed3", "BBC Top Stories")],
     }
 
     feed_names = list(selected_feeds.keys())
@@ -260,7 +260,7 @@ def get_schema():
                     schema.Option(display = name, value = name)
                     for name in AVAILABLE_FEEDS.keys()
                 ],
-                default = "NYT Home Page",
+                default = "BBC Top Stories",
             ),
             schema.Color(
                 id = "header_color",
