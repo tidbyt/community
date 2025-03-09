@@ -10,6 +10,7 @@ load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 load("time.star", "time")
 
 ## ==================== BEGIN CONSTANTS ====================
@@ -26,7 +27,9 @@ WIDGET_COLOR = "#ffffff"
 
 # Use The Blue Alliance API to get the team's current competition ranking
 TBA_BASE_URL = "https://www.thebluealliance.com/api/v3"
-TBA_API_KEY_DEFAULT = "YOUR_TBA_API_KEY"
+TBA_API_KEY_DEFAULT = "YOUR_TBA_READ_API_KEY_HERE"
+TBA_API_KEY_ENCRYPTED = "AV6+xWcEi7teQ3dIi5syCMRdr8X9t5Cc0NS2zyaivQLlKToPL+7cd0MQk3ZXQSvLNh2DvGJUgxvX9vfkT6GASc1+ZYni9ENlOyeVAsmvnmgDCQtYogqW0UkKluSxSWc/p9k7HKQT3dzAXitJfzIio6aFZvg1KejmuVO2TLXicXTp91hGO65ci4Cudz8m9Jo0zwL+k1vh6ppKBqA2e74Ie9DsMSgP9A==" # Encrypted READ key
+
 ## ==================== END CONSTANTS ====================
 
 ## ==================== BEGIN MESSAGE CONSTANTS ====================
@@ -203,7 +206,11 @@ def main(config):
     USER_INPUT_TEAM_NUMBER = "frc%s" % config.get("team_number")
 
     # Get Blue Alliance API key from the user
-    TBA_API_KEY = config.get("tba_api_key", TBA_API_KEY_DEFAULT)
+    TBA_API_KEY = secret.decrypt(TBA_API_KEY_ENCRYPTED) or config.get("tba_api_key", TBA_API_KEY_DEFAULT)
+
+    # If the API is none, return an error message
+    if not TBA_API_KEY or TBA_API_KEY == TBA_API_KEY_DEFAULT:
+        fail("The TBA API you provided does not seem valid or is missing. Please enter a valid TBA api key.")
 
     # Instantiate the team ranking message variable
     team_ranking_msg = "No Ranking"
