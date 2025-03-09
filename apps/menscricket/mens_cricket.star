@@ -20,7 +20,8 @@ load("time.star", "time")
 # API
 TEAM_SCHEDULE_URL = "https://www.cricbuzz.com/cricket-team/{team_name}/{team_id}/schedule"
 TEAM_RESULTS_URL = "https://www.cricbuzz.com/cricket-team/{team_name}/{team_id}/results"
-MATCH_COMM_URL = "https://www.cricbuzz.com/api/cricket-match/{match_id}/full-commentary/0"
+MATCH_FULL_COMM_URL = "https://www.cricbuzz.com/api/cricket-match/{match_id}/full-commentary/0"
+# FALLBACK_MATCH_COMM_URL = "https://www.cricbuzz.com/api/cricket-match/commentary/{match_id}"
 LIVE_SCORE_URL = "https://www.cricbuzz.com/api/cricket-match/commentary/{match_id}"
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
 
@@ -576,6 +577,16 @@ team_settings_by_id = {
         struct(**_team_setting("15", "United States", "USA", "#B31942", "#003087")),
         struct(**_team_setting("10", "West Indies", "WI", "#f2b10e", "#660000")),
         struct(**_team_setting("12", "Zimbabwe", "ZIM", "#FCE300", "#EF3340")),
+        struct(**_team_setting("63", "IPL - Kolkata Knight Riders", "KKR", "#FCE300", "#EF3340")),
+        struct(**_team_setting("65", "IPL - Punjab Kings", "PK", "#FCE300", "#EF3340")),
+        struct(**_team_setting("62", "IPL - Mumbai Indians", "MI", "#FCE300", "#EF3340")),
+        struct(**_team_setting("966", "IPL - Lucknow Giants", "LSG", "#FCE300", "#EF3340")),
+        struct(**_team_setting("971", "IPL - Gujarat Titans", "GT", "#FCE300", "#EF3340")),
+        struct(**_team_setting("255", "IPL - Sunrisers Hyderabad", "SRH", "#FCE300", "#EF3340")),
+        struct(**_team_setting("61", "IPL - Delhi Capitals", "DC", "#FCE300", "#EF3340")),
+        struct(**_team_setting("59", "IPL - Royal Challengers Bangalore", "RCB", "#FCE300", "#EF3340")),
+        struct(**_team_setting("58", "IPL - Chennai Super Kings", "CSK", "#FCE300", "#EF3340")),
+        struct(**_team_setting("64", "IPL - Rajasthan Royals", "RR", "#FCE300", "#EF3340")),
     ]
 }
 
@@ -701,7 +712,7 @@ def _get_cached_match_ids(url, span_id):
     return match_ids
 
 def fetch_match_comm(match_id):
-    url = MATCH_COMM_URL.format(match_id = match_id)
+    url = MATCH_FULL_COMM_URL.format(match_id = match_id)
     json_resp = {}
     cached_data = cache.get(url)
     if cached_data:
@@ -711,6 +722,9 @@ def fetch_match_comm(match_id):
 
     print("--MISS for {}".format(url))
     json_resp = json.decode(fetch_url(url))
+    if not json_resp:
+        print("NULL match details for {}".format(url))
+        return {}
 
     cache_ttl = 5 * ONE_MINUTE
     match_state = json_resp.get("matchDetails", {}).get("matchHeader", {}).get("state", "Preview").lower()
