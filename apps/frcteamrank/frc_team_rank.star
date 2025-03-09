@@ -6,7 +6,6 @@ Author: dragid10
 """
 
 # Imports
-# load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
