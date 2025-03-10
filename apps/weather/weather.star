@@ -69,7 +69,8 @@ def main(config):
     # Get configuration values with defaults
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
-    locality = loc["locality"]
+    # don't need locality anymore because we are using lat and lng
+    # locality = loc["locality"]
     lat = loc["lat"]
     lng = loc["lng"]
     units = config.get("units", "imperial")
