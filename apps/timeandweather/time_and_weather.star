@@ -29,6 +29,10 @@ NWS_HOURLY_GRID_FORECAST_URL = "https://api.weather.gov/gridpoints/BOX/{gridX},{
 OPENWEATHER_CURRWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={api_key}&units={units}&lang=en"
 OPENWEATHER_AIR_POLLUTION_URL = "http://api.openweathermap.org/data/2.5/air_pollution?lat={latitude}&lon={longitude}&appid={api_key}"
 OPENWEATHER_ONECALL_URL = "https://api.openweathermap.org/data/3.0/onecall?lat={latitude}&lon={longitude}&exclude=minutely,hourly,daily,alerts&appid={api_key}&units={units}&lang=en"
+ACCUWEATHER_LOCATION_URL = "http://dataservice.accuweather.com/locations/v1/cities/geoposition/search?apikey={api_key}&q={latitude}%2C{longitude}"
+
+#ACCUWEATHER_URL= "http://dataservice.accuweather.com/forecasts/v1/daily/5day/{locationKey}?apikey={api_key}&details=true&metric={units}"
+ACCUWEATHER_URL = "http://dataservice.accuweather.com/currentconditions/v1/{locationKey}?apikey={api_key}&details=true"
 TOMORROW_IO_REALTIME_URL = "https://api.tomorrow.io/v4/weather/realtime?location={latitude},{longitude}&apikey={api_key}&units={units}"
 OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m&hourly=dew_point_2m,visibility,uv_index&models=best_match&temperature_unit={temperature_unit}&wind_speed_unit={wind_speed_unit}&forecast_hours=1"
 WEATHERBIT_CURRENT_WEATHER_URL = "https://api.weatherbit.io/v2.0/current?lat={latitude}&lon={longitude}&key={api_key}&lang=en&units={units}"
@@ -178,6 +182,9 @@ def main(config):
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     latitude = float(location["lat"])
     longitude = float(location["lng"])
+
+    #location_key is only used in Accuweather so this is moved to Accuweather section
+    #location_key = int(location["locationKey"])
     timezone = location["timezone"]
     api_key = config.get("apiKey", "")
     system_of_measurement = config.get("systemOfMeasurement", "Imperial").lower()
@@ -325,6 +332,73 @@ def main(config):
             air_quality = get_openweather_air_pollution(api_key, latitude, longitude)
             result_current_conditions["aqi"] = air_quality["index"]
             # result_current_conditions["aqi_label"] = air_quality["label"]
+
+        elif api_service == "Accuweather":
+            enabledMetrics["aqi"] = False
+
+            request_url = ACCUWEATHER_LOCATION_URL.format(
+                api_key = api_key,
+                latitude = str(latitude),
+                longitude = str(longitude),
+            )
+            location_key = get_current_weather_conditions(request_url, 300)["Key"]
+
+            #print(location_key) # uncomment to debug
+            units = ("Metric" if system_of_measurement == "metric" else "Imperial")
+
+            request_url = ACCUWEATHER_URL.format(
+                locationKey = location_key,
+                api_key = api_key,
+            )
+            raw_current_conditions = get_current_weather_conditions(request_url, 300)  # allows only 60 free calls per minute (ttl of 5 min.)
+            raw_current_conditions = raw_current_conditions[0]
+            #print(raw_current_conditions["Day"])
+            #result_current_conditions["icon"] = int(raw_current_conditions["Day"]["Icon"])
+
+            result_current_conditions["temp"] = int(raw_current_conditions["Temperature"][units]["Value"])
+            result_current_conditions["feels_like"] = int(raw_current_conditions["RealFeelTemperature"][units]["Value"])
+            result_current_conditions["wind_speed"] = int(raw_current_conditions["Wind"]["Speed"][units]["Value"])
+            result_current_conditions["wind_dir"] = raw_current_conditions["Wind"]["Direction"]["English"]
+
+            icon_num = raw_current_conditions["WeatherIcon"]
+
+            if icon_num == 1:
+                # sunny
+                icon_ref = "sunny.png"
+            elif icon_num >= 2 and icon_num <= 5:
+                # mostly sunny
+                icon_ref = "sunnyish.png"
+            elif icon_num >= 6 and icon_num <= 8:
+                # cloudy (day)
+                icon_ref = "cloudy.png"
+            elif (icon_num >= 12 and icon_num <= 14) or icon_num == 18:
+                # rain (day and night)
+                icon_ref = "rainy.png"
+            elif icon_num >= 15 and icon_num < 17:
+                # thunderstorm (day and night)
+                icon_ref = "thundery.png"
+            elif (icon_num >= 19 and icon_num < 26) or icon_num == 29:
+                # snow (day and night)
+                icon_ref = "snowy2.png"
+            elif icon_num == 32:
+                # wind
+                icon_ref = "windy.png"
+            elif icon_num == 33:
+                # moon
+                icon_ref = "moony.png"
+            else:
+                icon_ref = None
+
+            result_current_conditions["humidity"] = int(raw_current_conditions["RelativeHumidity"])
+            result_current_conditions["cloud_coverage"] = int(raw_current_conditions["CloudCover"])
+            result_current_conditions["visibility"] = int(raw_current_conditions["Visibility"][units]["Value"])
+            result_current_conditions["pressure"] = int(raw_current_conditions["Pressure"][units]["Value"])
+            result_current_conditions["uv_index"] = int(raw_current_conditions["UVIndex"])
+            #result_current_conditions["aqi"] = 0
+
+            #for item in raw_current_conditions["AirAndPollen"]:
+            #    if item["Name"] == "AirQuality":
+            #        result_current_conditions["aqi"] = int(item["Value"])
 
         elif api_service == "OpenWeatherOneCall":
             request_url = OPENWEATHER_ONECALL_URL.format(
@@ -879,6 +953,15 @@ def more_toggles(weatherApiService):
             additional_toggles["humidity"],
             additional_toggles["dew_point"],
         ]
+    elif weatherApiService == "Accuweather":
+        return [
+            additional_toggles["wind_speed"],
+            additional_toggles["humidity"],
+            additional_toggles["cloud_coverage"],
+            additional_toggles["visibility"],
+            additional_toggles["pressure"],
+            additional_toggles["uv_index"],
+        ]
     elif weatherApiService == "OpenWeather":
         return [
             additional_toggles["wind_speed"],
@@ -944,6 +1027,10 @@ def get_schema():
                 icon = "database",
                 default = "OpenWeather",
                 options = [
+                    schema.Option(
+                        display = "Accuweather",
+                        value = "Accuweather",
+                    ),
                     schema.Option(
                         display = "National Weather Service (NWS)",
                         value = "National Weather Service (NWS)",
