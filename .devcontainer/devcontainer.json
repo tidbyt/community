@@ -20,7 +20,8 @@
 		"vscode": {
 			"extensions": [
 				"golang.go",
-				"stackbuild.bazel-stack-vscode"
+				"stackbuild.bazel-stack-vscode",
+				"github.vscode-github-actions"
 			]
 		}
 	},
