@@ -1,0 +1,8 @@
+---
+id: income-counter
+name: Income Counter
+summary: Realtime income counter
+desc: Realtime income counter for salaried workers.
+author: Thomas R. Novak
+fileName: income_counter.star
+packageName: incomecounter

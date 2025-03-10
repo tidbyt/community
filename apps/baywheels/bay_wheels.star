@@ -13,8 +13,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 # TODO: query these from https://gbfs.baywheels.com/gbfs/gbfs.json maybe?
-STATIONS_URL = "https://gbfs.baywheels.com/gbfs/fr/station_information.json"
-STATUS_URL = "https://gbfs.baywheels.com/gbfs/fr/station_status.json"
+STATIONS_URL = "https://gbfs.lyft.com/gbfs/2.3/bay/en/station_information.json"
+STATUS_URL = "https://gbfs.lyft.com/gbfs/2.3/bay/en/station_status.json"
 
 DEFAULT_STATION = '{ "display": "18th St at Noe St", "value": "cd7359fc-6798-48ed-af32-9d5f6cff9ffa"}'
 

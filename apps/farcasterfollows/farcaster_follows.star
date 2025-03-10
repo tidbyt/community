@@ -16,7 +16,7 @@ FARCASTER_ICON_LIGHT_BG = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAYAA
 def main(config):
     # https://gist.github.com/danromero/87be7035aab27bf6a603b2c956022370
     # pixlet encrypt farcasterfollows $KEY
-    api_key = secret.decrypt("AV6+xWcE4IgNs2YBk4HRj0YvKJy7fbY2Mi4d2e2ooKbWLao0X6dJDCpLuCLTvCJjmm1jn2Ix8buye0rBV2LOc4YMA3mJVPYeJJDb9dUr5vPxcvqVu3Njs4Y2EH+RO5xrd+D35YnG23kME5eo3WggL935j1wNTR1+MaRqxoUuQk+3eVukGXOlTzJlhKAZFu2qHI9wv47N3AwpozB2JoGe0D9J/1UWio36bGfb8sgZmOWvilH21BaJdrvnlivVPOpd1g==") or config.get("dev_api_key")
+    api_key = secret.decrypt("AV6+xWcE3RYzxZ92Z9lOT0XBWIqjOpZ4hExHXbCOIC8XwninH1mJouAfj+JQTGcXuibmG/DhzhBxhlf7P6EjpEbzGcZmElq+jGX+aq8hvcZaLNawjsYIGWyQ93U36rvsdBoDr1VnTvLJDqshmWvdcZ9AZjYOTWYZ84vvEvXTNyOPnpcdTi3jDHRnWxu5LcyopG0OHRlCAveDeYxmPjfP95zT9N39O/YieSZyktJyd9TwC2+ORAgCve2otB7LfbkbvA==") or config.get("dev_api_key")
 
     username = config.str("who", "nix")
     count = get_followercount(username, api_key)

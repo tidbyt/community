@@ -10,6 +10,12 @@ Moved to 4 teams per cycle instead of 3, so you can work out the top 4 and top 8
 
 v1.1a
 Updated caching function
+
+v1.2
+Updated for 2024 season
+
+v1.3
+Updated for 2025 season
 """
 
 load("encoding/json.star", "json")
@@ -17,7 +23,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/52/ladders"
+LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/73/ladders"
 LADDER_CACHE = 600
 
 def main(config):

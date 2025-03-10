@@ -199,8 +199,6 @@ def call_schedule_api(direction, station):
         expiry = int((parsed_time - time.now()).seconds)
         if expiry < 0:  #this is because septa's API returns tomorrow's times with today's date if the last departure for the day has already happened
             expiry = 30
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(direction + "_" + station + "_" + "schedule_api_response", json.encode(schedule), ttl_seconds = expiry)
     return schedule
 
@@ -242,12 +240,13 @@ def get_schedule(direction, station):
                     ),
                     render.Marquee(
                         child = render.Text(
-                            i["train_id"] + " " + i["service_type"] + " to " + i["destination"],
+                            i["train_id"] + " " + i["service_type"] + " to " + i["destination"] + " - " + i["status"],
                             font = "tom-thumb",
                             color = text,
                         ),
                         width = 39,
-                        offset_start = 20,
+                        offset_start = 40,
+                        offset_end = 40,
                     ),
                 ],
             ),

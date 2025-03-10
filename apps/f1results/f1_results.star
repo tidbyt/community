@@ -6,6 +6,12 @@ Author: M0ntyP
 
 v1.0a
 Updated caching function
+
+v1.1
+The API is a round behind with the cancellation of Round 6. Monaco should be Round 7 but its appearing as Round 6. Added 1 to the round number for the race preview
+
+v1.2
+Updating for changes to team colours for 2024 sesason
 """
 
 load("encoding/json.star", "json")
@@ -96,6 +102,9 @@ def main(config):
             Session = "R"
 
     if Session == "":
+        # API feed is one round behind, so bumping by 1 to match the official F1 round number
+        CurrentRound = str(int(CurrentRound) + 1)
+
         # nothing has happened yet
         return render.Root(
             child = render.Column(
@@ -293,7 +302,7 @@ def getDriver(z, F1_JSON, Session):
             ConstructorID = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Constructor"]["constructorId"]
 
             # If its a Haas, use black color
-            if ConstructorID == "haas":
+            if ConstructorID == "haas" or ConstructorID == "sauber":
                 DriverFont = "#000"
 
             TeamColor = Team_Color(ConstructorID)
@@ -536,13 +545,13 @@ def Team_Color(ConstructorID):
         return ("#0f1c2c")
     if ConstructorID == "mclaren":
         return ("#fd8000")
-    if ConstructorID == "alfa":
-        return ("#a50e2d")
+    if ConstructorID == "sauber":
+        return ("#00df00")
     if ConstructorID == "aston_martin":
         return ("#015850")
     if ConstructorID == "haas":
         return ("#f7f7f7")
-    if ConstructorID == "alphatauri":
+    if ConstructorID == "rb":
         return ("#022948")
     if ConstructorID == "williams":
         return ("#041e41")

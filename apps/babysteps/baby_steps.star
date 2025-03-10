@@ -37,7 +37,7 @@ steps = {
     4: {
         "step": "Baby Step 4",
         "color": "#00c049",
-        "name": "Invest for Retirement",
+        "name": "Retirement Investments",
         "info": "Invest 15% of your income in retirement funds. Fund 401k to company match, then fund Roth IRA to max, then contribute more to 401k to total 15% of your income.",
     },
     5: {
@@ -107,6 +107,8 @@ def main(config):
                     children = [
                         render.Marquee(
                             width = 64,
+                            offset_start = len(steps[current_step]["name"]) * 5,
+                            offset_end = 64,
                             child = render.Text(content = display_text, color = "#ffff00", font = "tb-8"),
                         ),
                     ],

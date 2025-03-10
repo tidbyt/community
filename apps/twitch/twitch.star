@@ -86,9 +86,9 @@ def get_from_twitch_api(path, params, access_token, use_cache = True):
 
 def get_twitch_followers(user_id, access_token):
     res = get_from_twitch_api(
-        path = "/users/follows",
+        path = "/channels/followers",
         params = {
-            "to_id": user_id,
+            "broadcaster_id": user_id,
         },
         access_token = access_token,
     )

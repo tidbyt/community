@@ -1,0 +1,8 @@
+---
+id: melbourne-buses
+name: Melbourne Buses
+summary: Melbourne Bus Departures
+desc: Real time bus departures for your preferred stop in Melbourne, Australia.
+author: bendiep
+fileName: melbourne_buses.star
+packageName: melbournebuses

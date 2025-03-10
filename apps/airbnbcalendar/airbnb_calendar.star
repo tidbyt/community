@@ -74,7 +74,7 @@ def listing(url, height):
 
     dtstart_list = re.match(r"DTSTART;VALUE=DATE:(.{4})(.{2})(.{2})", ical)
     dtend_list = re.match(r"DTEND;VALUE=DATE:(.{4})(.{2})(.{2})", ical)
-    summary_list = re.match(r"SUMMARY:(.+)", ical)
+    summary_list = re.match(r"SUMMARY:([^\r\n]+)", ical)
     event_list = zip(dtstart_list, dtend_list, summary_list)
     now = time.now()
 
@@ -218,7 +218,7 @@ def get_listing_schema(count):
     return [schema.Text(
         id = "ical_%s" % i,
         name = "%s listing" % humanize.ordinal(i + 1),
-        desc = "The calendar url for your %s Airbnb listing" % humanize.ordinal(i + 1),
+        desc = "The calendar url for your %s Airbnb listing, from the Export Calendar link in the Pricing and Availability tab" % humanize.ordinal(i + 1),
         icon = "calendar-days",
     ) for i in range(0, int(count))]
 

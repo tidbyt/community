@@ -1,0 +1,8 @@
+---
+id: octoprint
+name: Octoprint
+summary: View Octoprint status
+desc: Display current print's status and time remaining. Requires setting up port forwarding on octoprint server. API Key comes from Octoprint API settings.
+author: noahpodgurski
+fileName: octoprint.star
+packageName: octoprint

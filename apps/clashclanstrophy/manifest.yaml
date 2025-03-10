@@ -1,0 +1,8 @@
+---
+id: clashclanstrophy
+name: ClashClansTrophy
+summary: Displays Trophy Count
+desc: Displays trophies for Clash of Clans.
+author: Brandon Marks
+fileName: clashclanstrophy.star
+packageName: clashclanstrophy

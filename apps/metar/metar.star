@@ -12,7 +12,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-ADDS_URL = "https://www.aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=csv&stationString=%s&mostrecentforeachstation=constraint&hoursBeforeNow=2"
+ADDS_URL = "https://www.aviationweather.gov/cgi-bin/data/dataserver.php?dataSource=metars&requestType=retrieve&format=csv&stationString=%s&mostrecentforeachstation=constraint&hoursBeforeNow=2"
 DEFAULT_AIRPORT = "KJFK, KLGA, KBOS, KDCA"
 
 # encryption, schema
@@ -84,7 +84,7 @@ def color_for_state(result):
     elif category == "IFR":
         return "#FF0000"
     elif category == "MVFR":
-        return "#0000FF"
+        return "#0088FF"
     elif category == "LIFR":
         return "#FF00FF"
     elif category == "ERR" or category == "UNK":

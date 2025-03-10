@@ -1,0 +1,8 @@
+---
+id: park-time
+name: Park Time
+summary: Live theme park information
+desc: Display park hours, show times, boarding groups, and attraction wait times for top U.S. theme parks.
+author: beyondutility
+fileName: park_time.star
+packageName: parktime

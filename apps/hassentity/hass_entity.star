@@ -104,23 +104,35 @@ def get_schema():
                 desc = "Optionaly override the entity friendly name",
                 icon = "textHeight",
             ),
-            schema.Text(
+            schema.Color(
                 id = "header_color",
                 name = "Header Color",
                 desc = "Provide a hex code for the header color Ex. #ff00ff",
                 icon = "palette",
+                default = DEFAULT_COLOR,
+                palette = [
+                    DEFAULT_COLOR,
+                ],
             ),
-            schema.Text(
+            schema.Color(
                 id = "separator_color",
                 name = "Separator Color",
                 desc = "Provide a hex code for the separator color Ex. #ff00ff",
                 icon = "palette",
+                default = DEFAULT_COLOR,
+                palette = [
+                    DEFAULT_COLOR,
+                ],
             ),
-            schema.Text(
+            schema.Color(
                 id = "value_color",
                 name = "Value Color",
                 desc = "Provide a hex code for the value color Ex. #ff00ff",
                 icon = "palette",
+                default = DEFAULT_COLOR,
+                palette = [
+                    DEFAULT_COLOR,
+                ],
             ),
         ],
     )

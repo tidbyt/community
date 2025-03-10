@@ -1,0 +1,8 @@
+---
+id: qbittorrent
+name: Qbittorrent
+summary: Monitor your torrent server
+desc: Displays server stats (speeds and active counts) along with the progress of your newest torrents.
+author: DoubleGremlin181
+fileName: qbittorrent.star
+packageName: qbittorrent

@@ -7,13 +7,16 @@ Author: jvivona
 
 # Thanks to Dan Adam for the Costco Gas app which this is based upon
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+
+VERSION = 23215
+
+# 20240802 - added code to handle widget mode and give single static screen
 
 # #######################################################
 # #####           Demo / Test Data                 ######
@@ -50,6 +53,7 @@ DEBUG = False
 # #####           Where all the magic happens      ######
 # #######################################################
 def main(config):
+    widgetMode = config.bool("$widget")
     gas_data = get_gas_data(config)
 
     labels, prices = get_price_display(gas_data, config)
@@ -61,7 +65,7 @@ def main(config):
                 render.Marquee(
                     width = 64,
                     child = render.Text(gas_data["station"], color = "#0073A6"),
-                ),
+                ) if not widgetMode else render.Text(gas_data["storeNum"], color = "#0073A6"),
                 render.Row(
                     children = [
                         render.Column(
@@ -131,23 +135,13 @@ def get_stations(location):
     loc = json.decode(location) if location else json.decode(str(DEFAULT_LOCATION))
     lat = humanize.float("#.##", float(loc["lat"]))
     lng = humanize.float("#.##", float(loc["lng"]))
-    station_list_cache_key = API_STATION_CACHE_KEY.format(lat, lng)
 
-    #we need to consider caching the station data...  fix this!
-    cached_stations = cache.get(station_list_cache_key)
-
-    if cached_stations != None:
-        stations = json.decode(cached_stations)
-    else:
-        http_response = http.post(url = API_STATION_SEARCH, json_body = {"pagesize": API_STATION_SEARCH_PAGESIZE, "range": API_STATION_SEARCH_RANGE, "latitude": lat, "longitude": lng})
-        if http_response.status_code != 200:
-            fail("Station list request failed with status {} and result {}".format(http_response.status_code, http_response.body()))
-        stations = http_response.json()["data"]
+    http_response = http.post(url = API_STATION_SEARCH, json_body = {"pagesize": API_STATION_SEARCH_PAGESIZE, "range": API_STATION_SEARCH_RANGE, "latitude": lat, "longitude": lng}, ttl_seconds = API_STATION_LIST_TTL)
+    if http_response.status_code != 200:
+        fail("Station list request failed with status {} and result {}".format(http_response.status_code, http_response.body()))
+    stations = http_response.json()["data"]
 
     if stations["totalCount"] > 0:
-        # stations rarely change - so cache for a day - but only if we have valid data
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(station_list_cache_key, json.encode(stations), 86400)
         return [
             schema.Option(
                 display = station["address"] + " " + station["city"] + " " + station["state"],
@@ -164,16 +158,10 @@ def get_stations(location):
         ]
 
 def get_station_details(url):
-    station_details = cache.get(url)
-
-    if station_details == None:
-        http_data = http.get(url)
-        if http_data.status_code != 200:
-            fail("HTTP request failed with status {} for URL {}".format(http_data.status_code, url))
-        station_details = http_data.body()
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(url, station_details, ttl_seconds = API_STATION_DETAILS_TTL)
+    http_data = http.get(url)
+    if http_data.status_code != 200:
+        fail("HTTP request failed with status {} for URL {}".format(http_data.status_code, url), ttl_seconds = API_STATION_DETAILS_TTL)
+    station_details = http_data.body()
 
     return json.decode(station_details)["data"]
 
@@ -191,6 +179,7 @@ def get_gas_data(config):
     gas_data = {}
 
     gas_data["station"] = "{} #{} - {} ({}, {})".format(station_data.get("chainName", "ERROR"), station_data.get("storeNumber", "ERROR"), station_data.get("address", ""), station_data.get("city", ""), station_data.get("state", ""))
+    gas_data["storeNum"] = "Murphy #{}".format(station_data.get("storeNumber", "ERROR"))
     gas_data["openText"] = station_data[today_dow + "Open"][:-1].lower()
     gas_data["closeText"] = station_data[today_dow + "Close"][:-1].lower()
 

@@ -1,0 +1,8 @@
+---
+id: pull-request-status
+name: GitHub PR Status
+summary: Show pull request status
+desc: This app displays the status of up to 3 pull requests of one ore more GitHub repositories. 
+author: dev-manuel
+fileName: pull_request_status.star
+packageName: pull_request_status

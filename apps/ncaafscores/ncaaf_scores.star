@@ -5,8 +5,6 @@ Description: Displays live and upcoming NCAA Football scores from a data feed.
 Author: LunchBox8484
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -69,7 +67,8 @@ ALT_COLOR = """
     "COLO" : "#000000",
     "IOWA" : "#000000",
     "RICE" : "#00205B",
-    "HP": "#330072"
+    "HP": "#330072",
+    "MIZ": "#000000"
 }
 """
 ALT_LOGO = """
@@ -134,7 +133,8 @@ ALT_LOGO = """
     "BAY" : "https://b.fssta.com/uploads/application/college/team-logos/Baylor-alternate.vresize.50.50.medium.0.png",
     "ALA" : "https://b.fssta.com/uploads/application/college/team-logos/Alabama-alternate.vresize.50.50.medium.0.png",
     "TLSA": "https://b.fssta.com/uploads/application/college/team-logos/Tulsa-alternate.vresize.50.50.medium.0.png",
-    "HP": "https://b.fssta.com/uploads/application/college/team-logos/HighPoint.vresize.50.50.medium.0.png"
+    "HP": "https://b.fssta.com/uploads/application/college/team-logos/HighPoint.vresize.50.50.medium.0.png",
+    "OSU": "https://b.fssta.com/uploads/application/college/team-logos/OhioState.vresize.50.50.medium.0.png"
 }
 """
 MAGNIFY_LOGO = """
@@ -4068,9 +4068,8 @@ def get_logoType(team, logo):
     if usealt != "NO":
         logo = get_cachable_data(usealt, 36000)
     else:
-        logo = logo.replace("500/scoreboard", "500-dark/scoreboard")
-        logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=", 36000)
-        logo = get_cachable_data(logo + "&h=50&w=50")
+        logo = logo.replace("500", "500-dark")
+        logo = get_cachable_data(logo + "?h=50&w=50")
     return logo
 
 def get_logoSize(team):
@@ -4160,17 +4159,10 @@ def get_logo_column(showRanking, team, Logo, LogoSize, Rank, ScoreColor, textFon
     return gameTimeColumn
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = ttl_seconds)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
-
     return res.body()
+
+# derp

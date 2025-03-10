@@ -1,0 +1,8 @@
+---
+id: days-to-st-pats
+name: Days to St Pats
+summary: Counts days to St Patricks
+desc: Count the days left until St. Patrick's Day while watching a rainbow get closer to its pot o' gold.
+author: oogashaka
+fileName: days_to_st_pats.star
+packageName: daystostpats
