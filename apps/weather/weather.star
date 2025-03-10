@@ -70,13 +70,15 @@ def main(config):
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
     locality = loc["locality"]
+    lat = loc["lat"]
+    lng = loc["lng"]
     units = config.get("units", "imperial")
     showthreeday = config.bool("showthreeday", False)  # Add new config option
     lang = config.get("lang", "en")
 
     # Create API URL with parameters
     api_key = config.get("api", "xxx")
-    url = "https://api.openweathermap.org/data/2.5/forecast?q={}&units={}&appid={}".format(locality, units, api_key)
+    url = "https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&units={}&appid={}".format(lat, lng, units, api_key)
 
     # Fetch weather data
     rep = http.get(url)
