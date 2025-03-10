@@ -40,16 +40,21 @@ def get_next_recording(api_key, live, timezone):
         r = http.get(live_status_url, ttl_seconds = 60)
         header = render.Text("Live:")
         title = render.Text(r.json()["broadcast"]["title"])
-        start_text = render.Text("Relay.fm", font = "tom-thumb")
+        start_text = render.Text("Relay", font = "tom-thumb")
     else:
         header = render.Text("Up next:")
         calendar_minimum_time = time.now().in_location("UTC").format("2006-01-02T15:04:05.000Z")
         calendar_url = "https://www.googleapis.com/calendar/v3/calendars/relay.fm_t9pnsv6j91a3ra7o8l13cb9q3o%40group.calendar.google.com/events?key=" + api_key + "&orderBy=startTime&singleEvents=true&timeMin=" + calendar_minimum_time
         r = http.get(calendar_url, ttl_seconds = 60)
-        next = r.json()["items"][0]
-        title = render.Text(next["summary"])
-        start = time.parse_time(next.get("start").get("dateTime"), "2006-01-02T15:04:05-07:00", next.get("start").get("timeZone"))
-        start_text = render.Text(start.in_location(timezone).format("Jan 2 3:04pm"), font = "tom-thumb")
+        if "items" in r.json():
+            next = r.json()["items"][0]
+            title = render.Text(next["summary"])
+            start = time.parse_time(next.get("start").get("dateTime"), "2006-01-02T15:04:05-07:00", next.get("start").get("timeZone"))
+            start_text = render.Text(start.in_location(timezone).format("Jan 2 3:04pm"), font = "tom-thumb")
+        else:
+            header = render.Text("")
+            title = render.Text("Check back soon for live streams")
+            start_text = render.Text("Relay", font = "tom-thumb")
 
     return render.Box(
         child = render.Padding(
