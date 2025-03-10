@@ -40,7 +40,7 @@ def get_next_recording(api_key, live, timezone):
         r = http.get(live_status_url, ttl_seconds = 60)
         header = render.Text("Live:")
         title = render.Text(r.json()["broadcast"]["title"])
-        start_text = render.Text("Relay.fm", font = "tom-thumb")
+        start_text = render.Text("Relay", font = "tom-thumb")
     else:
         header = render.Text("Up next:")
         calendar_minimum_time = time.now().in_location("UTC").format("2006-01-02T15:04:05.000Z")
