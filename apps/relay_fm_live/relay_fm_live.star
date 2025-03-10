@@ -54,7 +54,7 @@ def get_next_recording(api_key, live, timezone):
         else:
             header = render.Text("")
             title = render.Text("Check back soon for live streams")
-            start_text = render.Text("Relay", font = "tom-thumb")           
+            start_text = render.Text("Relay", font = "tom-thumb")
 
     return render.Box(
         child = render.Padding(
