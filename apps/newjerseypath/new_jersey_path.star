@@ -58,12 +58,28 @@ def get_display_row(message, widgetMode):
         wait_time_text = "now"
 
     # Convert hex color to proper format
-    line_color = "#" + message["lineColor"]
+    if "," in message["lineColor"]: # look to see if it's a list of colors
+        line_color1 = "#" + message["lineColor"][:6]
+        line_color2 = "#" + message["lineColor"][-6:]
+        # make a circle, half of each color
+        circle_widget = render.PieChart(
+            colors = [line_color1, line_color2],
+            weights = [ 100, 100],
+            diameter = 11,
+        )
+    else: # it's a single color
+        line_color1 = "#" + message["lineColor"]
+        # make a circle - for ease of troubleshooting it's going to be a piechart, although it doesn't need to be
+        circle_widget = render.PieChart(
+            colors = [line_color1],
+            weights = [ 100 ],
+            diameter = 11,
+        )
 
-    circle_widget = render.Circle(
-        color = line_color,
-        diameter = 11,
-    )
+
+    
+
+
 
     return render.Row(
         children = [
