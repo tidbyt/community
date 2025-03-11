@@ -21,6 +21,7 @@ load("time.star", "time")
 TEAM_SCHEDULE_URL = "https://www.cricbuzz.com/cricket-team/{team_name}/{team_id}/schedule"
 TEAM_RESULTS_URL = "https://www.cricbuzz.com/cricket-team/{team_name}/{team_id}/results"
 MATCH_FULL_COMM_URL = "https://www.cricbuzz.com/api/cricket-match/{match_id}/full-commentary/0"
+
 # FALLBACK_MATCH_COMM_URL = "https://www.cricbuzz.com/api/cricket-match/commentary/{match_id}"
 LIVE_SCORE_URL = "https://www.cricbuzz.com/api/cricket-match/commentary/{match_id}"
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
