@@ -1,0 +1,6 @@
+---
+id: flybywire-flights
+name: FlyByWire Flights
+summary: FlyByWire Number of Flights
+desc: Shows a count of the number of flights using the FlyByWire Simulations systems.
+author: Philippe Dellaert (pdellaert)

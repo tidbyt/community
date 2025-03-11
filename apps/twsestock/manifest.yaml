@@ -1,0 +1,6 @@
+---
+id: twse-stock
+name: TWSE Stock
+summary: Display TWSE stocks
+desc: Configure up to 2 stocks to show.
+author: Mark Chu

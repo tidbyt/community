@@ -5,8 +5,6 @@ Description: Displays live and upcoming NBA scores from a data feed.
 Author: LunchBox8484
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -60,14 +58,14 @@ SHORTENED_WORDS = """
 """
 ALT_COLOR = """
 {
-    "OKC": "#007AC1",
-    "GS": "#1D428A",
-    "PHI": "#006BB6"
+    "GS": "#1D428A"
 }
 """
 ALT_LOGO = """
 {
-    "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png"
+    "HOU": "https://b.fssta.com/uploads/application/nba/team-logos/Rockets-alternate.png",
+    "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png",
+    "TOR": "https://b.fssta.com/uploads/application/nba/team-logos/Raptors-alternate.png"
 }
 """
 MAGNIFY_LOGO = """
@@ -75,7 +73,6 @@ MAGNIFY_LOGO = """
     "BOS": 18,
     "CHA": 18,
     "DEN": 14,
-    "HOU": 20,
     "LAL": 18,
     "MIL": 18,
     "NO": 24,
@@ -85,7 +82,7 @@ MAGNIFY_LOGO = """
     "PHX": 18,
     "PHI": 14,
     "SA": 18,
-    "TOR": 14,
+    "TOR": 13,
     "WSH": 14
 }
 """
@@ -976,17 +973,8 @@ def get_shortened_display(text):
     return text
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = ttl_seconds)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

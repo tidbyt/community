@@ -173,9 +173,12 @@ def render_cell(cell):
     return render.Box(width = 1, height = 1, color = cell)
 
 def renderAnimation(frames, league):
-    #Weird Quick, league comes through as none, even though there is a default, and only for a second
+    #Weird, league comes through as none, even though there is a default, and only for a second
+    league_text_color = "#fff"
     if league == None:
         league = ""
+    elif league == "nfl" or league == "mlb":
+        league_text_color = "#f00"
 
     return render.Root(
         render.Stack(
@@ -185,7 +188,7 @@ def renderAnimation(frames, league):
                 ),
                 render.Padding(
                     pad = (0, 27, 0, 0),
-                    child = render.Text("%s" % league, color = VISITED_PARKS, font = "CG-pixel-3x5-mono"),
+                    child = render.Text("%s" % league, color = league_text_color, font = "CG-pixel-3x5-mono"),
                 ),
             ],
         ),

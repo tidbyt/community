@@ -5,8 +5,6 @@ Description: Displays live and upcoming NCAAF standings from a data feed.
 Author: LunchBox8484
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -139,6 +137,12 @@ def main(config):
     elif conferenceType == "0":
         apiURL = API
     else:
+        if (conferenceType == "5&0") or (conferenceType == "5&1"):
+            conferenceType = "5"
+        elif (conferenceType == "8&0") or (conferenceType == "8&1"):
+            conferenceType = "8"
+        elif (conferenceType == "15&0") or (conferenceType == "15&1"):
+            conferenceType = "15"
         apiURL = API + "?group=" + conferenceType
     league = {LEAGUE: apiURL}
     standings = get_standings(league)
@@ -222,24 +226,16 @@ conferenceOptions = [
         value = "4",
     ),
     schema.Option(
-        display = "Big Ten - East",
-        value = "5&0",
-    ),
-    schema.Option(
-        display = "Big Ten - West",
-        value = "5&1",
+        display = "Big Ten",
+        value = "5",
     ),
     schema.Option(
         display = "C-USA",
         value = "12",
     ),
     schema.Option(
-        display = "MAC - East",
-        value = "15&0",
-    ),
-    schema.Option(
-        display = "MAC - West",
-        value = "15&1",
+        display = "MAC",
+        value = "15",
     ),
     schema.Option(
         display = "Mountain West",
@@ -250,12 +246,8 @@ conferenceOptions = [
         value = "9",
     ),
     schema.Option(
-        display = "SEC - East",
-        value = "8&0",
-    ),
-    schema.Option(
-        display = "SEC - West",
-        value = "8&1",
+        display = "SEC",
+        value = "8",
     ),
     schema.Option(
         display = "Sun Belt - East",
@@ -560,17 +552,8 @@ def get_top_column(displayTop, now, timeColor, divisionName, renderCategory):
     return topColumn
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = ttl_seconds)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

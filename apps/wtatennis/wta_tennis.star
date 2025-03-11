@@ -60,7 +60,13 @@ Final of tournament now indicated for scheduled, completed and in progress final
 Found bug that was showing incorrect winner for matches where there was a retirement during a set
 
 v1.10.1
-Added Indian Wells to list of WTA 1000 list, removed incorrect event ID
+Incorrect event ID listed for Indian Wells in WTA 1000 list
+
+v1.11
+Only show players if both names are listed in the scheduled match, prevents blank rows from appearing
+
+v1.12
+Updated for 2025 season
 """
 
 load("encoding/json.star", "json")
@@ -70,8 +76,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-SLAM_LIST = ["154-2024", "188-2024", "172-2024", "189-2024"]
-WTA1000_LIST = ["256-2024", "25-2024", "713-2024", "411-2024", "413-2024", "414-2024", "421-2024", "718-2024", "959-2024", "382-2024"]
+SLAM_LIST = ["154-2025", "188-2025", "172-2025", "189-2025"]
+WTA1000_LIST = ["256-2025", "25-2025", "713-2025", "411-2025", "413-2025", "414-2025", "421-2025", "718-2025", "959-2025", "382-2025"]
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 WTA_SCORES_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard"
 
@@ -251,11 +257,19 @@ def main(config):
                     for y in range(0, len(WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"]), 1):
                         # if the match is scheduled ("pre") and the start time of the match is scheduled for next 12 hrs, add it to the list of scheduled matches
                         if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["state"] == "pre":
-                            MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
-                            MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
-                            diff = MatchTime - now
-                            if diff.hours < 12:
-                                ScheduledMatchList.insert(0, y)
+                            P1Name = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][0]["athlete"]["shortName"]
+                            P2Name = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][1]["athlete"]["shortName"]
+
+                            if P1Name != "TBD" and P2Name != "TBD":
+                                MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
+                                MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
+                                diff = MatchTime - now
+                                if diff.hours < 12:
+                                    ScheduledMatchList.insert(0, y)
+                                else:
+                                    break
+                            else:
+                                continue
 
         # if there are more than 2 matches completed in past 24hrs, then we'll need to show them across multiple screens
         if len(ScheduledMatchList) > 0:

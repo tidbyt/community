@@ -13,6 +13,9 @@ Updated caching function
 
 v1.2
 Updated for 2024 season
+
+v1.3
+Updated for 2025 season
 """
 
 load("encoding/json.star", "json")
@@ -20,7 +23,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/62/ladders"
+LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/73/ladders"
 LADDER_CACHE = 600
 
 def main(config):

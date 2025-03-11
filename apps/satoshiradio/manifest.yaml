@@ -1,0 +1,9 @@
+---
+id: satoshiradio
+name: Satoshi Radio
+summary: SR mining pool stats
+desc: Show pool and user stats for the satoshiradio.nl mining pool.
+author: redboer
+fileName: satoshiradio.star
+packageName: satoshiradio
+

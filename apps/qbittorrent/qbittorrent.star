@@ -7,6 +7,7 @@ Author: DoubleGremlin181
 
 load("animation.star", "animation")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -22,8 +23,14 @@ def main(config):
     base_url = config.get("base_url", None)
     username = config.get("username", None)
     password = config.get("password", None)
-    torrent_count = config.get("torrent_count", 1)
+    category = config.get("category", None)
 
+    if not category:
+        category = ""
+    else:
+        category = "&category={}".format(humanize.url_encode(category))
+
+    torrent_count = int(config.get("torrent_count", 1))
     if not base_url or not username or not password:
         return render_header(servername, [render.WrappedText(content = "Enter server details")])
 
@@ -35,14 +42,20 @@ def main(config):
             return render_header(servername, [render.WrappedText(content = "Login failed :(")])
         else:
             speeds = get_transfer_speeds(base_url, sid)
-            active_counts = get_active_torrents(base_url, sid)
-            torrents = get_latest_torrents(base_url, sid, torrent_count)
+            active_counts = get_active_torrents(base_url, category, sid)
 
-            if not speeds or not active_counts or not torrents:
-                return render_header(servername, [render.WrappedText(content = "Failed to get data")])
+            if (torrent_count > 0):
+                torrents = get_latest_torrents(base_url, category, sid, torrent_count)
+                if not speeds or not active_counts or not torrents:
+                    return render_header(servername, [render.WrappedText(content = "Failed to get data")])
+            else:
+                torrents = None
 
             # Get pages frames for the list of torrents.
-            pages = [[get_stats_frame(speeds, active_counts)] * 30] + [get_page_frames(t) for t in torrents]
+            pages = [[get_stats_frame(speeds, active_counts)] * 30]
+
+            if (torrents):
+                pages += [get_page_frames(t) for t in torrents]
             if not pages:
                 return []
 
@@ -62,9 +75,14 @@ def main(config):
             return render_header(servername, frames)
 
 def server_login(base_url, username, password):
+    form_body = dict(
+        username = username,
+        password = password,
+    )
+
     # Login to the server and return the session ID
-    url = "{}/api/v2/auth/login?username={}&password={}".format(base_url, username, password)
-    response = http.get(url, ttl_seconds = 60)
+    url = "{}/api/v2/auth/login".format(base_url)
+    response = http.post(url, form_body = form_body, ttl_seconds = 60)
 
     if response.body() == "Ok.":
         return response.headers["Set-Cookie"].split(";")[0][4:]
@@ -87,10 +105,11 @@ def get_transfer_speeds(base_url, sid):
             "upload_speed": upload_speed,
         }
 
-def get_active_torrents(base_url, sid):
-    url = "{}/api/v2/torrents/info?filter=active&SID={}".format(base_url, sid)
+def get_active_torrents(base_url, category, sid):
+    url = "{}/api/v2/torrents/info?filter=active{}&SID={}".format(base_url, category, sid)
     headers = {"Cookie": "SID={}".format(sid)}
     response = http.get(url, headers = headers, ttl_seconds = 60)
+    print(response.body())
 
     if response.status_code != 200:
         return None
@@ -105,8 +124,8 @@ def get_active_torrents(base_url, sid):
             "active_uploads": active_uploads,
         }
 
-def get_latest_torrents(base_url, sid, torrent_count):
-    url = "{}/api/v2/torrents/info?limit={}&sort=added_on&reverse=true&SID={}".format(base_url, torrent_count, sid)  # Get the latest torrents
+def get_latest_torrents(base_url, category, sid, torrent_count):
+    url = "{}/api/v2/torrents/info?limit={}&sort=added_on&reverse=true{}&SID={}".format(base_url, torrent_count, category, sid)  # Get the latest torrents
     headers = {"Cookie": "SID={}".format(sid)}
     response = http.get(url, headers = headers, ttl_seconds = 60)
 
@@ -303,6 +322,10 @@ def render_header(servername, frames):
 def get_schema():
     options = [
         schema.Option(
+            display = "0",
+            value = "0",
+        ),
+        schema.Option(
             display = "1",
             value = "1",
         ),
@@ -322,33 +345,39 @@ def get_schema():
             schema.Text(
                 id = "servername",
                 name = "Server Name",
-                desc = "Enter the name of your server",
+                desc = "The name of your server",
                 icon = "font",
             ),
             schema.Text(
                 id = "base_url",
                 name = "Server Host or IP",
-                desc = "Enter the URL of your server",
+                desc = "The URL of your server",
                 icon = "server",
             ),
             schema.Text(
                 id = "username",
-                name = "username",
-                desc = "Enter your username",
+                name = "Username",
+                desc = "qBittorrent username",
                 icon = "user",
             ),
             schema.Text(
                 id = "password",
-                name = "password",
-                desc = "Enter your password",
+                name = "Password",
+                desc = "qBittorrent password",
                 icon = "lock",
+            ),
+            schema.Text(
+                id = "category",
+                name = "Category",
+                desc = "Category to return, leave blank for all categories",
+                icon = "list",
             ),
             schema.Dropdown(
                 id = "torrent_count",
-                name = "torrent_count",
-                desc = "Number of latest torrents",
+                name = "Torrent count",
+                desc = "Number of torrents to show",
                 icon = "listOl",
-                default = options[0].value,
+                default = options[1].value,
                 options = options,
             ),
         ],

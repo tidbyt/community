@@ -1,7 +1,7 @@
 """
 Applet: Trolley Detector
 Summary: SEPTA PCC Trolley Detector
-Description: Shows the location of restored PCC trolleys running on SEPTA Route 15.
+Description: Shows the location of restored PCC trolleys running on SEPTA Route G1.
 Author: radiocolin
 """
 
@@ -9,7 +9,7 @@ load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
 
-SEPTA_API = "https://www3.septa.org/api/TransitView/index.php?route=15"
+SEPTA_API = "https://www3.septa.org/api/TransitView/index.php?route=G1"
 TROLLEY_IMAGE = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACYAAAAMCAYAAAAOCs/+AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAJqADAAQAAAABAAAADAAAAAAPgxf+AAAA30lEQVQ4EWNkQAJXr179D+Nqa2szwtgDQWO1fDA4EMVhkyZNgofYQIRSXl4e3D1gxkA7CDkQYI5jvLS5meRQunXzOrJZDGrqmih8UjnI5j1jswBrZwGRkzY+BHPy/OWJYoMVoxGkmoGsHtkoB8WPYC4TsuBgYjNuFWcgOSo3/gQHNNwf/ux/4GxyGMjmwcxiZClkJNlh/++gWs+ogsonlYdsHsysQRuVqHEC9eqffkgg6uvrwz1/8eJFMBsYwgwwX8El8TAImQXSis08FqBGeKGGZD7O6MWhHkkrBpMsswAM9VlIRGdcdwAAAABJRU5ErkJggg==")
 
 def get_route_15():
