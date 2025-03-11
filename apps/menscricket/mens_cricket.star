@@ -240,6 +240,11 @@ def render_next_match(match_data, tz):
     details = match_data["matchHeader"]
     match_start_time = time.from_timestamp(int(details["matchStartTimestamp"] / 1000)).in_location(tz)
     match_time_status = match_start_time.format("Jan 2 - 3:04 PM")
+    time_to_start = match_start_time - time.now().in_location(tz)
+    if time_to_start < time.parse_duration("48h"):
+        match_time_status = humanize.time(match_start_time)
+    elif time_to_start < time.parse_duration("168h"):
+        match_time_status = match_start_time.format("Mon - 3:04 PM")
 
     team_1_id, team_1_name = str(details["team1"]["id"]), details["team1"]["name"]
     team_2_id, team_2_name = str(details["team2"]["id"]), details["team2"]["name"]
