@@ -70,6 +70,9 @@ Also, updated title bar to show that play is suspended
 
 v2.9
 Updated Tournament IDs for 2025 Season
+
+v2.9.1
+Updated PLAYER_MAPPING
 """
 
 load("encoding/json.star", "json")
@@ -97,7 +100,8 @@ PLAYER_MAPPING = """
     "4698579": "S.H.Kim",
     "4410932": "M.W.Lee",
     "7083": "K.H.Lee",
-    "4585548": "Valimaki"
+    "4585548": "Valimaki",
+    "8974": "M.Kim"
 }
 """
 
