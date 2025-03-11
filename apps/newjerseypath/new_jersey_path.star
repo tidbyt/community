@@ -11,7 +11,6 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 
 # Updated API endpoint
 PATH_URL = "https://www.panynj.gov/bin/portauthority/ridepath.json"
@@ -52,34 +51,32 @@ STATION_NAMES = {
 
 def get_display_row(message, widgetMode):
     """Create a display row for a single route"""
+
     # Use the provided arrival time message
     wait_time_text = message["arrivalTimeMessage"]
     if wait_time_text == "0 min":
         wait_time_text = "now"
 
     # Convert hex color to proper format
-    if "," in message["lineColor"]: # look to see if it's a list of colors
+    if "," in message["lineColor"]:  # look to see if it's a list of colors
         line_color1 = "#" + message["lineColor"][:6]
         line_color2 = "#" + message["lineColor"][-6:]
+
         # make a circle, half of each color
         circle_widget = render.PieChart(
             colors = [line_color1, line_color2],
-            weights = [ 100, 100],
+            weights = [100, 100],
             diameter = 11,
         )
-    else: # it's a single color
+    else:  # it's a single color
         line_color1 = "#" + message["lineColor"]
+
         # make a circle - for ease of troubleshooting it's going to be a piechart, although it doesn't need to be
         circle_widget = render.PieChart(
             colors = [line_color1],
-            weights = [ 100 ],
+            weights = [100],
             diameter = 11,
         )
-
-
-    
-
-
 
     return render.Row(
         children = [
@@ -107,26 +104,26 @@ def get_display_row(message, widgetMode):
 def parse_api_response(api_response, station_id, direction):
     """Parse the new API response format to find relevant trains"""
     messages = []
-    
+
     # Find our station in the results
     for station in api_response["results"]:
         if station["consideredStation"] != station_id:
             continue
-            
+
         # Process each destination direction
         for dest in station["destinations"]:
             # Map API direction labels to our direction values
             current_direction = "TO_NY" if dest["label"] == "ToNY" else "TO_NJ"
-            
+
             # Skip if we're filtering by direction and this isn't the one we want
             if direction != "both" and direction != current_direction:
                 continue
-                
+
             # Add all messages for this direction
             for message in dest["messages"]:
                 if message["secondsToArrival"] != "":  # Skip entries with no arrival time
                     messages.append(message)
-    
+
     # Sort by arrival time
     return sorted(messages, key = lambda x: int(x["secondsToArrival"]))
 
@@ -139,7 +136,7 @@ def query_api():
     api_response = http.get(PATH_URL)
     if api_response.status_code != 200:
         fail("PATH API request failed with status {}".format(api_response.status_code))
-    
+
     response_json = api_response.json()
     cache.set("path_data", json.encode(response_json), ttl_seconds = 30)
     return response_json
