@@ -6,6 +6,7 @@ Author: dragid10
 """
 
 # Imports
+load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
@@ -24,6 +25,14 @@ MARQUEE_OFFSET_START = 15
 MARQUEE_WIDTH = 64
 WIDGET_HEIGHT = 1
 WIDGET_COLOR = "#ffffff"
+
+# Default values for UI display when API calls fail
+DEFAULT_TEAM_AVATAR = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAMAAABiM0N1AAACFlBMVEVHcEwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAABAAAAAADqWkcAAAD///+MNit9MCZmZmZ3d3fpWkffVkTkWEUEAgHdVUOEMyjgVkTnWUaCMiiBMidIHBYRBwWpQTMiDQrZVEIQBgW4RzjhVkQVCAZRHxgYCQdPHhi9STlSHxnOzs4tEQ45FhHaVELHTTzZU0KnQDPGTDxhJR5kJh4UCAYTBwZOHhi6SDkWCAeAMScXCQdrKSGmQDJqKSBuKiFsKiHeVUPITT2QNywhDQq8SDkkDgvYU0G/STp2LiReJBxFRUVYIhvmWUZfJB1RUVHAwMBzLCNgJR1iJh63RjdlJx+5Rzi2RjcPBgVjJh4ZCggaCgi+SToFAgLJTT3KTj1fJR1dJBxJHBZMHRdLHRfBwcG/v784FhEvEg5QHxjMzMyzDRfUAAAAU3RSTlMA+cgzJQiO7QH89jCV3bvFxjHuJ5BIzvq9LSSL42XhKOQuaJbiZmeXx0rE6/hLvjX9SZLMB9Aj7Dr1PDjbvNrcio2MTUyU3svK35HPN/ZHO+/1JiyWEyAAAALISURBVFjD7ZdlVxtBFIYhREhw9xa3lhbXurvdt5aNkRCCu7sUKVKkReru/g+b8Kmc7uzO0o/k+bjn7HNm9965846Pjxcvu4+9qVmxQeExMeFHY9MyI3ZqCdAmYxuJ2gDlFv+T2e5Xx9qttT3dJlN3T621ucn9IDTPX5nn4FnAOThKf2NseOUEVH4KNJrCfLy2NtI/2Owt0EdqeD03SmCetpEothkzotV8nspwLC4RkzYXdOU8ngIDvggkgaUGl6PkPVXX8fARSVL9EYZKOU/ENayRLCvQyfwnTQm+VsuLqmtwUbp2hVgUiAOLC5GSfZj/bom4eGvWS3Sm/zlMEyeTULF3yym8aeQVCS3IYYqyYSVuHAhhecLgbOQX2eqRwhBp8YwUMIAEhigZo0pEDUhnzFU0GZWIjE0Qb+9UNJMiWpEhKsry1KzOcZsLRx2RHYGiogOoJdoEJ5tE9xAsKjqPD57lrt/lYB2/iO4jSFSkg3u5P/DtJgcb6CJ6gH2iIl+YiDrRwSPqQCeRCfv/W/QbP9mirU/rwgaP6LvUp53Be6J2rN7hYBXt7J+9Vf5l3vIvs8uf5mlIy9wtLuYsnoY8LSrKVLpFRpAkfhJhSNmmHUa8+PZPxHMlohfYw5hHxzGoRPQYx1gRDU4bv0eoRxxraIfCzi8aRy7zFMlDi8DrmR1DAfuAVGGGVzSFUIkj209vbuPzLJj1YVKH/wW4LFwhYh5a6VgTjRq+WFNULB2Q1DqsyPf0J5SVykW2SxXy0W8NhqvyITKqAp9nZcKo4QpPrC3XwSVRu4V5lFXxBW11NMyTjM4UpswoKuWN/ppIPSYcIvtOGJ+AXlus4DbipwLqnzRsm0/GpwMvgZAwhdesnBD3YB5qtff195pMvf19jpFh94PcKB/lpJxI3z7v9yTE7fQSqc4IPHxI5+urOxIcmBTvvZp72YX8ATB0xtXBaCzPAAAAAElFTkSuQmCC")
+DEFAULT_TEAM_NAME = "N/A"
+DEFAULT_TEAM_NUMBER = 0
+DEFAULT_RANKING_MSG = "No Ranking"
+DEFAULT_ERROR_MSG = "No valid Blue Alliance API key provided. Please enter a valid TBA api key."
+DEFAULT_NO_EVENTS_MSG = "No active events for team %d!"
 
 # Use The Blue Alliance API to get the team's current competition ranking
 TBA_BASE_URL = "https://www.thebluealliance.com/api/v3"
@@ -203,64 +212,84 @@ def main(config):
     """
 
     # Get team number from the user
-    USER_INPUT_TEAM_NUMBER = "frc%s" % config.get("team_number")
+    team_number_input = config.get("team_number") or DEFAULT_TEAM_NUMBER
+    USER_INPUT_TEAM_NUMBER = "frc%s" % team_number_input
+    print("Team number: %s" % USER_INPUT_TEAM_NUMBER)
+
+    # Parse the team number (assuming it's valid)
+    team_number = int(team_number_input)
+
+    # Initialize with default values from constants
+    team_name = DEFAULT_TEAM_NAME
+    team_ranking_msg = DEFAULT_RANKING_MSG
+    team_avatar = DEFAULT_TEAM_AVATAR
 
     # Get Blue Alliance API key from the user
     TBA_API_KEY = secret.decrypt(TBA_API_KEY_ENCRYPTED) or config.get("tba_api_key", TBA_API_KEY_DEFAULT)
 
-    # If the API is none, then display a default message stating that no api key was found
-    if not TBA_API_KEY or TBA_API_KEY == TBA_API_KEY_DEFAULT:
-        return render.Root(
-            child = render.Text("No valid Blue Alliance API key provided. Please enter a valid TBA api key."),
+    # Check if we have a valid API key
+    if TBA_API_KEY and TBA_API_KEY != TBA_API_KEY_DEFAULT:
+        # API key is valid, proceed with API calls
+
+        # Get team info
+        team_number, team_name = get_team_info(USER_INPUT_TEAM_NUMBER, TBA_API_KEY)
+
+        # Get team events
+        team_events = get_team_events_for_current_year(USER_INPUT_TEAM_NUMBER, TBA_API_KEY)
+        print(MSG_TEAM_EVENTS_COUNT % (len(team_events), team_number))
+
+        # Process events if any exist
+        # Look for active events and get ranking
+        current_date = get_current_date()
+
+        # Check if there are any active events
+        for event in team_events:
+            event_start_date = event["start_date"]
+            event_end_date = event["end_date"]
+
+            if event_start_date <= current_date and current_date <= event_end_date:
+                event_key = event["key"]
+
+                # Get ranking for the team's active event
+                team_ranking, total_teams = get_team_ranking(team_number, event_key, TBA_API_KEY)
+                print(MSG_TEAM_RANKING % (team_number, team_ranking, total_teams))
+
+                # Update ranking message
+                team_ranking_msg = "Rank: %d of %d" % (team_ranking, total_teams)
+
+                # Break after finding the first active event
+                # Note: There should never be more than 1 active event
+                break
+
+        # Get team avatar - will use default if this fails
+        team_avatar = get_team_avatar(team_number)
+
+    # Create widgets with whatever data we have
+    # Avatar widget - create a fallback if no avatar is available
+    if team_avatar:
+        TEAM_AVATAR_WIDGET = render.Column(
+            children = [
+                render.Image(
+                    src = team_avatar,
+                    width = IMG_MAX_WIDTH,
+                    height = IMG_MAX_HEIGHT,
+                ),
+            ],
+        )
+    else:
+        # Create a simple placeholder for the avatar
+        TEAM_AVATAR_WIDGET = render.Column(
+            children = [
+                render.Box(
+                    width = IMG_MAX_WIDTH,
+                    height = IMG_MAX_HEIGHT,
+                    color = "#333333",
+                    child = render.Text("FRC"),
+                ),
+            ],
         )
 
-    # Instantiate the team ranking message variable
-    team_ranking_msg = "No Ranking"
-
-    # Get team number and team name from The Blue Alliance API
-    team_number, team_name = get_team_info(USER_INPUT_TEAM_NUMBER, TBA_API_KEY)
-
-    # Get the team's events for the current year
-    team_events = get_team_events_for_current_year(team_number, TBA_API_KEY)
-    print(MSG_TEAM_EVENTS_COUNT % (len(team_events), team_number))
-
-    # If the team has no events, return a message stating so
-    if not team_events:
-        print(MSG_NO_ACTIVE_EVENTS % team_number)
-        return render.Root(
-            child = render.Text(MSG_NO_ACTIVE_EVENTS % team_number),
-        )
-
-    # If the current date falls in the event date range,
-    # then get the team's ranking
-    for event in team_events:
-        event_start_date = event["start_date"]
-        event_end_date = event["end_date"]
-
-        if event_start_date <= get_current_date() and get_current_date() <= event_end_date:
-            event_key = event["key"]
-
-            # Get team ranking information
-            team_ranking, total_teams = get_team_ranking(team_number, event_key, TBA_API_KEY)
-            print(MSG_TEAM_RANKING % (team_number, team_ranking, total_teams))
-
-            # Format the team ranking message
-            team_ranking_msg = "Rank: %d of %d" % (team_ranking, total_teams)
-
-            # Break out of loop after processing the first active event
-            # There shouldn't ever be multiple active events at the same time
-            break
-
-    # ======= PREPARE WIDGETS =======:
-    TEAM_AVATAR_WIDGET = render.Column(
-        children = [
-            render.Image(
-                src = get_team_avatar(team_number),  # Fixed function name
-                width = IMG_MAX_WIDTH,
-                height = IMG_MAX_HEIGHT,
-            ),
-        ],
-    )
+    # Team number widget
     TEAM_NUMBER_WIDGET = render.Row(
         expanded = True,
         main_align = "space_evenly",
@@ -270,6 +299,7 @@ def main(config):
         ],
     )
 
+    # Team name scrolling marquee
     TEAM_NAME_MARQUEE = render.Marquee(
         scroll_direction = "horizontal",
         align = "center",
@@ -279,6 +309,7 @@ def main(config):
         child = render.Text(team_name),
     )
 
+    # Team ranking display
     TEAM_RANKING_WIDGET = render.Row(
         expanded = True,
         main_align = "center",
@@ -287,10 +318,10 @@ def main(config):
             render.Text(team_ranking_msg),
         ],
     )
+
     DIVIDER_LINE_WIDGET = render.Box(width = MARQUEE_WIDTH, height = WIDGET_HEIGHT, color = WIDGET_COLOR)
 
-    # ======= END PREPARE WIDGETS =======:
-
+    # Always render the main UI
     return render.Root(
         show_full_animation = True,
         child = render.Box(
