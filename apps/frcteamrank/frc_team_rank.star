@@ -28,7 +28,7 @@ WIDGET_COLOR = "#ffffff"
 # Use The Blue Alliance API to get the team's current competition ranking
 TBA_BASE_URL = "https://www.thebluealliance.com/api/v3"
 TBA_API_KEY_DEFAULT = "YOUR_TBA_READ_API_KEY_HERE"
-TBA_API_KEY_ENCRYPTED = "AV6+xWcEi7teQ3dIi5syCMRdr8X9t5Cc0NS2zyaivQLlKToPL+7cd0MQk3ZXQSvLNh2DvGJUgxvX9vfkT6GASc1+ZYni9ENlOyeVAsmvnmgDCQtYogqW0UkKluSxSWc/p9k7HKQT3dzAXitJfzIio6aFZvg1KejmuVO2TLXicXTp91hGO65ci4Cudz8m9Jo0zwL+k1vh6ppKBqA2e74Ie9DsMSgP9A==" # Encrypted READ key
+TBA_API_KEY_ENCRYPTED = "AV6+xWcEi7teQ3dIi5syCMRdr8X9t5Cc0NS2zyaivQLlKToPL+7cd0MQk3ZXQSvLNh2DvGJUgxvX9vfkT6GASc1+ZYni9ENlOyeVAsmvnmgDCQtYogqW0UkKluSxSWc/p9k7HKQT3dzAXitJfzIio6aFZvg1KejmuVO2TLXicXTp91hGO65ci4Cudz8m9Jo0zwL+k1vh6ppKBqA2e74Ie9DsMSgP9A=="  # Encrypted READ key
 
 ## ==================== END CONSTANTS ====================
 
@@ -208,9 +208,11 @@ def main(config):
     # Get Blue Alliance API key from the user
     TBA_API_KEY = secret.decrypt(TBA_API_KEY_ENCRYPTED) or config.get("tba_api_key", TBA_API_KEY_DEFAULT)
 
-    # If the API is none, return an error message
+    # If the API is none, then display a default message stating that no api key was found
     if not TBA_API_KEY or TBA_API_KEY == TBA_API_KEY_DEFAULT:
-        fail("The TBA API you provided does not seem valid or is missing. Please enter a valid TBA api key.")
+        return render.Root(
+            child = render.Text("No valid Blue Alliance API key provided. Please enter a valid TBA api key."),
+        )
 
     # Instantiate the team ranking message variable
     team_ranking_msg = "No Ranking"
@@ -228,7 +230,6 @@ def main(config):
         return render.Root(
             child = render.Text(MSG_NO_ACTIVE_EVENTS % team_number),
         )
-        fail(MSG_NO_ACTIVE_EVENTS % team_number)
 
     # If the current date falls in the event date range,
     # then get the team's ranking
@@ -266,14 +267,6 @@ def main(config):
         cross_align = "center",
         children = [
             render.Text("FRC %d" % team_number),
-        ],
-    )
-    TEAM_NAME_WIDGET = render.Row(
-        expanded = True,
-        main_align = "space_evenly",
-        cross_align = "center",
-        children = [
-            render.Text(team_name),
         ],
     )
 
