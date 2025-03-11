@@ -31,7 +31,6 @@ OPENWEATHER_AIR_POLLUTION_URL = "http://api.openweathermap.org/data/2.5/air_poll
 OPENWEATHER_ONECALL_URL = "https://api.openweathermap.org/data/3.0/onecall?lat={latitude}&lon={longitude}&exclude=minutely,hourly,daily,alerts&appid={api_key}&units={units}&lang=en"
 ACCUWEATHER_LOCATION_URL = "http://dataservice.accuweather.com/locations/v1/cities/geoposition/search?apikey={api_key}&q={latitude}%2C{longitude}"
 
-#ACCUWEATHER_URL= "http://dataservice.accuweather.com/forecasts/v1/daily/5day/{locationKey}?apikey={api_key}&details=true&metric={units}"
 ACCUWEATHER_URL = "http://dataservice.accuweather.com/currentconditions/v1/{locationKey}?apikey={api_key}&details=true"
 TOMORROW_IO_REALTIME_URL = "https://api.tomorrow.io/v4/weather/realtime?location={latitude},{longitude}&apikey={api_key}&units={units}"
 OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m&hourly=dew_point_2m,visibility,uv_index&models=best_match&temperature_unit={temperature_unit}&wind_speed_unit={wind_speed_unit}&forecast_hours=1"
@@ -291,7 +290,7 @@ def main(config):
             result_current_conditions["icon"] = {"id": int(raw_current_conditions["weather"][0]["id"]), "code": str(raw_current_conditions["weather"][0]["icon"])}
             result_current_conditions["temp"] = int(raw_current_conditions["main"]["temp"])
             result_current_conditions["feels_like"] = int(raw_current_conditions["main"]["feels_like"])
-            result_current_conditions["wind_speed"] = int(raw_current_conditions["wind"]["speed"])
+            result_current_conditions["wind_speed"] = int(raw_current_conditions["wind"]["speed"] * (3.6 if display_metric else 1))  # 1 m/s = 3.6 km/h)
             result_current_conditions["wind_dir"] = int(raw_current_conditions["wind"]["deg"])
 
             icon_num = result_current_conditions["icon"]["id"]
@@ -325,7 +324,7 @@ def main(config):
                 icon_ref = "moonyish.png"
 
             result_current_conditions["humidity"] = int(raw_current_conditions["main"]["humidity"])
-            result_current_conditions["visibility"] = int(raw_current_conditions["visibility"] * (0.001 if display_metric == "metric" else 0.00062137))
+            result_current_conditions["visibility"] = int(raw_current_conditions["visibility"] * (0.001 if display_metric else 0.00062137))
             result_current_conditions["cloud_coverage"] = int(raw_current_conditions["clouds"]["all"])
             result_current_conditions["pressure"] = int(raw_current_conditions["main"]["pressure"] * (0.02952998307 if display_metric else 1))  # 1 inHg (imperial) = 33.863886666667 hPa (metric)
 
@@ -448,7 +447,7 @@ def main(config):
             result_current_conditions["humidity"] = int(raw_current_conditions["current"]["humidity"])
             result_current_conditions["dew_point"] = int(raw_current_conditions["current"]["dew_point"])
             result_current_conditions["uv_index"] = int(raw_current_conditions["current"]["uvi"])
-            result_current_conditions["visibility"] = int(raw_current_conditions["current"]["visibility"] * (0.001 if display_metric == "metric" else 0.00062137))
+            result_current_conditions["visibility"] = int(raw_current_conditions["current"]["visibility"] * (0.001 if display_metric else 0.00062137))
             result_current_conditions["cloud_coverage"] = int(raw_current_conditions["current"]["clouds"])
             result_current_conditions["pressure"] = int(raw_current_conditions["current"]["pressure"] * (0.02952998307 if display_metric else 1))  # 1 inHg (imperial) = 33.863886666667 hPa (metric)
 
@@ -470,7 +469,7 @@ def main(config):
             result_current_conditions["weather_code"] = int(raw_current_conditions["data"]["values"]["weatherCode"])
             result_current_conditions["temp"] = int(raw_current_conditions["data"]["values"]["temperature"])
             result_current_conditions["feels_like"] = int(raw_current_conditions["data"]["values"]["temperatureApparent"])
-            result_current_conditions["wind_speed"] = int(raw_current_conditions["data"]["values"]["windSpeed"])
+            result_current_conditions["wind_speed"] = int(raw_current_conditions["data"]["values"]["windSpeed"] * (3.6 if display_metric else 1))  # convert to km/h if metric
             result_current_conditions["wind_dir"] = int(raw_current_conditions["data"]["values"]["windDirection"])
 
             icon_num = result_current_conditions["weather_code"]
@@ -513,7 +512,7 @@ def main(config):
                 latitude = latitude,
                 longitude = longitude,
                 temperature_unit = ("celsius" if system_of_measurement == "metric" else "fahrenheit"),
-                wind_speed_unit = ("ms" if system_of_measurement == "metric" else "mph"),
+                wind_speed_unit = ("kmh" if system_of_measurement == "metric" else "mph"),
             )
             raw_current_conditions = get_current_weather_conditions(request_url, 3600)
 
@@ -569,7 +568,7 @@ def main(config):
             result_current_conditions["icon"] = {"id": int(raw_current_conditions["weather"]["code"]), "code": str(raw_current_conditions["weather"]["icon"])}
             result_current_conditions["temp"] = int(raw_current_conditions["temp"])
             result_current_conditions["feels_like"] = int(raw_current_conditions["app_temp"])
-            result_current_conditions["wind_speed"] = int(raw_current_conditions["wind_spd"])
+            result_current_conditions["wind_speed"] = int(raw_current_conditions["wind_spd"] * (3.6 if display_metric else 1))  # 1 m/s = 3.6 km/h)
             result_current_conditions["wind_dir"] = int(raw_current_conditions["wind_dir"])
 
             icon_num = result_current_conditions["icon"]["id"]
@@ -578,7 +577,7 @@ def main(config):
                 # sunny
                 icon_ref = "sunny.png"
             elif icon_num >= 801 and icon_num <= 802 and "d" in icon_code:
-                # mostly sunny
+                # mostly sunnSy
                 icon_ref = "sunnyish.png"
             elif icon_num >= 803 and icon_num <= 804 and "d" in icon_code:
                 # cloudy (day)
@@ -653,7 +652,7 @@ def main(config):
 
     if enabledMetrics["windSpeed"]:
         wind_speed_text = render.Text(content = str(result_current_conditions["wind_speed"]), font = "tom-thumb", color = "#AED6F1")
-        wind_mph_text = render.Text(content = "m/s" if display_metric else "mph", font = "tom-thumb", color = "#AED6F1")
+        wind_mph_text = render.Text(content = "km/h" if display_metric else "mph", font = "tom-thumb", color = "#AED6F1")
 
         arrow_src = WIND_ICONS[wind_dir]
         if arrow_src:
