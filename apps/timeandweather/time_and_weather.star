@@ -382,9 +382,12 @@ def main(config):
             elif icon_num == 32:
                 # wind
                 icon_ref = "windy.png"
-            elif icon_num == 33:
+            elif icon_num == 33 or icon_nume == 34:
                 # moon
                 icon_ref = "moony.png"
+            elif (icon_num >= 35 and icon_num <= 44):
+                #cloudy moon
+                icon_ref = "moonyish.png"
             else:
                 icon_ref = None
 
