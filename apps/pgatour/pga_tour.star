@@ -73,6 +73,9 @@ Updated Tournament IDs for 2025 Season
 
 v2.9.1
 Updated PLAYER_MAPPING
+
+v2.9.2
+Updated ID for The Players
 """
 
 load("encoding/json.star", "json")
@@ -112,7 +115,7 @@ TOURNAMENT_MAPPING = """
     "401703493": "AT&T Pro-Am",
     "401703495": "Genesis Inv",
     "401703498": "Arnold Palm",
-    "401580340": "The Players",
+    "401703500": "The Players",
     "401703507": "Zurich Clas",
     "401703506": "Puntacana",
     "401703508": "The CJ Cup",
