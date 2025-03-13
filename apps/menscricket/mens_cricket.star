@@ -20,7 +20,9 @@ load("time.star", "time")
 # API
 TEAM_SCHEDULE_URL = "https://www.cricbuzz.com/cricket-team/{team_name}/{team_id}/schedule"
 TEAM_RESULTS_URL = "https://www.cricbuzz.com/cricket-team/{team_name}/{team_id}/results"
-MATCH_COMM_URL = "https://www.cricbuzz.com/api/cricket-match/{match_id}/full-commentary/0"
+MATCH_FULL_COMM_URL = "https://www.cricbuzz.com/api/cricket-match/{match_id}/full-commentary/0"
+
+# FALLBACK_MATCH_COMM_URL = "https://www.cricbuzz.com/api/cricket-match/commentary/{match_id}"
 LIVE_SCORE_URL = "https://www.cricbuzz.com/api/cricket-match/commentary/{match_id}"
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
 
@@ -238,6 +240,11 @@ def render_next_match(match_data, tz):
     details = match_data["matchHeader"]
     match_start_time = time.from_timestamp(int(details["matchStartTimestamp"] / 1000)).in_location(tz)
     match_time_status = match_start_time.format("Jan 2 - 3:04 PM")
+    time_to_start = match_start_time - time.now().in_location(tz)
+    if time_to_start < time.parse_duration("48h"):
+        match_time_status = humanize.time(match_start_time)
+    elif time_to_start < time.parse_duration("168h"):
+        match_time_status = match_start_time.format("Mon - 3:04 PM")
 
     team_1_id, team_1_name = str(details["team1"]["id"]), details["team1"]["name"]
     team_2_id, team_2_name = str(details["team2"]["id"]), details["team2"]["name"]
@@ -576,6 +583,16 @@ team_settings_by_id = {
         struct(**_team_setting("15", "United States", "USA", "#B31942", "#003087")),
         struct(**_team_setting("10", "West Indies", "WI", "#f2b10e", "#660000")),
         struct(**_team_setting("12", "Zimbabwe", "ZIM", "#FCE300", "#EF3340")),
+        struct(**_team_setting("63", "Kolkata Knight Riders", "KKR", "#F7D54E", "#3A225D")),
+        struct(**_team_setting("65", "Punjab Kings", "PK", "#D3D3D3", "#DD1F2D")),
+        struct(**_team_setting("62", "Mumbai Indians", "MI", "#E9530D", "#004B8D")),
+        struct(**_team_setting("966", "Lucknow Giants", "LSG", "#F28B00", "#0057E2")),
+        struct(**_team_setting("971", "Gujarat Titans", "GT", "#DBBE6E", "#002244")),
+        struct(**_team_setting("255", "Sunrisers Hyderabad", "SRH", "#FCCB11", "#B02528")),
+        struct(**_team_setting("61", "Delhi Capitals", "DC", "#D71921", "#282968")),
+        struct(**_team_setting("59", "Royal Challengers Bangalore", "RCB", "#D1AB3E", "#EC1C24")),
+        struct(**_team_setting("58", "Chennai Super Kings", "CSK", "#FFFF3C", "#2B5DA8")),
+        struct(**_team_setting("64", "Rajasthan Royals", "RR", "#C3A11F", "#074EA2")),
     ]
 }
 
@@ -701,7 +718,7 @@ def _get_cached_match_ids(url, span_id):
     return match_ids
 
 def fetch_match_comm(match_id):
-    url = MATCH_COMM_URL.format(match_id = match_id)
+    url = MATCH_FULL_COMM_URL.format(match_id = match_id)
     json_resp = {}
     cached_data = cache.get(url)
     if cached_data:
@@ -711,6 +728,9 @@ def fetch_match_comm(match_id):
 
     print("--MISS for {}".format(url))
     json_resp = json.decode(fetch_url(url))
+    if not json_resp:
+        print("NULL match details for {}".format(url))
+        return {}
 
     cache_ttl = 5 * ONE_MINUTE
     match_state = json_resp.get("matchDetails", {}).get("matchHeader", {}).get("state", "Preview").lower()
