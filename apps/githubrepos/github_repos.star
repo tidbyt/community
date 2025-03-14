@@ -5,9 +5,7 @@ Description: Displays a GitHub badge for the status of the configured action.
 Author: Cavallando
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -221,7 +219,7 @@ def main(config):
                 },
             )
     workflow_data = []
-    workflow_data, err = fetch_workflow_data(repos, config.get("access_token",None))
+    workflow_data, err = fetch_workflow_data(repos, config.get("access_token", None))
 
     if err:
         return render_status_badge("failed", err)
