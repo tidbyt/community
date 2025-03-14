@@ -6,9 +6,24 @@ Author: Cavallando
 """
 
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
+
+DEBUG = False
+TEST_RUN = """{
+    "total_count": 28,
+    "workflow_runs": [
+        {
+            "conclusion": "success",
+            "updated_at": "2025-03-14T04:25:26Z",
+            "head_branch": "main",
+            "status": "completed"
+        }
+    ]
+}"""
 
 GITHUB_LOGO = base64.decode(
     """
@@ -48,6 +63,27 @@ iVBORw0KGgoAAAANSUhEUgAAAEAAAAAwCAYAAAChS3wfAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKaElE
 
 DEFAULT_BRANCH = "main"
 
+def should_show_jobs(repos, dwell_time):
+    print("dwell time is " + str(dwell_time))
+    if dwell_time == 0:
+        return True
+
+    now = time.now().in_location("UTC")
+    for repo in repos:
+        if "data" not in repo:
+            continue
+        job = repo["data"]
+        if job.get("conclusion", "unknown") != "success":
+            return True
+        updated_at = time.parse_time(job["updated_at"], format = "2006-01-02T15:04:05Z").in_location("UTC")
+        duration = now - updated_at
+        print("comparing " + str(duration.seconds) + " and " + str(dwell_time * 60))
+        if duration.seconds <= dwell_time * 60:
+            return True
+        else:
+            print("all successes are old")
+    return False
+
 def get_status_icon(status):
     """Gets the decoded icon string for a given Workflow Status from github
 
@@ -83,7 +119,6 @@ def fetch_workflow_data(repos, access_token):
     Returns:
         The workflow data if it can be found or an error message from the request
     """
-
     headers = {
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
@@ -92,19 +127,27 @@ def fetch_workflow_data(repos, access_token):
         headers["Authorization"] = "Bearer {}".format(access_token)
 
     modified_repos = []
+    print("repos are " + str(repos))
     for repo in repos:
         owner_name, repo_name, branch_name, workflow_id = repo["str"].split("/")
-        data = http.get(
-            "https://api.github.com/repos/{}/{}/actions/workflows/{}/runs".format(
-                owner_name,
-                repo_name,
-                workflow_id,
-            ),
-            params = {"branch": branch_name, "per_page": "1", "page": "1"},
-            headers = headers,
-            ttl_seconds = 60,
-        ).json()
-        print(data)
+        if not DEBUG:
+            resp = http.get(
+                "https://api.github.com/repos/{}/{}/actions/workflows/{}/runs".format(
+                    owner_name,
+                    repo_name,
+                    workflow_id,
+                ),
+                params = {"branch": branch_name, "per_page": "1", "page": "1"},
+                headers = headers,
+                ttl_seconds = 60,
+            )
+            data = resp.json()
+            if (resp.status_code != 200):
+                print("status_code : " + str(resp.status_code))
+                print(data)
+                return ("error", data.get("message"))
+        else:
+            data = json.decode(TEST_RUN)
         if data and data.get("workflow_runs"):
             repo_copy = {
                 "owner": repo["owner"],
@@ -115,7 +158,6 @@ def fetch_workflow_data(repos, access_token):
                 "data": data.get("workflow_runs")[0],
             }
             modified_repos.append(repo_copy)
-
     return modified_repos, None
 
 # def get_display_text(repo):
@@ -124,7 +166,8 @@ def fetch_workflow_data(repos, access_token):
 def render_status_badge(status, repos):
     # workflow_data is an array
     rows = []
-    if type(repos) != "string":
+    print(type(repos))
+    if type(repos) == "list":
         for repo in repos:
             status = repo["data"]["status"]
             print("appending row " + status)
@@ -144,7 +187,7 @@ def render_status_badge(status, repos):
                 ),
             )
     else:
-        print("error, no data")
+        print("error, got no data from github")
         rows.append(
             render.Row(
                 cross_align = "center",
@@ -227,7 +270,9 @@ def main(config):
         #     return render_status_badge("success", "no data")
 
     elif workflow_data and type(workflow_data) != "string":
-        # status = workflow_data.get("status")
+        if not should_show_jobs(workflow_data, int(config.get("timeout", "0"))):
+            return []
+
         return render_status_badge("success", workflow_data)
     elif workflow_data:
         return render_status_badge("failed", workflow_data)
@@ -264,6 +309,13 @@ def get_schema():
                 desc = "Repo 3",
                 icon = "boxArchive",
                 default = "owner/repo/branch/workflow",
+            ),
+            schema.Text(
+                id = "timeout",
+                name = "All Success Timeout",
+                desc = "How long to show all green",
+                icon = "clock",
+                default = "0",
             ),
         ],
     )
