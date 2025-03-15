@@ -23,7 +23,8 @@ def get_route_15():
             continue
         if i.get("next_stop_name") == None:
             continue
-        string = i.get("Direction") + " at " + i.get("next_stop_name").replace("& ", "&\n")
+        string = "Now" if i.get("Direction") == "N/A" else i.get("Direction")
+        string += " at " + i.get("next_stop_name").replace("& ", "&\n")
         output = render.Column(
             children = [
                 render.Row(
