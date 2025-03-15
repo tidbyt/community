@@ -117,7 +117,7 @@ def main(config):
                     expanded = True,
                     main_align = "space_around",
                     children = [
-                        render.Marquee (
+                        render.Marquee(
                             width = 64,
                             child = render.Text("Error! Check APP config.", color = RED),
                         ),
@@ -169,7 +169,7 @@ def main(config):
                                         render.Row(
                                             children = [
                                                 render.Text(humanize.comma(int(total_ads)), color = RED),
-                                                render.Text(" ("+ humanize.ftoa(ads_percentage, 0) + "%)", color = RED),
+                                                render.Text(" (" + humanize.ftoa(ads_percentage, 0) + "%)", color = RED),
                                             ],
                                         ),
                                     ],
