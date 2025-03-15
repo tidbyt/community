@@ -16,13 +16,13 @@ load("time.star", "time")
 
 ## ==================== BEGIN CONSTANTS ====================
 # Cache and API settings
-TEAM_INFO_CACHE_SECS = 3600
-TEAM_RANK_CACHE_SECS = 300
+TEAM_INFO_CACHE_SECS = 600
+TEAM_RANK_CACHE_SECS = 100
 IMG_MAX_WIDTH = 20
 IMG_MAX_HEIGHT = 20
 DATETIME_FORMAT = "yyyy-MM-dd"
 MARQUEE_OFFSET_START = 15
-MARQUEE_WIDTH = 64
+MARQUEE_WIDTH = 40
 WIDGET_HEIGHT = 1
 WIDGET_COLOR = "#ffffff"
 
@@ -160,6 +160,12 @@ def get_team_ranking(team_number, event_key, tba_api_key):
 
     # Parse the team ranking data
     ranking_data = team_ranking_resp.json()
+    if "qual" not in ranking_data:
+        return -1, 999
+    if "ranking" not in ranking_data["qual"]:
+        return -1, 999
+    if "rank" not in ranking_data["qual"]["ranking"]:
+        return -1, 999
     team_ranking = ranking_data["qual"]["ranking"]["rank"]
     total_teams = ranking_data["qual"]["num_teams"]
 
@@ -194,7 +200,8 @@ def get_team_avatar(team_number):
     avatar_resp = http.get(avatar_url, ttl_seconds = TEAM_INFO_CACHE_SECS)
 
     if avatar_resp.status_code != 200:
-        fail(MSG_TEAM_AVATAR_ERROR % team_number)
+        print(MSG_TEAM_AVATAR_ERROR % team_number)
+        return None
 
     return avatar_resp.body()
 
@@ -235,7 +242,7 @@ def main(config):
         team_number, team_name = get_team_info(USER_INPUT_TEAM_NUMBER, TBA_API_KEY)
 
         # Get team events
-        team_events = get_team_events_for_current_year(USER_INPUT_TEAM_NUMBER, TBA_API_KEY)
+        team_events = get_team_events_for_current_year(team_number, TBA_API_KEY)
         print(MSG_TEAM_EVENTS_COUNT % (len(team_events), team_number))
 
         # Process events if any exist
@@ -319,7 +326,7 @@ def main(config):
         ],
     )
 
-    DIVIDER_LINE_WIDGET = render.Box(width = MARQUEE_WIDTH, height = WIDGET_HEIGHT, color = WIDGET_COLOR)
+    DIVIDER_LINE_WIDGET = render.Box(width = 64, height = WIDGET_HEIGHT, color = WIDGET_COLOR)
 
     # Always render the main UI
     return render.Root(
