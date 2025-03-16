@@ -60,6 +60,22 @@ Allowed extra char in Tournament Name
 
 v2.6.3
 Updated Player Name Mapping logic to stop partial ID matches
+
+v2.7
+Bug fix - During play, the completed round scores were showing the previous round's score
+
+v2.8
+Fixed situation that when play is suspended, "state" value = "post" (round is complete) and does not show in progress scores for the suspended round,
+Also, updated title bar to show that play is suspended 
+
+v2.9
+Updated Tournament IDs for 2025 Season
+
+v2.9.1
+Updated PLAYER_MAPPING
+
+v2.9.2
+Updated ID for The Players
 """
 
 load("encoding/json.star", "json")
@@ -73,7 +89,7 @@ API2 = "https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard"
 
 CACHE_TTL_SECS = 60
 DEFAULT_TIMEZONE = "Australia/Adelaide"
-THE_EXCEPTIONS = ["401580329", "401580360"]  # The Sentry and The Open
+THE_EXCEPTIONS = ["401703489", "401703521"]  # The Sentry and The Open
 
 # List will be a work in progress
 PLAYER_MAPPING = """
@@ -87,44 +103,49 @@ PLAYER_MAPPING = """
     "4698579": "S.H.Kim",
     "4410932": "M.W.Lee",
     "7083": "K.H.Lee",
-    "4585548": "Valimaki"
+    "4585548": "Valimaki",
+    "8974": "M.Kim"
 }
 """
 
 TOURNAMENT_MAPPING = """
 {
-    "401580332": "Farmers Ins",
-    "401580333": "AT&T Pro-Am",
-    "401580335": "Genesis Inv",
-    "401580338": "Arnold Palm",
-    "401580340": "The Players",
-    "401580347": "Zurich Clas",
-    "401580346": "Puntacana",
-    "401580348": "CJ Cup",
-    "401580341": "Valspar",
-    "401580342": "Houston Opn",
-    "401580343": "Texas Open",
-    "401580344": "The Masters",
-    "401580345": "Heritage",
-    "401580353": "Canadian Op",
-    "401580354": "Memorial",
-    "401580351": "PGA Champ",
+    "401703491": "The AmEx",
+    "401703492": "Farmers Ins",
+    "401703493": "AT&T Pro-Am",
+    "401703495": "Genesis Inv",
+    "401703498": "Arnold Palm",
+    "401703500": "The Players",
+    "401703507": "Zurich Clas",
+    "401703506": "Puntacana",
+    "401703508": "The CJ Cup",
+    "401703501": "Valspar",
+    "401703502": "Houston Opn",
+    "401703503": "Texas Open",
+    "401703504": "The Masters",
+    "401703505": "Heritage",
+    "401703514": "Canadian Op",
+    "401703513": "Memorial",
+    "401703511": "PGA Champ",
     "401465538": "Barbasol",
-    "401580359": "Scottish",
-    "401580363": "Wyndham",
-    "401580364": "FedEx St.J",
-    "401580365": "BMW Champ",
-    "401558309": "Q-School"
+    "401703519": "Scottish",
+    "401703524": "Wyndham",
+    "401703525": "FedEx St.J",
+    "401703530": "BMW Champ",
+    "401558309": "Q-School",
+    "401703520": "ISCO Champ",
+    "401703522": "Barracuda",
+    "401703531": "TOUR CHAMP"
 }
 """
 
 MAJOR_MAPPING = """
 {
-    "401580340": "#003360",
-    "401580344": "#006747",
-    "401580351": "#00205B",
-    "401580355": "#003865",
-    "401580360": "#1A1C3C"
+    "401703500": "#003360",
+    "401703504": "#006747",
+    "401703511": "#00205B",
+    "401703515": "#003865",
+    "401703521": "#1A1C3C"
 }
 """
 
@@ -149,20 +170,18 @@ def main(config):
 
     Title = leaderboard["sports"][0]["leagues"][0]["shortName"]
 
-    # Check if there is an opposite field event, happens 4 times a season
+    # Check if there is an opposite field event
     # Get the ID of the first event listed in the API
     FirstTournamentID = leaderboard["sports"][0]["leagues"][0]["events"][0]["id"]
-    i = OppositeFieldCheck(FirstTournamentID)
 
-    # if user wants to see opposite event
-    if i == 1 and OppField == True:
-        i = 0
+    # check if user wants to see opp field
+    if OppField == True:
+        i = OppositeFieldCheck(FirstTournamentID)
 
     # Get Tournament Name and ID
     TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
     PreTournamentName = TournamentName
     TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][i]["id"]
-    #print(TournamentID)
 
     # Check if its a major (or The Players) and show a different color in the title bar
     if TournamentID in MAJOR_MAPPING:
@@ -192,6 +211,13 @@ def main(config):
             stage = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["detail"]
             state = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["state"]
 
+            # Noted situation that when play is suspended, "state" value = "post" (round is complete) and does not show in progress scores for the suspended round
+            if leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["name"] == "STATUS_SUSPENDED":
+                state = "in"
+                ProgressTitle = "PLAY SUSP"
+            else:
+                ProgressTitle = TournamentName
+
             # shortening status messages
             stage = stage.replace("Final", "F")
             stage = stage.replace("Round 1", "R1")
@@ -219,7 +245,7 @@ def main(config):
                             render.Column(
                                 children = [
                                     render.Column(
-                                        children = getPlayerProgress(x, entries, entries2, TournamentName, TitleColor, ColorGradient, stage, state, timezone, PlayerMapping),
+                                        children = getPlayerProgress(x, entries, entries2, ProgressTitle, TitleColor, ColorGradient, stage, state, timezone, PlayerMapping),
                                     ),
                                 ],
                             ),
@@ -401,6 +427,8 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
     LeaderTeeTime = s[0]["status"]["teeTime"]
     LeaderTeeTimeFormat = time.parse_time(LeaderTeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
     TimeDiff = LeaderTeeTimeFormat - time.now()
+
+    #print(TimeDiff)
     if TimeDiff.hours < 12:
         ShowTeeTimes = True
 
@@ -443,6 +471,7 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
                             if playerID == t[i]["id"]:
                                 RoundScore = t[i]["linescores"][RoundNumber]["value"]
                                 ProgressStr = str(int(RoundScore))
+
                 else:
                     ProgressStr = "PO"
 
@@ -456,15 +485,11 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
 
             # if the player's round is completed, show their score
             if playerState == "post":
-                RoundNumber = len(t[0]["linescores"]) - 2
-
-                #print(RoundNumber)
                 for i in range(0, len(t), 1):
                     if playerID == t[i]["id"]:
-                        #print(playerID)
-                        RoundScore = t[i]["linescores"][RoundNumber]["value"]
+                        CompletedRound = len(t[i]["linescores"]) - 2
 
-                        #print(RoundScore)
+                        RoundScore = t[i]["linescores"][CompletedRound]["value"]
                         ProgressStr = str(int(RoundScore))
 
             # If ColorGradient is selected...
@@ -551,16 +576,13 @@ def getPlayerFontColor(HolesCompleted, ColorGradient):
     return playerFontColor
 
 def OppositeFieldCheck(ID):
-    # check if the first tournament listed in the ESPN API is an opposite field event, one of the four below
-    # and if it is, go to the second event in the API
+    # check the ID of the event, and if its a tournament with an opposite field go to the second event in the API
     i = 0
-    if ID == "401580350":  # Myrtle Beach
+    if ID == "401703509":  # Truist -> Myrtle Beach
         i = 1
-    elif ID == "401580346":  # Puntacana
+    elif ID == "401703521":  # The Open -> Barracuda
         i = 1
-    elif ID == "401580361":  # Barracuda
-        i = 1
-    elif ID == "401580339":  # Puerto Rico
+    elif ID == "401703519":  # Scottish Open -> ISCO Champ
         i = 1
     else:
         i = 0

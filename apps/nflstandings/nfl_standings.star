@@ -5,8 +5,6 @@ Description: Displays live and upcoming NFL standings from a data feed.
 Author: LunchBox8484
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -42,6 +40,7 @@ ALT_COLOR = """
 """
 ALT_LOGO = """
 {
+    "IND": "https://i.ibb.co/jzMc7SB/colts.png"
 }
 """
 
@@ -76,16 +75,8 @@ def main(config):
             if entries:
                 entriesToDisplay = teamsToShow
                 divisionName = s["name"]
-                sortOrder = {}
 
-                for j, _ in enumerate(entries):
-                    stats = entries[j]["stats"]
-                    for l, m in enumerate(stats):
-                        if m["name"] == "gamesBehind":
-                            sortOrder[entries[j]["team"]["id"]] = stats[l]["value"]
-                sortOrder = {k: v for k, v in sorted(sortOrder.items(), key = lambda item: item[1])}
-                keysList = list(sortOrder.keys())
-                entries = sorted(entries, key = lambda e: keysList.index(e["team"]["id"]))
+                entries = sorted(entries, get_games_behind)
 
                 for x in range(0, len(entries), entriesToDisplay):
                     renderCategory.extend(
@@ -110,6 +101,12 @@ def main(config):
         )
     else:
         return []
+
+def get_games_behind(entry):
+    for stat in entry.get("stats"):
+        if stat.get("name") == "gamesBehind":
+            return stat.get("value")
+    return 0  # will never get here, but need a return value
 
 divisionOptions = [
     schema.Option(
@@ -441,17 +438,8 @@ def get_logoType(team, logo):
     return logo
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = ttl_seconds)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

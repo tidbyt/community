@@ -1,0 +1,6 @@
+---
+id: mens-cricket
+name: Mens Cricket
+summary: Display cricket scores
+desc: For a selected team, this app shows the scorecard for a current match. If no match in progress, it will display scorecard for a recently completed match. If none of these, it will display the next match details in user's local timezone.
+author: adilansari

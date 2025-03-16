@@ -6,7 +6,9 @@ Author: Jake Manske
 """
 
 load("animation.star", "animation")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
@@ -16,14 +18,117 @@ load("time.star", "time")
 DEFAULT_TIMEZONE = "America/Chicago"
 DEFAULT_RELATIVE = "relative"
 FIVE_WIDE_FONT = "CG-pixel-4x5-mono"
-SMALLER_FONT = "CG-pixel-3x5-mono"
 DEFAULT_TEAM = "112"
 DEFAULT_HOUR_TO_SWITCH = "10"
-HTTP_OK = 200
+OK = 200
 SMALL_FONT = "CG-pixel-3x5-mono"
 SMALL_FONT_COLOR = "#39FF14"
 INNING_COLOR = "#ffd500"
+LIVE_DATA_CACHE_TTL = 300  # cache live data for 5 minutes in case API calls fail
 
+# this is used in case the cache is empty so we do not bomb out completely
+DEFAULT_LIVE_DATA = """
+{
+    "plays": {
+        "allPlays": [
+            {
+                "result": {
+                    "isCompleted": true,
+                    "event": "",
+                    "eventType": "",
+                    "description": ""
+                },
+                "about": {
+                    "halfInning": "top",
+                    "isTopInning": true,
+                    "inning": 1,
+                    "isScoringPlay": false
+                },
+                "count": {
+                    "balls": 0,
+                    "strikes": 0,
+                    "outs": 0
+                },
+                "matchup": {
+                    "batter": {
+                        "id": 0
+                    },
+                    "pitcher": {
+                        "id": 0
+                    }
+                },
+                "runners": [
+                    {
+                        "details": {
+                            "event": "Groundout",
+                            "eventType": "field_out",
+                            "runner": {
+                                "id": 0
+                            }
+                        },
+                        "credits": [
+                            {
+                                "position": {
+                                    "code": "1"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "currentPlay": {
+            "matchup": { }
+        }
+    },
+    "linescore": {
+        "currentInning": 1,
+        "isTopInning": true,
+        "teams": {
+            "home": {
+                "runs": 0,
+                "hits": 0,
+                "errors": 0
+            },
+            "away": {
+                "runs": 0,
+                "hits": 0,
+                "errors": 0
+            }
+        },
+        "balls": 0,
+        "strikes": 0,
+        "outs": 0
+    },
+    "boxscore": {
+        "teams": {
+            "home": {
+                "players": {
+                    "parentTeamId": 144
+                },
+                "battingOrder": [
+
+                ]
+            },
+            "away": {
+                "players": {
+                    "parentTeamId": 144
+                },
+                "battingOrder": [
+
+                ]
+            }
+        }
+    }
+}
+"""
+DEFAULT_GAME_DATA = """
+{
+    "players": {
+
+    }
+}
+"""
 MLB_SCHED_ENDPOINT = "/api/v1/schedule/games/"
 MLB_BASE_URL = "https://statsapi.mlb.com{0}"
 
@@ -37,7 +142,7 @@ def main(config):
     response = get_sched(team, timezone)
 
     # if API call is not successful render generic error screen
-    if response.status_code != HTTP_OK:
+    if response.status_code != OK:
         return render.Root(
             child = render_http_error(response),
         )
@@ -74,6 +179,7 @@ def main(config):
         widget = render_game(game, team, timezone, relative_or_absolute)
 
     return render.Root(
+        show_full_animation = True,
         child = widget,
     )
 
@@ -296,16 +402,26 @@ def render_player(team, player):
     team = int(team)
     bg = TEAM_INFO[team].BackgroundColor
     fg = TEAM_INFO[team].ForegroundColor
+    sanitized = ""
+
+    # sanitize the pitcher name
+    # the font we use cannot handle diacritical marks
+    if player != None:
+        sanitized = sanitize_name(player.get("useLastName"))
+
     return render.Box(
         height = 6,
         width = 64,
         color = bg,
         child = render.Text(
-            font = FIVE_WIDE_FONT,
+            font = FIVE_WIDE_FONT if len(sanitized) < 14 else SMALL_FONT,
             color = fg,
-            content = player.get("useLastName") if player != None else "TBD",
+            content = sanitized if player != None else "TBD",
         ),
     )
+
+def sanitize_name(name):
+    return name.replace("ó", "o").replace("í", "i").replace("é", "e").replace("á", "a").replace("ñ", "n")
 
 def render_rainbow_word(word, font):
     colors = ["#e81416", "#ffa500", "#faeb36", "#79c314", "#487de7", "#4b369d", "#70369d"]
@@ -345,46 +461,293 @@ def render_flashy_word(word, font, colors, repeater):
     )
 
 def render_in_progress(game):
+    # we have to make another API call here
+    # but if a game is in progress, we do not want to fail because an API call failed
+    url = MLB_BASE_URL.format(game.get("link"))
+
+    # hit the API again to get current in-game live data
+    query_params = {
+        "fields": ",".join(LIVE_DATA_FIELDS),
+    }
+
+    # refresh this every 15 seconds to stay up to date
+    response = http.get(url, params = query_params, ttl_seconds = 15)
+
+    # this is our cache key
+    cache_key = str(int(game.get("gamePk")))
+
+    # if the API call failed for some reason, get the linescore from the last successful call
+    if response.status_code != OK:
+        data = cache.get(cache_key)
+        if data != None:
+            live_data = json.decode(data).get("liveData")
+            game_data = json.decode(data).get("gameData")
+        else:
+            live_data = json.decode(DEFAULT_LIVE_DATA)
+            game_data = json.decode(DEFAULT_GAME_DATA)
+    else:
+        decoded = response.json()
+        live_data = decoded.get("liveData")
+        game_data = decoded.get("gameData")
+
+        # cache this data
+        # we almost never look it up because we are using http cache almost all of the time
+        # but in case the http call fails for some reason, we want to be able to use the latest result we got from the API
+        cache.set(key = cache_key, value = json.encode(decoded), ttl_seconds = LIVE_DATA_CACHE_TTL)
+
+    return render.Stack(
+        children = [
+            render.Column(
+                children = [
+                    render_in_progress_header(live_data, game_data),
+                    render_competitors(game),
+                    render.Box(
+                        height = 1,
+                        width = 1,
+                    ),
+                    render_in_progress_footer(live_data),
+                ],
+            ),
+            render_state(live_data),
+        ],
+    )
+
+def render_in_progress_footer(live_data):
+    return render.Row(
+        expanded = True,
+        main_align = "space_between",
+        children = [
+            render_linescore(live_data, "away"),
+            render_linescore(live_data, "home"),
+        ],
+    )
+
+def render_competitors(game):
     away_id = get_away_team_id(game)
     home_id = get_home_team_id(game)
 
-    return render.Column(
-        cross_align = "center",
+    return render.Row(
+        expanded = True,
+        main_align = "space_between",
         children = [
-            render.Row(
+            render_team_logo(away_id),
+            render_team_logo(home_id),
+        ],
+    )
+
+def render_team_logo(team_id):
+    return render.Image(
+        src = TEAM_INFO[team_id].Logo,
+        width = 21,
+    )
+
+def process_play(play):
+    # cache the result node
+    result_node = play.get("result")
+
+    # parse the result
+    outcome = result_node.get("eventType")
+    event = result_node.get("event")
+    desc = result_node.get("description")
+
+    # get the outcome code from our map
+    code = PLAY_OUTCOME_MAP.get(outcome, "")
+
+    # if it is an error or a certain kind of field out, it is easy to render more details
+    if outcome == "field_error" or (outcome == "field_out" and (event == "Flyout" or event == "Lineout" or event == "Pop Out")):
+        # get the credits
+        # TODO: figure out a good way to render things like 6-3 putout
+        abbrev = ""
+        if outcome == "field_error":
+            abbrev = "E"
+        elif event == "Flyout" or event == "Lineout" or event == "Pop Out":
+            abbrev = event[0]
+        for runner in play.get("runners"):
+            details = runner.get("details")
+            if details.get("eventType") == outcome:
+                credits = runner.get("credits")
+                if len(credits) > 0:
+                    position_code = int(credits[0].get("position").get("code"))
+
+                    # if we got this far, update the code we display from our map to something more desscriptive
+                    code = abbrev + str(position_code)
+
+        # if it is a strikeout, we can make it forward or backward K
+    elif outcome == "strikeout":
+        if desc.find("called out") > -1:
+            return render_backward_K()
+        else:
+            return render.Row(
                 children = [
-                    render_team_and_linescore(game, away_id, "away"),
-                    render_inning(game),
-                    render_team_and_linescore(game, home_id, "home"),
+                    render.Box(
+                        height = 1,
+                        width = 1,
+                    ),
+                    render.Text(
+                        font = FIVE_WIDE_FONT,
+                        color = INNING_COLOR,
+                        content = code,
+                    ),
+                ],
+            )
+
+    # make it flashy if there was a run scored
+    if play.get("about").get("isScoringPlay"):
+        widget = render_rainbow_word(code, SMALL_FONT)
+    else:
+        widget = render.Text(
+            font = SMALL_FONT,
+            color = INNING_COLOR,
+            content = code,
+        )
+    return widget
+
+def render_backward_K():
+    color = INNING_COLOR
+    return render.Row(
+        children = [
+            render.Column(
+                children = [
+                    render_block(1, 1, color),
+                    render_blank_block(1, 3),
+                    render_block(1, 1, color),
                 ],
             ),
+            render.Column(
+                children = [
+                    render_blank_block(1, 1),
+                    render_block(1, 1, color),
+                    render_blank_block(1, 1),
+                    render_block(1, 1, color),
+                ],
+            ),
+            render.Column(
+                children = [
+                    render_blank_block(1, 2),
+                    render_block(1, 1, color),
+                ],
+            ),
+            render_block(1, 5, color),
         ],
     )
 
-def render_team_and_linescore(game, team, team_type):
-    return render.Column(
-        cross_align = "center",
-        children = [
-            render.Image(
-                src = TEAM_INFO[team].Logo,
-                width = 26,
-            ),
+def render_in_progress_header(live_data, game_data):
+    play = get_play_to_process(live_data)
+
+    # get the batter and pitcher
+    matchup = play.get("matchup")
+    batter_id = matchup.get("batter").get("id")
+    pitcher_id = matchup.get("pitcher").get("id")
+    boxscore = live_data.get("boxscore").get("teams")
+
+    away_team_lineup = boxscore.get("away").get("battingOrder")
+    home_team_lineup = boxscore.get("home").get("battingOrder")
+    home_players = boxscore.get("home").get("players")
+    away_players = boxscore.get("away").get("players")
+
+    batter_dict_id = "ID" + str(int(batter_id))
+    pitcher_dict_id = "ID" + str(int(pitcher_id))
+    batter = home_players.get(batter_dict_id)
+    pitcher = away_players.get(pitcher_dict_id)
+
+    # if we didn't find the batter, flip from home to away
+    if batter == None:
+        batter = away_players.get(batter_dict_id)
+        pitcher = home_players.get(pitcher_dict_id)
+        lineup = away_team_lineup
+    else:
+        lineup = home_team_lineup
+
+    # do not use .index here
+    # it throws an error if the element is not in the list
+    # instead loop over the list
+    order = "?"
+    for i in range(len(lineup)):
+        if batter_id == lineup[i]:
+            order = i + 1
+            break
+
+    # can be no pitcher if API calls failed and cache was not populated
+    if pitcher != None:
+        pitches = int(pitcher.get("stats").get("pitching").get("numberOfPitches") or 0)
+    else:
+        pitches = 0
+
+    # get the team of each player
+    # this is more straightforward than trying to figure out
+    # who is at bat based on top/bottom of inning, which is less reliable
+    if batter != None and pitcher != None:
+        batter_team_id = int(batter.get("parentTeamId"))
+        pitcher_team_id = int(pitcher.get("parentTeamId"))
+    else:
+        batter_team_id = int(DEFAULT_TEAM)
+        pitcher_team_id = int(DEFAULT_TEAM)
+
+    # go back to the overall player dictionary to get the last name
+    batter = game_data.get("players").get(batter_dict_id)
+    if batter != None:
+        batter_name = sanitize_name(batter.get("useLastName"))
+    else:
+        batter_name = "???"
+    pitcher = game_data.get("players").get(pitcher_dict_id)
+    if pitcher != None:
+        pitcher_name = sanitize_name(pitcher.get("useLastName"))
+    else:
+        pitcher_name = "???"
+
+    matchup_array = []
+    ranger = 100
+    for _ in range(ranger):
+        matchup_array.append(
             render.Box(
-                width = 1,
-                height = 1,
+                width = 64,
+                height = 5,
+                color = TEAM_INFO[batter_team_id].BackgroundColor,
+                child = render.Text(
+                    content = str(order) + "." + batter_name,
+                    font = FIVE_WIDE_FONT if len(batter_name) < 12 else SMALL_FONT,
+                    color = TEAM_INFO[batter_team_id].ForegroundColor,
+                ),
             ),
-            render_linescore(game, team_type),
-        ],
+        )
+    for _ in range(ranger):
+        matchup_array.append(
+            render.Box(
+                width = 64,
+                height = 5,
+                color = TEAM_INFO[pitcher_team_id].BackgroundColor,
+                child = render.Row(
+                    children = [
+                        render.Text(
+                            content = pitcher_name,
+                            font = FIVE_WIDE_FONT if len(pitcher_name) < 12 else SMALL_FONT,
+                            color = TEAM_INFO[pitcher_team_id].ForegroundColor,
+                        ),
+                        render.Box(
+                            width = 2,
+                            height = 1,
+                        ),
+                        render.Text(
+                            content = str(pitches),
+                            font = FIVE_WIDE_FONT,
+                            color = TEAM_INFO[pitcher_team_id].ForegroundColor,
+                        ),
+                    ],
+                ),
+            ),
+        )
+    return render.Animation(
+        children = matchup_array,
     )
 
-def render_linescore(game, team_type):
-    runs = get_runs(game, team_type)
-    hits = get_hits(game, team_type)
-    errors = get_errors(game, team_type)
+def render_linescore(live_data, team_type):
+    runs = get_runs(live_data, team_type)
+    hits = get_hits(live_data, team_type)
+    errors = get_errors(live_data, team_type)
 
-    # dynamically size linescore font based on whether runs and hits are double digits
-    if len(runs) >= 2 and len(hits) >= 2:
-        font = SMALLER_FONT
+    # dynamically size linescore font based on whether runs or hits are double digits
+    if len(runs) >= 2 or len(hits) >= 2:
+        font = SMALL_FONT
     else:
         font = FIVE_WIDE_FONT
     return render.Row(
@@ -423,82 +786,116 @@ def get_hits(game, team_type):
 def get_errors(game, team_type):
     return str(int(game.get("linescore").get("teams").get(team_type).get("errors")))
 
-def render_inning(game):
-    url = MLB_BASE_URL.format(game.get("link"))
-
-    # hit the API again to get current in-game live data
-    query_params = {
-        "fields": "liveData,plays,currentPlay,matchup,postOnFirst,postOnSecond,postOnThird,linescore,isTopInning,currentInning,outs",
-    }
-
-    # refresh this every 30 seconds to stay up to date
-    response = http.get(url, params = query_params, ttl_seconds = 30)
-
-    # if the API call failed for some reason, get the linescore from the current game
-    if response.status_code != HTTP_OK:
-        linescore = game.get("linescore")
-
-        # assume we cannot render bases in the case that this request failed
-        matchup = {}
-    else:
-        live_data = response.json().get("liveData")
-        linescore = live_data.get("linescore")
-        matchup = live_data.get("plays").get("currentPlay").get("matchup")
-
-    inning = str(int(linescore.get("currentInning")))
-    outs = int(linescore.get("outs"))
-    is_top = linescore.get("isTopInning")
-
-    inning_widget = render.Padding(
-        pad = (1, 0, 0, 0),
-        child = render.Text(
-            content = inning,
-            font = "6x13",
+def render_inning(inning, half_inning, outs):
+    array = []
+    if outs == 3:
+        if half_inning == "top":
+            content = "MID"
+        else:
+            content = "END"
+        content += " " if inning < 10 else ""
+        array.append(
+            render.Text(
+                content = content,
+                font = SMALL_FONT,
+                color = INNING_COLOR,
+            ),
+        )
+    array.append(
+        render.Text(
+            content = str(inning),
+            font = FIVE_WIDE_FONT,
             color = INNING_COLOR,
         ),
     )
-    if is_top:
-        widget = render.Column(
-            cross_align = "center",
-            children = [
-                render.Image(
-                    src = TOP_INNING,
+    if outs < 3:
+        is_top = half_inning == "top"
+        array.append(
+            render.Padding(
+                pad = (0, 1 if is_top else 2, 0, 0),
+                child = render.Image(
+                    src = TOP_INNING if is_top else BOTTOM_INNING,
                 ),
-                inning_widget,
-                render.Box(
-                    height = 3,
-                    width = 1,
-                ),
-                render_current_outs(outs),
-                render_bases(matchup),
-            ],
+            ),
         )
-    else:
-        widget = render.Column(
-            cross_align = "center",
-            children = [
-                render.Box(
-                    width = 2,
-                    height = 3,
-                ),
-                inning_widget,
-                render.Image(
-                    src = BOTTOM_INNING,
-                ),
-                render_current_outs(outs),
-                render_bases(matchup),
-            ],
-        )
-    return render.Box(
-        width = 12,
-        height = 32,
-        child = widget,
+
+    return render.Row(
+        expanded = True,
+        main_align = "center",
+        children = array,
     )
 
-def render_bases(matchup):
-    first = OCCUPIED_BASE_IMG if matchup.get("postOnFirst") != None else EMPTY_BASE_IMG
-    second = OCCUPIED_BASE_IMG if matchup.get("postOnSecond") != None else EMPTY_BASE_IMG
-    third = OCCUPIED_BASE_IMG if matchup.get("postOnThird") != None else EMPTY_BASE_IMG
+def get_play_to_process(live_data):
+    # need the most recent completed play
+    # start by seeing if the most recent play is completed
+    # if it is not, then the one right before it will be
+    all_plays = live_data.get("plays").get("allPlays")
+    play = all_plays[-1]
+
+    if not play.get("about").get("isComplete") and len(all_plays) > 1:
+        play = all_plays[len(all_plays) - 2]
+    return play
+
+def render_state(live_data):
+    play = get_play_to_process(live_data)
+    inning = int(play.get("about").get("inning"))
+    half_inning = play.get("about").get("halfInning")
+    outs = int(play.get("count").get("outs"))
+
+    return render.Padding(
+        pad = (22, 3, 0, 0),
+        child = render.Box(
+            height = 32,
+            width = 22,
+            child = render.Column(
+                main_align = "start",
+                cross_align = "center",
+                children = [
+                    render_inning(inning, half_inning, outs),
+                    render.Box(
+                        height = 1,
+                        width = 1,
+                    ),
+                    render_bases(live_data),
+                    render.Box(
+                        height = 1,
+                        width = 1,
+                    ),
+                    render_current_outs(outs),
+                    render.Box(
+                        height = 1,
+                        width = 1,
+                    ),
+                    process_play(play),
+                ],
+            ),
+        ),
+    )
+
+def render_count(balls, strikes):
+    content = ""
+    if balls == 4:
+        content = "BB"
+    elif strikes == 3:
+        content = "K"
+    else:
+        content = str(balls) + "-" + str(strikes)
+    return render.Text(
+        font = SMALL_FONT,
+        content = content,
+        color = INNING_COLOR,
+    )
+
+def render_bases(live_data):
+    if live_data.get("plays").get("currentPlay") == None:
+        first = EMPTY_BASE_IMG
+        second = EMPTY_BASE_IMG
+        third = EMPTY_BASE_IMG
+    else:
+        matchup = live_data.get("plays").get("currentPlay").get("matchup")
+        first = OCCUPIED_BASE_IMG if matchup.get("postOnFirst") != None else EMPTY_BASE_IMG
+        second = OCCUPIED_BASE_IMG if matchup.get("postOnSecond") != None else EMPTY_BASE_IMG
+        third = OCCUPIED_BASE_IMG if matchup.get("postOnThird") != None else EMPTY_BASE_IMG
 
     return render.Stack(
         children = [
@@ -558,6 +955,7 @@ SCHED_FIELDS = (
     "dates",
     "date",
     "games",
+    "gamePk",
     "game",
     "link",
     "gameDate",
@@ -580,14 +978,62 @@ SCHED_FIELDS = (
     "teams",
     "team",
     "id",
-    "runs",
-    "hits",
-    "errors",
     "probablePitcher",
     "useLastName",
+)
+
+LIVE_DATA_FIELDS = (
+    "liveData",
+    "plays",
+    "allPlays",
+    "currentPlay",
+    "atBatIndex",
+    "matchup",
+    "postOnFirst",
+    "postOnSecond",
+    "postOnThird",
+    "linescore",
     "isTopInning",
     "currentInning",
     "outs",
+    "count",
+    "balls",
+    "strikes",
+    "teams",
+    "home",
+    "away",
+    "runs",
+    "hits",
+    "count",
+    "outs",
+    "errors",
+    "result",
+    "eventType",
+    "event",
+    "description",
+    "runners",
+    "details",
+    "about",
+    "inning",
+    "halfInning",
+    "isScoringPlay",
+    "isComplete",
+    "credits",
+    "position",
+    "code",
+    "gameData",
+    "players",
+    "id",
+    "useLastName",
+    "batter",
+    "pitcher",
+    "stats",
+    "pitching",
+    "numberOfPitches",
+    "parentTeamId",
+    "battingOrder",
+    "team",
+    "boxscore",
 )
 
 def get_yesterday_date(timezone):
@@ -596,7 +1042,7 @@ def get_yesterday_date(timezone):
 
 def get_schema():
     hour_options = []
-    for hour in [5, 6, 7, 8, 9, 10, 11]:
+    for hour in [4, 5, 6, 7, 8, 9, 10, 11]:
         hour_options.append(
             schema.Option(
                 display = str(hour),
@@ -662,11 +1108,11 @@ def get_date(timestamp):
     return str(timestamp.year) + "-" + month + "-" + day
 
 TOP_INNING = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAAUAAAADCAYAAABbNsX4AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAABaADAAQAAAABAAAAAwAAAADw6ulRAAAAHklEQVQIHWNggIL/yxj+w9iMIAaKQBQDIyOyAEwlACNfCEuRARSZAAAAAElFTkSuQmCC
+iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAYAAACddGYaAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAA6ADAAQAAAABAAAAAgAAAABqvnfpAAAAFklEQVQIHWNgAIL/Vxn+g2hGGAPEAQBVtgWoSRQwXgAAAABJRU5ErkJggg==
 """)
 
 BOTTOM_INNING = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAAUAAAADCAYAAABbNsX4AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAABaADAAQAAAABAAAAAwAAAADw6ulRAAAAHUlEQVQIHWP8v4zhPwMaYATxkSUYoxjAYmB1yBIAI4kISyv4fA4AAAAASUVORK5CYII=
+iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAYAAACddGYaAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAA6ADAAQAAAABAAAAAgAAAABqvnfpAAAAEklEQVQIHWP8f5XhPwMygAkAAFXDBaj4uKqgAAAAAElFTkSuQmCC
 """)
 
 #################
@@ -1153,7 +1599,7 @@ def render_outs(one_out, two_out):
             src = one_out,
         ),
         render.Box(
-            width = 2,
+            width = 1,
             height = 1,
         ),
         render.Image(
@@ -1167,3 +1613,36 @@ iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAA
 OCCUPIED_BASE_IMG = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAABaADAAQAAAABAAAABQAAAAB/qhzxAAAAMElEQVQIHWNggIL/QABjM4EYIIGN6hAaxGeECYA4IOB/E0KDVW5QA0kjjABLIQsAANZAIZSR/thKAAAAAElFTkSuQmCC
 """)
+
+PLAY_OUTCOME_MAP = {
+    "catcher_interf": "CI",
+    "caught_stealing_2b": "CS",
+    "caught_stealing_3b": "CS",
+    "caught_stealing_home": "CS",
+    "double": "2B",
+    "double_play": "DP",
+    "fielders_choice": "FC",
+    "fielders_choice_out": "FC",
+    "field_error": "E",
+    "field_out": "OUT",
+    "force_out": "FO",
+    "game_advisory": "",
+    "grounded_into_double_play": "GDP",
+    "hit_by_pitch": "HBP",
+    "home_run": "HR",
+    "intent_walk": "IBB",
+    "other_out": "OUT",
+    "pickoff_1b": "OUT",
+    "pickoff_caught_stealing_2b": "CS",
+    "pickoff_caught_stealing_3b": "CS",
+    "sac_fly": "SF",
+    "sac_bunt": "SAC",
+    "single": "1B",
+    "stolen_base_2b": "SB",
+    "stolen_base_3b": "SB",
+    "stolen_base_home": "SB",
+    "strikeout": "K",
+    "strikeout_double_play": "KDP",
+    "triple": "3B",
+    "walk": "BB",
+}

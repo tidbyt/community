@@ -5,7 +5,6 @@ Description: Display a map of earthquakes based on USGS data.
 Author: Brian McLaughlin (SpinStabilized)
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
@@ -47,7 +46,7 @@ DISPLAY_Y_SIZE = 32
 
 HTTP_STATUS_OK = 200
 
-API_CACHE_TTL = 60  # seconds
+API_CACHE_TTL = 60 * 15  # seconds
 
 EARTHQUAKES_LAST_30_DAYS_URL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson"
 
@@ -123,16 +122,11 @@ def get_usgs_data(magnitude_filter = None, time_filter = None, type_filter = Non
         time_filter = duration_calc(30, "days")
     time_filter = time.parse_duration("{}s".format(time_filter))
 
-    geojson_raw = cache.get("raw_earthquake_data")
-    if geojson_raw == None:
-        api_reply = http.get(EARTHQUAKES_LAST_30_DAYS_URL)
-        if api_reply.status_code == HTTP_STATUS_OK:
-            geojson_raw = api_reply.body()
-        else:
-            geojson_raw = '{"features":[]}'
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set("raw_earthquake_data", geojson_raw, ttl_seconds = 60)
+    api_reply = http.get(EARTHQUAKES_LAST_30_DAYS_URL, ttl_seconds = API_CACHE_TTL)
+    if api_reply.status_code == HTTP_STATUS_OK:
+        geojson_raw = api_reply.body()
+    else:
+        geojson_raw = '{"features":[]}'
 
     events = []
 

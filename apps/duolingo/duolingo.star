@@ -319,7 +319,8 @@ def main(config):
     duolingo_streak_daystart_cached = cache.get(duolingo_cache_key_streak_daystart)
 
     # Get time and location variables
-    timezone = config.get("timezone", DEFAULT_TIMEZONE)
+    timezone = config.get("$tz", DEFAULT_TIMEZONE)
+    print("Using timezone " + timezone)
 
     # DEBUG
     # print("DEBUG WARNING: Duolingo Username is set to saltedlolly manually.")
@@ -492,7 +493,7 @@ def main(config):
         else:
             # Lookup the date from the first 'date' value in JSON too see if it is today's data
             time_of_first_entry_unix_time = int(duolingo_xpsummary_json["summaries"][0]["date"])
-            time_of_first_entry = time.from_timestamp(time_of_first_entry_unix_time)
+            time_of_first_entry = time.from_timestamp(time_of_first_entry_unix_time).in_location("UTC")
             date_of_first_entry = time_of_first_entry.format("2006-01-02")
 
             # If the data is from yesterday, insert today's dummy data into JSON variable. (This will be replaced by the actual data once it becomes available.)
