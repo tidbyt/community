@@ -370,13 +370,16 @@ def main(config):
             elif icon_num >= 6 and icon_num <= 8:
                 # cloudy (day)
                 icon_ref = "cloudy.png"
+            elif icon_num == 11:
+                # fog
+                icon_ref = "foggy.png"
             elif (icon_num >= 12 and icon_num <= 14) or icon_num == 18:
                 # rain (day and night)
                 icon_ref = "rainy.png"
-            elif icon_num >= 15 and icon_num < 17:
+            elif (icon_num >= 15 and icon_num < 17) or icon_num == 41 or icon_num == 42:
                 # thunderstorm (day and night)
                 icon_ref = "thundery.png"
-            elif (icon_num >= 19 and icon_num < 26) or icon_num == 29:
+            elif (icon_num >= 19 and icon_num < 26) or icon_num == 29 or icon_num == 43 or icon_num == 44:
                 # snow (day and night)
                 icon_ref = "snowy2.png"
             elif icon_num == 32:
@@ -385,7 +388,7 @@ def main(config):
             elif icon_num == 33 or icon_num == 34:
                 # moon
                 icon_ref = "moony.png"
-            elif (icon_num >= 35 and icon_num <= 44):
+            elif (icon_num >= 35 and icon_num <= 40):
                 #cloudy moon
                 icon_ref = "moonyish.png"
             else:
