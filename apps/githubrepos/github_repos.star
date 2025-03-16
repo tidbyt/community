@@ -5,6 +5,7 @@ Description: Displays a GitHub badge for the status of the configured action.
 Author: Cavallando
 """
 
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -187,7 +188,11 @@ def render_status_badge(status, repos):
                 ),
             )
     else:
+<<<<<<< HEAD
         print("error, got no data from github")
+=======
+        print("error")
+>>>>>>> parent of fcd4f343 (Merge pull request #17 from tronbyt/github_repos)
         rows.append(
             render.Row(
                 cross_align = "center",
@@ -243,6 +248,7 @@ def main(config):
     repo3 = config.str("repo3", "owner/repo/branch/workflow")
     repos_strs = [repo1, repo2, repo3]
     repos = []
+    CACHE_KEY = ""
     for repo in repos_strs:
         if (
             repo == "owner/repo/branch/workflow" or
@@ -261,8 +267,22 @@ def main(config):
                     "str": repo,
                 },
             )
+            CACHE_KEY = CACHE_KEY + repo
+    print("cache_key is " + CACHE_KEY)
     workflow_data = []
-    workflow_data, err = fetch_workflow_data(repos, config.get("access_token", None))
+    err = None
+    cache_results = cache.get(CACHE_KEY)
+    if cache_results and len(cache_results) > 0:
+        print("using cache")
+        workflow_data = json.decode(cache_results)
+        #print(cache_results)
+
+    else:
+        workflow_data, err = fetch_workflow_data(repos, config)
+        print("got workflow_data")
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
+        cache.set(CACHE_KEY, json.encode(workflow_data), ttl_seconds = 60)
 
     if err:
         return render_status_badge("failed", err)
