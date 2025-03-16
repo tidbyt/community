@@ -1,0 +1,8 @@
+---
+id: compact-stocks
+name: Compact Stocks
+summary: Compact stock ticker app
+desc: A stock ticker app that shows the current prices & daily changes for 5 stocks of your choice.
+author: tobyxdd
+fileName: stocks.star
+packageName: compactstocks

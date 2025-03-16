@@ -2,7 +2,7 @@
 id: wow-token
 name: WoW Token
 summary: Display WoW Token Price
-desc: Displays the current price of the World of Warcraft token in various regions. Data provided by wowtokenprices.com and updated every 10 minutes.
+desc: Displays the current price of the World of Warcraft token in various regions. Data provided by wowtoken.app.
 author: '@ledif'
 fileName: wow_token.star
 packageName: wowtoken

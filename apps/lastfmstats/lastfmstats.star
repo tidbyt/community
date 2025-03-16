@@ -36,7 +36,8 @@ DEMO_TRACK = {
 }
 
 # Decrypt the default API Key
-DEFAULT_API_KEY = secret.decrypt("AV6+xWcEbkyjqMT+CqEdZ9QaSH7mWovW32VBKUdzvybcFcB2wT2F+j9dlWaagb9wwIVCKuiEPmiPXFDnGFYXOLMDPmLPJy3dhBtWLbOYUKMUeDdE+Qp5B5J7MJNQSYy7+7noQRo3rnRONS/gyxNkKC2E28/WqwIjvKAViK3Uf0EVUIGL2AI=")
+# Encrypted with `pixlet encrypt lastfmstats <apikey>`
+DEFAULT_API_KEY = secret.decrypt("AV6+xWcEMpic5Qa9aeMvuCkgUcDo+y8Ss5dDyiQPAQ7ulLP5TAWzms85w37wrjBimdEkp1lkVdBUwGt/gz1crVW7x1Z7LVCLCPCd5Cql/OofkaJeRDgYeCNKWPJtCRp22hER6a+CpFJShcjkVTEJVThJw9lK7ij0HrP5a3J9eHEXo10xv5M=")
 
 # Load default artwork
 DEFAULT_ARTWORK = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAAZ0lEQVQ4T2O0sLD4z0BlwEg3Q9eJMpLt9qDX/xmwunToGQryCrEA5juC3h81lNggZRgNU3BQ0SdJoWdPYtIpNj3wvI8tvxMyFJcesKG4ChB8huLTQztDQbFGrfAEmUW/kp/ovIlDIQDgTH/J851RMQAAAABJRU5ErkJggg==")

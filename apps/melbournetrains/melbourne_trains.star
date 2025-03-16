@@ -14,6 +14,7 @@ Shoutouts to the following developers below for code examples in their apps:
 
 Changelog:
 - v1.0 - First release to Tidbyt
+- v1.1 - Add support for East Pakenham Station
 """
 
 load("hmac.star", "hmac")
@@ -26,13 +27,6 @@ load("time.star", "time")
 LOCAL_MODE = False
 LOCAL_API_ID = None
 LOCAL_API_KEY = None
-
-DEFAULT_ROUTE_ID = "11"
-DEFAULT_ROUTE_NAME = "Pakenham"
-DEFAULT_STOP_ID = "1150"
-DEFAULT_STOP_NAME = "Oakleigh Station"
-DEFAULT_DIRECTION_ID = "1"
-DEFAULT_DIRECTION_DATA = ["1", "City (Flinders Street)"]
 
 BASE_URL = "https://timetableapi.ptv.vic.gov.au"
 CACHE_TTL_SECS = 60
@@ -48,7 +42,15 @@ COLOR_CODE_SANDRINGHAM = "#E997B7"
 COLOR_CODE_STONYPOINT = "#5DA971"
 COLOR_CODE_DEFAULT = "#000000"
 COLOR_CODE_TIME = "#F3AB3F"
-COLOR_CODE_PLATFORM_NUMBER = "#FFFFFF"
+COLOR_CODE_WHITE = "#FFFFFF"
+COLOR_CODE_BLACK = "#000000"
+
+DEFAULT_ROUTE_ID = "11"
+DEFAULT_ROUTE_NAME = "Pakenham"
+DEFAULT_STOP_ID = "1150"
+DEFAULT_STOP_NAME = "Oakleigh Station"
+DEFAULT_DIRECTION_ID = "1"
+DEFAULT_DIRECTION_DATA = ["1", "City (Flinders Street)"]
 
 def main(config):
     schema_train_line = config.get("train-line")
@@ -132,12 +134,8 @@ def main(config):
                     expanded = True,
                     main_align = "start",
                     children = [
-                        build_row(departures[0]),
-                        render.Box(
-                            width = 64,
-                            height = 1,
-                            color = "#666",
-                        ),
+                        build_departure_row(departures[0]),
+                        build_divider_visible_row(),
                     ],
                 ),
             )
@@ -150,13 +148,10 @@ def main(config):
                     expanded = True,
                     main_align = "start",
                     children = [
-                        build_row(departures[0]),
-                        render.Box(
-                            width = 64,
-                            height = 1,
-                            color = "#666",
-                        ),
-                        build_row(departures[1]),
+                        build_departure_row(departures[0]),
+                        build_divider_visible_row(),
+                        build_divider_invisible_row(),
+                        build_departure_row(departures[1]),
                     ],
                 ),
             )
@@ -175,9 +170,9 @@ def main(config):
         ),
     )
 
-# Render Function
-def build_row(departure):
-    platform_number = render.Text(departure["platform_number"], color = COLOR_CODE_PLATFORM_NUMBER, font = "5x8")
+# Render Function - Departure Row
+def build_departure_row(departure):
+    platform_number = render.Text(departure["platform_number"], color = COLOR_CODE_BLACK, font = "5x8")
 
     return render.Row(
         expanded = True,
@@ -188,11 +183,16 @@ def build_row(departure):
                 # Render - Train Line Color Code and Platform Number
                 render.Box(
                     color = departure["color"],
-                    width = 11,
-                    height = 10,
+                    width = 16,
+                    height = 14,
                     child = platform_number,
                 ),
             ]),
+            render.Box(
+                width = 1,
+                height = 1,
+                color = "#000000",
+            ),
             render.Column(
                 children = [
                     # Render - Departure Direction
@@ -211,6 +211,22 @@ def build_row(departure):
                 ],
             ),
         ],
+    )
+
+# Render Function - Divider Visible Row
+def build_divider_visible_row():
+    return render.Box(
+        width = 64,
+        height = 1,
+        color = "#666",
+    )
+
+# Render Function - Divider Invisible Row
+def build_divider_invisible_row():
+    return render.Box(
+        width = 64,
+        height = 1,
+        color = "#000000",
     )
 
 # API - GET Departures Data and Transform
@@ -321,7 +337,7 @@ def get_train_line_color_code(route_name):
     elif route_name in group_stonypoint:
         return COLOR_CODE_STONYPOINT
     else:
-        return COLOR_CODE_DEFAULT
+        return COLOR_CODE_WHITE
 
 # Schema Options - Train Line Options (value = route_id,route_name)
 TrainLineOptions = [
@@ -1376,6 +1392,10 @@ PakenhamStopOptions = [
         value = "1049,Dandenong Station",
     ),
     schema.Option(
+        display = "East Pakenham Station",
+        value = "1230,East Pakenham Station",
+    ),
+    schema.Option(
         display = "Flagstaff Station",
         value = "1068,Flagstaff Station",
     ),
@@ -2416,7 +2436,7 @@ def get_schema():
             schema.Dropdown(
                 id = "train-line",
                 name = "Train Line",
-                desc = "Chose your train line",
+                desc = "Choose your train line",
                 icon = "train",
                 default = TrainLineOptions[0].value,
                 options = TrainLineOptions,

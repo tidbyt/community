@@ -6,7 +6,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 REFRESH_RATE = 3600
-OPEN_WEATHER_URL = "https://api.openweathermap.org/data/2.5/onecall"
+OPEN_WEATHER_URL = "https://api.openweathermap.org/data/3.0/onecall"
 ADVERBS = [
     "damn cold",
     "darn cold",
@@ -89,10 +89,13 @@ def getMainString(temp, jacketLimit, coatLimit):
     outerwear = (temp < coatLimit) and "coat" or "jacket"
     return "You%s need a %s" % (negation, outerwear)
 
-def getSubString(temp, unit = "f"):
+def getSubString(temp, unit = "f", widgetMode = False):
+    if widgetMode:
+        return getTempWord(temp, unit)
     return "It's %s outside" % getTempWord(temp, unit)
 
 def main(config):
+    widgetMode = config.bool("$widget")
     current_data = get_weather_data(config)
     feels_like = ktof(current_data["feels_like"])
     jacketLimit = config.get("jacketLimit", DEFAULT_JACKET_LIMIT)
@@ -119,7 +122,7 @@ def main(config):
         ),
     )
     if show_description != "false":
-        subString = getSubString(feels_like)
+        subString = getSubString(feels_like, widgetMode = widgetMode)
         weather_info.append(render.Box(width = 64, height = 1, color = config.get("divider_color", "#1167B1")))
         weather_info.append(
             render.Row(

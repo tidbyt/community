@@ -5,8 +5,6 @@ Description: Display CPBL scores and schedule, require theSportDB API key .
 Author: yuping917
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -116,7 +114,7 @@ def main(config):
                 if NScount > NSMax:
                     continue
             gameTime = s.get("strTimestamp")
-            convertedTime = time.parse_time(gameTime.replace(":00+00:00", "Z"), format = "2006-01-02T15:04Z").in_location(timezone)
+            convertedTime = time.parse_time(gameTime + "Z", format = "2006-01-02T15:04:05Z").in_location(timezone)
             if convertedTime.format("1/2") != now.format("1/2"):
                 gameTime = convertedTime.format("Jan 2")
             else:
@@ -438,10 +436,6 @@ def get_schema():
     )
 
 def get_cachable_data(url):
-    key = base64.encode(url)
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
     res = http.get(url = url, ttl_seconds = CACHE_TTL_SECONDS)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
