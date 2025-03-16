@@ -188,11 +188,7 @@ def render_status_badge(status, repos):
                 ),
             )
     else:
-<<<<<<< HEAD
         print("error, got no data from github")
-=======
-        print("error")
->>>>>>> parent of fcd4f343 (Merge pull request #17 from tronbyt/github_repos)
         rows.append(
             render.Row(
                 cross_align = "center",
