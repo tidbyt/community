@@ -92,16 +92,18 @@ def main(config):
     timezone = config.get("timezone") or "America/New_York"
     current_date = time.now().in_location(timezone)
 
-    st_patricks_day = time.time(year = current_date.year, month = 3, day = 17, location = timezone)
+    st_patricks_day = time.time(year = current_date.year, month = 3, day = 17, hour = 0, minute = 0, location = timezone)
+    st_patricks_day_end = time.time(year = current_date.year, month = 3, day = 17, hour = 23, minute = 59, second = 59, location = timezone)
 
     # If St. Patrick's Day has already passed this year, calculate for the next year
-    if current_date > st_patricks_day:
+    if current_date > st_patricks_day_end:
         st_patricks_day = time.time(year = current_date.year + 1, month = 3, day = 17, location = timezone)
 
     st_patricks_day_datestring = "March 17, " + str(st_patricks_day.year)
 
-    # Calculate the difference in days
     diff = st_patricks_day - current_date
+
+    # Calculate the difference in days
     days_until_st_patricks = math.ceil(diff.hours / 24)
 
     # create static elements
@@ -122,7 +124,7 @@ def main(config):
             width = 44,
             height = 10,
             child = render.Text(
-                content = " %s" % humanize.plural(int(days_until_st_patricks), "day"),
+                content = " %s" % humanize.plural(int(days_until_st_patricks), "day") if days_until_st_patricks > 0 else "Today",
                 color = "#FFFFFF",
                 height = 0,
                 offset = 0,
@@ -137,7 +139,7 @@ def main(config):
             height = 10,
             child = render.Text(
                 #content = "March 17, 2024",
-                content = st_patricks_day_datestring,
+                content = st_patricks_day_datestring if days_until_st_patricks > 0 else "Happy St Pat's",
                 color = "#00FF00",
                 font = "CG-pixel-3x5-mono",
             ),
