@@ -13,7 +13,7 @@ load("schema.star", "schema")
 
 HOST = ""
 API_KEY = ""
-VERSION = "V5"
+VERSION = "v5"
 GREEN = "#00cc00"
 RED = "#ff4136"
 PIHOLE_LOGO = base64.decode("""
