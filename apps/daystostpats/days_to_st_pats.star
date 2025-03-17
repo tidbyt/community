@@ -92,9 +92,8 @@ def main(config):
     timezone = config.get("timezone") or "America/New_York"
     current_date = time.now().in_location(timezone)
 
-    st_patricks_day = time.time(year = current_date.year, month = 3, day = 17, hour = 00, minute = 00, location = timezone)
+    st_patricks_day = time.time(year = current_date.year, month = 3, day = 17, hour = 0, minute = 0, location = timezone)
     st_patricks_day_end = time.time(year = current_date.year, month = 3, day = 17, hour = 23, minute = 59, second = 59, location = timezone)
-
 
     # If St. Patrick's Day has already passed this year, calculate for the next year
     if current_date > st_patricks_day_end:
@@ -103,6 +102,7 @@ def main(config):
     st_patricks_day_datestring = "March 17, " + str(st_patricks_day.year)
 
     diff = st_patricks_day - current_date
+
     # Calculate the difference in days
     days_until_st_patricks = math.ceil(diff.hours / 24)
 
