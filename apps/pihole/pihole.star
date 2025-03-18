@@ -32,14 +32,14 @@ version_options = [
 ]
 
 def get_pihole_stats(endpoint, api_key):
-    resp = http.get("http://%s/admin/api.php" % endpoint, params = {"summaryRaw": "", "auth": api_key}, ttl_seconds = 360)
+    resp = http.get("%s/admin/api.php" % endpoint, params = {"summaryRaw": "", "auth": api_key}, ttl_seconds = 360)
     if resp.status_code != 200:
         print("PiHole request failed with status %d", resp.status_code)
         summary = None
     else:
         summary = resp.json()
 
-    resp = http.get("http://%s/admin/api.php" % endpoint, params = {"overTimeData10mins": "", "auth": api_key}, ttl_seconds = 360)
+    resp = http.get("%s/admin/api.php" % endpoint, params = {"overTimeData10mins": "", "auth": api_key}, ttl_seconds = 360)
     if resp.status_code != 200:
         print("PiHole request failed with status %d", resp.status_code)
         plot_data = None
@@ -48,19 +48,19 @@ def get_pihole_stats(endpoint, api_key):
     return summary, plot_data
 
 def get_pihole_v6_stats(endpoint, api_key):
-    resp = http.post("http://%s/api/auth" % endpoint, json_body = {"password": api_key}, ttl_seconds = 360)
+    resp = http.post("%s/api/auth" % endpoint, json_body = {"password": api_key}, ttl_seconds = 360)
     if resp.status_code != 200:
         print("PiHole request failed with status %d", resp.status_code)
     sid = resp.json()["session"]["sid"]
 
-    resp = http.get("http://%s/api/stats/summary" % endpoint, params = {"sid": sid}, ttl_seconds = 360)
+    resp = http.get("%s/api/stats/summary" % endpoint, params = {"sid": sid}, ttl_seconds = 360)
     if resp.status_code != 200:
         print("PiHole request failed with status %d", resp.status_code)
         summary = None
     else:
         summary = resp.json()
 
-    resp = http.get("http://%s/api/history" % endpoint, params = {"sid": sid}, ttl_seconds = 360)
+    resp = http.get("%s/api/history" % endpoint, params = {"sid": sid}, ttl_seconds = 360)
     if resp.status_code != 200:
         print("PiHole request failed with status %d", resp.status_code)
         plot_data = None
@@ -109,6 +109,8 @@ def main(config):
         )
 
     else:
+        if not host.startswith("http"):
+            host = "http://" + host
         summary, plot_data = get_pihole_stats(host, api_key) if version == "v5" else get_pihole_v6_stats(host, api_key)
 
         if not summary or not plot_data:
