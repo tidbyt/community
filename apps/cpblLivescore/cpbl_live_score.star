@@ -33,9 +33,8 @@ TEAM_LOGO = """
 {
     "315045": "https://www.cpbl.com.tw/files/file_pool/1/0l109765752096404797/logo_dragon.png",
     "230422": "https://www.cpbl.com.tw/files/file_pool/1/0l109765754453009797/logo_brothers.png",
-    "836779": "https://www.thesportsdb.com/images/media/team/badge/gx1dgl1680852780.png",
+    "836779": "https://r2.thesportsdb.com/images/media/team/badge/gx1dgl1680852780.png",
     "329121": "https://assets.b365api.com/images/wp/o/8d4b8b442ce550b84187f6a388dd08e5.png",
-    "224094": "https://assets.b365api.com/images/wp/o/dec78d508fac27062963e766d6fd4323.png",
     "229259": "https://assets.b365api.com/images/wp/o/dec78d508fac27062963e766d6fd4323.png",
     "224095": "https://assets.b365api.com/images/wp/o/5631bccbd611a4c52edac4e5ea940f1f.png"
 }
@@ -47,7 +46,6 @@ TEAM_COLOR = """
     "230422": "#0e2240",
     "836779": "#074539",
     "329121": "#4b1d18",
-    "224094": "#002255",
     "229259": "#002255",
     "224095": "#df6b00"
 }
@@ -59,7 +57,6 @@ TEAM_FONTCOLOR = """
     "230422": "#fff",
     "836779": "#fff",
     "329121": "#fff",
-    "224094": "#fff",
     "229259": "#fff",
     "224095": "#fff"
 }
@@ -83,7 +80,6 @@ TEAM_LOCATION = """
     "230422": "TXG",
     "836779": "KHH",
     "329121": "TYN",
-    "224094": "TPH",
     "229259": "TPH",
     "224095": "TNN"
 }
@@ -95,7 +91,6 @@ TEAM_SHORTNAME = """
     "230422": "BROTHER",
     "836779": "HAWKS",
     "329121": "RAKUTEN",
-    "224094": "FUBON",
     "229259": "FUBON",
     "224095": "UNI-LION"
 }
