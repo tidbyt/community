@@ -45,7 +45,7 @@ v2.5
 Updated for 2025 season
 
 v2.5.1
-Handling for Western Bulldogs being referred to as Footscray
+Handling for Western Bulldogs being referred to as original name of Footscray for their 100th anniversary
 """
 
 load("encoding/json.star", "json")
@@ -479,6 +479,7 @@ def showLiveGame(CurrentRoundJSON, LiveJSON, IncompleteMatches, x):
         SquiggleHome = LiveJSON["games"][y]["hteam"]
 
         # GWS needs some fixing to work for the next condition
+        # Western Bulldogs being referred to as Footscray by AFL website for their 100th year anniversary
         if SquiggleHome == "Greater Western Sydney":
             SquiggleHome = "GWS Giants"
         if HomeTeamName == "Footscray":
@@ -572,6 +573,8 @@ def showLiveGame(CurrentRoundJSON, LiveJSON, IncompleteMatches, x):
             # GWS needs some fixing to work for the next condition
             if SquiggleHome == "Greater Western Sydney":
                 SquiggleHome = "GWS Giants"
+            if HomeTeamName == "Footscray":
+                HomeTeamName = "Western Bulldogs"
 
             if HomeTeamName[:5] == SquiggleHome[:5] or AwayTeamName[:5] == SquiggleHome[:5]:
                 CompOutput = showCompletedGame(CompletedJSON, q, True, home_team_abb, away_team_abb, home_team_font, away_team_font, home_team_bkg, away_team_bkg)
