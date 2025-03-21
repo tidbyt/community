@@ -72,7 +72,9 @@ def main(config):
     )
 
 def get_asp_status(url, timeout):
-    headers = {"Cache-Control": "no-cache", "Ocp-Apim-Subscription-Key": secret.decrypt(API_KEY)}
+    headers = {"Cache-Control": "no-cache", "Ocp-Apim-Subscription-Key": secret.decrypt(API_KEY) or "demo"}
+    if headers["Ocp-Apim-Subscription-Key"] == "demo":
+        return ["IN EFFECT", "- DEMO MODE"]
     response = http.get(url = url, headers = headers, ttl_seconds = timeout)
     if response.status_code != 200:
         return ["ERROR", "- Couldn't load ASP status"]
