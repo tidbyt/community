@@ -9,13 +9,16 @@ load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 load("time.star", "time")
 
 months = ["", "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."]
 days = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th", "21st", "22nd", "23rd", "24th", "25th", "26th", "27th", "28th", "29th", "30th", "31st"]
 
 URL = "https://api.nyc.gov/public/api/GetCalendar?"
-API_KEY = "5e5d2e9e95d64fcfa0be86ac934ae41f"
+API_KEY = "AV6+xWcEmWCuOJrV+1l+H3+fCswazDOlfYCGy5lRbbmhDu1YNfUlw54m62mJJ95yl3EUTy0BH8OsD895GSvqASyRF8MTY9e1vW4TB+w6AXDt9RzBf7kMUtaZ4Vyal1HA85WXA0v2eSEb5IXmIe8T8dzwKO7VRrOaBJ8xVH6xI0U9uQ948f8="
+
+TTL_SECONDS = 300
 
 DEFAULT_SHOW_APP = False
 
@@ -25,7 +28,7 @@ GREEN_IMG = "PD94bWwgdmVyc2lvbj0iMS4wIj8+Cjxzdmcgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjA
 def main(config):
     showApp = config.bool("showOnlySuspended", DEFAULT_SHOW_APP)
 
-    status = get_asp_status(URL + "fromdate=%s&todate=%s" % (display_date()[0].format("2006-01-02"), display_date()[1].format("2006-01-02")), 300)
+    status = get_asp_status(URL + "fromdate=%s&todate=%s" % (display_date()[0].format("2006-01-02"), display_date()[1].format("2006-01-02")), TTL_SECONDS)
 
     if (status[0] == "IN EFFECT" and showApp == True):
         # Don't display the app in the user's rotation
@@ -69,7 +72,7 @@ def main(config):
     )
 
 def get_asp_status(url, timeout):
-    headers = {"Cache-Control": "no-cache", "Ocp-Apim-Subscription-Key": API_KEY}
+    headers = {"Cache-Control": "no-cache", "Ocp-Apim-Subscription-Key": secret.decrypt(API_KEY)}
     response = http.get(url = url, headers = headers, ttl_seconds = timeout)
     if response.status_code != 200:
         return ["ERROR", "- Couldn't load ASP status"]
