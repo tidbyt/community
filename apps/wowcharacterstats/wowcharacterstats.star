@@ -69,7 +69,7 @@ DEFAULT_REGION = "us"
 DEFAULT_AUTH_TTL = 86399
 
 CURRENT_EXPANSION = "The War Within"
-CURRENT_INSTANCE = "Nerub-ar Palace"
+CURRENT_INSTANCE = "Liberation of Undermine"
 
 def main(config):
     client_id = secret.decrypt(

@@ -1,0 +1,186 @@
+Install Pixlet:
+ brew install tidbyt/tidbyt/pixlet 
+ Also, use this to UPDATE pixlet!
+
+ Billboard Top 10 Key : 7516afc443msh4e2a668c6107da3p1385fdjsn585a83695b51
+
+ Congress API_KEY = "IwiU6rcUFvTMiiVCz1HXblunVhKixvY5L3mDTHsU"
+
+API Keys:
+    Congress: IwiU6rcUFvTMiiVCz1HXblunVhKixvY5L3mDTHsU
+
+New Apps:
+
+Get get the codebase on your machine:
+    First go to https://github.com/tidbyt/community , click 'fork' in the upper right and create your own fork.
+    Go to github.com/{YourUsername}/community, click "Code" and copy the HTTPS URL which should look like https://github.com/{YourUserName}}/community.git
+    If you are using Visual Studio Code, open it, File, Open, browse to a folder on your local machine where you want to save your GitHub info.
+    Terminal, New Terminal, use that URL from above to and call the comman:
+        git clone {YourUrl from Above}
+
+If you have already set this up, go to GitHub, Repositories, Community, Sync Fork. Now you are ready to make a branch for your new/app or fix: 
+
+I recommend making a branch with each app or fix you want to submit individually to Tidbyt. So if you were making a new app "MyFirstApp":
+    git checkout -b MyFirstApp 
+Doing this will let you make a pull request on this app, but then start working on another app in another branch later.
+Now go to the 'community' folder in your branch in the terminal using cd .. and cd community etc.
+run the command to set up an app:
+    pixlet create 
+
+Notes:
+Run this in community folder in order to make format and make lint
+export PATH=$PATH:$HOME/go/bin
+make format 
+
+New App:
+Go to local community folder and run "pixlet create"
+OAuth2.0 get secret from the site you want to interact with
+pixlet encrypt [app id] [top secret value]
+
+Support:
+Fonts: 10x20 5x8 6x10-rounded 6x10 6x13 CG-pixel-3x5-mono CG-pixel-4x5-mono Dina_r400 tb-8 tom-thumb 
+Icons: https://github.com/tidbyt/pixlet/blob/main/icons/icons.go
+Screen Size: 64W x 32H
+
+Ignore Errors:
+# buildifier: disable=function-docstring
+
+Running App Locally:
+pixlet render apps/hurricanetracker/hurricanetracker.star --gif --magnify 20
+pixlet render apps/visibleplanets/visibleplanets.star --magnify 20
+pixlet serve --watch hurricanetracker.star
+CTRL-C to kill a process 
+
+pixlet push --api-token eyJhbGciOiJFUzI1NiIsImtpZCI6IjY1YzFhMmUzNzJjZjljMTQ1MTQyNzk5ODZhMzYyNmQ1Y2QzNTI0N2IiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJodHRwczovL2FwaS50aWRieXQuY29tIiwiZXhwIjozMjczMTYyNTk1LCJpYXQiOjE2OTYzNjI1OTUsImlzcyI6Imh0dHBzOi8vYXBpLnRpZGJ5dC5jb20iLCJzdWIiOiJsa3V0ZGRqa2R4VmtsR1NUNmFiaklrYnhEb2gxIiwic2NvcGUiOiJkZXZpY2UiLCJkZXZpY2UiOiJmb3VsbHktZm9uZC1yYXJlLWZveGhvdW5kLTZhYiJ9.enmLeGbilvtGsKJ1z3fJeMIwCXMHuO7iH96XSpNdKOPqnjt3XxUuou_8UQhT4Q6StMI-YwttLPbVqgH-G0sPwg foully-fond-rare-foxhound-6ab apps/militaryranks/military_ranks.star
+
+
+
+pixlet lint --fix apps/militaryranks/military_ranks.star
+pixlet format apps/militaryranks/military_ranks.star     
+pixlet community load-app apps/militaryranks/military_ranks.star
+pixlet check apps/militaryranks/military_ranks.star
+
+Getting Resources:
+pixlet community list-icons 
+pixlet community list-icons | less (landmarkDome. oldRepublic
+)
+or look here:https://github.com/tidbyt/pixlet/blob/main/icons/icons.go
+
+
+Git:
+git clone https://github.com/rjison/community.git
+git add apps/gartnernews/gartner_news.webp -f 
+git checkout -b StateFlagFlashcards
+
+
+Web Sites
+Branching Guide: https://learngitbranching.js.org/
+Style Guide: https://peps.python.org/pep-0008/#block-comments
+Language Definition: https://github.com/google/starlark-go/blob/master/doc/spec.md
+
+Available Fonts:
+
+5x8
+6x13
+CG-pixel-3x5-mono 
+CG-pixel-4x5-mono 
+Dina_r400-6 
+tb-8 
+
+
+Spot The Station XML
+
+https://spotthestation.nasa.gov/sightings/xml_files/Canada_NW_Territories_Cambridge_Bay.xml
+https://spotthestation.nasa.gov/sightings/xml_files/Liberia_None_Monrovia.xml
+https://spotthestation.nasa.gov/sightings/xml_files/China_None_Xian.xml
+
+Popular Apps:
+https://discuss.tidbyt.com/t/app-ranking/3333
+
+Rachio:
+
+API: 4edda71b-e284-4bb4-8c0e-d687fcb4eca9
+PERSON ID: 8f8d0f59-7bc3-4042-b152-1b671f5849d6
+DEVICE ID: 73d5edf6-c009-450f-a19a-9b1c0709fce7
+ZONE ID: d19ca55b-a42f-463e-82eb-84da3fcced8b
+
+curl -v https://api.rach.io/1/public/person/info -H "Authorization: Bearer 4edda71b-e284-4bb4-8c0e-d687fcb4eca9"
+curl -X GET -H "Authorization:Bearer 4edda71b-e284-4bb4-8c0e-d687fcb4eca9" https://api.rach.io/1/public/person/8f8d0f59-7bc3-4042-b152-1b671f5849d6
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 4edda71b-e284-4bb4-8c0e-d687fcb4eca9" https://api.rach.io/1/public/device/2a5e7d3c-c140-4e2e-91a1-a212a518adc5/forecast?units=US
+curl -X GET -H "Content-Type: application/json" -H "Authorization:4edda71b-e284-4bb4-8c0e-d687fcb4eca9" https://api.rach.io/1/public/schedulerule/445cb316-9232-4d26-a4f4-53a3d8807ce4
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 4edda71b-e284-4bb4-8c0e-d687fcb4eca9" https://api.rach.io/1/public/zone/d19ca55b-a42f-463e-82eb-84da3fcced8b
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 4edda71b-e284-4bb4-8c0e-d687fcb4eca9" https://api.rach.io/1/public/device/73d5edf6-c009-450f-a19a-9b1c0709fce7/current_schedule
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 4edda71b-e284-4bb4-8c0e-d687fcb4eca9" https://api.rach.io/1/public/schedulerule/445cb316-9232-4d26-a4f4-53a3d8807ce4
+
+Astronomy
+Application ID: 3b1bf69e-eb31-4534-929b-2db09a1edb29
+App Secret: fa7f19363b67d3d3bb136cd08c337be3e40217885223cd2a3b71dd9ac55c0d87d9a4b1b8901e17bdd57bfc90feb86a927e10c66aaadc1a21567b8f15518cf055dc091a7897793aa419952003552ce6ed95e146f291ed43dac3c4df23fa795569440ee5f57ca92fb3fa889f19ae5d1356
+
+curl --location --request GET 'https://api.astronomyapi.com/api/v2/bodies' 
+\ --header 'Authorization: Basic M2IxYmY2OWUtZWIzMS00NTM0LTkyOWItMmRiMDlhMWVkYjI5OmZhN2YxOTM2M2I2N2QzZDNiYjEzNmNkMDhjMzM3YmUzZTQwMjE3ODg1MjIzY2QyYTNiNzFkZDlhYzU1YzBkODdkOWE0YjFiODkwMWUxN2JkZDU3YmZjOTBmZWI4NmE5MjdlMTBjNjZhYWFkYzFhMjE1NjdiOGYxNTUxOGNmMDU1ZGMwOTFhNzg5Nzc5M2FhNDE5OTUyMDAzNTUyY2U2ZWQ5NWUxNDZmMjkxZWQ0M2RhYzNjNGRmMjNmYTc5NTU2OTQ0MGVlNWY1N2NhOTJmYjNmYTg4OWYxOWFlNWQxMzU2'
+
+curl --location --request GET 'https://api.astronomyapi.com/api/v2/bodies' 
+\ --header 'Authorization: Basic M2IxYmY2OWUtZWIzMS00NTM0LTkyOWItMmRiMDlhMWVkYjI5OmZhN2YxOTM2M2I2N2QzZDNiYjEzNmNkMDhjMzM3YmUzZTQwMjE3ODg1MjIzY2QyYTNiNzFkZDlhYzU1YzBkODdkOWE0YjFiODkwMWUxN2JkZDU3YmZjOTBmZWI4NmE5MjdlMTBjNjZhYWFkYzFhMjE1NjdiOGYxNTUxOGNmMDU1ZGMwOTFhNzg5Nzc5M2FhNDE5OTUyMDAzNTUyY2U2ZWQ5NWUxNDZmMjkxZWQ0M2RhYzNjNGRmMjNmYTc5NTU2OTQ0MGVlNWY1N2NhOTJmYjNmYTg4OWYxOWFlNWQxMzU2'
+
+planet_colors = {
+    "mercury": "",
+    "venus": "",
+    "mars": "",
+    "jupiter": "",
+    "saturn": "",
+    "uranus": "",
+    "neptune": "",
+}
+
+    """ 
+    Main routine to display hurricane tracking info.
+    Args:
+        config: A decimal integer
+    Returns:
+        main display
+    """
+
+Scroll Speed:
+scroll_speed_options = [
+    schema.Option(
+        display = "Slow Scroll",
+        value = "60",
+    ),
+    schema.Option(
+        display = "Medium Scroll",
+        value = "45",
+    ),
+    schema.Option(
+        display = "Fast Scroll",
+        value = "30",
+    ),
+]
+
+
+    schema.Dropdown(
+    id = "scroll",
+    name = "Scroll",
+    desc = "Scroll Speed",
+    icon = "stopwatch",
+    options = scroll_speed_options,
+    default = scroll_speed_options[0].value,
+),
+
+
+                    show_full_animation = True,
+        delay = int(config.get("scroll", 45)),
+
+        Add scroll speed config option, set show_full_animation when single planet view to allow scrolling to finish.
+
+            #children [
+            #    render.Animation(
+            #        children = frames,
+            #    ),
+            #]
+
+
+
+
+
+
+

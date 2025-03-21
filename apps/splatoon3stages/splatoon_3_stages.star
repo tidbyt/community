@@ -395,7 +395,7 @@ def main(config):
     now = time.now()
 
     if (stages["data"]["festSchedules"] and stages["data"]["currentFest"]):
-        use_timetable = len(stages["data"]["currentFest"].get("timetable", [])) > 0
+        use_timetable = len(stages["data"]["currentFest"].get("timetable") or []) > 0
         if (now >= time.parse_time(stages["data"]["currentFest"]["startTime"]) and now <= time.parse_time(stages["data"]["currentFest"]["endTime"])):
             teams = stages["data"]["currentFest"]["teams"]
 
@@ -403,7 +403,7 @@ def main(config):
                 tricol_timetable = [parseTimetableEntry(entry) for entry in stages["data"]["currentFest"]["timetable"]]
                 tricol_stage = getCurrentMatch(tricol_timetable, now).tricolor_stage
             else:
-                tricol_stage = stages["data"]["currentFest"]["tricolorStage"]["name"]
+                tricol_stage = stages["data"]["currentFest"]["tricolorStages"][0]["name"]
 
             splatfest_colours = [
                 rgb2hex([teams[0]["color"]["r"] * 150, teams[0]["color"]["g"] * 150, teams[0]["color"]["b"] * 150]),
@@ -435,14 +435,14 @@ def main(config):
     }
     if (eggstra_on):
         current_match = getCurrentMatch(parsed_data.eggstra, now)
-        if (current_match):
+        if (current_match.setting):
             frames["eggstra"] = generateFrame(current_match.setting, "eggstra", time.parse_time(current_match.end_time) - now)
         else:
             eggstra_on = False
 
     if (big_run_on):
         current_match = getCurrentMatch(parsed_data.bigrun, now)
-        if (current_match):
+        if (current_match.setting):
             frames["bigrun"] = generateFrame(current_match.setting, "bigrun", time.parse_time(current_match.end_time) - now)
         else:
             big_run_on = False
