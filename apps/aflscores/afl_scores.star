@@ -43,6 +43,9 @@ Bug fix - needed to convert draws to string value for team records
 
 v2.5
 Updated for 2025 season
+
+v2.5.1
+Handling for Western Bulldogs being referred to as Footscray
 """
 
 load("encoding/json.star", "json")
@@ -111,8 +114,6 @@ def main(config):
 
     # Use the Squiggle API for live games, cache data for 30 secs
     SQUIGGLE_URL = SQUIGGLE_PREFIX + CurrentRound + INCOMPLETE_SUFFIX
-
-    #print(SQUIGGLE_URL)
 
     LiveData = get_cachable_data(SQUIGGLE_URL, LIVE_CACHE)
     LiveJSON = json.decode(LiveData)
@@ -459,9 +460,6 @@ def showLiveGame(CurrentRoundJSON, LiveJSON, IncompleteMatches, x):
     AwayTeam = CurrentRoundJSON["matches"][x]["away"]["team"]["id"]
     AwayTeamName = CurrentRoundJSON["matches"][x]["away"]["team"]["name"]
 
-    # print(HomeTeamName)
-    # print(AwayTeamName)
-
     # get the abbreviated name, font and background colors for each team
     home_team_abb = getTeamAbbFromID(HomeTeam)
     away_team_abb = getTeamAbbFromID(AwayTeam)
@@ -483,6 +481,8 @@ def showLiveGame(CurrentRoundJSON, LiveJSON, IncompleteMatches, x):
         # GWS needs some fixing to work for the next condition
         if SquiggleHome == "Greater Western Sydney":
             SquiggleHome = "GWS Giants"
+        if HomeTeamName == "Footscray":
+            HomeTeamName = "Western Bulldogs"
 
         # if we find a match, get the score summary
         # and set LiveMatch to true, we found one!
