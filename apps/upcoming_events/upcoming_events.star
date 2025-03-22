@@ -62,7 +62,7 @@ def main(config):
                 event["date"] = parsedTime.in_location(timezone).format("01/02")
 
     maxEvents = int(config.get("number_of_events", "5"))
-    events = sorted(events,  key = lambda x: x["date"])[:maxEvents]
+    events = sorted(events, key = lambda x: x["date"])[:maxEvents]
 
     layout = []
 
