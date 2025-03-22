@@ -38,8 +38,6 @@ def main(config):
         if line.startswith("END:VEVENT"):
             creatingEvent = False
             events.append(event)
-            if len(events) == int(config.get("number_of_events", "5")):
-                break
 
         if creatingEvent:
             if line.startswith("SUMMARY:"):
@@ -62,6 +60,9 @@ def main(config):
                 parsedTime = time.parse_time(adjustedTimestamp)
                 timezone = config.get("timezone") or "America/New_York"
                 event["date"] = parsedTime.in_location(timezone).format("01/02")
+
+    maxEvents = int(config.get("number_of_events", "5"))
+    events = sorted(events,  key = lambda x: x["date"])[:maxEvents]
 
     layout = []
 
@@ -139,7 +140,7 @@ def get_schema():
                 name = "Number of Events",
                 desc = "The number of events you want to see.",
                 icon = "gear",
-                default = "1",
+                default = "5",
             ),
             schema.Dropdown(
                 id = "speed",
