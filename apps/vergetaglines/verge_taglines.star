@@ -7,7 +7,6 @@ Author: joevgreathead
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("html.star", "html")
 load("http.star", "http")
 load("random.star", "random")
@@ -64,9 +63,10 @@ AABJRU5ErkJggg==
 """)
 PLACEHOLDER_TEXT = "THE VERGE"
 
-SITE = "https://www.theverge.com/api/graphql?id=fe430f082510fd2d59950732fdd99e91"
+SITE = "https://www.theverge.com"
 CACHE_KEY_TAGLINE = "verge-dot-com-tagline"
 CACHE_KEY_TAGLINE_BACKUP = "verge-dot-com-tagline-backup"
+SELECTOR_TAGLINE = ".duet--recirculation--storystream-header"
 
 def main():
     tagline = cache.get(CACHE_KEY_TAGLINE)
@@ -103,24 +103,12 @@ def main():
         ),
     )
 
-def map_to_tagline():
-    return ["data", "cellData", "prestoComponentData", "masthead_tagline"]
-
-def get_tagline(resp_body):
-    json_blob = resp_body.text()
-    json_object = json.decode(json_blob)
-
-    current_ref = json_object
-    for key in map_to_tagline():
-        if key == 0:
-            if len(current_ref) >= 1:
-                current_ref = current_ref[0]
-        elif key in current_ref:
-            current_ref = current_ref[key]
-        else:
-            return None
-
-    return current_ref
+def get_tagline(html_body):
+    text = html_body.find(SELECTOR_TAGLINE).children().find("span > a").text()
+    if text == None:
+        return PLACEHOLDER_TEXT
+    else:
+        return text
 
 def content(value):
     return [
