@@ -16,7 +16,7 @@ months = ["", "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Se
 days = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th", "21st", "22nd", "23rd", "24th", "25th", "26th", "27th", "28th", "29th", "30th", "31st"]
 
 URL = "https://api.nyc.gov/public/api/GetCalendar?"
-API_KEY = "AV6+xWcEuiZgzuPTF40pWIq39rK6Mr6N65j+exjA9ObCPDe+amX/8pM8RgWoPlhp5MsOJrgye6MjoJB0sp0aAj0IN9ux7Z6HuBrNJ9wfMIfg+UzETCcHWfpwFrlfQ9ZqsfLihVzy3u401/0ujVLOXq1keO4="
+API_KEY = "AV6+xWcE+YMm4G7gYV3hsgC6XO9XBxoNBMw1B4gG84iLo24VAPx3tG0tmCSyzMglcBeNT5LFENVoEmi5foVQ6S85R4uYaVTr/Cl8FTs98wIoh9DVpW7ixeguWF/T9hoLgNrhEp201IbPBYkeOWUBV9Lofm8m2k6KTVvQrZAKM49tKUP3iao="
 
 TTL_SECONDS = 300
 
