@@ -37,7 +37,8 @@ def main(config):
 
         if line.startswith("END:VEVENT"):
             creatingEvent = False
-            events.append(event)
+            if event["date"] >= time.now():
+                events.append(event)
 
         if creatingEvent:
             if line.startswith("SUMMARY:"):
@@ -59,7 +60,8 @@ def main(config):
 
                 parsedTime = time.parse_time(adjustedTimestamp)
                 timezone = config.get("timezone") or "America/New_York"
-                event["date"] = parsedTime.in_location(timezone).format("01/02")
+                event["date"] = parsedTime
+                event["formattedDate"] = parsedTime.in_location(timezone).format("01/02")
 
     maxEvents = int(config.get("number_of_events", "5"))
     events = sorted(events, key = lambda x: x["date"])[:maxEvents]
@@ -85,7 +87,7 @@ def main(config):
                                 children = [
                                     render.Padding(
                                         pad = (1, 0, 0, 0),
-                                        child = render.Text(content = event["date"], font = "tom-thumb"),
+                                        child = render.Text(content = event["formattedDate"], font = "tom-thumb"),
                                     ),
                                 ],
                             ),
