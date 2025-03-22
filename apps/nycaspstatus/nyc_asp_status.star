@@ -1,7 +1,7 @@
 """
 Applet: NYC ASP Status
-Summary: Daily NYC ASP status update
-Description: Shows if New York City alternate side parking (street cleaning) rules are in effect for today (and next day after 3PM).
+Summary: NYC alt side parking status
+Description: Displays whether New York City alternate side parking (street cleaning) rules are in effect today (or next day after 3PM).
 Author: Adam Wojciechowski
 """
 
@@ -16,7 +16,7 @@ months = ["", "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Se
 days = ["", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th", "21st", "22nd", "23rd", "24th", "25th", "26th", "27th", "28th", "29th", "30th", "31st"]
 
 URL = "https://api.nyc.gov/public/api/GetCalendar?"
-API_KEY = "AV6+xWcEmWCuOJrV+1l+H3+fCswazDOlfYCGy5lRbbmhDu1YNfUlw54m62mJJ95yl3EUTy0BH8OsD895GSvqASyRF8MTY9e1vW4TB+w6AXDt9RzBf7kMUtaZ4Vyal1HA85WXA0v2eSEb5IXmIe8T8dzwKO7VRrOaBJ8xVH6xI0U9uQ948f8="
+API_KEY = "AV6+xWcEuiZgzuPTF40pWIq39rK6Mr6N65j+exjA9ObCPDe+amX/8pM8RgWoPlhp5MsOJrgye6MjoJB0sp0aAj0IN9ux7Z6HuBrNJ9wfMIfg+UzETCcHWfpwFrlfQ9ZqsfLihVzy3u401/0ujVLOXq1keO4="
 
 TTL_SECONDS = 300
 
