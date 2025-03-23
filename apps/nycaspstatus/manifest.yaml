@@ -1,0 +1,8 @@
+---
+id: nycaspstatus
+name: NYC ASP Status
+summary: NYC alt side parking status
+desc: Displays whether New York City alternate side parking (street cleaning) rules are in effect today (or next day after 3PM).
+author: Adam Wojciechowski
+fileName: nyc_asp_status.star
+packageName: nycaspstatus
