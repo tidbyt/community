@@ -2,8 +2,7 @@
 
 Display the latest headlines or the latest article from the Chicago Tribune's RSS feed.
 
-News Feed: [Chicago Tribune.com RSS Feeds](https://www.chicagotribune.com/about/ct-chicago-tribune-rss-feeds-20220922-jub4o6cwwza4xd3d7ybqi7qz3i-htmlstory.html)
-
+News Feed: [Chicago Tribune.com RSS Feeds](https://www.chicagotribune.com/news/feed/)
 
 ## Configuration
 
@@ -15,7 +14,9 @@ News Feed: [Chicago Tribune.com RSS Feeds](https://www.chicagotribune.com/about/
 ## Screenshots
 
 ### Latest Headlines
+
 ![Latest Headlines](chicago_tribune_headlines.gif)
 
 ### Latest Article
+
 ![Latest Article](chicago_tribune_article.gif)

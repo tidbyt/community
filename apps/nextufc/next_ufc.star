@@ -9,8 +9,11 @@ load("encoding/base64.star", "base64")
 load("html.star", "html")
 load("http.star", "http")
 load("render.star", "render")
+load("time.star", "time")
 
-url = "https://www.espn.com/mma/schedule"
+now = time.now()
+nowyear = now.year
+url = "https://www.espn.com/mma/schedule/_/year/" + str(nowyear)
 
 ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABkAAAAICAYAAAAMY1RdAAAAAXNSR0IArs4c6QAAAWZJREFUOE91Ur1KA0EQ/mYWxIhIUtnZauDujGBpI9gJiuQFfAAbwdZGX0AQH8DCUgj4DPYmFyUvYKEk/hT+oJkZ2WMvXI7zir3dmW+/b+bbIYQvdc6yrZnFqpwyD0C07EMk0oqA7gSTXwr/OZH6J9EVmLdLqexIfukDq+bcXdA4S1QPi4SxCPWZzw3YqiKJVZtTBZgNchwBkon0mLtElGQJkaVr4LHtnORAL1JFXoxNRFQ7sdleMZddLlfdA3bJuU7o7DJR3f/PqqxL4MScO/b4scjGGnA7JWIA9Z3TzDuzi0j1IGX+AtGsj82L1D6AI3PuNGCGBowmXaqu9JhfiajuY1VdU8r8AqJGeOCdCLgpDMFvrDqTMj+AqOkxQ5HaJvBdaZXZc6y6WLbWiwiIOEzWyACXV2Vmb4lqo2xniYTS4ATMxgY85fkf1dY6MPQi7yBaqJya8OC5iKneJ2ZREVu0u8yRW/cHptSvjUBW6vcAAAAASUVORK5CYII=
@@ -24,16 +27,33 @@ def main():
 
     doc = html(rep.body())
 
-    def check_event(i):
+    def check_year():
+        title_element = doc.find(".Table__Title")
+        if title_element:
+            return title_element.text()
+        else:
+            return None
+
+    if check_year() == "Past Results":
+        nowyear_plus_one = nowyear + 1
+
+        url1 = "https://www.espn.com/mma/schedule/_/year/" + str(nowyear_plus_one)
+        rep1 = http.get(url1, ttl_seconds = 3600)
+
+        if rep1.status_code != 200:
+            fail("get failed with status %d", rep1.status_code)
+
+        doc = html(rep1.body())
+
+    def check_event(i = 1):
         check = doc.find("tbody").children().find("a").eq(i)
         if "UFC" in check.text():
-            #print(i)
             return check
         else:
             i += 1
             return check_event(i)
 
-    event_node = check_event(1)
+    event_node = check_event()
     event = event_node.text()
 
     date = event_node.parent().siblings().eq(0).text()
@@ -48,19 +68,17 @@ def main():
                             render.Image(
                                 src = ICON,
                             ),
-                            pad = (2, 7, 1, 0),
+                            pad = (1, 7, 0, 0),
                         ),
                         render.Padding(
                             render.Column(
                                 children = [
                                     render.WrappedText(
                                         content = date,
-                                        #width = 64,
                                         align = "center",
                                     ),
                                     render.WrappedText(
                                         content = time,
-                                        #width = 64,
                                         align = "center",
                                     ),
                                 ],
@@ -76,7 +94,8 @@ def main():
                         color = "#a61212",
                         child = render.Marquee(
                             width = 64,
-                            offset_start = 9,
+                            offset_start = 64,
+                            offset_end = 64,
                             align = "center",
                             child = render.Text(
                                 content = event,

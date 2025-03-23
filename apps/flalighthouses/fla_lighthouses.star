@@ -49,6 +49,12 @@ FLORIDA_LIGHTHOUSES = [
     ["Tennessee Reef", 49, 1933, -80.7823527777778, 24.7460777777778, "Offshore from Layton, FL"],
 ]
 
+MAP_CITIES_COLOR = "#f00"
+VISITED_COLOR = "FFFF00"  #"#9b870c"
+UNVISITED_COLOR = "565a06"  #"#f5e31d"
+BRIGHT_OUTLINE_COLOR = "#fff"
+DULL_OUTLINE_COLOR = "#111"
+
 CONFIG_PATTERN_LIGHTHOUSES = "Item_%s_%s"
 
 def main(config):
@@ -74,22 +80,22 @@ def main(config):
         map_items.append(render.Padding(render.Image(src = base64.decode(LIGHTHOUSE_GIF)), (0, 0, 0, 0)))
 
     #Display Map
-    map_outline_color = "#fff"
+    map_outline_color = BRIGHT_OUTLINE_COLOR
     if isDisplayArt:
-        map_outline_color = "#111"
+        map_outline_color = DULL_OUTLINE_COLOR
 
     map_items = append_items_to_render(map_items, get_map_points(FLORIDA_MAP, map_area, MAP_PIXEL_SIZE), map_outline_color)
 
     #Major Cities: Orlando, Tallahasse, Miami, Jacksonville, Tampa, Ft. Myers, Pensacola
     if isDisplayCities:
-        map_items = append_items_to_render(map_items, get_map_points([[-81.29937, 28.4162], [-84.25342, 30.4551], [-80.20862, 25.7752], [-81.6616, 30.3369], [-82.4629, 28.1259], [-81.83182, 26.6196], [-87.1895, 30.4433]], map_area, MAP_PIXEL_SIZE), "#f00")
+        map_items = append_items_to_render(map_items, get_map_points([[-81.29937, 28.4162], [-84.25342, 30.4551], [-80.20862, 25.7752], [-81.6616, 30.3369], [-82.4629, 28.1259], [-81.83182, 26.6196], [-87.1895, 30.4433]], map_area, MAP_PIXEL_SIZE), MAP_CITIES_COLOR)
 
     #All Lighthouses
-    map_items = append_items_to_render(map_items, get_map_points(lighthouse_coordinates, map_area, MAP_PIXEL_SIZE), "#9b870c")
+    map_items = append_items_to_render(map_items, get_map_points(lighthouse_coordinates, map_area, MAP_PIXEL_SIZE), UNVISITED_COLOR)
 
     #Visited Lighthouses
     if isDisplayPicks:
-        map_items = append_items_to_render(map_items, get_map_points(lighthouse_coordinates, map_area, MAP_PIXEL_SIZE, config), "#f5e31d")
+        map_items = append_items_to_render(map_items, get_map_points(lighthouse_coordinates, map_area, MAP_PIXEL_SIZE, config), VISITED_COLOR)
 
     return render.Root(
         render.Stack(
@@ -120,8 +126,6 @@ def define_map_area(map_coordinates, longitude_range = [], latitude_range = []):
 def get_map_points(map_coordinates, map_area, pixel_area, config = []):
     map_array = [[0 for j in range(pixel_area[1])] for i in range(pixel_area[0])]
 
-    #minimum_map_point = []
-
     for point in map_coordinates:
         x = int(math.round(abs(map_area[0][0] - point[0]) / abs(map_area[0][0] - map_area[0][1]) * (pixel_area[0] - 1)))
         y = pixel_area[1] - 1 - int(math.round(abs(map_area[1][0] - point[1]) / abs(map_area[1][0] - map_area[1][1]) * (pixel_area[1] - 1)))
@@ -131,10 +135,7 @@ def get_map_points(map_coordinates, map_area, pixel_area, config = []):
                 if config.bool(CONFIG_PATTERN_LIGHTHOUSES % (point[0], point[1])):
                     map_array[x][y] = 1
             else:
-                #minimum_map_point.append(point)
                 map_array[x][y] = 1
-
-    #print(minimum_map_point)
 
     return map_array
 

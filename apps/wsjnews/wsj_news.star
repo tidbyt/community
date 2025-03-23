@@ -5,12 +5,15 @@ Description: Display Wall Street Journal news headlines.
 Author: jvivona
 """
 
+# 20250304 - fix URL for RSS thanks to find from @shimonsavitsky
+#          - added more sections
+
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("xpath.star", "xpath")
 
-VERSION = 23132
+VERSION = 25063
 
 # cache data for 15 minutes
 CACHE_TTL_SECONDS = 900
@@ -32,7 +35,7 @@ SPACER_COLOR = "#000"
 ARTICLE_LINESPACING = 0
 ARTICLE_AREA_HEIGHT = 24
 
-RSS_STUB = "https://feeds.a.dj.com/rss/{}.xml"
+RSS_STUB = "https://feeds.content.dowjones.io/public/rss/{}"
 
 def main(config):
     edition = config.get("news_edition", DEFAULT_NEWS)
@@ -89,30 +92,21 @@ def get_schema():
                 icon = "newspaper",
                 default = "RSSWorldNews",
                 options = [
-                    schema.Option(
-                        display = "Lifestyle",
-                        value = "RSSLifestyle",
-                    ),
-                    schema.Option(
-                        display = "Markets News",
-                        value = "RSSMarketsMain",
-                    ),
-                    schema.Option(
-                        display = "Opinion",
-                        value = "RSSOpinion",
-                    ),
-                    schema.Option(
-                        display = "Technology: What's News",
-                        value = "RSSWSJD",
-                    ),
-                    schema.Option(
-                        display = "US Business",
-                        value = "WSJcomUSBusiness",
-                    ),
-                    schema.Option(
-                        display = "World News",
-                        value = "RSSWorldNews",
-                    ),
+                    schema.Option(display = "Arts & Culture", value = "RSSArtsCulture"),
+                    schema.Option(display = "Economy", value = "socialeconomyfeed"),
+                    schema.Option(display = "Health", value = "socialhealth"),
+                    schema.Option(display = "Lifestyle", value = "RSSLifestyle"),
+                    schema.Option(display = "Markets", value = "RSSMarketsMain"),
+                    schema.Option(display = "Opinion", value = "RSSOpinion"),
+                    schema.Option(display = "Personal Finance", value = "RSSPersonalFinance"),
+                    schema.Option(display = "Politics", value = "socialpoliticsfeed"),
+                    schema.Option(display = "Real Estate", value = "latestnewsrealestate"),
+                    schema.Option(display = "Sports", value = "rsssportsfeed"),
+                    schema.Option(display = "Style", value = "RSSStyle"),
+                    schema.Option(display = "Technology", value = "RSSWSJD"),
+                    schema.Option(display = "U.S. Business", value = "WSJcomUSBusiness"),
+                    schema.Option(display = "U.S. News", value = "RSSUSnews"),
+                    schema.Option(display = "World News", value = "RSSWorldNews"),
                 ],
             ),
             schema.Dropdown(
