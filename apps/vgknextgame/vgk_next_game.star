@@ -14,14 +14,19 @@ timestamp = time.now().format("2006-01-02")
 
 vgkNextGameWeek = "https://api-web.nhle.com/v1/club-schedule/VGK/week/" + timestamp
 
-def convertTime(utcTimestamp):
-    t = time.parse_time(utcTimestamp)
-    pst = t.in_location("US/Pacific")
-    pst.format("2006-01-02T15:04:05Z07:00")
+DEFAULT_TIMEZONE = "US/Pacific"
 
-    return pst.format("3:04PM")
+def main(config):
 
-def main():
+    device_tz = config.get("$tz", DEFAULT_TIMEZONE)
+
+    def convertTime(utcTimestamp):
+        t = time.parse_time(utcTimestamp)
+        pst = t.in_location(device_tz)
+        pst.format("2006-01-02T15:04:05Z07:00")
+
+        return pst.format("3:04PM")
+
     response = http.get(vgkNextGameWeek.format(ttl_seconds = 3600))
 
     d = response.json()
