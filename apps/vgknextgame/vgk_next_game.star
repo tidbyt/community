@@ -17,7 +17,6 @@ vgkNextGameWeek = "https://api-web.nhle.com/v1/club-schedule/VGK/week/" + timest
 DEFAULT_TIMEZONE = "US/Pacific"
 
 def main(config):
-
     device_tz = config.get("$tz", DEFAULT_TIMEZONE)
 
     def convertTime(utcTimestamp):
