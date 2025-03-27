@@ -53,7 +53,7 @@ def main(config):
                 ),
             )
         return render.Root(
-            delay = 250 if viz else 100,
+            delay = 250 if viz else 125,
             child = render.Box(
                 height = 32,
                 width = 64,
@@ -113,7 +113,7 @@ def main(config):
                 ),
             )
         return render.Root(
-            delay = 250 if viz else 100,
+            delay = 250 if viz else 125,
             child = render.Box(
                 height = 32,
                 width = 64,
@@ -154,19 +154,21 @@ def get_element(etd, wide):
     text = ""
     for i in range(0, len(etd["estimate"])):
         if (i > 0):
-            text += ", "
+            text += ","
         string = etd["estimate"][i]["minutes"]
 
-        # Replace the long "Leaving" string with just a dash
+        # Replace the long "Leaving" string with 0
         if string == "Leaving":
-            text += "-"
+            text += "0"
         else:
             text += string
+
+    #text += ".  " + text + "."
     element.append(
         render.Marquee(
             width = 45 if wide else 18,
             align = "end",
-            offset_start = 10,
+            offset_start = 15,
             child = render.Text(text, color = "#fff"),
         ),
     )
