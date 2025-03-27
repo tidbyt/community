@@ -1,7 +1,7 @@
 """
 Applet: Vidiots Calendar
 Summary: Showtimes for Vidiots (LA)
-Description: Movie showtimes for the next 7 days at Vidiots in Los Angeles, CA.
+Description: Movie showtimes for Vidiots theater in Los Angeles, CA.
 Author: Buzz Andersen
 """
 
@@ -83,8 +83,8 @@ def parse_movie_html(html_body, date_limit_duration):
             showtime_extra_text = showtime.children_filtered(".extra").text().strip()
             showtime_text = showtime.text().replace("\n", "").replace("\t", "").replace(showtime_extra_text, "").strip()
 
-            is_past = (date.month < date_now.month) or ((date.month == date_now.month) and (date.day < date_now.day))
-            is_beyond_limit = (date.month > date_limit.month) or ((date.month == date_limit.month) and (date.day > date_limit.day))
+            is_past = date.unix < date_now.unix
+            is_beyond_limit = date.unix > date_limit.unix
 
             if is_past == False and is_beyond_limit == False:
                 if valid_dates.get(epoch) == None:

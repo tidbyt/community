@@ -7,18 +7,19 @@ Author: Jake Manske
 
 load("encoding/base64.star", "base64")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-COUNTRIES_REST_ENDPOINT_ALL = "https://restcountries.com/v3.1/all?fields=name,cca3,capital"
-COUNTRIES_REST_ENDPOINT_REGION = "https://restcountries.com/v3.1/region/{0}?fields=name,cca3,capital"
+COUNTRIES_REST_ENDPOINT_ALL = "https://restcountries.com/v3.1/all?fields=name,cca3,capital,translations"
+COUNTRIES_REST_ENDPOINT_REGION = "https://restcountries.com/v3.1/region/{0}?fields=name,cca3,capital,translations"
 FONT = "tom-thumb"
 
 # start on Jan 1 2023
 REFERENCE_DATE = time.parse_time("2023-01-01T00:00:00Z")
 
-# other conifg
+# other config
 HTTP_OK = 200
 CACHE_TIMEOUT = 24 * 3600  #  24 hours
 
@@ -31,9 +32,12 @@ def main(config):
         widget to display
     """
 
+    random.seed(time.now().unix)
+
     # get current country index
     # it will be the number of hours since the reference date
-    country_index = int((time.now() - REFERENCE_DATE).hours // 24)
+    frequency = int(config.get("frequency", "24"))
+    country_index = int((time.now() - REFERENCE_DATE).hours // frequency) if frequency != 0 else -1
 
     # get the region selected
     region = config.get("region") or "all"
@@ -50,7 +54,19 @@ def main(config):
         capital_city = capital_city[0]
 
     # get the common name
-    country_name = country.get("name").get("common")
+    lang = config.get("language") or "eng"
+    if lang == "eng":
+        country_name = country.get("name")
+    elif lang == "native":
+        native_names = country.get("name").get("nativeName")
+
+        # native names are in a dictionary, grab the first one
+        country_name = native_names.values()[0]
+    else:
+        country_name = country.get("translations").get(lang)
+    if not country_name:
+        country_name = country.get("name")
+    country_name = country_name.get("common")
 
     # look up the flag
     flag = base64.decode(get_flag(country))
@@ -122,7 +138,11 @@ def get_country(region, country_index):
         num_countries = len(sorted_countries)
 
         # get the country based on index modulo how many countries there are for this region
-        country = sorted_countries[country_index % num_countries]
+        if country_index < 0:
+            country_index = random.number(0, num_countries - 1)
+        else:
+            country_index = country_index % num_countries
+        country = sorted_countries[country_index]
 
     return country
 
@@ -154,6 +174,52 @@ def get_schema():
         ),
     ]
 
+    languages = [
+        schema.Option(
+            display = "English",
+            value = "eng",
+        ),
+        schema.Option(
+            display = "Native",
+            value = "native",
+        ),
+        schema.Option(
+            display = "German",
+            value = "deu",
+        ),
+        schema.Option(
+            display = "French",
+            value = "fra",
+        ),
+        schema.Option(
+            display = "Italian",
+            value = "ita",
+        ),
+        schema.Option(
+            display = "Japanese",
+            value = "jpn",
+        ),
+        schema.Option(
+            display = "Spanish",
+            value = "spa",
+        ),
+    ]
+
+    frequency = [
+        schema.Option(
+            display = "Daily",
+            value = "24",
+        ),
+        schema.Option(
+            display = "Hourly",
+            value = "1",
+        ),
+        schema.Option(
+            display = "Everytime",
+            value = "0",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -164,6 +230,22 @@ def get_schema():
                 icon = "globe",
                 default = "all",  # use all as the default
                 options = options,
+            ),
+            schema.Dropdown(
+                id = "language",
+                name = "Language",
+                desc = "The language to use for the country name.",
+                icon = "language",
+                default = "eng",
+                options = languages,
+            ),
+            schema.Dropdown(
+                id = "frequency",
+                name = "Frequency",
+                desc = "How often to display a different country.",
+                icon = "repeat",
+                default = "24",
+                options = frequency,
             ),
         ],
     )

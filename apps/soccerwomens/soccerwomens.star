@@ -9,6 +9,8 @@ Author: jvivona
 #          toned down colors when display team colors - you couldn't see winner score if team color was also yellow
 # 20230816 changed list of tournaments to get dynamically instead of having to do a PR each time I add one
 # 20230906 found bug in ESPN API where some teams don't have abbreviation - added code to check for it and display value + indiicator
+# 20240926 resolve issue where sometimes FT indicator from API is longer than can be displayed, override to show just FT
+#          reduce lists cache time for comps/abbr json to 12 hours
 
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -16,7 +18,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23249
+VERSION = 24270
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_TIMEZONE = "America/New_York"
@@ -29,7 +31,7 @@ API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
 
 ABBR_URL = "https://raw.githubusercontent.com/jvivona/tidbyt-data/main/soccerwomens/league_abbr.json"
 COMPS_URL = "https://raw.githubusercontent.com/jvivona/tidbyt-data/main/soccerwomens/comps.json"
-COMPS_TTL = 86400  # increase this to 24 hours after dev - we're not making changes that often
+COMPS_TTL = 43200  # increase this to 24 hours after dev - we're not making changes that often
 
 DEFAULT_TEAM_DISPLAY = "visitor"  # default to Visitor first, then Home - US order
 DEFAULT_DISPLAY_SPEED = "2000"
@@ -45,7 +47,9 @@ SHORTENED_WORDS = """
     " / ": " ",
     "Postponed": "PPD",
     "1st Half": "1H",
-    "2nd Half": "2H"
+    "2nd Half": "2H",
+    "FT-Pens": "FT",
+    "AET" : "FT"
 }
 """
 
@@ -750,7 +754,7 @@ def get_gametime_column(gameTime, textColor, leagueAbbr):
 
     gameTimeColumn = [
         render.WrappedText(width = 25, height = 6, content = leagueAbbr, linespacing = 1, font = "CG-pixel-3x5-mono", color = textColor, align = "center"),
-        render.WrappedText(width = 39, height = 6, content = gameTime, linespacing = 1, font = "CG-pixel-3x5-mono", color = textColor, align = "right"),
+        render.WrappedText(width = 39, height = 6, content = get_shortened_display(gameTime), linespacing = 1, font = "CG-pixel-3x5-mono", color = textColor, align = "right"),
     ]
     return gameTimeColumn
 

@@ -1,30 +1,20 @@
-# librenms_alerts.star
-# Gets the current count of alerts from a LibreNMS server.  If alerts are
-# present, displays a marquee listing the hosts which are alerting.
-# Justin Tinel 2023-05 jt@justintinel.com
+"""
+Applet: LibreNMS Alerts
+Summary: LibreNMS Alerts
+Description: Displays the current count of LibreNMS alerts and a marquee
+listing the LibreNMS friendly hostnames of the devices that are alerting.
+Author: @jtinel
+"""
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("hash.star", "hash")
 load("http.star", "http")
-load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
-# Caching: The list of devices which are in an alert state is cached when it
-# is first resolved. This avoids subsequent API calls to repeatedly resolve
-# device info. The cached device data is then used when a hash of the http
-# response data matches the hash of the cached response data.
-CACHE_TTL_SECONDS = 60
-
-# LibreNMS endpoint definitions
 ENDPOINT_ALERTS = "/api/v0/alerts"
 ENDPOINT_DEVICES = "/api/v0/devices"
-
-# Output colors
-RED = "F92323"
-GREEN = "#2AF923"
-
+FRAME_DELAY_MS = 25
+CACHE_TTL_SECONDS = 30
 LIBRENMS_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAiklEQVQoU42SQRLAEAxF6wws
 a6dXcWhXqZ0u6wwpHTFEaG1MIn+en0Rsk3PrA1Q4BffMJu/dgLq8iNqADH6oGRIxEWRDsNaC
@@ -32,9 +22,19 @@ c66r64KYCDITyo0CKqwiLEQPtLCNX9EXgRLrV5Dwh8iSZp6QOPW0Ii67R4loYZxTaffMY86z
 G0G7SVeJFbVj4HbvAYKAnd83qTc7AAAAAElFTkSuQmCC
 """)
 
-HTTP_REGEXP = "^((http|https)://)[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)$"
+colors = {
+    "red": "F92323",
+    "green": "#2AF923",
+    "white": "#FFFFFF",
+    "black": "000000",
+}
 
-# Define the configuration schema
+demo_alerting_devices = [
+    "demo-srv01",
+    "lab-switch02",
+    "demo_data-check_config!",
+]
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -54,8 +54,28 @@ def get_schema():
         ],
     )
 
-# Print the logo centered on a row by itself
-def render_logo():
+def get_librenms_alerts(config):
+    """ Get a list of alerts from the LibreNMS API
+
+    Args:
+        config: The configuration object passed to main()
+
+    Returns:
+        A dict containing the alert count and alert data, or if the request
+        fails, an 'error' key containing the HTTP status code.
+
+    """
+    headers = {"X-Auth-Token": config["api_key"]}
+    url = config["librenms_url"] + ENDPOINT_ALERTS
+    r = http.get(url, headers = headers, ttl_seconds = CACHE_TTL_SECONDS)
+
+    if r.status_code != 200:
+        return {"error": r.status_code}
+
+    else:
+        return r.json()
+
+def print_logo():
     return render.Row(
         main_align = "center",
         expanded = True,
@@ -64,54 +84,26 @@ def render_logo():
         ],
     )
 
-# Get the list of rows to be added to the body of the output.
-# If the alert count is 0, a single row is returned, indicating that there
-# are no alerts. If the alert count > 0, an additional row is displayed,
-# containing a marquee of the devices which are in an alert status.
-def get_body_rows(alert_count, alerting_devices = ""):
-    rows = []
-
-    row_alert_count = render.Row(
-        main_align = "center",
-        expanded = True,
-        children = [
-            render.Text(
-                content = "Alerts:" + str(alert_count),
-                font = "6x13",
-                color = RED if alert_count > 0 else GREEN,
-                height = 11,
-            ),
-        ],
+def print_line(color):
+    return render.Box(
+        width = 64,
+        height = 1,
+        color = color,
     )
-    rows.append(row_alert_count)
 
-    if (alert_count > 0):
-        row_marquee_alerting_devices = render.Marquee(
-            width = 64,
-            offset_start = 64,
-            offset_end = 64,
-            align = "center",
-            child = render.Text(
-                content = alerting_devices,
-                font = "5x8",
-            ),
-        )
-        rows.append(row_marquee_alerting_devices)
-
-    return rows
-
-# Display an error message using render.Marquee.
 def render_error(error_msg):
     return render.Root(
+        delay = FRAME_DELAY_MS,
         child = render.Box(
             child = render.Column(
                 expanded = True,
                 main_align = "space_evenly",
                 children = [
-                    render_logo(),
+                    print_logo(),
+                    print_line(colors["white"]),
                     render.Marquee(
                         width = 64,
-                        offset_start = 64,
+                        offset_start = 48,
                         offset_end = 64,
                         align = "center",
                         child = render.Text(
@@ -123,40 +115,71 @@ def render_error(error_msg):
         ),
     )
 
-# Get the list of devices which are alerting. The "alerts" response only
-# includes the device ID, so we have to look up the device name separately.
-def get_alerting_devices(librenms_url, headers, alerts):
-    r_devices = http.get((librenms_url + ENDPOINT_DEVICES), headers = headers)
-    if r_devices.status_code != 200:
-        return render_error("HTTP Request failed with error {}".format(r_devices.status_code))
+def build_rows(alert_count, alerting_devices):
+    """ Build a list of rows to be added to the body of the output.
 
-    # Get the device list to cross-reference the alert against
-    devices = r_devices.json()["devices"]
+    If the alert count is 0, a single row is returned showing 0 alerts.
+    If the alert count is > 0, an additional row is included, containing
+    a marquee of the devices which are in an alert status.
 
-    # Iterate through the alerts and create a list of the devices which are in
-    # an alert state
-    alerting_devices = list()
-    for alert in alerts:
-        # For each alert, look for a device record match
-        for item in devices:
-            if alert["hostname"] == item["hostname"]:
-                # Use the Display name if it is set
-                if item["display"]:
-                    alerting_devices.append(item["display"])
+    Args:
+        alert_count: int value representing the total number of alerts
+        alerting_devices: a string listing the devices
+    Returns:
+        a list of rows to be rendered
 
-                    # Otherwise use SNMP sysName
-                else:
-                    alerting_devices.append(item["sysName"])
+    """
+    rows = [
+        render.Row(
+            main_align = "center",
+            expanded = True,
+            children = [
+                render.Text(
+                    content = "Alerts:" + str(alert_count),
+                    font = "6x13",
+                    color = colors["red"] if alert_count > 0 else colors["green"],
+                    height = 11,
+                ),
+            ],
+        ),
+    ]
 
-    return ", ".join(alerting_devices)
+    if (alert_count > 0):
+        rows.append(
+            render.Marquee(
+                width = 64,
+                offset_start = 64,
+                offset_end = 64,
+                align = "center",
+                child = render.Text(
+                    content = alerting_devices,
+                    font = "5x8",
+                ),
+            ),
+        )
 
-# Render the output
-def render_output(alert_count, alerting_devices = ""):
-    children = list()
-    children.append(render_logo())
-    children = children + get_body_rows(alert_count, alerting_devices)
+    return rows
 
+def get_device_config(hostname, config):
+    url = config["librenms_url"] + ENDPOINT_DEVICES + "/" + hostname
+    headers = {"X-Auth-Token": config["api_key"]}
+    r = http.get(url, headers = headers, ttl_seconds = CACHE_TTL_SECONDS)
+    return r.json()["devices"][0]
+
+def get_device_friendly_name(hostname, config):
+    device_config = get_device_config(hostname, config)
+    return device_config["display"] or device_config["sysName"]
+
+def render_output(alert_count, alerting_devices):
+    # Build a list containing the output, starting with the LibreNMS logo
+    children = [print_logo()]
+
+    # Add the alert count and list of the alerting devices if alerts > 0
+    children += build_rows(alert_count, alerting_devices)
+
+    # Render the output
     return render.Root(
+        delay = FRAME_DELAY_MS,
         child = render.Box(
             height = 32,
             child = render.Column(
@@ -167,46 +190,37 @@ def render_output(alert_count, alerting_devices = ""):
         ),
     )
 
+def demo_data():
+    return render_output(1, ", ".join(demo_alerting_devices))
+
 def main(config):
-    librenms_url = config.str("librenms_url") or ""
-    if not (re.match(HTTP_REGEXP, librenms_url)):
-        return render_error("LibreNMS URL invalid - check config")
+    """ Display a count of LibreNMS alerts and a list of the alerting hosts.
 
-    api_key = config.str("api_key") or ""
-    if api_key == "":
-        return render_error("LibreNMS API key not specified - check config")
+    Args:
+        config: The config object provided to main() at runtime.
 
-    headers = {"X-Auth-Token": api_key}
+    Returns:
+        Renders output to the Tidbyt display.
 
-    r_alerts = http.get((librenms_url + ENDPOINT_ALERTS), headers = headers)
+    """
+    if "librenms_url" not in config or "api_key" not in config:
+        return demo_data()
 
-    if r_alerts.status_code != 200:
-        return render_error("HTTP Request failed with error {}".format(r_alerts.status_code))
+    # Get the alert list
+    alert_results = get_librenms_alerts(config)
 
-    alerts = r_alerts.json()["alerts"]
+    # Display an error if the HTTP request failed
+    if "error" in alert_results:
+        return render_error("HTTP error {} - check config".format(alert_results["error"]))
 
-    if len(alerts) == 0:  # There are no alerts
-        return render_output(0)
+    # Create a list of the friendly names of the devices in alert status
+    alerting_devices = list()
+    if "alerts" in alert_results:
+        for alert_item in alert_results["alerts"]:
+            device_friendly_name = get_device_friendly_name(alert_item["hostname"], config)
+            if device_friendly_name not in alerting_devices:
+                alerting_devices.append(device_friendly_name)
+    else:
+        return render_error("Data missing in server response.")
 
-    else:  # Number of alerts is > 1
-        alert_hash_cached = cache.get(librenms_url + "_alert_hash")
-        alerting_devices_cached = cache.get(librenms_url + "_alerting_devices")
-
-        # See if the alert data has already been cached before fetching device info
-        if (alert_hash_cached != None) and (alerting_devices_cached != None):
-            # Cache hit.
-            if alert_hash_cached == hash.sha1(r_alerts.body()):
-                # Cached data hash matches HTTP response hash. Using cached data.
-                alerting_devices = alerting_devices_cached
-            else:
-                # Hash of cached data does not match HTTP response hash. Calling LibreNMS API.
-                alerting_devices = get_alerting_devices(librenms_url, headers, alerts)
-                cache.set(librenms_url + "_alert_hash", hash.sha1(r_alerts.body()), ttl_seconds = CACHE_TTL_SECONDS)
-                cache.set(librenms_url + "_alerting_devices", alerting_devices, ttl_seconds = CACHE_TTL_SECONDS)
-        else:
-            # Cache miss. Calling LibreNMS API.
-            alerting_devices = get_alerting_devices(librenms_url, headers, alerts)
-            cache.set(librenms_url + "_alert_hash", hash.sha1(r_alerts.body()), ttl_seconds = CACHE_TTL_SECONDS)
-            cache.set(librenms_url + "_alerting_devices", alerting_devices, ttl_seconds = CACHE_TTL_SECONDS)
-
-        return render_output(len(alerts), alerting_devices)
+    return render_output(int(alert_results["count"]), ", ".join(alerting_devices))

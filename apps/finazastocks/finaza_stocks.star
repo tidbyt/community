@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-STOCK_QUOTE_URL = "https://www.finaza.io/api/v1/multiquote?symbols=<symbols>&key=tidbyt"
+STOCK_QUOTE_URL = "https://finance-api.sapphire-digital.co/api/v1/multiquote?symbols=<symbols>&key=tidbyt"
 SYMBOL_B64 = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAIxJREFUOE
 9jZGBg+M+ABl6UMqMLgfkS3X8xxBmRDYBpxKYQpBObPNwAkCQujdhcCFMLNgCf5u8f9jBwCrhg
