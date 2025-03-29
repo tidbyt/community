@@ -139,7 +139,7 @@ def get_tides_graph(station_id):
     if not debug:
         debug_print("Graph Url : " + url)
         resp = http.get(url, ttl_seconds = 14400)  # cache for 4 hours (tides don't change much)
-        print(resp.headers.get("Tidbyt-Cache-Status"))
+        debug_print(resp.headers.get("Tidbyt-Cache-Status"))
         if resp.status_code != 200:
             tides = None
         else:
