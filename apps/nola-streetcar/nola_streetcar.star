@@ -5,10 +5,9 @@ Desc: Displays the next streetcar arrival time for a selected New Orleans RTA ro
 Author: Cline (Generated)
 """
 
-load("render.star", "render")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
 
 # Base URLs
 STOPS_URL = "https://www.norta.com/RTAStops"
@@ -31,18 +30,18 @@ DIRECTIONS = {
 
 # Route Colors
 ROUTE_COLORS = {
-    "12": "#00FF00", # Green
-    "46": "#800080", # Purple
-    "47": "#FFFF00", # Yellow
-    "48": "#FF0000", # Red
-    "49": "#4169E1", # Royal Blue
-    "DEFAULT": "#FFFFFF", # White for unknown
+    "12": "#00FF00",  # Green
+    "46": "#800080",  # Purple
+    "47": "#FFFF00",  # Yellow
+    "48": "#FF0000",  # Red
+    "49": "#4169E1",  # Royal Blue
+    "DEFAULT": "#FFFFFF",  # White for unknown
 }
 
 # Arrival Time Colors (Matching the NYC example image)
-ARRIVAL_TIME_COLOR = "#FFCC00" # Yellow/Orange
-DIRECTION_TEXT_COLOR = "#FFFFFF" # White
-DIVIDER_COLOR = "#666666" # Grey
+ARRIVAL_TIME_COLOR = "#FFCC00"  # Yellow/Orange
+DIRECTION_TEXT_COLOR = "#FFFFFF"  # White
+DIVIDER_COLOR = "#666666"  # Grey
 
 # Helper function to parse the arrival time string
 def parse_arrival_time(eta_str):
@@ -56,18 +55,20 @@ def parse_arrival_time(eta_str):
     img_pos = eta_str.find("<img")
     if img_pos != -1:
         time_part = eta_str[:img_pos].strip()
+
         # Handle "0 min(s)" case
         if time_part.startswith("0 min"):
             return "now"
+
         # Replace "mins" with "min"
         if time_part.endswith(" mins"):
-            return time_part[:-1] # Remove the 's'
+            return time_part[:-1]  # Remove the 's'
         else:
-            return time_part # Return as is if it doesn't end with " mins"
+            return time_part  # Return as is if it doesn't end with " mins"
     else:
         # Handle cases where it might just be a number (though API seems to include units)
         if eta_str.strip() == "0":
-             return "now"
+            return "now"
         return eta_str.strip()
 
 def get_schema():
@@ -91,7 +92,7 @@ def get_schema():
                 id = "stop_id",
                 name = "Stop ID",
                 desc = "Enter the specific Stop ID (e.g., 5514). Find IDs on the NORTA website.",
-                icon = "mapPin", # Changed from location_dot
+                icon = "mapPin",  # Changed from location_dot
             ),
         ],
     )
@@ -102,12 +103,12 @@ def main(config):
 
     if not stop_id:
         return render.Root(
-            child = render.Text("Please configure Stop ID")
+            child = render.Text("Please configure Stop ID"),
         )
 
     # --- Get Predictions (Both Directions) ---
     inbound_arrival_time = "N/A"
-    outbound_arrival_time = "N/A" # Only need the first outbound time for the new layout
+    outbound_arrival_time = "N/A"  # Only need the first outbound time for the new layout
 
     # Fetch Inbound (directionID=1)
     preds_params_in = {
@@ -123,18 +124,17 @@ def main(config):
         if type(preds_data_in) == "list" and len(preds_data_in) > 0:
             prediction_in = preds_data_in[0]
         elif type(preds_data_in) == "dict":
-             prediction_in = preds_data_in
+            prediction_in = preds_data_in
 
         if prediction_in:
             eta1_in_str = prediction_in.get("etA1")
             inbound_arrival_time = parse_arrival_time(eta1_in_str)
         else:
-             inbound_arrival_time = "No data"
-             print("Unexpected format or empty data for inbound predictions: %s" % preds_data_in)
+            inbound_arrival_time = "No data"
+            print("Unexpected format or empty data for inbound predictions: %s" % preds_data_in)
     else:
         inbound_arrival_time = "Err %d" % preds_resp_in.status_code
         print("Failed to fetch inbound predictions: %d" % preds_resp_in.status_code)
-
 
     # Fetch Outbound (directionID=0)
     preds_params_out = {
@@ -150,64 +150,64 @@ def main(config):
         if type(preds_data_out) == "list" and len(preds_data_out) > 0:
             prediction_out = preds_data_out[0]
         elif type(preds_data_out) == "dict":
-             prediction_out = preds_data_out
+            prediction_out = preds_data_out
 
         if prediction_out:
             eta1_out_str = prediction_out.get("etA1")
             outbound_arrival_time = parse_arrival_time(eta1_out_str)
+
             # If first is None or not useful, try the second arrival time
             if outbound_arrival_time == "None":
-                 eta2_out_str = prediction_out.get("etA2")
-                 outbound_arrival_time = parse_arrival_time(eta2_out_str)
+                eta2_out_str = prediction_out.get("etA2")
+                outbound_arrival_time = parse_arrival_time(eta2_out_str)
         else:
-             outbound_arrival_time = "No data"
-             print("Unexpected format or empty data for outbound predictions: %s" % preds_data_out)
+            outbound_arrival_time = "No data"
+            print("Unexpected format or empty data for outbound predictions: %s" % preds_data_out)
     else:
         outbound_arrival_time = "Err %d" % preds_resp_out.status_code
         print("Failed to fetch outbound predictions: %d" % preds_resp_out.status_code)
-
 
     # --- Render Output (NYC Subway Style) ---
     route_color = ROUTE_COLORS.get(route_id, ROUTE_COLORS["DEFAULT"])
 
     # Route indicator (Square + Number)
-    indicator_size = 11 # Reduced size
+    indicator_size = 11  # Reduced size
     route_indicator = render.Box(
-        width=indicator_size,
-        height=indicator_size,
-        child=render.Stack(
+        width = indicator_size,
+        height = indicator_size,
+        child = render.Stack(
             # Stack layers children. Place Text directly on top of Box.
-            children=[
-                render.Box(width=indicator_size, height=indicator_size, color=route_color), # Background square
+            children = [
+                render.Box(width = indicator_size, height = indicator_size, color = route_color),  # Background square
                 # Wrap Text in Padding for centering adjustment
                 render.Padding(
-                    pad=(1, 1, 2, 1), # Values T, R, B, L - Adjusted for 11x11 box and 5x8 font
-                    child=render.Text(
-                        content=route_id,
-                        font="5x8", # Reduced font for number inside indicator
-                        color="#000000" if route_color == ROUTE_COLORS["47"] else "#FFFFFF",
+                    pad = (1, 1, 2, 1),  # Values T, R, B, L - Adjusted for 11x11 box and 5x8 font
+                    child = render.Text(
+                        content = route_id,
+                        font = "5x8",  # Reduced font for number inside indicator
+                        color = "#000000" if route_color == ROUTE_COLORS["47"] else "#FFFFFF",
                     ),
-                )
-            ]
-        )
+                ),
+            ],
+        ),
     )
 
     # Function to create one section (Inbound or Outbound)
     def create_section(direction_text, arrival_time):
         return render.Row(
-            expanded=True,
-            main_align="space_between",
-            cross_align="center",
+            expanded = True,
+            main_align = "space_between",
+            cross_align = "center",
             children = [
                 route_indicator,
                 render.Column(
-                    cross_align="center", # Changed from "end" to "center"
-                    children=[
-                        render.Text(content=direction_text, font="tom-thumb", color=DIRECTION_TEXT_COLOR), # Smaller font for direction
-                        render.Text(content=arrival_time, font="5x8", color=ARRIVAL_TIME_COLOR), # Reduced font for time
-                    ]
+                    cross_align = "center",  # Changed from "end" to "center"
+                    children = [
+                        render.Text(content = direction_text, font = "tom-thumb", color = DIRECTION_TEXT_COLOR),  # Smaller font for direction
+                        render.Text(content = arrival_time, font = "5x8", color = ARRIVAL_TIME_COLOR),  # Reduced font for time
+                    ],
                 ),
-            ]
+            ],
         )
 
     # Create the two sections
@@ -215,21 +215,21 @@ def main(config):
     outbound_section = create_section("Outbound", outbound_arrival_time)
 
     # Divider line - Use render.Box
-    divider = render.Box(width=64, height=1, color=DIVIDER_COLOR)
+    divider = render.Box(width = 64, height = 1, color = DIVIDER_COLOR)
 
     # Final layout using a Column
     final_layout = render.Column(
-        children=[
+        children = [
             inbound_section,
             divider,
             outbound_section,
-        ]
+        ],
     )
 
     # Wrap final_layout in Padding for vertical centering
     return render.Root(
         child = render.Padding(
-            pad = (4, 0, 5, 0), # T, R, B, L - Calculated for vertical centering
+            pad = (4, 0, 5, 0),  # T, R, B, L - Calculated for vertical centering
             child = final_layout,
-        )
+        ),
     )
