@@ -91,7 +91,7 @@ def get_schema():
                 id = "stop_id",
                 name = "Stop ID",
                 desc = "Enter the specific Stop ID (e.g., 5514). Find IDs on the NORTA website.",
-                icon = "location_dot",
+                icon = "mapPin", # Changed from location_dot
             ),
         ],
     )
