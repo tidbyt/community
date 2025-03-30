@@ -6,6 +6,9 @@ Author: M0ntyP
 
 v1.0
 First version!
+
+v1.0.1
+Fixed team record bug
 """
 
 load("encoding/json.star", "json")
@@ -81,34 +84,36 @@ def main(config):
                 else:
                     StartTime = ConvertedTime.format("3:04 PM")
 
+                HomeFound = 0
+                AwayFound = 0
+
                 # if not finals, show team records
                 if int(LadderJSON["round"]) < 20:
-                    for y in range(0, 9, 1):
-                        if len(LadderJSON["ladder"]) > 0:
-                            if HomeTeam == LadderJSON["ladder"][y]["squadId"]:
-                                HomeWins = str(LadderJSON["ladder"][y]["won"])
-                                HomeLosses = str(LadderJSON["ladder"][y]["lost"])
-                                HomeDraws = str(LadderJSON["ladder"][y]["drawn"])
-                                HomeFound = 1
-                            if AwayTeam == LadderJSON["ladder"][y]["squadId"]:
-                                AwayWins = str(LadderJSON["ladder"][y]["won"])
-                                AwayLosses = str(LadderJSON["ladder"][y]["lost"])
-                                AwayDraws = str(LadderJSON["ladder"][y]["drawn"])
-                                AwayFound = 1
+                    for y in range(0, 10, 1):
+                        if str(HomeTeam) == str(LadderJSON["ladder"][y]["squadId"]):
+                            HomeWins = str(LadderJSON["ladder"][y]["won"])
+                            HomeLosses = str(LadderJSON["ladder"][y]["lost"])
+                            HomeDraws = str(LadderJSON["ladder"][y]["drawn"])
+                            HomeFound = 1
+                        if str(AwayTeam) == str(LadderJSON["ladder"][y]["squadId"]):
+                            AwayWins = str(LadderJSON["ladder"][y]["won"])
+                            AwayLosses = str(LadderJSON["ladder"][y]["lost"])
+                            AwayDraws = str(LadderJSON["ladder"][y]["drawn"])
+                            AwayFound = 1
 
-                            # both teams found, lets break out
-                            if HomeFound + AwayFound == 2:
-                                break
+                        # both teams found, lets break out
+                        if HomeFound + AwayFound == 2:
+                            break
 
-                            if HomeDraws == 0:
-                                HomeRecord = HomeWins + "-" + HomeLosses
-                            else:
-                                HomeRecord = HomeWins + "-" + str(HomeDraws) + "-" + HomeLosses
+                    if HomeDraws == "0":
+                        HomeRecord = HomeWins + "-" + HomeLosses
+                    else:
+                        HomeRecord = HomeWins + "-" + str(HomeDraws) + "-" + HomeLosses
 
-                            if AwayDraws == 0:
-                                AwayRecord = AwayWins + "-" + AwayLosses
-                            else:
-                                AwayRecord = AwayWins + "-" + str(AwayDraws) + "-" + AwayLosses
+                    if AwayDraws == "0":
+                        AwayRecord = AwayWins + "-" + AwayLosses
+                    else:
+                        AwayRecord = AwayWins + "-" + str(AwayDraws) + "-" + AwayLosses
 
                 else:
                     HomeRecord = ""
