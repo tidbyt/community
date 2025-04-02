@@ -48,7 +48,7 @@ COLOR_DICT = {
     "MIN": "031f40",
     "NYM": "002d72",
     "NYY": "132448",
-    "OAK": "006241",
+    "ATH": "006241",
     "PHI": "e81828",
     "PIT": "111111",
     "SD": "3e2312",
@@ -344,7 +344,6 @@ def get_standings(urls):
 
 def get_team(x, s, entriesToDisplay, i, now, rotationSpeed, timeColor, divisionName, displayTop):
     output = []
-
     if displayTop == "gameinfo":
         topColumn = [
             render.Box(width = 64, height = 8, child = render.Stack(children = [

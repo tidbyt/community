@@ -1,0 +1,9 @@
+id: nola-streetcar
+name: NOLA Streetcar
+summary: Shows next arrival time
+desc: Displays the next streetcar arrival time for a selected New Orleans RTA route, direction, and stop ID. Find your stop ID using the RTA website's map tools.
+author: Ryan Schultz
+fileName: nola_streetcar.star
+tags:
+  - transit
+  - new-orleans
