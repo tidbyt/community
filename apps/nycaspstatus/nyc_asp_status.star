@@ -60,7 +60,7 @@ def main(config):
                             render.Marquee(
                                 height = 8,
                                 width = 42,
-                                align = "end",
+                                align = "center",
                                 scroll_direction = "horizontal",
                                 child = render.WrappedText("%s %s %s" % (months[display_date()[0].month], days[display_date()[0].day], status[1])),
                             ),
