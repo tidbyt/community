@@ -86,7 +86,7 @@ def validate_token(token):
     return None
 
 def query(token):
-    """Request a list of species for a station.
+    """Request a list of species for a station detected over the past 24 hours.
 
     https://app.birdweather.com/api/v1#station-species-station-species-get
 
@@ -96,8 +96,9 @@ def query(token):
     Returns:
       a list of species
     """
-    current_date = humanize.time_format("yyyy-MM-dd", time.now())
-    url = BIRDWEATHER_ENDPOINT + "/stations/" + token + "/species?since=" + current_date
+    #current_date = humanize.time_format("yyyy-MM-dd", time.now())
+    #url = BIRDWEATHER_ENDPOINT + "/stations/" + token + "/species?since=" + current_date
+    url = BIRDWEATHER_ENDPOINT + "/stations/" + token + "/species?period=day"
     log("query: " + url)
     response = http.get(url, ttl_seconds = 300)
     if response.status_code != 200:
@@ -163,21 +164,18 @@ def render_species(single_species_json):
     if single_species_json == None:
         return render.WrappedText(content="No results from Birdweather API", font=DEFAULT_FONT)
 
-
     common_name = single_species_json.get("commonName")
 
     detection_count = int(single_species_json.get("detections").get("total"))
     detection_count_str = humanize.plural(int(detection_count), "song")
-    #str(detection_count) + " song" if detection_count == 1 else str(detection_count) + " songs"
-
     detection_time = time.parse_time(single_species_json.get("latestDetectionAt"))
     detection_time_str = humanize.relative_time(time.now(), detection_time, "", "")
     detection_time_str = detection_time_str.replace("minute", "min") + "ago"
-    log("detection_date " + detection_time_str)
+    detection_message = detection_count_str + " " + detection_time_str
     
     img = http.get(single_species_json.get("thumbnailUrl"), ttl_seconds = 86400).body()
 
-    log(common_name + " " + detection_count_str + " " + detection_time_str + " " + single_species_json.get("thumbnailUrl"))
+    log(common_name + " " + detection_message + " " + single_species_json.get("thumbnailUrl"))
 
     return render.Column(
         children = [
@@ -192,7 +190,7 @@ def render_species(single_species_json):
                 children=[
                     render.Image(src = img, width=24, height=24),
                     render.Padding(
-                        child=render.WrappedText(detection_count_str + " " + detection_time_str, font=DEFAULT_FONT), 
+                        child=render.WrappedText(detection_message, font=DEFAULT_FONT), 
                         pad=(2, 0, 0, 0)
                     )
                 ]
