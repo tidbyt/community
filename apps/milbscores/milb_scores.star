@@ -19,6 +19,21 @@ Changed date check to be Hawaii timezone - this will mean that the scores will n
 
 v1.3.1
 Updated status check for completed games
+
+v1.4
+Updated for 2025
+
+Team changes and updated colors
+- Mississippi Braves (MIS) are now Columbus Clingstones (COL) 
+- Bowie Baysox (BOW) are now Chesapeake Baysox (CHE) 
+- Tennessee Smokies (TNS) are now Knoxville Smokies (KNX) 
+
+New Logos
+- Oklahoma City Comets 
+- Salt Lake Bees
+- Corpus Christi Hooks
+
+Added new logic to color lookup as there are 2 COL teams now - Clippers and Clingstones
 """
 
 load("encoding/json.star", "json")
@@ -45,7 +60,7 @@ COLORS = """
 {
     "BUF": "#060da4",
     "CLT": "#00a5ce",
-    "COL": "#204885",
+    "COL1": "#204885",
     "DUR": "#0156a6",
     "GWN": "#74aa50",
     "IND": "#e31837",
@@ -80,7 +95,7 @@ COLORS = """
     "BLX": "#d95b73",
     "BNG": "#a3194a",
     "BIR": "#b3002a",
-    "BOW": "#e15c33",
+    "CHE": "#000",
     "CHA": "#ee3d42",
     "CC": "#5091cd",
     "ERI": "#d31145",
@@ -88,7 +103,7 @@ COLORS = """
     "HBG": "#d31245",
     "HFD": "#004b8d",
     "MID": "#f3901d",
-    "MIS": "#d31145",
+    "COL2": "#000",
     "MTG": "#d06f1a",
     "NH": "#e31837",
     "NWA": "#a40234",
@@ -100,7 +115,7 @@ COLORS = """
     "SA": "#002d62",
     "SOM": "#0d2240",
     "SPR": "#d31245",
-    "TNS": "#005696",
+    "KNX": "#005696",
     "TUL": "#005596",
     "WCH": "#f5002f"
 }
@@ -169,13 +184,14 @@ def main(config):
             HomeLogoURL = LOGO_PREFIX + str(HomeID) + LOGO_SUFFIX
             AwayAbbr = GameList[x]["teams"]["away"]["team"]["abbreviation"]
             AwayID = GameList[x]["teams"]["away"]["team"]["id"]
+
+            #print(AwayAbbr, AwayID)
             AwayLogoURL = LOGO_PREFIX + str(AwayID) + LOGO_SUFFIX
 
             DisplayHomeLogo = get_teamlogo(HomeLogoURL)
             DisplayAwayLogo = get_teamlogo(AwayLogoURL)
 
             Status = GameList[x]["status"]["statusCode"]
-            #print(HomeAbbr, Status)
 
             if Status == "I":
                 # In progress game
@@ -229,8 +245,8 @@ def main(config):
                 HomeScore = ""
                 AwayScore = ""
 
-            awayColor = get_teamcolor(AwayAbbr)
-            homeColor = get_teamcolor(HomeAbbr)
+            awayColor = get_teamcolor(AwayAbbr, AwayID)
+            homeColor = get_teamcolor(HomeAbbr, HomeID)
 
             Display.extend(
                 [
@@ -383,7 +399,13 @@ RotationOptions = [
     ),
 ]
 
-def get_teamcolor(TeamAbbr):
+# Which COL? Clippers are 445 and Clingstones are 6325
+def get_teamcolor(TeamAbbr, TeamID):
+    if TeamID == 445:
+        TeamAbbr = "COL1"
+    elif TeamID == 6325:
+        TeamAbbr = "COL2"
+
     colors = json.decode(COLORS)
     usecol = colors.get(TeamAbbr, "False")
     if usecol != "False":
