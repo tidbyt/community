@@ -113,11 +113,7 @@ def main(config):
     # Format today's date for comparisons
     today_date = "{}-{}-{}".format(current_year, format_number(current_month), format_number(current_day))
 
-    # Get current time in minutes since midnight
-    midnight_time_in_minutes = current_hour * 60 + current_minute
-
     # Extract events
-    events = []
     current_events = []
     all_day_events = []
     upcoming_events = []
@@ -138,7 +134,6 @@ def main(config):
         "end_date": "",
     }
     in_event = False
-    event_timezone = ""
 
     lines = ics_data.split("\n")
 
