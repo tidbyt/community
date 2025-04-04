@@ -1,0 +1,8 @@
+---
+id: any-calendar
+name: Any Calendar
+summary: Display any ICS calendar
+desc: Show current or upcoming events from a Google or Outlook calendar with just an ICS link - no login necessary. Can choose to show time or only the event title - perfect for scheduling announcements.
+author: Vik Boyechko
+fileName: any_calendar.star
+packageName: anycalendar
