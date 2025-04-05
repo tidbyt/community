@@ -1,7 +1,7 @@
 # NYC ASP Status
 This app displays the current status of New York City alternate side parking (street cleaning) rules, which may be suspended due to inclement weather (such as snow removal operations) or because of observed legal or religious holidays.
 
-![screenshot](https://github.com/user-attachments/assets/829a9bda-3d1b-45b4-a938-f33f9a37d0fd)
+![screenshot](screenshot.jpg)
 
 - The street cleaning logo on the left is red when ASP rules are in effect, and turns green when rules are suspended or not in effect.
 - The following day's status is shown after 3PM EST/DST.

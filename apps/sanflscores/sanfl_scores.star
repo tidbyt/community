@@ -9,6 +9,9 @@ First version!
 
 v1.0.1
 Fixed team record bug
+
+v1.1
+Using logic to work out when the next round starts rather that relying on the data from Ladder API
 """
 
 load("encoding/json.star", "json")
@@ -27,7 +30,7 @@ MATCH_CACHE = 3600
 LADDER_CACHE = 86400
 
 def main(config):
-    RotationSpeed = 3
+    RotationSpeed = 5
 
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     now = time.now().in_location(timezone)
@@ -46,19 +49,32 @@ def main(config):
 
     MatchData = get_cachable_data(MATCHES_URL, MATCH_CACHE)
     MatchesJSON = json.decode(MatchData)
+    AllMatches = MatchesJSON["matches"]
 
     LadderData = get_cachable_data(LADDER_URL, LADDER_CACHE)
     LadderJSON = json.decode(LadderData)
 
-    # Get the Current Round, according to the API
-    CurrentRound = LadderJSON["currentRound"]
-    AllMatches = MatchesJSON["matches"]
+    CurrentRound = int(LadderJSON["currentRound"])
+    NextRound = int(CurrentRound) + 1
 
-    for y in range(0, len(AllMatches), 1):
-        if MatchesJSON["matches"][y]["roundNumber"] > CurrentRound:
+    for x in range(0, len(AllMatches), 1):
+        # The data in Ladder API does not update "Current Round" quickly enough so we need to look ahead
+        # If we are < 48hrs from the first match of the next round, then we'll say the next round is the current
+        if int(MatchesJSON["matches"][x]["roundNumber"]) == NextRound:
+            StartTime = MatchesJSON["matches"][x]["localStartTime"]
+            ConvertedTime = time.parse_time(StartTime, format = "2006-01-02T15:04:05-07:00").in_location(timezone)
+            TimetoStart = ConvertedTime - now
+
+            if TimetoStart.hours < 48:
+                CurrentRound = NextRound
             break
 
-        if MatchesJSON["matches"][y]["roundNumber"] == CurrentRound:
+    for y in range(0, len(AllMatches), 1):
+        # break out if we've gone too far
+        if int(MatchesJSON["matches"][y]["roundNumber"]) > CurrentRound:
+            break
+
+        if int(MatchesJSON["matches"][y]["roundNumber"]) == CurrentRound:
             Status = MatchesJSON["matches"][y]["matchStatus"]
 
             HomeTeam = MatchesJSON["matches"][y]["homeSquadId"]
