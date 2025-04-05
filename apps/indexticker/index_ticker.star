@@ -12,7 +12,7 @@ v1.3 - Added NIKKEI, Europe 350, Global 100, Global 1200, NZX50 indices; support
 load("animation.star", "animation")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("math.star", "math")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 
@@ -60,27 +60,9 @@ def main(config):
     Current = INDEX_JSON["chart"]["result"][0]["meta"]["regularMarketPrice"]
 
     PointsDiff = Current - LastClose
-    PercentDiff = PointsDiff / LastClose
-    StrPercentDiff = str(int(math.round(PercentDiff * 10000)))
+    PercentDiff = PointsDiff / LastClose * 100.0
 
-    # if % greater than 0
-    # elif % between 0 and -1
-    # elif % less than 0
-
-    if PercentDiff > 0:
-        StrPercentDiff = (StrPercentDiff[0:-2] + "." + StrPercentDiff[-2:])
-    elif PercentDiff > -0.01:
-        StrPercentDiff = StrPercentDiff.replace("-", "-0")
-        StrPercentDiff = (StrPercentDiff[0:-2] + "." + StrPercentDiff[-2:])
-    elif PercentDiff < 0:
-        StrPercentDiff = (StrPercentDiff[0:-2] + "." + StrPercentDiff[-2:])
-
-    if StrPercentDiff.startswith("."):
-        StrPercentDiff = "0" + StrPercentDiff
-        DiffColor = "#00ff00"
-    elif StrPercentDiff.startswith("-"):
-        StrPercentDiff = StrPercentDiff[1:]
-        StrPercentDiff = "-" + StrPercentDiff
+    if PercentDiff < 0:
         DiffColor = "#f00"
 
     if RangeSelection == "5m&range=1d":
@@ -97,8 +79,7 @@ def main(config):
         Interval = "YTD"
 
     if DisplaySelection == "true":
-        StrPercentDiff = StrPercentDiff + "%"
-        DisplayDiff = StrPercentDiff
+        DisplayDiff = humanize.float("#.##", PercentDiff) + "%"
     else:
         DisplayDiff = str(PointsDiff)[:6]
 
@@ -283,7 +264,9 @@ RangeOptions = [
 ]
 
 def get_cachable_data(url, timeout):
-    res = http.get(url = url, ttl_seconds = timeout)
+    res = http.get(url = url, ttl_seconds = timeout, headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+    })
 
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
