@@ -5,10 +5,10 @@ Description: Display recent sightings from a Birdweather station using their API
 Author: marstonstudio
 """
 
-load("humanize.star", "humanize")
 load("cache.star", "cache")
-load("http.star", "http")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -35,7 +35,7 @@ def main(config):
         log(message)
         return render.Root(
             delay = 500,
-            child = render.WrappedText(content=message, font=DEFAULT_FONT)
+            child = render.WrappedText(content = message, font = DEFAULT_FONT),
         )
 
     species_json = query(token)
@@ -43,7 +43,7 @@ def main(config):
 
     return render.Root(
         delay = 500,
-        child = render_species(single_species)
+        child = render_species(single_species),
     )
 
 def get_schema():
@@ -55,7 +55,7 @@ def get_schema():
                 name = "Birdweather API Token",
                 desc = "Token for calling Birdweather API with a station.",
                 icon = "userGear",
-            )
+            ),
         ],
     )
 
@@ -96,8 +96,6 @@ def query(token):
     Returns:
       a list of species
     """
-    #current_date = humanize.time_format("yyyy-MM-dd", time.now())
-    #url = BIRDWEATHER_ENDPOINT + "/stations/" + token + "/species?since=" + current_date
     url = BIRDWEATHER_ENDPOINT + "/stations/" + token + "/species?period=day"
     log("query: " + url)
     response = http.get(url, ttl_seconds = 300)
@@ -109,7 +107,6 @@ def query(token):
         results = body.get("species")
         log("number of species: " + str(len(results)))
         return results
-
 
 def select_species(species_json):
     """Select a species to use from the list. Use cache to keep track of which species have been rendered
@@ -143,14 +140,13 @@ def select_species(species_json):
             rendered_names.add(common_name)
             rendered_names_str = json.encode(list(rendered_names))
             log("cache.set " + rendered_names_str)
-            cache.set("rendered_names", rendered_names_str, ttl_seconds=300)
+            cache.set("rendered_names", rendered_names_str, ttl_seconds = 300)
             log("selecting item " + str(i) + " " + common_name)
             return species_json[i]
 
     log("selecting random item")
-    cache.set("rendered_names", "", ttl_seconds=300)
+    cache.set("rendered_names", "", ttl_seconds = 300)
     return species_json[random.number(0, count - 1)]
-
 
 def render_species(single_species_json):
     """Render the screen for a single species
@@ -162,7 +158,7 @@ def render_species(single_species_json):
       render ready WebP image for Tidbyt display
     """
     if single_species_json == None:
-        return render.WrappedText(content="No results from Birdweather API", font=DEFAULT_FONT)
+        return render.WrappedText(content = "No results from Birdweather API", font = DEFAULT_FONT)
 
     common_name = single_species_json.get("commonName")
 
@@ -172,7 +168,7 @@ def render_species(single_species_json):
     detection_time_str = humanize.relative_time(time.now(), detection_time, "", "")
     detection_time_str = detection_time_str.replace("minute", "min") + "ago"
     detection_message = detection_count_str + " " + detection_time_str
-    
+
     img = http.get(single_species_json.get("thumbnailUrl"), ttl_seconds = 86400).body()
 
     log(common_name + " " + detection_message + " " + single_species_json.get("thumbnailUrl"))
@@ -180,24 +176,23 @@ def render_species(single_species_json):
     return render.Column(
         children = [
             render.Marquee(
-                child=render.WrappedText(content=common_name, font=DEFAULT_FONT), 
-                width=64, 
-                height=8,
-                offset_start=2, 
-                offset_end=2
+                child = render.WrappedText(content = common_name, font = DEFAULT_FONT),
+                width = 64,
+                height = 8,
+                offset_start = 2,
+                offset_end = 2,
             ),
             render.Row(
-                children=[
-                    render.Image(src = img, width=24, height=24),
+                children = [
+                    render.Image(src = img, width = 24, height = 24),
                     render.Padding(
-                        child=render.WrappedText(detection_message, font=DEFAULT_FONT), 
-                        pad=(2, 0, 0, 0)
-                    )
-                ]
-            )  
-        ]
+                        child = render.WrappedText(detection_message, font = DEFAULT_FONT),
+                        pad = (2, 0, 0, 0),
+                    ),
+                ],
+            ),
+        ],
     )
-
 
 def log(message):
     """Format "log" messages for debugging.
