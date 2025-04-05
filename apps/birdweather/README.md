@@ -2,7 +2,10 @@
 
 Sightings from Birdweather
 
-Display recent sightings from a Birdweather station using their API. Requires an API token.
+Display sightings from a Birdweather station using their API from the last 24 hours. 
+
+Requires a Birdweather account and API token which you can sign up for at [app.birdweather.com](https://app.birdweather.com).
+The account must have an associated station to return results.
 
 ![Birdweather for Tidbyt](birdweather_screenshot.png)
 
