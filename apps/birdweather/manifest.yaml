@@ -1,0 +1,6 @@
+---
+id: e774523b-6b17-4852-9b1d-60f96bba2e2a
+name: Birdweather
+summary: Sightings from Birdweather
+desc: Display recent sightings from a Birdweather station using their API. Requires an API token.
+author: marstonstudio
