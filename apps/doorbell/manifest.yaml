@@ -1,0 +1,6 @@
+---
+id: doorbell
+name: Doorbell
+summary: 'Notification: doorbell'
+desc: Displays a notification that a doorbell is ringing.
+author: savdagod

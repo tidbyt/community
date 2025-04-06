@@ -1,6 +1,6 @@
 ---
 id: coffee
 name: Coffee
-summary: Displays Coffee Orders
-desc: Displays Coffee Orders with explanations.
-author: Robert Ison
+summary: 'Notification: coffee ready'
+desc: Displays a configuration that a coffee is ready.
+author: savdagod

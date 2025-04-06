@@ -1,0 +1,6 @@
+---
+id: garage-closed
+name: Garage Closed
+summary: 'Notification: garage closed'
+desc: Displays a notification that a garage door was closed.
+author: savdagod
