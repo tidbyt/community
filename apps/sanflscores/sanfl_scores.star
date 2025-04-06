@@ -50,13 +50,13 @@ def main(config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     now = time.now().in_location(timezone)
     DayofWeek = now.format("Mon")
-    
+
     # if its the weekend, lets reduce the cache and check for updates more often
     # And there is 1 Thursday game this year, 24th April
     if DayofWeek == "Fri" or DayofWeek == "Sat" or DayofWeek == "Sun":
         MATCH_CACHE = 120
     if now.month == 4 and now.day == 24:
-        MATCH_CACHE = 120    
+        MATCH_CACHE = 120
 
     MatchData = get_cachable_data(MATCHES_URL, MATCH_CACHE)
     MatchesJSON = json.decode(MatchData)
