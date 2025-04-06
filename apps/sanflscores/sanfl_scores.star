@@ -12,6 +12,10 @@ Fixed team record bug
 
 v1.1
 Using logic to work out when the next round starts rather that relying on the data from Ladder API
+
+v1.2
+Reduced match cache time for the weekend. We need check more often when the games are about to start
+Added leading zero for when seconds on game clock is <10
 """
 
 load("encoding/json.star", "json")
@@ -26,15 +30,9 @@ MATCHES_URL = "https://api3.sanflstats.com/fixtures/2025/sanfl"
 LADDER_URL = "https://api3.sanflstats.com/ladder/2025/sanfl"
 
 LIVE_CACHE = 30
-MATCH_CACHE = 3600
-LADDER_CACHE = 86400
+LADDER_CACHE = 86400  #24 hours
 
 def main(config):
-    RotationSpeed = 5
-
-    timezone = config.get("$tz", DEFAULT_TIMEZONE)
-    now = time.now().in_location(timezone)
-
     # Lets initialize!
     renderDisplay = []
 
@@ -46,6 +44,19 @@ def main(config):
     AwayLosses = ""
     HomeFound = 0
     AwayFound = 0
+    MATCH_CACHE = 43200  #12 hours
+    RotationSpeed = 5
+
+    timezone = config.get("$tz", DEFAULT_TIMEZONE)
+    now = time.now().in_location(timezone)
+    DayofWeek = now.format("Mon")
+
+    # if its the weekend, lets reduce the cache and check for updates more often
+    # And there is 1 Thursday game this year, 24th April
+    if DayofWeek == "Fri" or DayofWeek == "Sat" or DayofWeek == "Sun":
+        MATCH_CACHE = 120
+    if now.month == 4 and now.day == 24:
+        MATCH_CACHE = 120
 
     MatchData = get_cachable_data(MATCHES_URL, MATCH_CACHE)
     MatchesJSON = json.decode(MatchData)
@@ -202,6 +213,8 @@ def showGame(CurrentMatch):
     else:
         TotalSeconds = int(CurrentMatch["periodSeconds"])
         Secs = int(math.mod(TotalSeconds, 60))
+        if Secs < 10:
+            Secs = "0" + str(Secs)
         Mins = int(int(CurrentMatch["periodSeconds"]) / 60)
         gametime = CurrentMatch["currentTime"] + " " + str(Mins) + ":" + str(Secs)
 
