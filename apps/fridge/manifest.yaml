@@ -1,0 +1,6 @@
+---
+id: fridge
+name: Fridge
+summary: 'Notification: fridge'
+desc: Displays a notification that a fridge door was left open.
+author: savdagod
