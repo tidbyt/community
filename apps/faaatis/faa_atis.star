@@ -23,7 +23,7 @@ AIRPORT_DB_CACHE_TTL = 28800  # 8 hours
 API_URL = "https://datis.clowd.io/api/"
 AIRPORT_DB_URL = "https://airportdb.io/api/v1/airport/{icao}?apiToken={token}"
 
-AIRPORT_DB_API_TOKEN = secret.decrypt("AV6+xWcEr1MXDcSDD4AYFw79iLSxQGg4fBY8odkxJu3VNeMPuFBQaJ9qd/yZAucSHr+wDXC2HWZknSV6Kz8YGqwu+53NrEK7zwULuPgjd0bKHtwbbWODk76IDiF7YN+QdpxJSJ3ZqGhHxy1oSdXCG/4tYXGhSh7SbckM7oDtpUG/e2rLSAZIftoR6rCTind6KyYdzGt2CX79204fN/RY0r5j3pldKPHQCmb1F4LdPT30iAWHFo9CDkHdxB4ITqXqPd4aiERZ")
+AIRPORT_DB_API_TOKEN = secret.decrypt("AV6+xWcEQXjzZyOEHWUuwx3QFq57+plCzYbcCRaaDX0c6HkPPQDRqozjj6aSfiC+s23hwG4UavuLJ9+oJMqIsSXJyvtI78upbEqm12DZZSUjTzXfYQalOjY0rJHN/Rzm19uAwIPq+xSZVCfRk4HodnpoD5QNiV0ilGzliejPdyb15Pa+0lM7JUvO5yL4O9rmqL8EOGqbdyfK1Igre83QQ1kMU+OZaTtYRKsv0hHyBiLRyFabOrSKRs8cHGxaCzxzxrA9ieyM")
 
 def debug_print(label, value):
     """Helper function to print debug info"""
@@ -32,7 +32,7 @@ def debug_print(label, value):
 def get_airport_runways(icao):
     """Fetch runway information from airport database."""
 
-    url = AIRPORT_DB_URL.format(icao = icao, token = "66b7c40100db30ad79ea7090dc9832759b61e426b6abc8e86e724359d06a5139ecd783d1f3bff062cc0c3820a193e90c")
+    url = AIRPORT_DB_URL.format(icao = icao, token = AIRPORT_DB_API_TOKEN)
     response = http.get(url, ttl_seconds = AIRPORT_DB_CACHE_TTL)
 
     if response.status_code != 200:
