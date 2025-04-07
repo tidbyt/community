@@ -1,7 +1,7 @@
 ---
 id: germanpartypolls
 name: Wahl-Umfragen
-summary: Display of latest Bundestagswahl Polls
+summary: Latest Bundestagswahl Polls
 desc: This app displays the latest Bundestagswahl polls based on wahlrecht.de
 author: dev-manuel
 fileName: germanpartypolls.star
