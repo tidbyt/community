@@ -89,12 +89,13 @@ def get_representative_data(results):
     latest["results"] = sorted(latest["results"], key = lambda x: x["percentage"], reverse = True)
 
     # remove below 5% and Sonstige
-    latest["results"] = [result for result in latest["results"] if result["percentage"] >= 5 and result["name"] != "Sonstige"]
+    latest["results"] = [result for result in latest["results"] if can_be_float(result["percentage"]) and float(result["percentage"]) >= 5 and result["name"] != "Sonstige"]
 
     # if a percentage is X.0 then make it an integer
     for result in latest["results"]:
-        if result["percentage"] % 1 == 0:
-            result["percentage"] = int(result["percentage"])
+        percentage = result["percentage"]
+        if can_be_float(percentage) and float(percentage) % 1 == 0:
+            result["percentage"] = int(percentage)
 
     return latest
 
@@ -159,9 +160,11 @@ def extract_data(html_text):
                 if percentage_string == "" or percentage_string == "–":
                     continue
                 else:
-                    percentage = float(percentage_string)
-                    results[i]["results"].append({"name": party_name, "percentage": percentage})
+                    results[i]["results"].append({"name": party_name, "percentage": percentage_string})
                     i += 1
             p += 1
 
     return results
+
+def can_be_float(s):
+    return type(s) == "string" and s.replace(".", "", 1).isdigit()
