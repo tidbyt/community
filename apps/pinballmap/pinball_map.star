@@ -8,7 +8,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-CACHE_TIME_IN_SECONDS = 30
+CACHE_TIME_IN_SECONDS = 600
 DEFAULT_MAX_DISTANCE = 10
 DEFAULT_LOCATION = json.encode({
     "lat": "40.6781784",
