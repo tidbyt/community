@@ -12,6 +12,7 @@ Author: jvivona
 # 20230911 - jvivona - update code and API to better handle end of season with not upcoming race
 #                    - moved data to github repo
 # 20231107 - jvivona - cleanup code in for loop
+# 20250326 - jvivona - 12 teams now - updated
 
 load("animation.star", "animation")
 load("encoding/base64.star", "base64")
@@ -21,7 +22,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23311
+VERSION = 25085
 
 DEFAULTS = {
     "display": "nri",
@@ -106,6 +107,7 @@ def current_standings(standings, config):
             current_standings_slide(standings[4], standings[5], standings_text_color),
             current_standings_slide(standings[6], standings[7], standings_text_color),
             current_standings_slide(standings[8], standings[9], standings_text_color),
+            current_standings_slide(standings[10], standings[11], standings_text_color),
         ],
     )]
 

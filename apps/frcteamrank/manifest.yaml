@@ -1,0 +1,6 @@
+---
+id: frc-team-rank
+name: FRC Team Rank
+summary: Display FRC event ranking
+desc: Displays the ranking of an FRC team at the team's active event.
+author: dragid10

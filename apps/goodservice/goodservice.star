@@ -333,13 +333,13 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "third_time",
-                name = "Third Time",
-                desc = "3rd arrival time delta",
+                name = "Show Third Time Threshold",
+                desc = "Minimum difference in first and second arrival times to show 3rd arrival time.",
                 icon = "hourglass",
-                default = "3",
+                default = "0",
                 options = [
                     schema.Option(
-                        display = "OFF",
+                        display = "Never",
                         value = "0",
                     ),
                     schema.Option(
@@ -359,7 +359,7 @@ def get_schema():
                         value = "10",
                     ),
                     schema.Option(
-                        display = "Always Show",
+                        display = "Always",
                         value = "1000",
                     ),
                 ],
