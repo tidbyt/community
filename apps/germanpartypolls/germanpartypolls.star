@@ -44,13 +44,24 @@ def main(config):
             [
                 render.Column(main_align = "center", expanded = True, children = [
                     render.Padding(
-                        pad = (0, 0, 3, 0),
-                        child =
-                            render.PieChart(
-                                colors = [PARTY_COLOR_DICT[party["name"]] for party in data_for_pie],
-                                weights = [float(party["percentage"]) for party in data_for_pie],
-                                diameter = 16,
-                            ),
+                        pad = (1, 0, 3, 0),
+                        child = render.Column(
+                            [
+                                render.Padding(
+                                    pad = (0, 0, 0, 3),
+                                    child = render.PieChart(
+                                        colors = [PARTY_COLOR_DICT[party["name"]] for party in data_for_pie],
+                                        weights = [float(party["percentage"]) for party in data_for_pie],
+                                        diameter = 16,
+                                    ),
+                                ),
+                                render.Text(
+                                    str(showing_data["date"]["day"]) + "." + str(showing_data["date"]["month"]),
+                                    font = "tom-thumb",
+                                    color = "#ffffff",
+                                ),
+                            ],
+                        ),
                     ),
                 ]),
                 render.Marquee(
