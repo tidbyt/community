@@ -5,19 +5,18 @@ Description: Displays weather data important for cyclists.
 Author: Robert Ison
 """
 
+load("animation.star", "animation")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")  #to encode/decode json data going to and from cache
 load("encoding/json.star", "json")  #Used to figure out timezone
 load("http.star", "http")  #for calling to astronomyapi.com
-load("humanize.star", "humanize")  #for easy reading numbers and times
 load("math.star", "math")  #for calculating distance to planets
 load("render.star", "render")
 load("schema.star", "schema")
 load("sunrise.star", "sunrise")  #to calcuate day/night and when planets will be visible
 load("time.star", "time")  #Used to display time and calcuate lenght of TTL cache
-load("animation.star", "animation")
 
-#Note: Windsock is a conical textile tube  
+#Note: Windsock is a conical textile tube
 
 SAMPLE_DATA = """{"latitude":28.375,"longitude":81.25,"generationtime_ms":0.091552734375,"utc_offset_seconds":-14400,"timezone":"America/New_York","timezone_abbreviation":"GMT-4","elevation":167.0,"hourly_units":{"time":"iso8601","temperature_2m":"°F","wind_speed_10m":"mp/h","rain":"mm","wind_gusts_10m":"mp/h","uv_index":"","showers":"mm","apparent_temperature":"°F","precipitation_probability":"%","relative_humidity_2m":"%","cloud_cover":"%"},"hourly":{"time":["2025-04-14T00:00","2025-04-14T01:00","2025-04-14T02:00","2025-04-14T03:00","2025-04-14T04:00","2025-04-14T05:00","2025-04-14T06:00","2025-04-14T07:00","2025-04-14T08:00","2025-04-14T09:00","2025-04-14T10:00","2025-04-14T11:00","2025-04-14T12:00","2025-04-14T13:00","2025-04-14T14:00","2025-04-14T15:00","2025-04-14T16:00","2025-04-14T17:00","2025-04-14T18:00","2025-04-14T19:00","2025-04-14T20:00","2025-04-14T21:00","2025-04-14T22:00","2025-04-14T23:00"],"temperature_2m":[84.8,87.9,90.7,93.1,94.6,95.1,94.7,93.4,91.5,87.2,83.9,82.0,79.0,77.8,76.9,76.2,75.6,75.0,74.4,74.2,73.8,74.4,78.6,83.2],"wind_speed_10m":[3.8,5.9,6.0,6.2,6.0,6.4,6.1,5.8,5.4,3.8,2.2,2.4,3.5,3.8,3.3,3.0,2.5,2.2,2.1,1.8,1.3,0.9,0.4,0.3],"rain":[0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00],"wind_gusts_10m":[9.2,12.8,13.2,13.6,13.2,13.6,13.6,12.8,12.1,10.7,6.9,3.8,6.0,6.9,6.7,5.8,5.1,4.0,3.8,3.6,2.7,1.8,1.6,2.0],"uv_index":[4.55,6.15,7.30,7.75,7.45,6.40,4.85,3.00,1.35,0.25,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.10,1.00,2.70],"showers":[0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00],"apparent_temperature":[88.4,92.0,95.6,97.3,97.9,97.4,95.4,93.7,92.0,89.2,86.9,85.2,81.9,80.5,80.0,79.7,79.2,78.8,78.3,78.3,78.4,79.5,84.5,88.3],"precipitation_probability":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"relative_humidity_2m":[47,41,37,32,29,28,29,31,33,41,47,51,57,59,62,64,65,67,68,70,72,72,66,53],"cloud_cover":[0,0,0,0,5,2,9,31,20,0,9,54,51,38,0,50,44,56,65,84,81,71,54,52]},"daily_units":{"time":"iso8601","sunrise":"iso8601","sunset":"iso8601"},"daily":{"time":["2025-04-14"],"sunrise":["2025-04-13T20:10"],"sunset":["2025-04-14T08:59"]}}"""
 DEFAULT_LOCATION = """{"lat": "28.53933",	"lng": "-81.38325",	"description": "Orlando, FL, USA",	"locality": "Orlando",	"place_id": "???",	"timezone": "America/New_York"}"""
@@ -121,9 +120,9 @@ def get_two_digit_string(number):
     if (number >= 10):
         return number
     else:
-        return "0%s" % number 
+        return "0%s" % number
 
-def get_current_condition(data,  element, item_name, add_units = True):
+def get_current_condition(data, element, item_name, add_units = True):
     if add_units:
         units = data["hourly_units"][item_name]
         display_tempate = "%s%s" if units == "mm" or units == "%" or units == "°F" else "%s %s"
@@ -156,10 +155,9 @@ def add_padding_to_child_element(element, left = 0, top = 0, right = 0, bottom =
     return padded_element
 
 def get_information_marquee(message):
-    
     marquee = render.Marquee(
         width = 64,
-        child = render.Text(message, color = "#ffff00", font = "CG-pixel-3x5-mono")
+        child = render.Text(message, color = "#ffff00", font = "CG-pixel-3x5-mono"),
     )
 
     return marquee
@@ -198,25 +196,24 @@ def moon_phase(year, month, day, show_description = True):
             return "Waning Crescent"
         else:
             return "New Moon"
+    elif phase < 1.84566:
+        return 0
+    elif phase < 5.53699:
+        return 1
+    elif phase < 9.22831:
+        return 2
+    elif phase < 12.91963:
+        return 3
+    elif phase < 16.61096:
+        return 4
+    elif phase < 20.30228:
+        return 5
+    elif phase < 23.99361:
+        return 6
+    elif phase < 27.68493:
+        return 7
     else:
-        if phase < 1.84566:
-            return 0
-        elif phase < 5.53699:
-            return 1
-        elif phase < 9.22831:
-            return 2
-        elif phase < 12.91963:
-            return 3
-        elif phase < 16.61096:
-            return 4
-        elif phase < 20.30228:
-            return 5
-        elif phase < 23.99361:
-            return 6
-        elif phase < 27.68493:
-            return 7
-        else:
-            return 0
+        return 0
 
 def calculate_julian_date(year, month, day):
     # Convert Gregorian date to Julian date
@@ -227,11 +224,11 @@ def calculate_julian_date(year, month, day):
     A = year // 100
     B = 2 - A + (A // 4)
     julian_date = (
-        int(365.25 * (year + 4716))
-        + int(30.6001 * (month + 1))
-        + day
-        + B
-        - 1524.5
+        int(365.25 * (year + 4716)) +
+        int(30.6001 * (month + 1)) +
+        day +
+        B -
+        1524.5
     )
     return julian_date
 
@@ -256,12 +253,12 @@ def get_wind_rose_display(direction):
         keyframes = [
             animation.Keyframe(
                 percentage = 0.7,
-                transforms = [animation.Rotate(direction+10 % 360)],
+                transforms = [animation.Rotate(direction + 10 % 360)],
                 curve = "ease_in_out",
             ),
             animation.Keyframe(
                 percentage = 0.85,
-                transforms = [animation.Rotate(direction-10 % 360)],
+                transforms = [animation.Rotate(direction - 10 % 360)],
                 curve = "ease_in_out",
             ),
             animation.Keyframe(
@@ -269,7 +266,6 @@ def get_wind_rose_display(direction):
                 transforms = [animation.Rotate(direction % 360)],
                 curve = "ease_in_out",
             ),
-
         ],
     )
 
@@ -333,8 +329,8 @@ def main(config):
     location = json.decode(config.get("location", DEFAULT_LOCATION))
 
     # Round lat and lng to 1 decimal to make data available to more people (within about 11km x 11km area) and to not give away our users position exactly
-    latitude = round(float(location["lat"]),1)
-    longitude = round(float(location["lng"]),1)
+    latitude = round(float(location["lat"]), 1)
+    longitude = round(float(location["lng"]), 1)
     timezone = location["timezone"]
     current_time = time.now().in_location(timezone)
 
@@ -343,13 +339,13 @@ def main(config):
     sunset_time = sunrise.sunset(float(location["lat"]), float(location["lng"]), current_time).in_location(location["timezone"])
 
     #Dumb Down the current Time to work with the simpler time format of the API
-    simple_current_time = time.parse_time("%s-%s-%sT%s:%s" % (current_time.year,get_two_digit_string(current_time.month),get_two_digit_string(current_time.day), get_two_digit_string(current_time.hour), get_two_digit_string(current_time.minute)), format = "2006-01-02T15:04")
+    simple_current_time = time.parse_time("%s-%s-%sT%s:%s" % (current_time.year, get_two_digit_string(current_time.month), get_two_digit_string(current_time.day), get_two_digit_string(current_time.hour), get_two_digit_string(current_time.minute)), format = "2006-01-02T15:04")
     local_data = get_weather_data(latitude, longitude, timezone)
 
     # Let's look for the closest entry in 'time' to pull out current conditions
     hour_periods = local_data["hourly"]
     closest_element_to_now = 0
-    smallest_difference = 24 #Just need to seed this with a high number (only 24 hours in a day) 
+    smallest_difference = 24  #Just need to seed this with a high number (only 24 hours in a day)
 
     # in the stored data, let's find the closest time period to now
     for i in range(0, len(hour_periods["time"])):
@@ -358,7 +354,7 @@ def main(config):
             smallest_difference = abs(time_difference.hours)
             closest_element_to_now = i
 
-    # based on the time period, pull out the current conditions 
+    # based on the time period, pull out the current conditions
     current_cloud_cover = get_current_condition(local_data, closest_element_to_now, "cloud_cover")
     current_humidity = get_current_condition(local_data, closest_element_to_now, "relative_humidity_2m")
     current_probability_precipitation = get_current_condition(local_data, closest_element_to_now, "precipitation_probability")
@@ -368,45 +364,46 @@ def main(config):
     current_uv_index = get_current_condition(local_data, closest_element_to_now, "uv_index", False)
     current_wind_gusts = get_current_condition(local_data, closest_element_to_now, "wind_gusts_10m")
     current_wind = get_current_condition(local_data, closest_element_to_now, "wind_speed_10m")
-    current_rain = get_current_condition(local_data, closest_element_to_now, "rain")
+
+    # current_rain = get_current_condition(local_data, closest_element_to_now, "rain")
     current_wind_direction = get_current_condition(local_data, closest_element_to_now, "wind_direction_10m", False)
 
     print(current_wind_direction)
     print(get_cardinal_position_from_degrees(current_wind_direction))
 
-    message = "It is %s but feels like %s with cloud cover of %s and humidity of %s. The probability of precipitation is %s, expect %s of rain. The UV index is %s (%s) with winds from the %s at %s gusting to %s." % (current_temperature, current_apparent_temperature, current_cloud_cover, current_humidity, current_probability_precipitation,current_showers, current_uv_index, get_uv_index_category(current_uv_index), get_cardinal_position_from_degrees(current_wind_direction), current_wind, current_wind_gusts)
+    message = "It is %s but feels like %s with cloud cover of %s and humidity of %s. The probability of precipitation is %s, expect %s of rain. The UV index is %s (%s) with winds from the %s at %s gusting to %s." % (current_temperature, current_apparent_temperature, current_cloud_cover, current_humidity, current_probability_precipitation, current_showers, current_uv_index, get_uv_index_category(current_uv_index), get_cardinal_position_from_degrees(current_wind_direction), current_wind, current_wind_gusts)
     print(message)
 
     display_items = []
 
     if current_time > sunrise_time and current_time < sunset_time:
         # print("Daytime")
-        display_items.append(render.Box(width=64, height = 26, color = "#004764"))
-        display_items.append(add_padding_to_child_element(render.Image(src=SUN_ICON),48))
+        display_items.append(render.Box(width = 64, height = 26, color = "#004764"))
+        display_items.append(add_padding_to_child_element(render.Image(src = SUN_ICON), 48))
     else:
         # print("NightTime")
-        display_items.append(add_padding_to_child_element(render.Image(src=base64.decode(MOON_ICONS[str( moon_phase(current_time.year, current_time.month, current_time.day, False))])),43, -2))
+        display_items.append(add_padding_to_child_element(render.Image(src = base64.decode(MOON_ICONS[str(moon_phase(current_time.year, current_time.month, current_time.day, False))])), 43, -2))
 
-    #Display Rain if Raining 
+    #Display Rain if Raining
     if get_current_condition(local_data, closest_element_to_now, "rain", False) > 0:
-        display_items.append(add_padding_to_child_element(render.Image(src=RAIN_ICON),40,6))
+        display_items.append(add_padding_to_child_element(render.Image(src = RAIN_ICON), 40, 6))
     elif get_current_condition(local_data, closest_element_to_now, "cloud_cover", False) > 0:
-        display_items.append(add_padding_to_child_element(render.Image(src=CLOUD_ICON),40,6))
+        display_items.append(add_padding_to_child_element(render.Image(src = CLOUD_ICON), 40, 6))
 
     # Display The Windsock
-    display_items.append(add_padding_to_child_element(render.Image(src=base64.decode(WINDSOCKS[str(get_wind_sock_category(float(get_current_condition(local_data, closest_element_to_now, "wind_speed_10m", False))))])),25))
+    display_items.append(add_padding_to_child_element(render.Image(src = base64.decode(WINDSOCKS[str(get_wind_sock_category(float(get_current_condition(local_data, closest_element_to_now, "wind_speed_10m", False))))])), 25))
 
     # Marquee
-    display_items.append(add_padding_to_child_element(get_information_marquee(message),0,27))
+    display_items.append(add_padding_to_child_element(get_information_marquee(message), 0, 27))
 
     # Wind Direction
     if (get_current_condition(local_data, closest_element_to_now, "wind_speed_10m", False) > 0):
-        display_items.append(add_padding_to_child_element(render.Image(src=WINDROSE_ICON),1,1))
-        display_items.append(add_padding_to_child_element(get_wind_rose_display(current_wind_direction),9,1))
+        display_items.append(add_padding_to_child_element(render.Image(src = WINDROSE_ICON), 1, 1))
+        display_items.append(add_padding_to_child_element(get_wind_rose_display(current_wind_direction), 9, 1))
 
     return render.Root(
         render.Stack(
-            children = display_items
+            children = display_items,
         ),
         show_full_animation = True,
         delay = int(config.get("scroll", 45)),
