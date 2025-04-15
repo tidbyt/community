@@ -126,7 +126,7 @@ def get_two_digit_string(number):
 def get_current_condition(data,  element, item_name, add_units = True):
     if add_units:
         units = data["hourly_units"][item_name]
-        display_tempate = "%s%s" if units == "%" else "%s %s"
+        display_tempate = "%s%s" if units == "mm" or units == "%" or units == "°F" else "%s %s"
 
         return display_tempate % (data["hourly"][item_name][element], units)
     else:
@@ -248,23 +248,87 @@ def get_wind_sock_category(wind_speed):
         return 1
 
 def get_wind_rose_display(direction):
-
     return animation.Transformation(
         child = render.Image(src = DIRECTIONAL_ARROW),
-        duration = 9,
+        duration = 25,
         delay = 10,
         origin = animation.Origin(0.5, 0.5),
         keyframes = [
             animation.Keyframe(
+                percentage = 0.7,
+                transforms = [animation.Rotate(direction+10 % 360)],
+                curve = "ease_in_out",
+            ),
+            animation.Keyframe(
+                percentage = 0.85,
+                transforms = [animation.Rotate(direction-10 % 360)],
+                curve = "ease_in_out",
+            ),
+            animation.Keyframe(
                 percentage = 1.0,
-                transforms = [animation.Rotate(direction)],
-                curve = "ease_out",
+                transforms = [animation.Rotate(direction % 360)],
+                curve = "ease_in_out",
             ),
 
         ],
     )
 
+def get_cardinal_position_from_degrees(bearing):
+    """ Returns the cardinal position for a given bearing
+
+    Args:
+        bearing: in degrees
+    Returns:
+        The Cardinal position (N, NW, NE, S, SW, SE, E, W)
+    """
+
+    if bearing < 0:
+        bearing = 360 + bearing
+
+    # have bearning in degrees, now convert to cardinal point
+    compass_brackets = ["North", "NNE", "NE", "ENE", "East", "ESE", "SE", "SSE", "South", "SSW", "SW", "WSW", "West", "WNW", "NW", "NNW", "North"]
+    display_cardinal_point = compass_brackets[int(math.round(bearing // 22.5))]
+    return display_cardinal_point
+
+def display_instructions(config):
+    ##############################################################################################################################################################################################################################
+    title = "CycleCast by Robert Ison"
+    instructions_1 = "This was developed to display helpful information when planning a bike ride. However, it can certainly be used for any outdoor activity."
+    instructions_2 = "The source for this app is Open Meteo, go to https://open-meteo.com/ for more information. The information is based on your location.  Displays a wind rose to indication the direction the wind is "
+    instructions_3 = "coming from, then a wind sock to show the strength of the wind. There are also some weather icons to give you an idea of rain, clouds and the current moon phase if it is evening.  "
+    return render.Root(
+        render.Column(
+            children = [
+                render.Marquee(
+                    width = 64,
+                    child = render.Text(title, color = "#FF7300", font = "5x8"),
+                ),
+                render.Marquee(
+                    width = 64,
+                    child = render.Text(instructions_1, color = "#E3D8C5"),
+                    offset_start = len(title) * 5,
+                ),
+                render.Marquee(
+                    offset_start = (len(title) + len(instructions_1)) * 5,
+                    width = 64,
+                    child = render.Text(instructions_2, color = "#8F9779"),
+                ),
+                render.Marquee(
+                    offset_start = (len(title) + len(instructions_2) + len(instructions_1)) * 5,
+                    width = 64,
+                    child = render.Text(instructions_3, color = "#FF7300"),
+                ),
+            ],
+        ),
+        show_full_animation = True,
+        delay = int(config.get("scroll", 45)),
+    )
+
 def main(config):
+    show_instructions = config.bool("instructions", False)
+    if show_instructions:
+        return display_instructions(config)
+
     # Get location needed for local weather
     location = json.decode(config.get("location", DEFAULT_LOCATION))
 
@@ -287,13 +351,14 @@ def main(config):
     closest_element_to_now = 0
     smallest_difference = 24 #Just need to seed this with a high number (only 24 hours in a day) 
 
+    # in the stored data, let's find the closest time period to now
     for i in range(0, len(hour_periods["time"])):
         time_difference = simple_current_time - time.parse_time(hour_periods["time"][i], format = "2006-01-02T15:04")
         if abs(time_difference.hours) < smallest_difference:
             smallest_difference = abs(time_difference.hours)
             closest_element_to_now = i
 
-    #cloud_cover,relative_humidity_2m,precipitation_probability, apparent_temperature, showers,uv_index, wind_gusts_10m, rain, wind_speed_10m, temperature_2m
+    # based on the time period, pull out the current conditions 
     current_cloud_cover = get_current_condition(local_data, closest_element_to_now, "cloud_cover")
     current_humidity = get_current_condition(local_data, closest_element_to_now, "relative_humidity_2m")
     current_probability_precipitation = get_current_condition(local_data, closest_element_to_now, "precipitation_probability")
@@ -306,7 +371,10 @@ def main(config):
     current_rain = get_current_condition(local_data, closest_element_to_now, "rain")
     current_wind_direction = get_current_condition(local_data, closest_element_to_now, "wind_direction_10m", False)
 
-    message = "Cloud Cover: %s Humidity: %s POP: %s Temp: %s (Feels Like %s) Showers: %s UV: %s (%s) Wind: %s gusting to %s Rain: %s" % (current_cloud_cover, current_humidity, current_probability_precipitation, current_temperature, current_apparent_temperature,current_showers, current_uv_index, get_uv_index_category(current_uv_index), current_wind, current_wind_gusts, current_rain)
+    print(current_wind_direction)
+    print(get_cardinal_position_from_degrees(current_wind_direction))
+
+    message = "It is %s but feels like %s with cloud cover of %s and humidity of %s. The probability of precipitation is %s, expect %s of rain. The UV index is %s (%s) with winds from the %s at %s gusting to %s." % (current_temperature, current_apparent_temperature, current_cloud_cover, current_humidity, current_probability_precipitation,current_showers, current_uv_index, get_uv_index_category(current_uv_index), get_cardinal_position_from_degrees(current_wind_direction), current_wind, current_wind_gusts)
     print(message)
 
     display_items = []
@@ -348,6 +416,13 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Toggle(
+                id = "instructions",
+                name = "Display Instructions",
+                desc = "",
+                icon = "book",  #"info",
+                default = False,
+            ),
             schema.Location(
                 id = "location",
                 name = "Location",
