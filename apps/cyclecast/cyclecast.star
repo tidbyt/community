@@ -16,22 +16,14 @@ load("schema.star", "schema")
 load("sunrise.star", "sunrise")  #to calcuate day/night and when planets will be visible
 load("time.star", "time")  #Used to display time and calcuate lenght of TTL cache
 
-#Note: Windsock is a conical textile tube
-
 SAMPLE_DATA = """{"latitude":28.375,"longitude":81.25,"generationtime_ms":0.091552734375,"utc_offset_seconds":-14400,"timezone":"America/New_York","timezone_abbreviation":"GMT-4","elevation":167.0,"hourly_units":{"time":"iso8601","temperature_2m":"°F","wind_speed_10m":"mp/h","rain":"mm","wind_gusts_10m":"mp/h","uv_index":"","showers":"mm","apparent_temperature":"°F","precipitation_probability":"%","relative_humidity_2m":"%","cloud_cover":"%"},"hourly":{"time":["2025-04-14T00:00","2025-04-14T01:00","2025-04-14T02:00","2025-04-14T03:00","2025-04-14T04:00","2025-04-14T05:00","2025-04-14T06:00","2025-04-14T07:00","2025-04-14T08:00","2025-04-14T09:00","2025-04-14T10:00","2025-04-14T11:00","2025-04-14T12:00","2025-04-14T13:00","2025-04-14T14:00","2025-04-14T15:00","2025-04-14T16:00","2025-04-14T17:00","2025-04-14T18:00","2025-04-14T19:00","2025-04-14T20:00","2025-04-14T21:00","2025-04-14T22:00","2025-04-14T23:00"],"temperature_2m":[84.8,87.9,90.7,93.1,94.6,95.1,94.7,93.4,91.5,87.2,83.9,82.0,79.0,77.8,76.9,76.2,75.6,75.0,74.4,74.2,73.8,74.4,78.6,83.2],"wind_speed_10m":[3.8,5.9,6.0,6.2,6.0,6.4,6.1,5.8,5.4,3.8,2.2,2.4,3.5,3.8,3.3,3.0,2.5,2.2,2.1,1.8,1.3,0.9,0.4,0.3],"rain":[0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00],"wind_gusts_10m":[9.2,12.8,13.2,13.6,13.2,13.6,13.6,12.8,12.1,10.7,6.9,3.8,6.0,6.9,6.7,5.8,5.1,4.0,3.8,3.6,2.7,1.8,1.6,2.0],"uv_index":[4.55,6.15,7.30,7.75,7.45,6.40,4.85,3.00,1.35,0.25,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.10,1.00,2.70],"showers":[0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00],"apparent_temperature":[88.4,92.0,95.6,97.3,97.9,97.4,95.4,93.7,92.0,89.2,86.9,85.2,81.9,80.5,80.0,79.7,79.2,78.8,78.3,78.3,78.4,79.5,84.5,88.3],"precipitation_probability":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"relative_humidity_2m":[47,41,37,32,29,28,29,31,33,41,47,51,57,59,62,64,65,67,68,70,72,72,66,53],"cloud_cover":[0,0,0,0,5,2,9,31,20,0,9,54,51,38,0,50,44,56,65,84,81,71,54,52]},"daily_units":{"time":"iso8601","sunrise":"iso8601","sunset":"iso8601"},"daily":{"time":["2025-04-14"],"sunrise":["2025-04-13T20:10"],"sunset":["2025-04-14T08:59"]}}"""
 DEFAULT_LOCATION = """{"lat": "28.53933",	"lng": "-81.38325",	"description": "Orlando, FL, USA",	"locality": "Orlando",	"place_id": "???",	"timezone": "America/New_York"}"""
 API_URL = "https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&daily=sunrise,sunset&hourly=wind_direction_10m,temperature_2m,wind_speed_10m,rain,wind_gusts_10m,uv_index,showers,apparent_temperature,precipitation_probability,relative_humidity_2m,cloud_cover&timezone=%s&forecast_days=1&wind_speed_unit=mph&temperature_unit=fahrenheit"
 CACHE_NAME = "%s_%s_CycleCast_CacheXXXX_%s"
 
-#Weather Elements
-SUN_ICON = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAASElEQVR4Aa1SQQoAIAgb0gf7/7GHGB08xdqKBBGc21AESOToybDAQ4SjfMQLWLXSEdwGrgms36SSELSd5IBNsK+nHKzdv7/RBFeDVlFpPWcXAAAAAElFTkSuQmCC
-""")
-
-CLOUD_ICON = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAABIAAAAOCAYAAAAi2ky3AAAAq0lEQVR42mJgoBJgxCa4atUqByAVD8QKQPwAiBeGhYUdIMkgoCHzgVQCFrWJQMMWEGUQ1CX7ifDJBSB2BBr8ASbAhKYgnsggMQDifmQBJiTXgMLDgYTwVcAwCGgIyIbz6JKEXAXU14DuovVALEBijIPU1wMN60c2SIGCJFSALbDJAqDwhRn0gAJzPgCTwQOYQYEgATINKkRJkNDorychvD5As84GBmoCgAADACo0LGmMFE1wAAAAAElFTkSuQmCC
-""")
-
+#Weather Icons
+SUN_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAASElEQVR4Aa1SQQoAIAgb0gf7/7GHGB08xdqKBBGc21AESOToybDAQ4SjfMQLWLXSEdwGrgms36SSELSd5IBNsK+nHKzdv7/RBFeDVlFpPWcXAAAAAElFTkSuQmCC""")
+CLOUD_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABIAAAAOCAYAAAAi2ky3AAAAq0lEQVR42mJgoBJgxCa4atUqByAVD8QKQPwAiBeGhYUdIMkgoCHzgVQCFrWJQMMWEGUQ1CX7ifDJBSB2BBr8ASbAhKYgnsggMQDifmQBJiTXgMLDgYTwVcAwCGgIyIbz6JKEXAXU14DuovVALEBijIPU1wMN60c2SIGCJFSALbDJAqDwhRn0gAJzPgCTwQOYQYEgATINKkRJkNDorychvD5As84GBmoCgAADACo0LGmMFE1wAAAAAElFTkSuQmCC""")
 RAIN_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABQAAAARCAYAAADdRIy+AAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6QQPBBMhevOvbAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAH0SURBVDjLrVRNSFRhFD33fm9mejPjGyMQnSgh2lToznYthIRo1R8UxDjVKqII3Ri5CWoT7YZpU4tMjCDcCONGoUXtpIUbhRY2mEWBVvrG0Zn3vu/dFor9zbOp8SzvPfdw7vk+LqFOOL35LhD6IBIH0Yj79PpoLR7VKsbP93Pq4sAZYtUDwBajy9U3U1m98MHeIgXmijt848lfBdOFxXaAxkF05Pee+bokldevIJ5PEHkHovui/enSyM2pmoKto/PNbCenAbSHrR4sf5O1yYlfZ0Umg/XSudUXt1z+mcwxe3A7MQDg5t0U7ewQ1doCikVlwxb1sJ0c/sNhurD4HsT76n0oGAPv7az2ZmatTaf7LQBoG/t0lJR1+Z/EAEApRA93WEFlXfRckUDUYrWNfT5BljUOEOM/ETlwEHquCKmWP1K6sPQSRN1oFEGwJsY/ZYHIwU6AOU6IPGYxegI7B2IYfReBGQIgDUmJuKK9q1vfJpm5rWKdx+KcTBElHOZEioiZTWlZSaWs4FcVREhECBIQiIWiu7RK7fHMyhd/5d4F11sohptysvmzTjZ/EgDs49fg9Oae/+g9HAqNcpsl+kR78wAQSR/qBikbAJoyuS4Q9oYNWeGRyKPSs/6ZzagvAbJxWSRYFYPBhvJuyuQeJE7fUfVwvwMdyrmmoIoMHgAAAABJRU5ErkJggg==""")
 
 WINDSOCKS = {
@@ -53,8 +45,9 @@ MOON_ICONS = {
     "7": "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",
 }
 
-WINDROSE_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABcAAAAXCAYAAADgKtSgAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6QQPAzozyENXSgAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAUASURBVEjHrZV/TBNnGMffUsDaK6W09IfX0tYrFEK0CyCUmmibGWNgWXS4aLZFM/fHFn/sR0aWTc2SLSxxyfYX0Sw6N11mXIYZLLNua4AC6mZrW1xpHdgToV1pr17ver0WroX2bv9sBl1EsvhN3n/e930+efI83zwPD4ZhsBoplUrVlStXxjZt2lQPVqmS1X602+0t69atM548eVL31OEikWgrAABYLBbramN4K5VlYGBAqFQqD1ZVVT0vEAha+Hy+qFgs4gzDXJ+ZmRlramrqhWGYe1x86aMXN27c6IlGo39WVFQoNBrNOwRB/DoyMtJts9m+FIvFXDabLR8eHv7KarXuJAhiempq6k2RSLRx7dq1KZvNdnrFsmSz2bTZbP6mrq7u86GhoYNWq/Wg2WxW5HK5CR6Px3Ecl5PL5QGTyfR6MBg809zcbG9sbDyxtLR0+4mZr1mzJpPP50tRFD2/ffv2L3w+37lCoYAAABwAgA2FQsGp1WpfHB8f38hx3JZwOPx9TU3NHoqi+Cs2tKenRy2VSj/wer0vaTSalgMHDmxhWbaqurp6/+Dg4BAAAOA4PqhQKD5mGCZ48eLFDplMttXj8ew2Go1nWJZ9mA7D8IMTj8ePTU9PfwrDMCAI4nQoFOru6OjQYBgWhmEYcBznValUapIkQzqdThiLxb7GMOwQDMMAx/EBn8/3wnLeQ24JBAJ/OByOPXq9vkYul+9Xq9X7aJomIAiiEolEp8Fg+M7v93+4fv36CwzDlIhEospIJHKCJMkBvV6vFYvF1oaGhrcfAA0Gg9Dv97cSBHEsl8vN4zgeTSaTP8RisTdcLlctgiBlo6OjO1OpVHhpaSlJEER0fHy8AUEQ/ujoqCUajb5PkuQwQRBzDMNEY7HYWy6Xa4NerxfwMAwjlEqlFAAA4vH4YiqVwnk8XvHR5igUigqZTFY1NzdH0TRNP/rOsmypRqOprqysLAcAABRFQ6C2tpbn9Xrb/8k8k0qlUBzHf0omk6/6fD4EhmHgdrt3kCQ5l8vlsjRNo5OTk7UIgoBbt249Q5LkERzHr5Ek+Vc2m00kEolDTqezWaPR8B4UXyqVgkwmc72/v9/gdru3RiKRU/l8PpdOpycpiopcvnx5M8dxXofDsZ+m6SRFUXfn5+eLMzMzR/1+/4bZ2dm9CwsLny1v6ENuyWQyhxKJxFEYhkEikTiPouh77e3tbQRB3P7XLUqlUk4QxF21Wq2OxWLnwuHwuzqdDqRSqb579+49+1h4b2+v9v79+9jVq1f3kiTpOXz4sCQcDp8qFAoL/f39VRzHeQOBwA6GYag7d+4cR1FUnEwmo2NjY7sxDAstZ/3HigAA4PV6X5FIJBeCweAlBEE2MwxztlAo1LEsO4ggyBGSJAfj8fiiRCJBysvLmzEMm62vr7f5/f5tu3btcq04W/L5vLisrAyYTKbdbrf7ZbPZ/JFQKLygUqk2AgAABEEtJEmebWtr2xcMBvuMRmNHSUmJEIIg/hNnC03TzRMTE10CgUBusVi+9Xg8l5xO5y+dnZ22YrHIz2QyyOLiYsPU1NRxlmW33Lx58zmtVluTyWS2AQB+W/U87+7uFnd1db0mlUo7IAhqAQDIWJZNMAwzQlHUQGtr64+lpaWL/2tZLFcoFPoEgqDj6XR6b2NjY99TXXM0Tf8OAAA+n+/aU1lzy6VWqzV2u/3npqYm02rhfwMyRI4VD1oUSwAAAABJRU5ErkJggg==""")
-DIRECTIONAL_ARROW = base64.decode("""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""")
+WINDROSE_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6QQPFygTkPYM/QAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAF7SURBVCjPxVM9SwNBEH2rkTN6BMFYiOSihaARBFExhZ1WyiFEzC8IxDMWWqgJNoqCFlaCQVtrSSAEP7CwiIUSG/NhIRYJiEUuouLpFae3FiGHm3g2Fi4My/Lem3kzw4JSCrOQRYH+htfgD8dULIWyAIDg9LmpmFBKjYdnJgVbvY7Xd2DvYcIAQq5D0vyk4JmzYHe73+Bbvmfq7rBiPjFKKyts3IxRAAj1HBNT29m7FzsAbLrjhI/kSGNwn/CRHPG3xQkA2Kw6m7U8Od/iNWRRoLIoUFXTUSi+4Ww9CrmgQNV0A5OWMoaGyKJQZZOP5MhFUoZ70I7LqyKGBlqgeNqreDX2WJ7YY3my0nvC9OPqasLq1i2cDp4RrPWdkrKGWbo3ULI+NZuGqumIHt1D1XR4pTRkUaCT/iTDZ6b98Vm6w/lxqniAYQBKGNgpr6aWY1wwYq4OCDjjpFOwYi4xYvQYcBwQZ2sDuEf687Qrw7eQgiwKVFrOmHLwbx/jC1N2GlOFpgbIAAAAAElFTkSuQmCC""")
+DIRECTIONAL_ARROW = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6QQQAhEq0+AvHQAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAABWSURBVCjPY2DAA6S2vv2PT56JgQJAfc17Ypo5iNHMSIx/n3kLMxKtGVtAYTMAr59x2Yg3etBtxiaG12aYYnxxTZGfcYKD0S2yUlvf/t8W2S3CMArgAACZwSg5iYpbGwAAAABJRU5ErkJggg==""")
+FLAG_BASE = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAAMAAAAICAYAAAA870V8AAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6QQQDzcLVI8vNAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAABJSURBVAjXRcmxDYAwDAXR8/dMVPSMyAaUbEKJxCxWiE0BKNc9nR3nVeu2s8wTMjMAMnNAEqqqcX5IQnxlJpKEu7+n352IoLXGA+FUHgXhxXywAAAAAElFTkSuQmCC""")
 
 # Parameters for Setting Options
 scroll_speed_options = [
@@ -101,15 +94,24 @@ def get_weather_data(latitude, longitude, timezone):
 
     local_weather_data = cache.get(local_cache_name)
 
+    # We need to make sure we don't keep this dataset past the end of the day, but we also want to clear it a little more often to
+    # get updated data. So we'll set a max cache in seconds
+    max_cache_in_seconds = 10800  #3 Hours
+
+    seconds_xml_valid_for = seconds_remaining_in_day(timezone)
+
+    if seconds_xml_valid_for > max_cache_in_seconds:
+        seconds_xml_valid_for = max_cache_in_seconds
+
     if local_weather_data == None:
         print("New Data")
-        response = http.get(local_api_url, ttl_seconds = seconds_remaining_in_day(timezone))
+        response = http.get(local_api_url, ttl_seconds = seconds_xml_valid_for)
 
         if response.status_code != 200:
             fail("request to %s failed with status code: %d - %s" % (local_api_url, response.status_code, response.body()))
         else:
             local_weather_data = response.json()
-            cache.set(local_cache_name, json.encode(local_weather_data), ttl_seconds = seconds_remaining_in_day(timezone))
+            cache.set(local_cache_name, json.encode(local_weather_data), ttl_seconds = seconds_xml_valid_for)
     else:
         print("From Cache")
         local_weather_data = json.decode(local_weather_data)
@@ -131,19 +133,108 @@ def get_current_condition(data, element, item_name, add_units = True):
     else:
         return data["hourly"][item_name][element]
 
-def get_uv_index_category(index):
+def to_hex(n):
+    """Converts an integer (0-255) to a two-character hex string."""
+    hex_chars = "0123456789ABCDEF"
+    return hex_chars[n // 16] + hex_chars[n % 16]
+
+def most_contrasting_color(hex_color):
+    """Returns the most contrasting color by inverting the input color."""
+    hex_color = hex_color.lstrip("#")
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+
+    # Invert colors
+    inverted_r = 255 - r
+    inverted_g = 255 - g
+    inverted_b = 255 - b
+
+    # Convert back to hex
+    return "#" + to_hex(inverted_r) + to_hex(inverted_g) + to_hex(inverted_b)
+
+def luminance(r, g, b):
+    """Calculates the relative luminance of an RGB color."""
+    return (0.299 * r + 0.587 * g + 0.114 * b)
+
+def best_contrast_color(hex_color):
+    """Returns black (#000000) or white (#FFFFFF) based on the best contrast."""
+    hex_color = hex_color.lstrip("#")
+    r = int(hex_color[:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+
+    # Determine luminance and choose contrast color
+    if luminance(r, g, b) > 128:
+        return "#000000"  # Dark text for light backgrounds
+    else:
+        return "#FFFFFF"  # Light text for dark backgrounds
+
+def get_uv_index_category(index, color = False):
     category = ""
     index = float(index)
-    if index > 10:
-        category = "Extreme"
-    elif index > 7:
-        category = "Very High"
-    elif index > 5:
-        category = "High"
-    elif index > 2:
-        category = "Moderate"
+    if color:
+        if index > 10:
+            category = "#800080"
+        elif index > 7:
+            category = "#FF4500"
+        elif index > 5:
+            category = "#FF8C00"
+        elif index > 2:
+            category = "#FFD700"
+        else:
+            category = "#008000"
+        return category
     else:
-        category = "Low"
+        if index > 10:
+            category = "Extreme"
+        elif index > 7:
+            category = "Very High"
+        elif index > 5:
+            category = "High"
+        elif index > 2:
+            category = "Moderate"
+        else:
+            category = "Low"
+        return category
+
+def get_temperature_color_code(index):
+    category = ""
+    index = float(index)
+
+    if index > 95:
+        category = "#800080"
+    elif index > 85:
+        category = "#FF4500"
+    elif index > 75:
+        category = "#FFD700"
+    elif index > 65:
+        category = "#FFD700"
+    elif index > 50:
+        category = "#5BC8AC"
+    elif index > 32:
+        category = "#66D3FA"
+    else:
+        category = "#00A8E8"
+    return category
+
+def get_humidity_color_code(index):
+    index = float(index)
+
+    if index > 95:
+        category = "#00A8E8"
+    elif index > 85:
+        category = "#66D3FA"
+    elif index > 75:
+        category = "#5BC8AC"
+    elif index > 60:
+        category = "#8FC93A"
+    elif index > 40:
+        category = "#FFD700"
+    elif index > 20:
+        category = "#FF8C00"
+    else:
+        category = "#FF4500"
     return category
 
 def add_padding_to_child_element(element, left = 0, top = 0, right = 0, bottom = 0):
@@ -223,13 +314,7 @@ def calculate_julian_date(year, month, day):
 
     A = year // 100
     B = 2 - A + (A // 4)
-    julian_date = (
-        int(365.25 * (year + 4716)) +
-        int(30.6001 * (month + 1)) +
-        day +
-        B -
-        1524.5
-    )
+    julian_date = (int(365.25 * (year + 4716)) + int(30.6001 * (month + 1)) + day + B - 1524.5)
     return julian_date
 
 def get_wind_sock_category(wind_speed):
@@ -247,18 +332,48 @@ def get_wind_sock_category(wind_speed):
 def get_wind_rose_display(direction):
     return animation.Transformation(
         child = render.Image(src = DIRECTIONAL_ARROW),
-        duration = 25,
-        delay = 10,
+        duration = 250,
+        delay = 5,
         origin = animation.Origin(0.5, 0.5),
         keyframes = [
             animation.Keyframe(
-                percentage = 0.7,
-                transforms = [animation.Rotate(direction + 10 % 360)],
+                percentage = 0.0,
+                transforms = [animation.Rotate(direction % 360)],
                 curve = "ease_in_out",
             ),
             animation.Keyframe(
-                percentage = 0.85,
-                transforms = [animation.Rotate(direction - 10 % 360)],
+                percentage = 0.2,
+                transforms = [animation.Rotate((direction + 15) % 360)],
+                curve = "ease_in_out",
+            ),
+            animation.Keyframe(
+                percentage = 0.3,
+                transforms = [animation.Rotate((direction - 15) % 360)],
+                curve = "ease_in_out",
+            ),
+            animation.Keyframe(
+                percentage = 0.4,
+                transforms = [animation.Rotate((direction + 5) % 360)],
+                curve = "ease_in_out",
+            ),
+            animation.Keyframe(
+                percentage = 0.5,
+                transforms = [animation.Rotate((direction - 5) % 360)],
+                curve = "ease_in_out",
+            ),
+            animation.Keyframe(
+                percentage = 0.6,
+                transforms = [animation.Rotate((direction + 2) % 360)],
+                curve = "ease_in_out",
+            ),
+            animation.Keyframe(
+                percentage = 0.7,
+                transforms = [animation.Rotate((direction - 2) % 360)],
+                curve = "ease_in_out",
+            ),
+            animation.Keyframe(
+                percentage = 0.8,
+                transforms = [animation.Rotate(direction % 360)],
                 curve = "ease_in_out",
             ),
             animation.Keyframe(
@@ -289,9 +404,9 @@ def get_cardinal_position_from_degrees(bearing):
 def display_instructions(config):
     ##############################################################################################################################################################################################################################
     title = "CycleCast by Robert Ison"
-    instructions_1 = "This was developed to display helpful information when planning a bike ride. However, it can certainly be used for any outdoor activity."
-    instructions_2 = "The source for this app is Open Meteo, go to https://open-meteo.com/ for more information. The information is based on your location.  Displays a wind rose to indication the direction the wind is "
-    instructions_3 = "coming from, then a wind sock to show the strength of the wind. There are also some weather icons to give you an idea of rain, clouds and the current moon phase if it is evening.  "
+    instructions_1 = "CycleCast can be used for any outdoor activity to let you know important conditions at a glance. The source for this app is Open Meteo, go to ..."
+    instructions_2 = "https://open-meteo.com/ for more information. Displays a wind rose to indication wind direction & a windsock to indicate speed. Sun or Moon (current moon phase is calculated) and cloud and rain icons based"
+    instructions_3 = "on conditions in your area. 3 color coded boxes to indicate UV index, temperature and humidity. "
     return render.Root(
         render.Column(
             children = [
@@ -357,28 +472,28 @@ def main(config):
     # based on the time period, pull out the current conditions
     current_cloud_cover = get_current_condition(local_data, closest_element_to_now, "cloud_cover")
     current_humidity = get_current_condition(local_data, closest_element_to_now, "relative_humidity_2m")
+    current_humidity_value = get_current_condition(local_data, closest_element_to_now, "relative_humidity_2m", False)
     current_probability_precipitation = get_current_condition(local_data, closest_element_to_now, "precipitation_probability")
     current_temperature = get_current_condition(local_data, closest_element_to_now, "temperature_2m")
+    current_temperature_value = get_current_condition(local_data, closest_element_to_now, "temperature_2m", False)
     current_apparent_temperature = get_current_condition(local_data, closest_element_to_now, "apparent_temperature")
     current_showers = get_current_condition(local_data, closest_element_to_now, "showers")
     current_uv_index = get_current_condition(local_data, closest_element_to_now, "uv_index", False)
     current_wind_gusts = get_current_condition(local_data, closest_element_to_now, "wind_gusts_10m")
     current_wind = get_current_condition(local_data, closest_element_to_now, "wind_speed_10m")
+    current_wind_value = get_current_condition(local_data, closest_element_to_now, "wind_speed_10m", False)
 
     # current_rain = get_current_condition(local_data, closest_element_to_now, "rain")
     current_wind_direction = get_current_condition(local_data, closest_element_to_now, "wind_direction_10m", False)
 
-    print(current_wind_direction)
-    print(get_cardinal_position_from_degrees(current_wind_direction))
-
     message = "It is %s but feels like %s with cloud cover of %s and humidity of %s. The probability of precipitation is %s, expect %s of rain. The UV index is %s (%s) with winds from the %s at %s gusting to %s." % (current_temperature, current_apparent_temperature, current_cloud_cover, current_humidity, current_probability_precipitation, current_showers, current_uv_index, get_uv_index_category(current_uv_index), get_cardinal_position_from_degrees(current_wind_direction), current_wind, current_wind_gusts)
-    print(message)
 
     display_items = []
+    show_info_bar = config.bool("show_info_bar", False)
 
     if current_time > sunrise_time and current_time < sunset_time:
         # print("Daytime")
-        display_items.append(render.Box(width = 64, height = 26, color = "#004764"))
+        display_items.append(render.Box(width = 64, height = 26 if show_info_bar else 32, color = "#004764"))
         display_items.append(add_padding_to_child_element(render.Image(src = SUN_ICON), 48))
     else:
         # print("NightTime")
@@ -387,19 +502,51 @@ def main(config):
     #Display Rain if Raining
     if get_current_condition(local_data, closest_element_to_now, "rain", False) > 0:
         display_items.append(add_padding_to_child_element(render.Image(src = RAIN_ICON), 40, 6))
-    elif get_current_condition(local_data, closest_element_to_now, "cloud_cover", False) > 0:
+    elif get_current_condition(local_data, closest_element_to_now, "cloud_cover", False) > 15:
         display_items.append(add_padding_to_child_element(render.Image(src = CLOUD_ICON), 40, 6))
 
     # Display The Windsock
-    display_items.append(add_padding_to_child_element(render.Image(src = base64.decode(WINDSOCKS[str(get_wind_sock_category(float(get_current_condition(local_data, closest_element_to_now, "wind_speed_10m", False))))])), 25))
+    display_items.append(add_padding_to_child_element(render.Image(src = base64.decode(WINDSOCKS[str(get_wind_sock_category(float(current_wind_value)))])), 0))
+
+    # To make room for an info bar if requested, need an offset of height of 5 pixels
+    height_offset = 0 if show_info_bar else 5
 
     # Marquee
-    display_items.append(add_padding_to_child_element(get_information_marquee(message), 0, 27))
+    if show_info_bar:
+        display_items.append(add_padding_to_child_element(get_information_marquee(message), 0, 27))
+    else:
+        display_items.append(add_padding_to_child_element(render.Image(src = FLAG_BASE), 0, 24))
 
     # Wind Direction
     if (get_current_condition(local_data, closest_element_to_now, "wind_speed_10m", False) > 0):
-        display_items.append(add_padding_to_child_element(render.Image(src = WINDROSE_ICON), 1, 1))
-        display_items.append(add_padding_to_child_element(get_wind_rose_display(current_wind_direction), 9, 1))
+        display_items.append(add_padding_to_child_element(render.Image(src = WINDROSE_ICON), 16, 6 + height_offset))
+        display_items.append(add_padding_to_child_element(get_wind_rose_display(current_wind_direction), 16, 6 + height_offset))
+
+    # Initialize Info Box Settings
+    info_box_height = 9
+    info_box_width = 14
+
+    # UV Index Warning
+    display_items.append(add_padding_to_child_element(render.Box(color = get_uv_index_category(current_uv_index, True), height = info_box_height, width = info_box_width), 29, 1))
+    display_uv_score = str(int(current_uv_index))
+    centering_additional_offet = int((info_box_width - (3 * len(display_uv_score)) - len(display_uv_score)) / 2)
+    display_items.append(add_padding_to_child_element(render.Box(color = "#000", height = info_box_height - 4, width = info_box_width - 4), 31, 3))
+    display_items.append(add_padding_to_child_element(render.Text(str(int(display_uv_score)), font = "CG-pixel-3x5-mono", color = best_contrast_color(get_uv_index_category(current_uv_index, True))), 29 + centering_additional_offet, 3))
+
+    # Current Temperature
+    display_items.append(add_padding_to_child_element(render.Box(color = get_temperature_color_code(current_temperature_value), height = info_box_height, width = info_box_width), 29, 17 + height_offset))
+    display_temp = str(int(current_temperature_value))
+
+    # To center the numbers, we need to have an offset based on the number of characters to display
+    centering_additional_offet = int((info_box_width - (3 * len(display_temp)) - len(display_temp)) / 2)
+    display_items.append(add_padding_to_child_element(render.Box(color = "#000", height = info_box_height - 4, width = info_box_width - 4), 31, 19 + height_offset))
+    display_items.append(add_padding_to_child_element(render.Text(str(int(current_temperature_value)), font = "CG-pixel-3x5-mono", color = "#fff"), 29 + centering_additional_offet, 19 + height_offset))
+
+    # Humidity Box
+    display_items.append(add_padding_to_child_element(render.Box(color = get_humidity_color_code(current_humidity_value), height = info_box_height, width = info_box_width), 49, 17 + height_offset))
+    centering_additional_offet = int((info_box_width - (3 * len(str(current_humidity_value))) - len(str(current_humidity_value))) / 2)
+    display_items.append(add_padding_to_child_element(render.Box(color = "#000", height = info_box_height - 4, width = info_box_width - 4), 51, 19 + height_offset))
+    display_items.append(add_padding_to_child_element(render.Text(str(int(current_humidity_value)), font = "CG-pixel-3x5-mono", color = "#fff"), 49 + centering_additional_offet, 19 + height_offset))
 
     return render.Root(
         render.Stack(
@@ -416,7 +563,7 @@ def get_schema():
             schema.Toggle(
                 id = "instructions",
                 name = "Display Instructions",
-                desc = "",
+                desc = "Show instructions on this app when first installing.",
                 icon = "book",  #"info",
                 default = False,
             ),
@@ -425,6 +572,13 @@ def get_schema():
                 name = "Location",
                 desc = "The location used for gathering weather data.",
                 icon = "locationDot",
+            ),
+            schema.Toggle(
+                id = "show_info_bar",
+                name = "Information Bar",
+                desc = "Add an information bar at the bottom that provides more weather info.",
+                icon = "gear",
+                default = False,
             ),
             schema.Dropdown(
                 id = "scroll",
