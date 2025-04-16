@@ -160,6 +160,7 @@ def main(config):
     if job["progress"]["completion"] != None:
         completion = math.round(job["progress"]["completion"])
         name = job["job"]["file"]["display"].removesuffix(".gcode")
+        name = name[:16]  # only show the first 15 chars of name otherwise it'll just be a random portion of the middle of the filename
 
         # printTime = str(math.round(job["progress"]["printTime"] / 360) / 10)
         printTimeLeft = str(math.round(job["progress"]["printTimeLeft"] / 360) / 10)
@@ -194,7 +195,7 @@ def main(config):
                                     cross_align = "center",
                                     expanded = True,
                                     children = [
-                                        render.Text("%s" % name, font = "tom-thumb"),
+                                        render.Text("%s" % name[:15], font = "tom-thumb"),
                                         render.WrappedText(state, color = stateColor),
                                         render.Text("%s hrs left" % printTimeLeft),
                                         renderProgress("Completion", completion, 1),
