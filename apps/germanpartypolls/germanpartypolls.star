@@ -1,6 +1,7 @@
 load("bsoup.star", "bsoup")
 load("http.star", "http")
 load("render.star", "render")
+load("schema.star", "schema")
 
 TIDBYT_HEIGHT = 32
 TIDBYT_WIDTH = 64
@@ -29,11 +30,13 @@ SHORT_PARTY_NAME_DICT = {
     "Sonstige": "Sonstige",
 }
 
-def main():
+def main(config):
     # Example usage:
     html_text = http.get("https://www.wahlrecht.de/umfragen/").body()
     data = extract_data(html_text)
-    showing_data = get_representative_data(data)
+    showing_data = get_representative_data(data, config)
+    data_for_pie = [party for party in showing_data["results"] if can_be_float(str(party["percentage"]))]
+    # print(data_for_pie)
     # print(showing_data)
 
     return render.Root(
@@ -41,19 +44,35 @@ def main():
             [
                 render.Column(main_align = "center", expanded = True, children = [
                     render.Padding(
-                        pad = (0, 0, 3, 0),
-                        child =
-                            render.PieChart(
-                                colors = [PARTY_COLOR_DICT[party["name"]] for party in showing_data["results"]],
-                                weights = [party["percentage"] for party in showing_data["results"]],
-                                diameter = 16,
-                            ),
+                        pad = (1, 0, 3, 0),
+                        child = render.Column(
+                            [
+                                render.Padding(
+                                    pad = (0, 0, 0, 3),
+                                    child = render.PieChart(
+                                        colors = [PARTY_COLOR_DICT[party["name"]] for party in data_for_pie],
+                                        weights = [float(party["percentage"]) for party in data_for_pie],
+                                        diameter = 16,
+                                    ),
+                                ),
+                                render.Text(
+                                    str(showing_data["date"]["day"]) + "." + str(showing_data["date"]["month"]),
+                                    font = "tom-thumb",
+                                    color = "#ffffff",
+                                ),
+                            ],
+                        ),
                     ),
                 ]),
-                render.Column([
-                    render.Text(get_display_line_for_party(party), font = "tom-thumb", color = PARTY_COLOR_DICT[party["name"]])
-                    for party in showing_data["results"]
-                ], main_align = "center", expanded = True),
+                render.Marquee(
+                    render.Column([
+                        render.Text(get_display_line_for_party(party), font = "tom-thumb", color = PARTY_COLOR_DICT[party["name"]])
+                        for party in showing_data["results"]
+                    ], main_align = "center"),
+                    scroll_direction = "vertical",
+                    height = 32,
+                    delay = 50,
+                ),
             ],
         ),
     )
@@ -61,7 +80,7 @@ def main():
 def get_display_line_for_party(party):
     space = 11
     name = SHORT_PARTY_NAME_DICT[party["name"]]
-    percentage = str(party["percentage"]) + "%"
+    percentage = str(party["percentage"]) + "%" if can_be_float(str(party["percentage"])) else "?"
     spaces = space - visible_string_length(name) - len(percentage)
     return name + " " + (" " * (spaces - 1)) + percentage
 
@@ -73,7 +92,7 @@ def visible_string_length(s):
         length -= count
     return length
 
-def get_representative_data(results):
+def get_representative_data(results, config):
     # gets the most recent poll
     latest = results[0]
     for result in results:
@@ -85,17 +104,29 @@ def get_representative_data(results):
         elif result["date"]["year"] == latest["date"]["year"] and result["date"]["month"] == latest["date"]["month"] and result["date"]["day"] > latest["date"]["day"]:
             latest = result
 
-    # sort parties by percentage
-    latest["results"] = sorted(latest["results"], key = lambda x: x["percentage"], reverse = True)
-
-    # remove below 5% and Sonstige
-    latest["results"] = [result for result in latest["results"] if can_be_float(result["percentage"]) and float(result["percentage"]) >= 5 and result["name"] != "Sonstige"]
-
-    # if a percentage is X.0 then make it an integer
+    # rendering value
     for result in latest["results"]:
         percentage = result["percentage"]
-        if can_be_float(percentage) and float(percentage) % 1 == 0:
-            result["percentage"] = int(percentage)
+        if can_be_float(percentage):
+            # if a percentage is X.0 then make it an integer
+            if float(percentage) % 1 == 0:
+                result["percentage"] = str(int(percentage))
+        else:
+            # replace non-float percentages with "?"
+            result["percentage"] = "?"
+
+    # remove below 5%
+    if config.bool("hide_below_5_percent"):
+        latest["results"] = [result for result in latest["results"] if can_be_float(result["percentage"]) and float(result["percentage"]) >= 5]
+
+    # remove Sonstige
+    if config.bool("hide_sonstige"):
+        latest["results"] = [result for result in latest["results"] if result["name"] != "Sonstige"]
+
+    # print(latest["results"])
+
+    # sort parties by percentage
+    latest["results"] = sorted(latest["results"], key = lambda x: float(x["percentage"]) if can_be_float(x["percentage"]) else 0, reverse = True)
 
     return latest
 
@@ -168,3 +199,24 @@ def extract_data(html_text):
 
 def can_be_float(s):
     return type(s) == "string" and s.replace(".", "", 1).isdigit()
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Toggle(
+                id = "hide_below_5_percent",
+                name = "Hide below 5%",
+                desc = "Hide parties with less than 5%",
+                default = False,
+                icon = "5",
+            ),
+            schema.Toggle(
+                id = "hide_sonstige",
+                name = "Hide Sonstige",
+                desc = "Hide the rest of the parties labelled as 'Sonstige'",
+                default = True,
+                icon = "chartPie",
+            ),
+        ],
+    )
