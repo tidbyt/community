@@ -104,7 +104,7 @@ def get_weather_data(latitude, longitude, timezone):
         seconds_xml_valid_for = max_cache_in_seconds
 
     if local_weather_data == None:
-        print("New Data")
+        # print("New Data")
         response = http.get(local_api_url, ttl_seconds = seconds_xml_valid_for)
 
         if response.status_code != 200:
@@ -113,7 +113,7 @@ def get_weather_data(latitude, longitude, timezone):
             local_weather_data = response.json()
             cache.set(local_cache_name, json.encode(local_weather_data), ttl_seconds = seconds_xml_valid_for)
     else:
-        print("From Cache")
+        # print("From Cache")
         local_weather_data = json.decode(local_weather_data)
 
     return local_weather_data
@@ -298,9 +298,8 @@ def get_wind_rose_display(direction):
 
     for i in range(0, 100, 5):
         rotation = direction + ((100 - i) / 100 * 10 * (1 if i % 2 == 0 else -1))
-
         rotation = 360 if rotation > 360 else rotation
-        print("i: %s rotation: %s" % (i, rotation))
+
         keyframes.append(
             animation.Keyframe(
                 percentage = i / 100,
@@ -488,7 +487,6 @@ def main(config):
     info_box_width = 14
 
     # UV Index Warning
-    print(current_uv_index)
     display_items.append(add_padding_to_child_element(render.Box(color = get_uv_index_category(current_uv_index, True), height = info_box_height, width = info_box_width), 29, 1))
     display_uv_score = str(int(current_uv_index))
     centering_additional_offet = int((info_box_width - (3 * len(display_uv_score)) - len(display_uv_score)) / 2)
