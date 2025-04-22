@@ -61,7 +61,7 @@ def build_frames(top_sellers):
         name = item["name"]
 
         # Omit Steam Deck hardware entries
-        if name != "Steam Deck" and counter < GLOBAL_RESULT_LIMIT:
+        if "Steam Deck" not in name and counter < GLOBAL_RESULT_LIMIT:
             print("name: %s, counter: %s" % (name, str(counter)))
             discount_percent = item["discount_percent"]
             final_price_formatted = format_price(
@@ -69,28 +69,30 @@ def build_frames(top_sellers):
             )
             image = fetch_image(item["small_capsule_image"])
 
-            # Add Details
+            # Add Image Frame
+            frames.append(get_image_widget(image))
+
+            # Add Details Frame
             padded_name = pad_string(name, MARQUEE_NAME_LENGTH)
             frames.append(get_details_widget(padded_name, final_price_formatted, discount_percent))
-
-            # Add Image
-            frames.append(get_image_widget(image))
 
             counter = counter + 1
 
     return frames
 
 def pad_string(input, total_length):
-    if len(input) >= total_length:
-        return input
+    # LeftPad for better readability in the marquee
+    input = "          " + input
 
-    # Pad the string for more consistent displays in the marquee
-    truncated_string = input[:total_length]
-    total_padding = total_length - len(truncated_string)
-    left_padding = total_padding // 2
-    right_padding = total_padding - left_padding
-    padded_string = " " * left_padding + truncated_string + " " * right_padding
-    return padded_string
+    # If the input is already longer than total_length, just truncate it
+    if len(input) >= total_length:
+        return input[:total_length]
+
+    # Repeat the input string enough times to exceed total_length
+    repeated = input * ((total_length // len(input)) + 1)
+
+    # Now truncate it to exactly total_length characters
+    return repeated[:total_length]
 
 def get_details_widget(name, final_price_formatted, discount_percent):
     return render.Stack(
@@ -156,22 +158,32 @@ def get_details_widget(name, final_price_formatted, discount_percent):
     )
 
 def get_image_widget(image):
+    # Randomize some of the animation values
+    random_origin = random.number(1, 3) / 10.0
+    random_translate_x = -random.number(20, 40)
+    random_translate_y = -random.number(5, 20)
+    directions = ["alternate", "alternate-reverse"]
+    direction_choice = directions[random.number(0, 1)]
+
     return animation.Transformation(
         child = render.Image(
             src = image,
             width = 184,
             height = 69,
         ),
-        duration = 10,
+        duration = 20,
         delay = 0,
-        origin = animation.Origin(0.0, 0.2),
-        direction = "alternate",
+        origin = animation.Origin(0.0, random_origin),
+        direction = direction_choice,
         fill_mode = "forwards",
         keyframes = [
             animation.Keyframe(
                 percentage = 0.0,
-                transforms = [animation.Scale(.5, .5), animation.Translate(-60, -20)],
-                #curve = "ease_in_out",
+                transforms = [
+                    animation.Scale(.5, .5),
+                    animation.Translate(random_translate_x, random_translate_y),
+                ],
+                curve = "ease_in_out",
             ),
         ],
     )
