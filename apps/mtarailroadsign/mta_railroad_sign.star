@@ -511,12 +511,14 @@ def main(config):
                             render.Row(expanded = True, main_align = "space_between", children = [
                                 render.Box(
                                     child = render.Marquee(
-                                        child=render.Text(train_number),
-                                        align="center",
-                                        width=20
-                                        ),
-                                        width = 20, height = 8, color = branch_color
-                                    ),  # make the train number look nice, use a marquee to scroll it in case it's longer than usual (ie special gameday trains)
+                                        child = render.Text(train_number),
+                                        align = "center",
+                                        width = 20,
+                                    ),
+                                    width = 20,
+                                    height = 8,
+                                    color = branch_color,
+                                ),  # make the train number look nice, use a marquee to scroll it in case it's longer than usual (ie special gameday trains)
                                 render.Animation(children = [
                                     render.Text(stop_time.in_location("America/New_York").format("3:04"), color = train_otp_color),  # janky way of slowing this animation down
                                     render.Text(stop_time.in_location("America/New_York").format("3:04"), color = train_otp_color),
