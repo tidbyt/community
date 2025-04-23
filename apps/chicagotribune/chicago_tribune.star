@@ -1,7 +1,7 @@
 """
 Applet: Chicago Tribune
-Summary: Chicago News
-Description: Latest headlines from the Chicago Tribune. Choose from either the latest headlines or latest stories.
+Summary: Chicago Tribune News
+Description: Latest news, sports and other topics from the Chicago Tribune. Choose from either the latest headlines or latest stories.
 Author: sgomez72
 """
 
@@ -10,13 +10,14 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("xpath.star", "xpath")
 
 # Declare Constants
-DEFAULT_NEWS = "news_breaking"
+DEFAULT_NEWS = "news"
 DEFAULT_SETTING = "0"
 
 # This is the URL that contains the RSS Feed
-TRIBUNE_URL = "https://www.chicagotribune.com/arc/outboundfeeds/rss/section/{}/range/display_date/now-5d/now/?outputType=json&size=3"
+TRIBUNE_URL = "https://www.chicagotribune.com/{}/feed/"
 
 def main(config):
     channel = config.get("tribune_feed", DEFAULT_NEWS)
@@ -25,6 +26,7 @@ def main(config):
     stories = get_cacheable_data(channel)
 
     return render.Root(
+        show_full_animation = True,
         child = render.Column(
             children = [
                 render.Box(
@@ -75,38 +77,34 @@ def get_schema():
         fields = [
             schema.Dropdown(
                 id = "tribune_feed",
-                name = "Category",
+                name = "News Page",
                 desc = "Select which category to display.",
                 icon = "newspaper",
-                default = "trib_breaking",
+                default = "news",
                 options = [
                     schema.Option(
-                        display = "Beaking News",
-                        value = "news_breaking",
+                        display = "News",
+                        value = "news",
                     ),
                     schema.Option(
                         display = "Business",
                         value = "business",
                     ),
                     schema.Option(
-                        display = "Dining",
-                        value = "dining",
+                        display = "Things to Do Around Chicago",
+                        value = "things-to-do",
                     ),
                     schema.Option(
-                        display = "Entertainment",
-                        value = "entertainment",
+                        display = "Food & Drink",
+                        value = "things-to-do/restaurants-food-drink",
                     ),
                     schema.Option(
-                        display = "Theater Loop",
-                        value = "entertainment_theater",
+                        display = "National",
+                        value = "nation",
                     ),
                     schema.Option(
-                        display = "Lifestyle",
-                        value = "people",
-                    ),
-                    schema.Option(
-                        display = "Nation & World",
-                        value = "nation-world",
+                        display = "World",
+                        value = "news/world",
                     ),
                     schema.Option(
                         display = "News",
@@ -117,40 +115,12 @@ def get_schema():
                         value = "opinion",
                     ),
                     schema.Option(
-                        display = "Politics",
-                        value = "politics",
-                    ),
-                    schema.Option(
-                        display = "Real Estate",
-                        value = "real-estate",
-                    ),
-                    schema.Option(
                         display = "Sports",
                         value = "sports",
                     ),
                     schema.Option(
-                        display = "Chicago Bears",
-                        value = "sports_bears",
-                    ),
-                    schema.Option(
-                        display = "Chicago Blackhawks",
-                        value = "sports_blackhawks",
-                    ),
-                    schema.Option(
-                        display = "Chicago Bulls",
-                        value = "sports_bulls",
-                    ),
-                    schema.Option(
-                        display = "Chicago Cubs",
-                        value = "sports_cubs",
-                    ),
-                    schema.Option(
-                        display = "Chicago White Sox",
-                        value = "sports_white-sox",
-                    ),
-                    schema.Option(
-                        display = "Sports Betting",
-                        value = "betting",
+                        display = "Noticias en Español",
+                        value = "espanol",
                     ),
                 ],
             ),
@@ -178,14 +148,25 @@ def get_cacheable_data(url):
     key = url
     data = cache.get(key)
     headlines = []
+
     if data == None:
         print("No Cache Found, Calling Chicago Tribune RSS at " + TRIBUNE_URL.format(url))
+        jsonData = []
+
         rep = http.get(TRIBUNE_URL.format(url))
         if rep.status_code != 200:
             fail("Could not pull stories from the Chicago Tribune. Request failed with status %d", rep.status_code)
-        data = json.encode(rep.json()["rss"]["channel"]["item"])
 
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
+        data_xml = xpath.loads(rep.body())
+        nodeData = data_xml.query_all_nodes("/rss/channel/item[position()<4]")
+
+        for eachNode in nodeData:
+            nodeHeadline = eachNode.query("/title")
+            nodeArticle = eachNode.query("/description")
+            jsonData.append({"title": nodeHeadline, "description": nodeArticle})
+
+        data = json.encode(jsonData)
+
         cache.set(key, data, ttl_seconds = 1800)
 
     data_json = json.decode(data)

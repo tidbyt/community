@@ -5,16 +5,11 @@ Description: Fetch the closest plane flying overhead from the OpenSky API and di
 Author: Conor McLaughlin
 """
 
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
-
-# planesoverhead
-ENCRYPTED_API_KEY = "AV6+xWcEh+bIZuAShzxaiN6+d0VmDHBwKTzBRWhGzlklt96UKtoIkoMwtqC7w8oOCbbPAyBn94hirsp0TM2pQ9vzfhDM5I1BEL2wKdUs0HSwtuVLIPzcNgq/2QNc8ANvMK/DFYXM+mzi/vXTmoUmEe19B+Vxt28Jzs3qUL/+L5yYEHHp8n0/VwscJ6Z31WPNe/Z8WirghrFMQxAW"
 
 def get_schema():
     return schema.Schema(
@@ -43,20 +38,14 @@ def get_schema():
             ),
             schema.Text(
                 id = "user",
-                name = "OpenSky Username",
+                name = "Username",
                 desc = "username of OpenSky account (optional, higher API access limits)",
                 icon = "person",
             ),
             schema.Text(
                 id = "pass",
-                name = "OpenSky Password",
+                name = "Password",
                 desc = "password of OpenSky account (optional, higher API access limits)",
-                icon = "lock",
-            ),
-            schema.Text(
-                id = "dev_api_key",
-                name = "(Not Required - DEV) API Key",
-                desc = "for airplane db lookups",
                 icon = "lock",
             ),
         ],
@@ -166,40 +155,20 @@ def get_arrow(heading):
 
     return arrow
 
-def get_typecode(icao24, api_key):
-    print("Looking up ICAO24: " + icao24)
+def get_typecode(icao24):
+    URL = "https://buhujdzqm2.execute-api.us-east-1.amazonaws.com/default/aircraft/" + icao24
 
-    DBOWNER = "cmcl"
-    DBNAME = "aircraft.sqlite"
-    URL = "https://api.dbhub.io/v1/query"
+    query_get = http.get(url = URL)
 
-    query = """
-  SELECT typecode 
-  FROM aircraft 
-  WHERE icao24 = '%s'
-  """ % (icao24)
+    print("Type Lookup HTTP Status:", query_get.status_code)
 
-    query_base64 = base64.encode(query)
+    response = query_get.body()
 
-    params = {
-        "apikey": api_key,
-        "dbowner": DBOWNER,
-        "dbname": DBNAME,
-        "sql": query_base64,
-    }
+    # Parse JSON safely
+    data = json.decode(response) if len(response) > 0 else {}
 
-    query_post = http.post(
-        url = URL,
-        form_body = params,
-    )
-
-    print("Type Lookup HTTP Status:", +query_post.status_code)
-
-    post_response = query_post.body()
-
-    typecode = json.decode(post_response)[0][0]["Value"] if len(post_response) > 0 else ""
-
-    return typecode
+    # Return typecode if available, else fallback
+    return data.get("typecode", "")  # or "" if you prefer empty string
 
 def render_error(status_code):
     screen = render.Root(
@@ -262,9 +231,9 @@ def render_empty():
     )
     return screen
 
-def render_plane(planes, api_key):
+def render_plane(planes):
     print(planes[0])
-    typecode = get_typecode(planes[0]["icao24"], api_key)
+    typecode = get_typecode(planes[0]["icao24"])
     print(typecode)
     screen = render.Root(
         render.Column(
@@ -300,9 +269,7 @@ def main(config):
 
     radius = float(config.str("radius", "20"))
     bbox = get_bounding_box(lat, lng, radius)
-
-    # for the later call to get airplane model
-    airplane_db_api_key = secret.decrypt(ENCRYPTED_API_KEY) or config.get("dev_api_key")
+    print(your_coord, credentials)
 
     params = {
         "lamin": str(math.round(bbox["lamin"] / .001) * .001),
@@ -319,6 +286,7 @@ def main(config):
     )
     api_status_code = api_result.status_code
     api_response = api_result.json()
+    print("OpenSky API HTTP Response: " + str(api_status_code))
 
     # testing a non-good HTTP return code
     # api_status_code = 400
@@ -336,6 +304,6 @@ def main(config):
         if len(planes) == 0:
             return render_empty()
         else:
-            return render_plane(planes, airplane_db_api_key)
+            return render_plane(planes)
     else:
         return render_empty()
