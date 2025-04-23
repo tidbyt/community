@@ -97,11 +97,15 @@ def main(config):
     #Parse the station data. The "value" field is a stringified JSON object holding the station-id and station-name
     station = config.get(CONFIG_STATION)
     if not station:
-        return get_error_message("No station selected")
+        #Print results for default station (Heidelberg Hbf) until user selects a station
+        station_id = "6001160"
+        product_list = parse_class_configs(True, True, True, True, True, True)
+        offset_minutes = int(0)
+        departures = get_station_departures(station_id, product_list, offset_minutes)
+        return get_root_element(departures)
+
     data = json.decode(json.decode(station)[CONFIG_STATION_VALUE])
     station_id = data[CONFIG_STATION_ID]
-    if not station_id:
-        return get_error_message("No station selected")
 
     #Pull product class configurations from the schema
     show_u_bahn = config.bool(CONFIG_SHOW_U_BAHN, True)
@@ -632,7 +636,7 @@ def fetch_stations(location):
     truncated_lng = math.round(1000.0 * float(location["lng"])) / 1000.0  # Means to the nearest ~110 metres.
     params = {
         "type_sf": "coord",
-        "name_sf": "coord:" + str(truncated_lat) + ":" + str(truncated_lng) + ":WGS84[dd.ddddd]",
+        "name_sf": "coord:" + str(truncated_lng) + ":" + str(truncated_lat) + ":WGS84[dd.ddddd]",
         "anyObjFilter_sf": "2",  #limits this to just stations
         "outputFormat": JSON_FORMAT,
         "coordOutputFormat": "EPSG:4326",
