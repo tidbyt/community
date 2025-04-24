@@ -79,8 +79,9 @@ MINUTE_IS_NINE = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA0AAAAgCAYAAADJ2fKUAAAA
 
 def main(config):
     speed = int(config.str("speed", 2))  #takes user input equating to how many loops to spin before displaying time
+    timezone = config.get("$tz", "America/New_York")
 
-    current_time = get_current_time_as_tuple()
+    current_time = get_current_time_as_tuple(timezone)
     ten_hour_value = current_time[0]
     hour_value = current_time[1]
     ten_minute_value = current_time[2]
@@ -183,8 +184,9 @@ def get_schema():
         ],
     )  #returns the time as a tuple of each digit
 
-def get_current_time_as_tuple():
-    total_hour = list(time.now().format("3:04").partition(":")[0].elems())  #gets the hour as a list of single character strings
+def get_current_time_as_tuple(timezone):
+    tz_now = time.now().in_location(timezone)
+    total_hour = list(tz_now.format("3:04").partition(":")[0].elems())  #gets the hour as a list of single character strings
     ten_hour_value = 0
     hour_value = int(total_hour[0])
     if (len(total_hour) == 2):  #if theres a ten's digit for hours, set ten_hour to 1 and fix hour
