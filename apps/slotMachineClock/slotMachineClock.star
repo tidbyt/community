@@ -79,7 +79,7 @@ MINUTE_IS_NINE = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA0AAAAgCAYAAADJ2fKUAAAA
 
 def main(config):
     speed = int(config.str("speed", 2))  #takes user input equating to how many loops to spin before displaying time
-    timezone = config.get("timezone") or "America/New_York"
+    timezone = config.get("$tz", "America/New_York")
 
     current_time = get_current_time_as_tuple(timezone)
     ten_hour_value = current_time[0]
