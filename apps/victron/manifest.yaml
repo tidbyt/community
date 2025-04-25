@@ -1,0 +1,6 @@
+---
+id: victron
+name: Victron
+summary: Show energy stats
+desc: This app uses the Victron VRM API to get SOC, Solar Watts and DC Watts.
+author: jduncc
