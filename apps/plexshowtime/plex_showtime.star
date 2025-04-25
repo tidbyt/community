@@ -14,7 +14,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 PLEX_ICON = "/9j/4AAQSkZJRgABAQEAwADAAAD/4QBoRXhpZgAATU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAAExAAIAAAARAAAATgAAAAAAAADAAAAAAQAAAMAAAAABcGFpbnQubmV0IDUuMC4xMwAA/9sAQwABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/9sAQwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/8AAEQgACgAKAwESAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A/nv/AGavgD8JPiR+xD+2B8VPi/4T/wCFey/CVtHv/g1+0v8A2x4rk/4Sb4sXFrbNbfsvf8ID/bf/AAi3i/8A4TC1NjqH/CQ6FoFv4k+GH9vf8JT4y1e/8IzaZplt+a9fn/EPB+eZzxdwxxFl/Gub8PZZkUayzHIctjiKlDiL2k3KNHMI4vMq2Rxw8I3p8/8Aq5WzNQqVXRzShUjgp4L3MDmuDwmV5jga+UYXHYjGuLw+NxDpxngOVJOVB08PHFucmuZr69GheMb4eUXWVcor9APDP//Z"
-PLEX_BANNER = "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"
+PLEX_BANNER = "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" 
 PLEX_BANNER_PORTRAIT = "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"
 MAX_TEXT_LENGTH = 1000
 GET_TOP = 15
@@ -25,6 +25,7 @@ def main(config):
     plex_server_url = config.str("plex_server_url", "")
     plex_token = config.str("plex_token", "")
     show_heading = config.bool("show_heading", True)
+    show_only_artwork = config.bool("show_only_artwork", False)
     heading_color = config.str("heading_color", "#FFA500")
     font_color = config.str("font_color", "#FFFFFF")
     show_summary = config.bool("show_summary", False)
@@ -54,6 +55,7 @@ def main(config):
     if show_library == True:
         plex_endpoints.append({"title": "Library", "endpoint": "/library/sections", "id": 4})
 
+
     endpoint_map = {"title": "None", "endpoint": "", "id": 0}
     if len(plex_endpoints) > 0:
         random_endpoint_index = random.number(0, len(plex_endpoints) - 1)
@@ -74,13 +76,14 @@ def main(config):
         print("CONFIG - filter_tv: " + str(filter_tv))
         print("CONFIG - filter_music: " + str(filter_music))
         print("CONFIG - show_heading: " + str(show_heading))
+        print("CONFIG - show_only_artwork: " + str(show_only_artwork))
         print("CONFIG - heading_color: " + heading_color)
         print("CONFIG - font_color: " + font_color)
         print("CONFIG - fit_screen: " + str(fit_screen))
 
-    return get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, show_heading, show_summary, heading_color, font_color, ttl_seconds)
+    return get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, show_heading, show_only_artwork, show_summary, heading_color, font_color, ttl_seconds)
 
-def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, show_heading, show_summary, heading_color, font_color, ttl_seconds):
+def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen, filter_movie, filter_tv, filter_music, show_heading, show_only_artwork, show_summary, heading_color, font_color, ttl_seconds):
     base_url = plex_server_url
     if base_url.endswith("/"):
         base_url = base_url[0:len(base_url) - 1]
@@ -122,9 +125,9 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                     using_portrait_banner = False
 
                     marquee_text_array = [
-                        {"type": "heading", "message": endpoint_map["title"], "color": heading_color},
-                        {"type": "title", "message": "Not Available", "color": font_color},
-                        {"type": "body", "message": "Not Available", "color": font_color},
+                        {"type":"heading","message": endpoint_map["title"], "color": heading_color},
+                        {"type":"title","message": "Not Available", "color": font_color},
+                        {"type":"body","message": "Not Available", "color": font_color},
                     ]
 
                     if show_summary:
@@ -143,7 +146,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                 break
                             elif (endpoint_map["id"] == 1 or endpoint_map["id"] == 2 or endpoint_map["id"] == 3) and media_container_key == "Metadata":
                                 valid_media_container_key = True
-                                break
+                                break                          
 
                         if valid_media_container_key:
                             metadata_list = []
@@ -159,7 +162,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                         allowable_media.append("show")
                                     if filter_music:
                                         allowable_media.append("artist")
-
+                                    
                                     library_key = 0
                                     if len(allowable_media) > 0:
                                         allowed_media = allowable_media[random.number(0, len(allowable_media) - 1)]
@@ -178,9 +181,9 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                             # Try to find episodes
                                             library_type_enum = 4
                                             media_type = "TV Show"
-                                        elif library_type == "artist":
+                                        elif library_type == "artist": 
                                             media_type = "Music"
-
+                                    
                                         library_url = base_url + "/library/sections/" + library_key + "/all"
                                         if library_type_enum > 0:
                                             library_url = base_url + "/library/sections/" + library_key + "/all?type=" + str(library_type_enum)
@@ -189,15 +192,15 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                         library_output = json.decode(library_content, None)
                                         if library_output != None and library_output["MediaContainer"]["size"] > 0:
                                             metadata_list = library_output["MediaContainer"]["Metadata"]
-                                        else:
+                                        else: 
                                             display_message_string = "No results for " + endpoint_map["title"] + " " + media_type
-                                            return display_message(debug_output, [{"message": display_message_string, "color": font_color}])
+                                            return display_message(debug_output, [{"message": display_message_string,"color": font_color}])
                                     else:
                                         display_message_string = "No results for " + endpoint_map["title"]
-                                        return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
+                                        return display_message(debug_output, [{"message": display_message_string,"color": "#FF0000"}])
                                 else:
                                     display_message_string = "All filters enabled"
-                                    return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
+                                    return display_message(debug_output, [{"message": display_message_string,"color": "#FF0000"}])
                             elif filter_movie and filter_music and filter_tv:
                                 metadata_list = output["MediaContainer"]["Metadata"]
                                 if endpoint_map["id"] != 4 and len(metadata_list) > GET_TOP:
@@ -265,7 +268,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                 header_text = header_text.strip()
 
                                 if debug_output:
-                                    print("header_text: " + header_text)
+                                    print("header_text: "+header_text)
 
                                 title = ""
                                 parent_title = ""
@@ -296,8 +299,8 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
 
                                         if m_key == "key":
                                             has_key = True
-
-                                    # Check if summary exists
+                                        
+                                    # Check if summary exists    
                                     if contains_summary == False and has_key:
                                         child_metadata = get_data(base_url + metadata_list[random_index]["key"], debug_output, headerMap, ttl_seconds)
                                         child_metadata_output = json.decode(child_metadata, None)
@@ -324,20 +327,20 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                         body_text = body_text.strip()
                                         show_summary = False
                                         if debug_output:
-                                            print("body_text: " + body_text)
+                                            print("body_text: "+body_text)
                                     if debug_output:
-                                        print("title_text: " + title_text)
-
+                                        print("title_text: "+title_text)
+                                        
                                         output_str = body_text[0:len(body_text)]
                                         if len(output_str) > 200:
                                             output_str = output_str[0:200] + "..."
-
+                                        
                                         print("body_text: " + output_str)
                                 else:
                                     body_text = grandparent_title + parent_title + title
                                     body_text = body_text.strip()
                                     if debug_output:
-                                        print("body_text: " + body_text)
+                                        print("body_text: "+body_text)
 
                                 if len(title_text) >= MAX_TEXT_LENGTH:
                                     title_text = title_text[0:MAX_TEXT_LENGTH] + "..."
@@ -364,7 +367,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                                     single_metadata = base_url + metadata_list[random_index]["key"]
                                     single_metadata_json = get_data(single_metadata, debug_output, headerMap, ttl_seconds)
                                     metadata_output = json.decode(single_metadata_json, None)
-
+                                    
                                     if metadata_output != None:
                                         valid = False
                                         for m_key in metadata_output.keys():
@@ -403,31 +406,41 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
 
                                 if show_summary:
                                     marquee_text_array = [
-                                        {"type": "heading", "message": header_text, "color": "#FFFFFF"},
-                                        {"type": "title", "message": title_text, "color": heading_color},
-                                        {"type": "body", "message": body_text, "color": font_color},
+                                        {"type":"heading","message":header_text,"color": "#FFFFFF"},
+                                        {"type":"title","message":title_text,"color": heading_color},
+                                        {"type":"body","message":body_text,"color": font_color},
                                     ]
                                 else:
                                     marquee_text_array = [
-                                        {"type": "heading", "message": header_text, "color": heading_color},
-                                        {"type": "body", "message": body_text, "color": font_color},
+                                        {"type":"heading","message":header_text,"color": heading_color},
+                                        {"type":"body","message":body_text,"color": font_color},
                                     ]
-
+                                    
                                 if debug_output and show_summary == False:
                                     print("Full title: " + header_text + " " + body_text)
                         else:
                             display_message_string = "No results for " + endpoint_map["title"]
-                            return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
+                            return display_message(debug_output, [{"message": display_message_string,"color": "#FF0000"}])
 
                     # img = base64.decode(PLEX_BANNER_PORTRAIT)
                     # using_portrait_banner = True
 
-                    if show_summary:
-                        rendered_image = render.Image(
+                    if show_summary and show_only_artwork == False:
+                        rendered_image = render.Image( 
                             width = 22,
                             src = img,
                         )
-                    elif fit_screen:
+                    elif fit_screen and show_only_artwork == False:
+                        rendered_image = render.Image(
+                            width = 64,
+                            src = img,
+                        )
+                    elif fit_screen and show_only_artwork == True:
+                        rendered_image = render.Image(
+                            height = 32,
+                            src = img,
+                        )
+                    elif fit_screen == False and show_only_artwork == True:
                         rendered_image = render.Image(
                             width = 64,
                             src = img,
@@ -438,7 +451,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
                             src = img,
                         )
 
-                    return render_marquee(marquee_text_array, rendered_image, show_summary, debug_output, using_portrait_banner)
+                    return render_marquee(show_only_artwork, marquee_text_array, rendered_image, show_summary, debug_output, using_portrait_banner)
 
                 else:
                     display_message_string = "No valid results for " + endpoint_map["title"]
@@ -447,7 +460,7 @@ def get_text(plex_server_url, plex_token, endpoint_map, debug_output, fit_screen
         else:
             display_message_string = "Check API URL & key for " + endpoint_map["title"]
 
-    return display_message(debug_output, [{"message": display_message_string, "color": "#FF0000"}])
+    return display_message(debug_output, [{"message": display_message_string,"color": "#FF0000"}])
 
 def find_valid_image(metadata, base_url, debug_output, headerMap, show_summary, ttl_seconds):
     img = None
@@ -555,7 +568,7 @@ def display_message(debug_output, message_array = [], show_summary = False):
         img = base64.decode(PLEX_BANNER_PORTRAIT)
     else:
         img = base64.decode(PLEX_BANNER)
-
+    
     if debug_output == False:
         return render.Root(
             render.Row(
@@ -569,15 +582,15 @@ def display_message(debug_output, message_array = [], show_summary = False):
         )
     else:
         if len(message_array) == 0:
-            message_array.append({"message": "Oops, something went wrong", "color": "#FF0000"})
+            message_array.append({"message": "Oops, something went wrong","color": "#FF0000"})
 
         rendered_image = render.Image(
             width = 64,
             src = img,
         )
-        return render_marquee(message_array, rendered_image, show_summary, debug_output)
+        return render_marquee(False, message_array, rendered_image, show_summary, debug_output)
 
-def render_marquee(message_array, image, show_summary, debug_output, using_portrait_banner = False):
+def render_marquee(show_only_artwork, message_array, image, show_summary, debug_output, using_portrait_banner = False):
     icon_img = base64.decode(PLEX_ICON)
 
     text_array = []
@@ -591,18 +604,18 @@ def render_marquee(message_array, image, show_summary, debug_output, using_portr
     body_lines = 0
     for message in message_array:
         if show_summary == False:
-            if index == len(message_array) - 1 or len(message["message"]) > 0:
+            if index == len(message_array)-1 or len(message["message"]) > 0:
                 marquee_message = message["message"]
                 local_length = len(marquee_message)
                 if local_length > 0:
                     local_length = local_length + 1
-
+                
                 string_length = string_length + local_length
-
-                if index == len(message_array) - 1 and string_length > max_length:
+                
+                if index == len(message_array)-1 and string_length > max_length:
                     # marquee_message = marquee_message[0:local_length-(string_length-max_length+3)] + "..."
                     for_break = True
-                elif index == len(message_array) - 1 and string_length <= max_length:
+                elif index == len(message_array)-1 and string_length <= max_length:
                     marquee_message = marquee_message[0:local_length]
                     for_break = True
                 elif len(message["message"]) > 0:
@@ -613,30 +626,31 @@ def render_marquee(message_array, image, show_summary, debug_output, using_portr
                 text_array.append(render.Text(marquee_message, color = message["color"], font = "tom-thumb"))
                 if for_break:
                     break
-        elif len(message["message"]) > 0:
-            output_text = wrap(message["message"], 9)
+        else:
+            if len(message["message"]) > 0:
+                output_text = wrap(message["message"], 9)
 
-            if message["type"] == "heading":
-                heading_lines = calculate_lines(output_text, 10)
-                if debug_output:
-                    print("heading_lines: " + str(heading_lines))
-            elif message["type"] == "title":
-                title_lines = calculate_lines(output_text, 10)
-                if debug_output:
-                    print("title_lines: " + str(title_lines))
-            elif message["type"] == "body":
-                body_lines = calculate_lines(output_text, 10)
-                if debug_output:
-                    print("body_lines: " + str(body_lines))
+                if message["type"] == "heading":
+                    heading_lines = calculate_lines(output_text, 10)
+                    if debug_output:
+                        print("heading_lines: " + str(heading_lines))
+                elif message["type"] == "title":
+                    title_lines = calculate_lines(output_text, 10)
+                    if debug_output:
+                        print("title_lines: " + str(title_lines))
+                elif message["type"] == "body":
+                    body_lines = calculate_lines(output_text, 10)
+                    if debug_output:
+                        print("body_lines: " + str(body_lines))
 
-            text_array.append(render.WrappedText(content = output_text, font = "tom-thumb", color = message["color"], width = 41))
+                text_array.append(render.WrappedText(content = output_text, font = "tom-thumb", color = message["color"], width = 41))
 
         index = index + 1
 
     if show_summary == False and debug_output:
         print("Marquee text: " + full_message)
 
-    if show_summary:
+    if show_summary and show_only_artwork == False:
         marquee_height = 32 + ((heading_lines + title_lines + body_lines) - ((heading_lines + title_lines + body_lines) * 0.62))
 
         children = [
@@ -645,7 +659,7 @@ def render_marquee(message_array, image, show_summary, debug_output, using_portr
                 main_align = "space_evenly",
                 cross_align = "center",
                 children = [image],
-            ),
+            )
         ]
 
         if using_portrait_banner == False:
@@ -658,7 +672,7 @@ def render_marquee(message_array, image, show_summary, debug_output, using_portr
                 render.Row(
                     children = [
                         render.Stack(
-                            children = children,
+                            children = children
                         ),
                         render.Padding(
                             pad = (1, 0, 0, 0),
@@ -680,11 +694,23 @@ def render_marquee(message_array, image, show_summary, debug_output, using_portr
                                     #     main_align="end",
                                     #     children=[render.Image(src = icon_img, width = 7, height = 7)]
                                     # )
-                                ],
-                            ),
-                        ),
-                    ],
-                ),
+                                ]
+                            )
+                        )
+                    ]
+                )
+            )
+        )
+    elif show_only_artwork == True:
+        return render.Root(
+            show_full_animation = True,
+            child = render.Row(
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "center",
+                children = [
+                    image
+                ],
             ),
         )
     else:
@@ -715,7 +741,7 @@ def render_marquee(message_array, image, show_summary, debug_output, using_portr
                                                 width = int(marquee_width),
                                                 offset_start = 64,
                                                 offset_end = 57,
-                                                child = render.Row(text_array),
+                                                child = render.Row(text_array)
                                             ),
                                         ],
                                     ),
@@ -742,10 +768,12 @@ def calculate_lines(text, length):
     breaks = 0
 
     for word in words:
+
         subwords = text.split("\n")
         if len(subwords) > 0 or len(word) + currentlength >= length:
-            # subwords = word
-            # if len(subwords) + currentlength >= length:
+
+        # subwords = word
+        # if len(subwords) + currentlength >= length:
             if len(subwords) == 0:
                 breaks = breaks + 1
             else:
@@ -760,15 +788,15 @@ def wrap(string, line_length):
 
     b = ""
     for line in lines:
-        b = b + wrap_line(line, line_length)
-
+        b = b + wrap_line(line, line_length);
+    
     return b
 
 def wrap_line(line, line_length):
-    if len(line) == 0:
+    if len(line) == 0: 
         return "\n"
 
-    if len(line) <= line_length:
+    if len(line) <= line_length: 
         return line + "\n"
 
     words = line.split(" ")
@@ -795,21 +823,21 @@ def wrap_line(line, line_length):
                     word = word + " "
                     break
                 else:
-                    str_builder = str_builder + word[0:line_length - 1]
+                    str_builder = str_builder + word[0:line_length-1]
                     if word.strip().rfind("-") == -1 and word.strip().rfind("'") == -1:
                         str_builder = str_builder + "-"
-                    word = word[line_length - 1:len(word)]
+                    word = word[line_length-1:len(word)]
                     str_builder = str_builder + "\n"
 
             # Remove leading whitespace from the word,
             # so the new line starts flush to the left.
             word = word.lstrip(" ")
-
+        
         if word.rfind(" ") == -1:
             str_builder = str_builder + " " + word.strip()
         else:
             str_builder = str_builder + word.strip()
-
+        
         cur_line_length = cur_line_length + len(word)
 
         index = index + 1
@@ -844,14 +872,14 @@ def get_schema():
             schema.Text(
                 id = "plex_server_url",
                 name = "Plex server URL (required)",
-                desc = "Plex server URL.",
+                desc = "Your Plex server URL.",
                 icon = "globe",
                 default = "",
             ),
             schema.Text(
                 id = "plex_token",
                 name = "Plex token (required)",
-                desc = "Plex token.",
+                desc = "Your Plex token.",
                 icon = "key",
                 default = "",
             ),
@@ -861,6 +889,13 @@ def get_schema():
                 desc = "Display the media and library view type.",
                 icon = "eye",
                 default = True,
+            ),
+            schema.Toggle(
+                id = "show_only_artwork",
+                name = "Show Only Artwork",
+                desc = "Display only the artwork.",
+                icon = "eye",
+                default = False,
             ),
             schema.Text(
                 id = "heading_color",
@@ -907,14 +942,14 @@ def get_schema():
             schema.Toggle(
                 id = "show_recent",
                 name = "Show played",
-                desc = "Show last " + str(GET_TOP) + " recently played.",
+                desc = "Show last "+str(GET_TOP)+" recently played.",
                 icon = "arrowTrendUp",
                 default = True,
             ),
             schema.Toggle(
                 id = "show_added",
                 name = "Show added",
-                desc = "Show last " + str(GET_TOP) + " recently added.",
+                desc = "Show last "+str(GET_TOP)+" recently added.",
                 icon = "arrowTrendUp",
                 default = True,
             ),
