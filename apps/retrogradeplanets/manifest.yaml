@@ -1,6 +1,0 @@
----
-id: retrogradeplanets
-name: RetrogradePlanets
-summary: Retrograde planets
-desc: Show whether a planet is direct or retrograde; Show the date the planet went retrograde or direct, and when it will go retrograde or direct.
-author: tidbytdev
