@@ -39,6 +39,10 @@ def main(config):
     fit_screen = config.bool("fit_screen", True)
     debug_output = config.bool("debug_output", False)
 
+    if show_only_artwork:
+        show_heading = False
+        show_summary = False
+
     ttl_seconds = 5
 
     plex_endpoints = []
@@ -886,13 +890,6 @@ def get_schema():
                 icon = "eye",
                 default = True,
             ),
-            schema.Toggle(
-                id = "show_only_artwork",
-                name = "Show Only Artwork",
-                desc = "Display only the artwork.",
-                icon = "eye",
-                default = False,
-            ),
             schema.Text(
                 id = "heading_color",
                 name = "Heading color",
@@ -912,6 +909,13 @@ def get_schema():
                 name = "Show summary",
                 desc = "Show summary if available.",
                 icon = "alignLeft",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_only_artwork",
+                name = "Show Only Artwork",
+                desc = "Display only the artwork. Overrides 'Show summary' and 'Show heading' configurations.",
+                icon = "eye",
                 default = False,
             ),
             schema.Toggle(
