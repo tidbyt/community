@@ -481,7 +481,7 @@ def main(config):
     # time stuff
     stop_time = time.from_timestamp(int(train["time"]))  # parse the time that
     eta = int(math.round(time.parse_duration(str(int(train["time"]) - time.now().unix) + "s").minutes))  # this could *maybe* break if the train is later than 59 minutes, but I haven't had a chance to test this yet, which is probably a good thing!
-    eta_str = "%dm" % eta if eta > 0 else "DLY"
+    eta_str = "%dm" % eta if eta > 0 else "Due"
 
     # consist rendering
     consist = train_info["consist"]["cars"]
@@ -523,9 +523,9 @@ def main(config):
                                     render.Text(stop_time.in_location("America/New_York").format("3:04"), color = train_otp_color),  # janky way of slowing this animation down
                                     render.Text(stop_time.in_location("America/New_York").format("3:04"), color = train_otp_color),
                                     render.Text(stop_time.in_location("America/New_York").format("3:04"), color = train_otp_color),
-                                    render.Text("%s %s" % ("▴" if is_peak else "▾", eta_str if eta != 0 else "ARR")),  # peak icon and eta, or "ARR"iving if it's zero.
-                                    render.Text("%s %s" % ("▴" if is_peak else "▾", eta_str if eta != 0 else "ARR")),
-                                    render.Text("%s %s" % ("▴" if is_peak else "▾", eta_str if eta != 0 else "ARR")),
+                                    render.Text("%s %s" % ("▴" if is_peak else "▾", eta_str if eta != 0 else "Arr")),  # peak icon and eta, or "Arr"iving if it's zero.
+                                    render.Text("%s %s" % ("▴" if is_peak else "▾", eta_str if eta != 0 else "Arr")),
+                                    render.Text("%s %s" % ("▴" if is_peak else "▾", eta_str if eta != 0 else "Arr")),
                                 ]),
                             ]),
                             render.Row(children = [
