@@ -11,10 +11,10 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-# Set default spreadsheet, API keys and supported range (500)
+# Set default spreadsheet, API keys and supported range (1000)
 default_spreadsheet_id = "default"
 default_api_key = "default"
-range = "Sheet1!A1:B500"
+range = "Sheet1!A1:B1000"
 
 # Set fonts
 QUOTE_FONT = "tom-thumb"
@@ -121,11 +121,12 @@ def main(config):
 
 # Define function to get random image
 def get_image():
-    response = http.get("https://random.imagecdn.app/500/250", ttl_seconds = TTL_SECONDS)
+    response = http.get("https://picsum.photos/500/250", ttl_seconds = TTL_SECONDS)
 
     # Check if the response status is not 200 (OK)
     if response.status_code != 200:
-        fail("Failed to retrieve image: %d - %s" % (response.status_code, response.body()))
+        # Return a black 32x64 pixel image as fallback
+        return "iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACxXqB3AAAAEklEQVR42u3BAQ0AAADCoPdPdQ43oAAAAAAAAAAAAAAAPwZZYgABnQ5+YAAAAABJRU5ErkJggg=="
 
     # If the response is successful, encode the response body (image) to base64
     image = base64.encode(response.body())
