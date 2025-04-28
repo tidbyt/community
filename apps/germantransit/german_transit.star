@@ -76,8 +76,8 @@ BERLIN_TIMEZONE = "Europe/Berlin"
 #Departure Board API Tuning Parameters
 MAX_DEPARTURES = 8  #maximum number of departures to fetch
 MAX_MINUTES_IN_FUTURE = "59"  #limit to departures in the next hour
-DEPARTURES_TTL_CACHE_LENGTH_SECONDS = 60  #cache the departure board for one minute
-ICON_TTL_CACHE_LENGTH_SECONDS = 14400  #cache the modality icon for 4 hours
+DEPARTURES_TTL_CACHE_LENGTH_SECONDS = 300  #cache the departure board for 5 minutes
+ICON_TTL_CACHE_LENGTH_SECONDS = 604800  #cache the modality icon for one week
 JSON_FORMAT = "json"
 
 #Station Lookup API Tuning Parameters
@@ -132,7 +132,7 @@ def main(config):
 #departures: the list of departures to render
 def get_root_element(departures):
     return render.Root(
-        max_age = 120,
+        max_age = 30,
         child = render.Column(
             children = [
                 render_departures(departures),
