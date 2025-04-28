@@ -23,6 +23,23 @@ yesterdayf = yesterday.format("2006-01-02")
 #this is the API service for news
 NEWS_URL = "http://newsapi.org/v2/everything?q=india&searchIn=description&sortBy=popularity&from={}&to={}&domains=indiatimes.com,livemint.com,thehindu.com,indianexpress.com&language=en&apiKey=".format(yesterdayf, todayf)
 
+# List of excluded URL paths
+EXCLUDED_PATHS = [
+    "economictimes.indiatimes.com/markets/",
+    "livemint.com/industry/",
+    "www.livemint.com/companies/",
+    "economictimes.indiatimes.com/wealth/",
+    "economictimes.indiatimes.com/industry/",
+    "timesofindia.indiatimes.com/city/ahmedabad/",
+    "timesofindia.indiatimes.com/city/bengaluru/",
+    "timesofindia.indiatimes.com/sports/",
+    "economictimes.indiatimes.com/news/sports/",
+    "timesofindia.indiatimes.com/tv/",
+    "timesofindia.indiatimes.com/education/",
+    "timesofindia.indiatimes.com/entertainment/english/hollywood/",
+    "livemint.com/opinion/"
+]
+
 def main(config):
     # set default api key
     DEFAULT_API = secret.decrypt("AV6+xWcEX/4Xe45UOOKJO96fq/wjTvGwFn7rE8EUXwcONEWE7sG+eXYjEm5M+PmmS5GTV1NzbV3z3X5q7XWdN69xtfpB1KWMBedJf2kndTR6QWsBWZXizDHWDVMA5IUYO14Y7X2tlr+eKCuAZU7iri9BUTuBdO7+5sVRgPU3QoObSbsE9L8=")
