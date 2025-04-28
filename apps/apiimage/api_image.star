@@ -407,8 +407,13 @@ def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
     else:
         res = http.get(url, headers = headerMap, ttl_seconds = ttl_seconds)
 
+
+    if url.endswith("webp"):
+        return {"data": res.body(), "type": "image"}
+
     headers = res.headers
     isValidContentType = False
+
 
     headersStr = str(headers)
     headersStr = headersStr.lower()
@@ -417,10 +422,10 @@ def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
     if headers != None and headers.get("content-type") != None:
         contentType = headers.get("content-type")
 
-        if contentType.find("json") != -1 or contentType.find("image") != -1 or contentType.find("xml") != -1:
+        if contentType.find("json") != -1 or contentType.find("image") != -1 or contentType.find("xml") != -1 or "webp" in url:
             if contentType.find("json") != -1:
                 contentType = "json"
-            elif contentType.find("image") != -1:
+            elif contentType.find("image") != -1 or "webp" in url:
                 contentType = "image"
             else:
                 contentType = "xml"

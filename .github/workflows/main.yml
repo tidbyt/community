@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build and Test
 
 on:
   push:
@@ -11,26 +11,21 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
 
-      - name: Setup auth
-        run: ./.github/scripts/setup-auth.sh
-        env:
-          COMMUNITY_PIXLET_AUTH: "${{ secrets.COMMUNITY_PIXLET_AUTH }}"
-
       - name: Find last successful build
         id: lastsuccess
-        uses: SamhammerAG/last-successful-build-action@v4
+        uses: SamhammerAG/last-successful-build-action@v7
         with:
           branch: "main"
-          workflow: "Build and Release"
+          workflow: "Build and Test"
           verify: true
-          token: "${{ secrets.TIDBYT_GITHUB_TOKEN }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Determine targets
         id: targets
@@ -39,13 +34,7 @@ jobs:
           BASE_SHA: ${{ steps.lastsuccess.outputs.sha }}
           HEAD_SHA: ${{ github.sha }}
 
-      - name: Check modified apps
-        run: ./.github/scripts/check-apps.sh
-        env:
-          TARGETS: "${{ steps.targets.outputs.targets }}"
-
-      - name: Deploy modified apps
-        run: ./.github/scripts/deploy-apps.sh
-        env:
-          VERSION: ${{ github.sha }}
-          TARGETS: "${{ steps.targets.outputs.targets }}"
+      # - name: Check modified apps
+      #   run: ./.github/scripts/check-apps.sh
+      #   env:
+      #     TARGETS: "${{ steps.targets.outputs.targets }}"

@@ -13,31 +13,56 @@ def main(config):
         "timezone",
         config.get("$tz", DEFAULT_TIMEZONE),
     )
+
+    show_expanded_time_window = config.bool("show_expanded_time_window", DEFAULT_SHOW_EXPANDED_TIME_WINDOW)
+    show_full_names = config.bool("show_full_names", DEFAULT_SHOW_FULL_NAMES)
+
     ics_url = config.str("ics_url", DEFAULT_ICS_URL)
+    show_in_progress = config.bool("show_in_progress", DEFAULT_SHOW_IN_PROGRESS)
+
+    # get all day variable, set default to "showAllDay"
+    all_day_behavior = config.get("all_day", "showAllDay")
+    if (all_day_behavior == "onlyShowAllDay"):
+        only_show_all_day = True
+        include_all_day = True
+    elif (all_day_behavior == "noShowAllDay"):
+        include_all_day = False
+        only_show_all_day = False
+    else:
+        # default behavior is to show all day
+        include_all_day = True
+        only_show_all_day = False
+
     if (ics_url == None):
         fail("ICS_URL not set in config")
 
     now = time.now().in_location(timezone)
     ics = http.post(
         url = LAMBDA_URL,
-        json_body = {"icsUrl": ics_url, "tz": timezone},
+        json_body = {"icsUrl": ics_url, "tz": timezone, "showInProgress": show_in_progress, "includeAllDayEvents": include_all_day, "onlyShowAllDayEvents": only_show_all_day},
     )
+
     if (ics.status_code != 200):
         fail("Failed to fetch ICS file")
 
     event = ics.json()["data"]
+
     if not event:
-        return build_calendar_frame(now, timezone, event)
-    elif event["detail"]["inProgress"]:
+        return build_calendar_frame(now, timezone, event, show_expanded_time_window, show_full_names)
+        #if there's an event inProgress, and it's not an All Day event, show the event
+
+    elif event["detail"]["inProgress"] and not event["detail"]["isAllDay"]:
         return build_event_frame(event)
     elif event["detail"]:
-        return build_calendar_frame(now, timezone, event)
+        return build_calendar_frame(now, timezone, event, show_expanded_time_window, show_full_names)
     else:
-        return build_calendar_frame(now, timezone, event)
+        return build_calendar_frame(now, timezone, event, show_expanded_time_window, show_full_names)
 
 def get_calendar_text_color(event):
     DEFAULT = "#ff83f3"
-    if event["detail"]["minutesUntilStart"] <= 5:
+    if event["detail"]["isAllDay"]:
+        return DEFAULT
+    elif event["detail"]["minutesUntilStart"] <= 5:
         return "#ff5000"
     elif event["detail"]["minutesUntilStart"] <= 2:
         return "#9000ff"
@@ -45,67 +70,98 @@ def get_calendar_text_color(event):
         return DEFAULT
 
 def should_animate_text(event):
+    if event["detail"]["isAllDay"]:
+        return False
     return event["detail"]["minutesUntilStart"] <= 5
 
-def get_tomorrow_text_copy(eventStart):
-    DEFAULT = eventStart.format("TMRW at 3:04 PM")
-    if DEFAULT_SHOW_FULL_NAMES:
+def get_tomorrow_text_copy(eventStart, show_full_names):
+    DEFAULT = eventStart.format("TMRW 3:04 PM")
+    if show_full_names:
         return eventStart.format("Tomorrow at 3:04 PM")
     else:
         return DEFAULT
 
-def get_this_week_text_copy(eventStart):
+def get_this_week_text_copy(eventStart, show_full_names):
     DEFAULT = eventStart.format("Mon at 3:04 PM")
-    if DEFAULT_SHOW_FULL_NAMES:
+
+    if show_full_names:
         return eventStart.format("Monday at 3:04 PM")
     else:
         return DEFAULT
 
-def get_expanded_time_text_copy(event, now, eventStart):
+def get_expanded_time_text_copy(event, now, eventStart, eventEnd, show_full_names):
     DEFAULT = "in %s" % humanize.relative_time(now, eventStart)
-    if event["detail"]["isTomorrow"]:
-        return get_tomorrow_text_copy(eventStart)
+
+    multiday = False
+
+    # check if it's a multi-day event
+    if event["detail"]["isAllDay"] and eventStart.day != eventEnd.day:
+        multiday = True
+
+    if event["detail"]["isAllDay"]:
+        # if it's in progress, show the day it ends
+        if event["detail"]["inProgress"] and multiday:
+            return eventEnd.format("until Mon")  # + " " + humanize.ordinal(eventEnd.day)
+            # if the event is all day and ends today, show nothing
+
+        elif event["detail"]["inProgress"]:
+            return eventEnd.format("")
+            # if the event is all day but not started, just show the day it starts
+
+        else:
+            return eventStart.format("on Mon")
+    elif event["detail"]["isTomorrow"]:
+        return get_tomorrow_text_copy(eventStart, show_full_names)
+
     elif event["detail"]["isThisWeek"]:
-        return get_this_week_text_copy(eventStart)
+        return get_this_week_text_copy(eventStart, show_full_names)
     else:
         return DEFAULT
 
-def get_calendar_text_copy(event, now, eventStart):
+def get_calendar_text_copy(event, now, eventStart, eventEnd, show_expanded_time_window, show_full_names):
     DEFAULT = eventStart.format("at 3:04 PM")
-    if not event["detail"]["isToday"] and not DEFAULT_SHOW_EXPANDED_TIME_WINDOW:
+
+    if not event["detail"]["isToday"] and not show_expanded_time_window:
         return DONE_TEXT
-    elif event["detail"] and DEFAULT_SHOW_EXPANDED_TIME_WINDOW:
-        return get_expanded_time_text_copy(event, now, eventStart)
-    elif event["detail"] and event["detail"]["minutesUntilStart"] <= 5:
+    elif event["detail"]["isToday"] and not event["detail"]["inProgress"]:
+        return DEFAULT
+    elif event["detail"] and show_expanded_time_window:
+        return get_expanded_time_text_copy(event, now, eventStart, eventEnd, show_full_names)
+    elif event["detail"] and not event["detail"]["isAllDay"] and event["detail"]["minutesUntilStart"] <= 5:
         return "in %d min" % event["detail"]["minutesUntilStart"]
+    elif event["detail"]["isAllDay"] and not show_expanded_time_window:
+        return get_expanded_time_text_copy(event, now, eventStart, eventEnd, show_full_names)
     else:
         return DEFAULT
 
-def get_calendar_render_data(now, usersTz, event):
+def get_calendar_render_data(now, usersTz, event, show_expanded_time_window, show_full_names):
     baseObject = {
         "currentMonth": now.format("Jan").upper(),
         "currentDay": humanize.ordinal(now.day),
         "now": now,
     }
 
+    #if there's no event or it is an all day event, build the top part of calendar as usual
     if not event:
         baseObject["hasEvent"] = False
         return baseObject
 
-    shouldRenderSummary = event["detail"]["isToday"] or DEFAULT_SHOW_EXPANDED_TIME_WINDOW
+    shouldRenderSummary = event["detail"]["isToday"] or show_expanded_time_window
     if not shouldRenderSummary:
         baseObject["hasEvent"] = False
         return baseObject
 
     startTime = time.from_timestamp(int(event["start"])).in_location(usersTz)
+    endTime = time.from_timestamp(int(event["end"])).in_location(usersTz)
     eventObject = {
         "summary": get_event_summary(event["name"]),
         "eventStartTimestamp": startTime,
-        "copy": get_calendar_text_copy(event, now, startTime),
+        "copy": get_calendar_text_copy(event, now, startTime, endTime, show_expanded_time_window, show_full_names),
         "textColor": get_calendar_text_color(event),
         "shouldAnimateText": should_animate_text(event),
         "hasEvent": True,
         "isToday": event["detail"]["isToday"],
+        "isAllDay": event["detail"]["isAllDay"],
     }
 
     return dict(baseObject.items() + eventObject.items())
@@ -191,12 +247,15 @@ def get_calendar_bottom(data):
         ),
     ]
 
-def build_calendar_frame(now, usersTz, event):
-    data = get_calendar_render_data(now, usersTz, event)
+def build_calendar_frame(now, usersTz, event, show_expanded_time_window, show_full_names):
+    data = get_calendar_render_data(now, usersTz, event, show_expanded_time_window, show_full_names)
 
     # top half displays the calendar icon and date
     top = get_calendar_top(data)
     bottom = get_calendar_bottom(data)
+
+    # if it's an all day event, build the calendar up top and drop the name of the event below
+    #something goes here
 
     # bottom half displays the upcoming event, if there is one.
     # otherwise it just shows the time.
@@ -278,6 +337,21 @@ def get_event_summary(summary):
         return summary
 
 def get_schema():
+    options = [
+        schema.Option(
+            display = "Show All Day Events",
+            value = "showAllDay",
+        ),
+        schema.Option(
+            display = "Only Show All Day Events",
+            value = "onlyShowAllDay",
+        ),
+        schema.Option(
+            display = "Don't Show All Day Events",
+            value = "noShowAllDay",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -308,6 +382,21 @@ def get_schema():
                 default = DEFAULT_SHOW_FULL_NAMES,
                 icon = "calendar",
             ),
+            schema.Toggle(
+                id = P_SHOW_IN_PROGRESS,
+                name = "Show Events In Progress",
+                desc = "Show events that are currently happening.",
+                default = DEFAULT_SHOW_IN_PROGRESS,
+                icon = "calendar",
+            ),
+            schema.Dropdown(
+                id = P_ALL_DAY,
+                name = "Show All Day Events",
+                desc = "Turn on or off display of all day events.",
+                default = options[0].value,
+                options = options,
+                icon = "calendar",
+            ),
         ],
     )
 
@@ -315,14 +404,22 @@ P_LOCATION = "location"
 P_ICS_URL = "ics_url"
 P_SHOW_EXPANDED_TIME_WINDOW = "show_expanded_time_window"
 P_SHOW_FULL_NAMES = "show_full_names"
+P_SHOW_IN_PROGRESS = "show_in_progress"
 P_TRUNCATE_EVENT_SUMMARY = "truncate_event_summary"
+P_ALL_DAY = "all_day"
 
 DONE_TEXT = "DONE FOR THE DAY :-)"
-DEFAULT_SHOW_EXPANDED_TIME_WINDOW = False
+DEFAULT_SHOW_EXPANDED_TIME_WINDOW = True
 DEFAULT_TRUNCATE_EVENT_SUMMARY = True
-DEFAULT_SHOW_FULL_NAMES = True
+DEFAULT_SHOW_FULL_NAMES = False
+DEFAULT_SHOW_IN_PROGRESS = True
 DEFAULT_TIMEZONE = "America/New_York"
-FRAME_DELAY = 500
-LAMBDA_URL = "https://xmd10xd284.execute-api.us-east-1.amazonaws.com/ics-next-event"
+FRAME_DELAY = 100
+LAMBDA_URL = "https://6bfnhr9vy7.execute-api.us-east-1.amazonaws.com/ics-next-event"
+
+#this is the original AWS Lambda URL that is hosting the helper function
+#LAMBDA_URL = "https://xmd10xd284.execute-api.us-east-1.amazonaws.com/ics-next-event"
 CALENDAR_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAAXNSR0IArs4c6QAAAE9JREFUKFNjZGBgYJgzZ87/lJQURlw0I0xRYEMHw/qGCgZ0GqSZ8a2Myv8aX1eGls27GXDRYEUg0/ABxv///xOn6OjRowzW1tYMuOghaxIAD/ltSOskB+YAAAAASUVORK5CYII=")
-DEFAULT_ICS_URL = "https://www.phpclasses.org/browse/download/1/file/63438/name/example.ics"
+
+#this is a weird calendar but its the only public ics that reliably has events every week
+DEFAULT_ICS_URL = "https://calendar.google.com/calendar/ical/ht3jlfaac5lfd6263ulfh4tql8%40group.calendar.google.com/public/basic.ics"

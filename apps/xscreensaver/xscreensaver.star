@@ -11,7 +11,6 @@ load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 load("time.star", "time")
 
 TEST = False
@@ -345,9 +344,22 @@ def main(config):
 
     else:
         # If not, pull the GIF from the remote source
+        headers = {
+            'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'DNT': '1',
+            'Pragma': 'no-cache',
+            'Referer': 'https://xscreensaver.eod.com/',
+            'Sec-Fetch-Dest': 'image',
+            'Sec-Fetch-Mode': 'no-cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        }
         response = http.get(
             "https://xscreensaver.eod.com/" + config.get("hackfile", hacks[hack][0]) + ".gif",
-            headers = {"X-XScreenSaver-Token": secret.decrypt(SECRET_ENCRYPTED) or config.get("SECRET_LOCAL") or ""},
+            headers = headers,
         )
 
         # If something went wrong, show an error

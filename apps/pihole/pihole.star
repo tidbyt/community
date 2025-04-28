@@ -19,6 +19,7 @@ RED = "#ff4136"
 PIHOLE_LOGO = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAPCAYAAADd/14OAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAhGVYSWZNTQAqAAAACAAFARIAAwAAAAEAAQAAARoABQAAAAEAAABKARsABQAAAAEAAABSASgAAwAAAAEAAgAAh2kABAAAAAEAAABaAAAAAAAAAEgAAAABAAAASAAAAAEAA6ABAAMAAAABAAEAAKACAAQAAAABAAAACqADAAQAAAABAAAADwAAAAAAolqGAAAACXBIWXMAAAsTAAALEwEAmpwYAAACymlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNi4wLjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgICAgICAgICAgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iPgogICAgICAgICA8dGlmZjpZUmVzb2x1dGlvbj43MjwvdGlmZjpZUmVzb2x1dGlvbj4KICAgICAgICAgPHRpZmY6UmVzb2x1dGlvblVuaXQ+MjwvdGlmZjpSZXNvbHV0aW9uVW5pdD4KICAgICAgICAgPHRpZmY6WFJlc29sdXRpb24+NzI8L3RpZmY6WFJlc29sdXRpb24+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgICAgIDxleGlmOlBpeGVsWERpbWVuc2lvbj4xMDA8L2V4aWY6UGl4ZWxYRGltZW5zaW9uPgogICAgICAgICA8ZXhpZjpDb2xvclNwYWNlPjE8L2V4aWY6Q29sb3JTcGFjZT4KICAgICAgICAgPGV4aWY6UGl4ZWxZRGltZW5zaW9uPjE0NzwvZXhpZjpQaXhlbFlEaW1lbnNpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgr+qcsGAAABt0lEQVQoFU2QvWtUURDFf+++t5t1s4/nipEYVAixsRL8QEGw879IIQFRLBbBwlRqFe0sREzEwjQpBFuNjSuCH8UqaMDKWIgoQVldk7ju7tuM5964mIG5M3PPmXNnLtWH1fnsSdZMG+n1sQZlZIcbFHzcai5y0TtXdVUSLv0cKtcx3Osj9FgvHIpzzqiOfUNUeTY6kuTtD51hc0mal45BbTTrvn0wxvN2r79M0faLHG2qP81OjbxK8/Gl8gpfS7dpFj/vtsT29jgZCEFVT4ViKZtgOZ1aeJxMz7xJFrFt+/x9va6hvBma4V+h/LL8j/zHOswEgo77njMwG2fOdmL9Cl3bRa7a5kvMDvAQW3BDKmYxHUsUi9gv+HYvwmYdtzwpeuSY1pDXvkBbGy8c2Ah/ubroKH+EyR0ircKV6I6j/RsKFc3Rinhxsc8Jr3Az5uV247iwnn/N9dUwLFJR4FDYzdOEbrAiJToS0SYtF0fUREAzcdT4pO6G/P2k0d0Dawd1PxFxQQHmHGfvOmxNAmEpv9h/PxdIDUn7RNud3wIOiDWPXWXz050I4fe/w2nlTXlLPuVJdWHK3V/RlKiIvdMq6AAAAABJRU5ErkJggg==
 """)
+TTL_SECONDS = 60
 
 version_options = [
     schema.Option(
@@ -31,15 +32,15 @@ version_options = [
     ),
 ]
 
-def get_pihole_stats(endpoint, api_key):
-    resp = http.get("%s/admin/api.php" % endpoint, params = {"summaryRaw": "", "auth": api_key}, ttl_seconds = 360)
+def get_pihole_stats(endpoint, api_key, ttl):
+    resp = http.get("%s/admin/api.php" % endpoint, params = {"summaryRaw": "", "auth": api_key}, ttl_seconds = ttl)
     if resp.status_code != 200:
         print("PiHole request failed with status %d", resp.status_code)
         summary = None
     else:
         summary = resp.json()
 
-    resp = http.get("%s/admin/api.php" % endpoint, params = {"overTimeData10mins": "", "auth": api_key}, ttl_seconds = 360)
+    resp = http.get("%s/admin/api.php" % endpoint, params = {"overTimeData10mins": "", "auth": api_key}, ttl_seconds = ttl)
     if resp.status_code != 200:
         print("PiHole request failed with status %d", resp.status_code)
         plot_data = None
@@ -47,20 +48,20 @@ def get_pihole_stats(endpoint, api_key):
         plot_data = resp.json()
     return summary, plot_data
 
-def get_pihole_v6_stats(endpoint, api_key):
-    resp = http.post("%s/api/auth" % endpoint, json_body = {"password": api_key}, ttl_seconds = 360)
+def get_pihole_v6_stats(endpoint, api_key, ttl):
+    resp = http.post("%s/api/auth" % endpoint, json_body = {"password": api_key}, ttl_seconds = ttl)
     if resp.status_code != 200:
         print("PiHole request failed with status %d", resp.status_code)
     sid = resp.json()["session"]["sid"]
 
-    resp = http.get("%s/api/stats/summary" % endpoint, params = {"sid": sid}, ttl_seconds = 360)
+    resp = http.get("%s/api/stats/summary" % endpoint, params = {"sid": sid}, ttl_seconds = ttl)
     if resp.status_code != 200:
         print("PiHole request failed with status %d", resp.status_code)
         summary = None
     else:
         summary = resp.json()
 
-    resp = http.get("%s/api/history" % endpoint, params = {"sid": sid}, ttl_seconds = 360)
+    resp = http.get("%s/api/history" % endpoint, params = {"sid": sid}, ttl_seconds = ttl)
     if resp.status_code != 200:
         print("PiHole request failed with status %d", resp.status_code)
         plot_data = None
@@ -72,6 +73,8 @@ def main(config):
     host = config.str("host", HOST)
     api_key = config.str("api_key", API_KEY)
     version = config.str("version", VERSION)
+    ttl = int(config.get("ttl", TTL_SECONDS))
+
     total_queries = 0
     total_ads = 0
     query_plot = []
@@ -111,7 +114,7 @@ def main(config):
     else:
         if not host.startswith("http"):
             host = "http://" + host
-        summary, plot_data = get_pihole_stats(host, api_key) if version == "v5" else get_pihole_v6_stats(host, api_key)
+        summary, plot_data = get_pihole_stats(host, api_key, ttl) if version == "v5" else get_pihole_v6_stats(host, api_key, ttl)
 
         if not summary or not plot_data:
             return render.Root(
@@ -232,6 +235,13 @@ def get_schema():
                 icon = "v",
                 default = version_options[0].value,
                 options = version_options,
+            ),
+            schema.Text(
+                id = "ttl",
+                name = "ttl",
+                desc = "TTL For http cache",
+                icon = "v",
+                default = "60",
             ),
         ],
     )

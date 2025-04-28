@@ -3,6 +3,7 @@ Applet: New Jersey PATH
 Summary: NJ Path real-time arrivals
 Description: Displays real-time departures for a New Jersey PATH station.
 Author: karmeleon
+Updated: API modernization
 """
 
 load("cache.star", "cache")
@@ -10,11 +11,29 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 
-PATH_URL = "https://path.api.razza.dev/v1/stations/{station}/realtime"
+# Updated API endpoint
+PATH_URL = "https://www.panynj.gov/bin/portauthority/ridepath.json"
 
+# Station mapping - keys are used in config, values are station IDs from new API
 STATIONS = {
+    "fourteenth_street": "14S",
+    "twenty_third_street": "23S",
+    "thirty_third_street": "33S",
+    "christopher_street": "CHR",
+    "exchange_place": "EXP",
+    "grove_street": "GRV",
+    "harrison": "HAR",
+    "hoboken": "HOB",
+    "journal_square": "JSQ",
+    "newark": "NWK",
+    "newport": "NEW",
+    "ninth_street": "09S",
+    "world_trade_center": "WTC",
+}
+
+# Display names for stations
+STATION_NAMES = {
     "fourteenth_street": "14th Street",
     "twenty_third_street": "23rd Street",
     "thirty_third_street": "33rd Street",
@@ -30,70 +49,32 @@ STATIONS = {
     "world_trade_center": "World Trade Center",
 }
 
-def get_arrival_text(arrival_times):
-    offsets = []
-    only_now = True
-    for arrival_time in arrival_times:
-        offset_time_mins = int((arrival_time - time.now()).minutes)
-        if offset_time_mins == 0:
-            offsets.append("now")
-        else:
-            offsets.append(str(offset_time_mins))
-            only_now = False
+def get_display_row(message, widgetMode):
+    """Create a display row for a single route"""
 
-    # we want to avoid displaying "now min"
-    if only_now:
-        # super unlikely, but technically possible to be "now, now"
-        return ", ".join(offsets)
-    else:
-        # "now, 5 min" is okay
-        return "{} min".format(", ".join(offsets))
+    # Use the provided arrival time message
+    wait_time_text = message["arrivalTimeMessage"]
+    if wait_time_text == "0 min":
+        wait_time_text = "now"
 
-def get_display_row(arrival, widgetMode):
-    wait_time_text = get_arrival_text(arrival["arrivalTimes"])
+    # Convert hex color to proper format
+    if "," in message["lineColor"]:  # look to see if it's a list of colors
+        line_color1 = "#" + message["lineColor"][:6]
+        line_color2 = "#" + message["lineColor"][-6:]
 
-    is_multicolor = len(arrival["lineColors"]) > 1
-
-    if is_multicolor:
-        circle_widget = render.Row(
-            children = [
-                render.Box(
-                    width = 5,
-                    height = 11,
-                    child = render.Padding(
-                        child = render.Circle(
-                            color = arrival["lineColors"][0],
-                            diameter = 11,
-                        ),
-                        pad = (6, 0, 0, 0),
-                    ),
-                ),
-                # 11 is an odd number so we need something in the middle
-                # this color is the midpoint between the colors in the only
-                # path line with multiple colors.
-                # would be cool to calculate this automatically but starlark
-                # doesn't have any color or hex-printing libraries
-                render.Box(
-                    width = 1,
-                    height = 11,
-                    color = "#A6967E",
-                ),
-                render.Box(
-                    width = 5,
-                    height = 11,
-                    child = render.Padding(
-                        child = render.Circle(
-                            color = arrival["lineColors"][1],
-                            diameter = 11,
-                        ),
-                        pad = (0, 0, 6, 0),
-                    ),
-                ),
-            ],
+        # make a circle, half of each color
+        circle_widget = render.PieChart(
+            colors = [line_color1, line_color2],
+            weights = [100, 100],
+            diameter = 11,
         )
-    else:
-        circle_widget = render.Circle(
-            color = arrival["lineColors"][0],
+    else:  # it's a single color
+        line_color1 = "#" + message["lineColor"]
+
+        # make a circle - for ease of troubleshooting it's going to be a piechart, although it doesn't need to be
+        circle_widget = render.PieChart(
+            colors = [line_color1],
+            weights = [100],
             diameter = 11,
         )
 
@@ -107,9 +88,9 @@ def get_display_row(arrival, widgetMode):
                 cross_align = "start",
                 children = [
                     render.Marquee(
-                        child = render.Text(arrival["friendlyRouteName"]),
+                        child = render.Text(message["headSign"]),
                         width = 49,
-                    ) if not widgetMode else render.Text(arrival["friendlyRouteName"]),
+                    ) if not widgetMode else render.Text(message["headSign"]),
                     render.Text(
                         content = wait_time_text,
                         color = "#ffa500",
@@ -120,48 +101,44 @@ def get_display_row(arrival, widgetMode):
         ],
     )
 
-def get_routes(api_response):
-    routes = {}
+def parse_api_response(api_response, station_id, direction):
+    """Parse the new API response format to find relevant trains"""
+    messages = []
 
-    for arrival in api_response["upcomingTrains"]:
-        route_key = "{}|{}".format(arrival["route"], arrival["direction"])
-        arrival_time = time.parse_time(arrival["projectedArrival"])
-        if route_key in routes:
-            # we've already seen this route, just stick the arrival time into it
-            routes[route_key]["arrivalTimes"].append(arrival_time)
-        else:
-            # we haven't seen this route yet, make a new entry for it
-            routes[route_key] = {
-                "friendlyRouteName": arrival["routeDisplayName"],
-                "arrivalTimes": [arrival_time],
-                "lineColors": arrival["lineColors"],
-                "direction": arrival["direction"],
-            }
+    # Find our station in the results
+    for station in api_response["results"]:
+        if station["consideredStation"] != station_id:
+            continue
 
-    routes_ordered = list(routes.values())
+        # Process each destination direction
+        for dest in station["destinations"]:
+            # Map API direction labels to our direction values
+            current_direction = "TO_NY" if dest["label"] == "ToNY" else "TO_NJ"
 
-    # sort the arrivals in chronological order
-    for route in routes_ordered:
-        route["arrivalTimes"] = sorted(route["arrivalTimes"])
+            # Skip if we're filtering by direction and this isn't the one we want
+            if direction != "both" and direction != current_direction:
+                continue
 
-    # sort the routes so the one with the soonest arrival is first
-    routes_ordered = sorted(routes_ordered, key = lambda route: route["arrivalTimes"][0])
-    return routes_ordered
+            # Add all messages for this direction
+            for message in dest["messages"]:
+                if message["secondsToArrival"] != "":  # Skip entries with no arrival time
+                    messages.append(message)
 
-def query_api(station):
-    response = cache.get("station_{}".format(station))
+    # Sort by arrival time
+    return sorted(messages, key = lambda x: int(x["secondsToArrival"]))
+
+def query_api():
+    """Query the PATH API with caching"""
+    response = cache.get("path_data")
     if response != None:
         return json.decode(response)
 
-    path_url_for_station = PATH_URL.format(station = station)
-    api_response = http.get(path_url_for_station)
+    api_response = http.get(PATH_URL)
     if api_response.status_code != 200:
-        fail("Path api is sad :( url {} returned {}".format(path_url_for_station, api_response.status_code))
+        fail("PATH API request failed with status {}".format(api_response.status_code))
+
     response_json = api_response.json()
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set("station_{}".format(station), json.encode(response_json), ttl_seconds = 30)
-
+    cache.set("path_data", json.encode(response_json), ttl_seconds = 30)
     return response_json
 
 def main(config):
@@ -169,35 +146,27 @@ def main(config):
     desired_direction = config.get("direction") or "both"
     widgetMode = config.bool("$widget")
 
-    api_response = query_api(station)
+    api_response = query_api()
+    messages = parse_api_response(api_response, STATIONS[station], desired_direction)
 
-    routes_ordered = get_routes(api_response)
-
-    if desired_direction != "both":
-        # filter out the trains going the other way
-        routes_ordered = [route for route in routes_ordered if desired_direction == route["direction"]]
-
-    num_routes_to_display = len(routes_ordered)
-
-    if num_routes_to_display == 0:
+    if len(messages) == 0:
         extra_text = ""
         if desired_direction != "both":
             extra_text = " toward {}".format("NY" if desired_direction == "TO_NY" else "NJ")
-        text_content = "No scheduled PATH departures from {}{}.".format(STATIONS[station], extra_text)
-
+        text_content = "No scheduled PATH departures from {}{}.".format(STATION_NAMES[station], extra_text)
         content = render.WrappedText(text_content, font = "tom-thumb")
-    elif num_routes_to_display == 1:
-        content = get_display_row(routes_ordered[0], widgetMode)
+    elif len(messages) == 1:
+        content = get_display_row(messages[0], widgetMode)
     else:
         content = render.Column(
             children = [
-                get_display_row(routes_ordered[0], widgetMode),
+                get_display_row(messages[0], widgetMode),
                 render.Box(
                     width = 64,
                     height = 1,
                     color = "#666",
                 ),
-                get_display_row(routes_ordered[1], widgetMode),
+                get_display_row(messages[1], widgetMode),
             ],
         )
 
@@ -208,16 +177,17 @@ def main(config):
     )
 
 def get_station_options():
+    """Generate station options for the config schema"""
     options = []
-    for value, display in STATIONS.items():
+    for value, display in STATION_NAMES.items():
         options.append(schema.Option(
             display = display,
             value = value,
         ))
-
     return options
 
 def get_schema():
+    """Define the config schema"""
     station_options = get_station_options()
 
     return schema.Schema(

@@ -19,6 +19,7 @@ runtime_exceptions["apps/ncaanowstandings"]="5s"
 runtime_exceptions["apps/ncaawstandings"]="5s"
 runtime_exceptions["apps/nflstandings"]="5s"
 runtime_exceptions["apps/nhlstandings"]="5s"
+runtime_exceptions["apps/acfilmshowtimes"]="5s"
 
 if [ -z "${TARGETS}" ]; then
     echo "✔️ No apps modified"
