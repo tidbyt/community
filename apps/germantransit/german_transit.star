@@ -77,6 +77,7 @@ BERLIN_TIMEZONE = "Europe/Berlin"
 MAX_DEPARTURES = 8  #maximum number of departures to fetch
 MAX_MINUTES_IN_FUTURE = "59"  #limit to departures in the next hour
 DEPARTURES_TTL_CACHE_LENGTH_SECONDS = 300  #cache the departure board for 5 minutes
+DEPARTURES_DEMO_CACHE_LENGTH_SECONDS = 86400  #cache the departure board for 1 day
 ICON_TTL_CACHE_LENGTH_SECONDS = 604800  #cache the modality icon for one week
 JSON_FORMAT = "json"
 
@@ -101,7 +102,7 @@ def main(config):
         station_id = "6001160"
         product_list = parse_class_configs(True, True, True, True, True, True)
         offset_minutes = int(0)
-        departures = get_station_departures(station_id, product_list, offset_minutes)
+        departures = get_station_departures(station_id, product_list, offset_minutes, demo_cache=True)
         return get_root_element(departures)
 
     data = json.decode(json.decode(station)[CONFIG_STATION_VALUE])
@@ -294,7 +295,7 @@ def get_error_message(errorMessage):
 #included_mots: the modes of transportation to be included in the request
 #departure_offset_minutes: exclude departures leaving within the offset minutes parameter
 #Returns a list of dictionaries, each representing a departure
-def get_station_departures(station_id, included_mots, departure_offset_minutes):
+def get_station_departures(station_id, included_mots, departure_offset_minutes, demo_cache=False):
     params = {
         "name_dm": station_id,
         "limit": str(MAX_DEPARTURES),
@@ -317,6 +318,10 @@ def get_station_departures(station_id, included_mots, departure_offset_minutes):
 
     if departure_offset_minutes > 0:  #we only need to add the time parameter if we're not looking for immediate departures - it defautls to now
         params["timeOffset"] = str(departure_offset_minutes)
+
+    if demo_cache == True:
+        resp = execute_http_get(departure_req, params, DEPARTURES_DEMO_CACHE_LENGTH_SECONDS)
+        return parse_departures_json(resp)
 
     resp = execute_http_get(departure_req, params, DEPARTURES_TTL_CACHE_LENGTH_SECONDS)
     return parse_departures_json(resp)
