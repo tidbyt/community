@@ -23,30 +23,6 @@ yesterdayf = yesterday.format("2006-01-02")
 #this is the API service for news
 NEWS_URL = "http://newsapi.org/v2/everything?q=india&searchIn=description&sortBy=popularity&from={}&to={}&domains=indiatimes.com,livemint.com,thehindu.com,indianexpress.com&language=en&apiKey=".format(yesterdayf, todayf)
 
-# List of excluded URL paths
-EXCLUDED_PATHS = [
-    "economictimes.indiatimes.com/markets/",
-    "livemint.com/industry/",
-    "www.livemint.com/companies/",
-    "economictimes.indiatimes.com/wealth/",
-    "economictimes.indiatimes.com/industry/",
-    "timesofindia.indiatimes.com/city/ahmedabad/",
-    "timesofindia.indiatimes.com/city/bengaluru/",
-    "timesofindia.indiatimes.com/sports/",
-    "economictimes.indiatimes.com/news/sports/",
-    "timesofindia.indiatimes.com/tv/",
-    "timesofindia.indiatimes.com/education/",
-    "timesofindia.indiatimes.com/entertainment/english/hollywood/",
-    "livemint.com/opinion/"
-]
-
-def is_excluded_url(url):
-    """Check if the URL contains any of the excluded paths"""
-    for path in EXCLUDED_PATHS:
-        if path in url:
-            return True
-    return False
-
 def main(config):
     # set default api key
     DEFAULT_API = secret.decrypt("AV6+xWcEX/4Xe45UOOKJO96fq/wjTvGwFn7rE8EUXwcONEWE7sG+eXYjEm5M+PmmS5GTV1NzbV3z3X5q7XWdN69xtfpB1KWMBedJf2kndTR6QWsBWZXizDHWDVMA5IUYO14Y7X2tlr+eKCuAZU7iri9BUTuBdO7+5sVRgPU3QoObSbsE9L8=")
@@ -82,20 +58,11 @@ def main(config):
         if rep.status_code != 200:
             title = ["Error getting data!!!!", "", "", ""]
         else:
-            #get top headlines, filtering out excluded URLs
+            #get top 3 newest headlines
             title = []
-            articles = rep.json()["articles"]
-            
-            # Try to get 4 non-excluded headlines
-            for article in articles:
-                if len(title) >= 4:
-                    break
-                if not is_excluded_url(article["url"]):
-                    title.append((article["title"]).split(" - ")[0])
-
-            # Pad with empty strings if we don't have enough headlines
-            for _ in range(4 - len(title)):
-                title.append("")
+            for i in range(4):
+                j = i + shift
+                title.append((rep.json()["articles"][j]["title"]).split(" - ")[0])
 
             #format strings so they are all the same length (leads to better scrolling)
             max_len = max([len(x) for x in title])
