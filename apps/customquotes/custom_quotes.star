@@ -31,7 +31,7 @@ INNER_HEIGHT = OUTER_HEIGHT - 2 * PADDING
 INNER_WIDTH = OUTER_WIDTH - 2 * PADDING
 
 #Set cache time
-TTL_SECONDS = 300
+TTL_SECONDS = 600  # Increased from 300 to 600 seconds (10 minutes)
 
 def main(config):
     # Get spreadsheet and API key from user entry
@@ -121,7 +121,8 @@ def main(config):
 
 # Define function to get random image
 def get_image():
-    response = http.get("https://picsum.photos/500/250", ttl_seconds = TTL_SECONDS)
+    # Request smaller image size (32x64 instead of 500x250) to match our display size
+    response = http.get("https://picsum.photos/64/32", ttl_seconds = TTL_SECONDS)
 
     # Check if the response status is not 200 (OK)
     if response.status_code != 200:
