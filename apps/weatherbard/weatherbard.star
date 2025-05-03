@@ -252,7 +252,7 @@ def get_schema():
             schema.Text(
                 id = "location",
                 name = "Location",
-                desc = "Enter your city and country code (e.g. London,UK)",
+                desc = "Enter your city and country code (e.g. London,UK) or zip/postal code",
                 icon = "mapPin",
                 default = "Washington,DC,US",
             ),
