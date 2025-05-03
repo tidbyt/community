@@ -1,14 +1,15 @@
-"""
-Applet: Weatherbard
-Summary: Weather + Poem
-Description: Shows current weather and a poetic line in the style of Mary Oliver.
-Author: mgtkach
-"""
+# Applet: Weatherbard
+# Summary: Weather + Poem
+# Description: Shows current weather and a poetic line in the style of Mary Oliver.
+# Author: mgtkach
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 load("time.star", "time")
 
 poems = {
@@ -252,7 +253,7 @@ def get_schema():
             schema.Text(
                 id = "location",
                 name = "Location",
-                desc = "Enter your city and country code (e.g. London,UK) or zip/postal code",
+                desc = "Enter your city and country code (e.g. London,UK)",
                 icon = "mapPin",
                 default = "Washington,DC,US",
             ),
@@ -271,18 +272,50 @@ def get_schema():
     )
 
 def main(ctx):
-    location = ctx.get("location", "Washington,DC,US")
-    units = ctx.get("units", "imperial")
-    weather_api_key = "e23111dae660742eb27ed3fdccccc7d3"
+    location = ctx.get("location")
+    if location == None:
+        location = "Washington,DC,US"
+    else:
+        location = str(location)
+
+    units = ctx.get("units")
+    if units == None:
+        units = "imperial"
+    else:
+        units = str(units)
+
+    encrypted_key = ctx.get("weather_api_key")
+    weather_api_key = None
+    if encrypted_key != None:
+        weather_api_key = secret.decrypt(encrypted_key)
+    else:
+        weather_api_key = ctx.get("dev_api_key")
+
+    if weather_api_key == None:
+        return render.Root(
+            child = render.Text("Missing API key", font = "6x13"),
+        )
 
     # Fetch weather
-    weather_data = http.get(
-        "https://api.openweathermap.org/data/2.5/weather?q=" + location +
-        "&appid=" + weather_api_key + "&units=" + units,
-    ).json()
+    cache_key = "weatherbard:" + location + ":" + units
+    weather_json = cache.get(cache_key)
+
+    if weather_json == None:
+        weather_data = http.get(
+            "https://api.openweathermap.org/data/2.5/weather?q=" + location +
+            "&appid=" + weather_api_key + "&units=" + units,
+        ).json()
+        cache.set(cache_key, json.encode(weather_data), ttl_seconds = 600)
+    else:
+        weather_data = json.decode(weather_json)
+
     condition = weather_data["weather"][0]["main"].lower()
     unit_label = "°F" if units == "imperial" else "°C"
-    temp = str(int(weather_data["main"]["temp"])) + unit_label
+    raw_temp = weather_data["main"].get("temp")
+    if raw_temp != None:
+        temp = str(int(raw_temp)) + unit_label
+    else:
+        temp = "--" + unit_label
 
     # Select poem locally and rotate lines
     poem_lines = poems.get(condition, ["No verse today.", "Sky is silent."])

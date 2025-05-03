@@ -8,3 +8,6 @@ config: true
 widgets:
   - weatherbard.star
 preview: weatherbard.gif
+secrets:
+  - weather_api_key
+
