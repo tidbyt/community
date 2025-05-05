@@ -38,7 +38,7 @@ DEFAULT_STATION = "ehv"
 def main(config):
     station_id = config.str("station")
     station_dest = config.str("dest_station")
-    skip_time = config.get("skip_time", 0)
+    skip_time = config.get("skiptime", 0)
     time_to_leave = config.bool("time_to_leave", False)
 
     if station_id == None:
@@ -422,7 +422,7 @@ def get_schema():
                 handler = search_station,
             ),
             schema.Text(
-                id = "skip_time",
+                id = "skiptime",
                 name = "Departure Offset (Minutes)",
                 desc = "Shows the connections starting n minutes in the future.",
                 icon = "clock",
