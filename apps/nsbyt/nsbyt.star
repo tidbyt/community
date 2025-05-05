@@ -93,7 +93,6 @@ def main(config):
     )
 
 def renderTrain(stop_info, skip_time, time_to_leave):
-
     backgroundColor = CORE_BACKGROUND_COLOR
     textColor = CORE_TEXT_COLOR
 
@@ -203,65 +202,63 @@ def renderTrain(stop_info, skip_time, time_to_leave):
             departureTimeRender = render.Animation(children = renderTimeChild)
 
     # Render Time To Leave indicator
-    if time_to_leave == True:
-        departureTimeInSeconds = (parse_time(stop_info["actualDateTime"])-time.now()).seconds
+    timeToLeaveColor = TIME_GREEN
 
-        timeToLeaveColor = TIME_GREEN
+    if time_to_leave == True:
+        departureTimeInSeconds = (parse_time(stop_info["actualDateTime"]) - time.now()).seconds
 
         # LESS THAN SKIP TIME + 3 MIN
-        if departureTimeInSeconds < ((skip_time*60)+180):
+        if departureTimeInSeconds < ((skip_time * 60) + 180):
             timeToLeaveColor = TIME_RED
 
         # LESS THAN SKIP TIME + 6 MIN
-        if departureTimeInSeconds < ((skip_time*60)+360):
-            if departureTimeInSeconds > ((skip_time*60)+180):
+        if departureTimeInSeconds < ((skip_time * 60) + 360):
+            if departureTimeInSeconds > ((skip_time * 60) + 180):
                 timeToLeaveColor = TIME_ORANGE
 
         # Hide TTL indicator if cancelled
         if stop_info["cancelled"] == True:
             timeToLeaveColor = BLACK_TEXT_COLOR
 
-
     # Render Final rows
     renderTrainFinal = []
 
     if time_to_leave == True:
-
         renderTrainFinal.extend([
             render.Padding(
                 pad = (0, 0, 0, 2),
                 child = render.Box(
                     width = 2,
                     height = 10,
-                    color = timeToLeaveColor
+                    color = timeToLeaveColor,
                 ),
-            )
+            ),
         ])
 
     renderTrainFinal.extend([
         render.Padding(
-                pad = 2,
-                child = render.Box(
-                    width = 10,
-                    height = 10,
-                    color = backgroundColor,
-                    child = render.Text(
-                        color = textColor,
-                        content = stop_info.get("actualTrack", "-"),
-                    ),
+            pad = 2,
+            child = render.Box(
+                width = 10,
+                height = 10,
+                color = backgroundColor,
+                child = render.Text(
+                    color = textColor,
+                    content = stop_info.get("actualTrack", "-"),
                 ),
             ),
-            render.Column(
-                children = [
-                    render.Marquee(
-                        width = 64 - 14,
-                        child = render.Text(
-                            content = destination.upper(),
-                        ),
+        ),
+        render.Column(
+            children = [
+                render.Marquee(
+                    width = 64 - 14,
+                    child = render.Text(
+                        content = destination.upper(),
                     ),
-                    departureTimeRender,
-                ],
-            )
+                ),
+                departureTimeRender,
+            ],
+        ),
     ])
 
     return render.Row(
@@ -435,6 +432,6 @@ def get_schema():
                 name = "Time To Leave",
                 desc = "Shows a green/orange/red line to indicate how soon you need to leave your house to catch the train. (uses Departure Offset to render the indicator).",
                 icon = "personWalking",
-            )
+            ),
         ],
     )
