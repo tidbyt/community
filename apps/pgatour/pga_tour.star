@@ -76,6 +76,9 @@ Updated PLAYER_MAPPING
 
 v2.9.2
 Updated ID for The Players
+
+v2.9.3
+Updated PLAYER_MAPPING
 """
 
 load("encoding/json.star", "json")
@@ -104,7 +107,8 @@ PLAYER_MAPPING = """
     "4410932": "M.W.Lee",
     "7083": "K.H.Lee",
     "4585548": "Valimaki",
-    "8974": "M.Kim"
+    "8974": "M.Kim",
+    "4382434": "Norgaard"
 }
 """
 
