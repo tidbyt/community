@@ -31,7 +31,7 @@ INNER_HEIGHT = OUTER_HEIGHT - 2 * PADDING
 INNER_WIDTH = OUTER_WIDTH - 2 * PADDING
 
 #Set cache time
-TTL_SECONDS = 600  # Increased from 300 to 600 seconds (10 minutes)
+TTL_SECONDS = 3600  # Increased to 1 hour since we're using static image
 
 def main(config):
     # Get spreadsheet and API key from user entry
@@ -121,17 +121,8 @@ def main(config):
 
 # Define function to get random image
 def get_image():
-    # Request smaller image size (32x64 instead of 500x250) to match our display size
-    response = http.get("https://picsum.photos/64/32", ttl_seconds = TTL_SECONDS)
-
-    # Check if the response status is not 200 (OK)
-    if response.status_code != 200:
-        # Return a black 32x64 pixel image as fallback
-        return "iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACxXqB3AAAAEklEQVR42u3BAQ0AAADCoPdPdQ43oAAAAAAAAAAAAAAAPwZZYgABnQ5+YAAAAABJRU5ErkJggg=="
-
-    # If the response is successful, encode the response body (image) to base64
-    image = base64.encode(response.body())
-    return image
+    # Return a minimal black background image (1x1 pixel)
+    return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNgAAAAAgABSK+kcQAAAABJRU5ErkJggg=="
 
 def get_schema():
     return schema.Schema(
