@@ -407,13 +407,11 @@ def get_data(url, debug_output, headerMap = {}, ttl_seconds = 20):
     else:
         res = http.get(url, headers = headerMap, ttl_seconds = ttl_seconds)
 
-
     if url.endswith("webp"):
         return {"data": res.body(), "type": "image"}
 
     headers = res.headers
     isValidContentType = False
-
 
     headersStr = str(headers)
     headersStr = headersStr.lower()
