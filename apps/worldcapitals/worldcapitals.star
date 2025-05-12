@@ -47,11 +47,11 @@ def main(config):
 
     # parse country information
     capital_city = country.get("capital")
-    if capital_city == None:
-        capital_city = "No Capital City"
-    else:
+    if capital_city:
         # capitals are an array, grab the first one
         capital_city = capital_city[0]
+    else:
+        capital_city = "No Capital City"
 
     # get the common name
     lang = config.get("language") or "eng"
