@@ -102,7 +102,7 @@ def main(config):
         station_id = "6001160"
         product_list = parse_class_configs(True, True, True, True, True, True)
         offset_minutes = int(0)
-        departures = get_station_departures(station_id, product_list, offset_minutes, demo_cache=True)
+        departures = get_station_departures(station_id, product_list, offset_minutes, demo_cache = True)
         return get_root_element(departures)
 
     data = json.decode(json.decode(station)[CONFIG_STATION_VALUE])
@@ -124,7 +124,6 @@ def main(config):
         return get_error_message("Invalid departure time offset selected")
 
     departures = get_station_departures(station_id, product_list, offset_minutes)
-
     return get_root_element(departures)
 
 #RENDERING FUNCTIONS
@@ -295,7 +294,7 @@ def get_error_message(errorMessage):
 #included_mots: the modes of transportation to be included in the request
 #departure_offset_minutes: exclude departures leaving within the offset minutes parameter
 #Returns a list of dictionaries, each representing a departure
-def get_station_departures(station_id, included_mots, departure_offset_minutes, demo_cache=False):
+def get_station_departures(station_id, included_mots, departure_offset_minutes, demo_cache = False):
     params = {
         "name_dm": station_id,
         "limit": str(MAX_DEPARTURES),
