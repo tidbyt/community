@@ -504,9 +504,10 @@ def main(config):
 
     # Humidity Box
     display_items.append(add_padding_to_child_element(render.Box(color = get_humidity_color_code(current_humidity_value), height = info_box_height, width = info_box_width), 49, 17 + height_offset))
-    centering_additional_offet = int((info_box_width - (3 * len(str(current_humidity_value))) - len(str(current_humidity_value))) / 2)
+    display_humidity = str(int(current_humidity_value))
+    centering_additional_offet = int((info_box_width - (3 * len(display_humidity)) - len(display_humidity)) / 2)
     display_items.append(add_padding_to_child_element(render.Box(color = "#000", height = info_box_height - 4, width = info_box_width - 4), 51, 19 + height_offset))
-    display_items.append(add_padding_to_child_element(render.Text(str(int(current_humidity_value)), font = "CG-pixel-3x5-mono", color = "#fff"), 49 + centering_additional_offet, 19 + height_offset))
+    display_items.append(add_padding_to_child_element(render.Text(display_humidity, font = "CG-pixel-3x5-mono", color = "#fff"), 49 + centering_additional_offet, 19 + height_offset))
 
     return render.Root(
         render.Stack(
