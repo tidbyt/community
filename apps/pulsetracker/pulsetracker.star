@@ -24,22 +24,33 @@ COINCOLORS["PLSX"] = "#F00"
 COINCOLORS["INC"] = "#0F0"
 COINCOLORS["HEX"] = "#F50"
 COINCOLORS["EHEX"] = "#F50"
-COINCOLORS["HELGO"] = "#000"
+COINCOLORS["HELGO"] = "#F00"
 COINCOLORS["PKTTN"] = "#F0F"
 COINCOLORS["LOAN"] = "#F5F"
 COINCOLORS["USDL"] = "#05F"
 COINCOLORS["ICSA"] = "#0AF"
 COINCOLORS["HDRN"] = "#05F"
 COINCOLORS["B9"] = "#050"
-COINCOLORS["PHUX"] = "#0AF"
+COINCOLORS["PHUX"] = "#F00"
 COINCOLORS["PHIAT"] = "#0AF"
 COINCOLORS["PHAME"] = "#0AF"
 COINCOLORS["MINT"] = "#0A0"
 COINCOLORS["WATT"] = "#FFF"
 COINCOLORS["9INCH"] = "#F00"
-COINCOLORS["BBC"] = "#000"
+COINCOLORS["BBC"] = "#F00"
 COINCOLORS["RBC"] = "#FA0"
 COINCOLORS["CST"] = "#0FF"
+COINCOLORS["SOIL"] = "#0FF"
+COINCOLORS["SOLIDX"] = "#0FF"
+COINCOLORS["BEAR"] = "#0FF"
+COINCOLORS["MOST"] = "#0FF"
+COINCOLORS["ATROPA"] = "#0FF"
+COINCOLORS["SPARTA"] = "#0FF"
+COINCOLORS["PUMP"] = "#0FF"
+COINCOLORS["DOUBT"] = "#0FF"
+COINCOLORS["BEST"] = "#0FF"
+COINCOLORS["TRUMP"] = "#0FF"
+COINCOLORS["UFO"] = "#0FF"
 
 # MAIN
 def main(config):
@@ -250,6 +261,50 @@ def get_schema():
         schema.Option(
             display = "CST",
             value = "0x284a7654B90D3c2e217B6da9fAc010e6C4b54610",
+        ),
+        schema.Option(
+            display = "SOIL",
+            value = "0xbd63FA573A120013804e51B46C56F9b3e490f53C",
+        ),
+        schema.Option(
+            display = "SOLIDX",
+            value = "0x8Da17Db850315A34532108f0f5458fc0401525f6",
+        ),
+        schema.Option(
+            display = "BEAR",
+            value = "0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d",
+        ),
+        schema.Option(
+            display = "MOST",
+            value = "0xe33a5AE21F93aceC5CfC0b7b0FDBB65A0f0Be5cC",
+        ),
+        schema.Option(
+            display = "ATROPA",
+            value = "0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6",
+        ),
+        schema.Option(
+            display = "SPARTA",
+            value = "0x52347C33Cf6Ca8D2cfb864AEc5aA0184C8fd4c9b",
+        ),
+        schema.Option(
+            display = "PUMP",
+            value = "0xec4252e62C6dE3D655cA9Ce3AfC12E553ebBA274",
+        ),
+        schema.Option(
+            display = "DOUBT",
+            value = "0x6ba0876e30CcE2A9AfC4B82D8BD8A8349DF4Ca96",
+        ),
+        schema.Option(
+            display = "BEST",
+            value = "0x84601f4e914E00Dc40296Ac11CdD27926BE319f2",
+        ),
+        schema.Option(
+            display = "TRUMP",
+            value = "0x8cC6d99114Edd628249fAbc8a4d64F9A759a77Bf",
+        ),
+        schema.Option(
+            display = "UFO",
+            value = "0x456548A9B56eFBbD89Ca0309edd17a9E20b04018",
         ),
     ]
     return schema.Schema(
