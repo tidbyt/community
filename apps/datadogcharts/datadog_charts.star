@@ -22,21 +22,23 @@ PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2Jl
 
 def main(config):
     # Setup and validate config
-    DD_SITE = config.get("site") or "datadoghq.com"
+    DD_SITE = config.get("dd_site") or "datadoghq.com"
     DD_API_URL = "https://api.{}/api/v1".format(DD_SITE)
     DD_API_KEY = config.get("api_key") or DEFAULT_API_KEY
     DD_APP_KEY = config.get("app_key") or DEFAULT_APP_KEY
     DASHBOARD_ID = config.get("dashboard_id") or DEFAULT_DASHBOARD_ID
     SHOW_LAST_VALUE = config.bool("show_last_value", True)
     CHART_TIME_RANGE = config.get("chart_time_range") or "1h"
+    CHART_NAME = config.get("chart_name")
 
     ## APIs
     DD_DASHBOARD_API = "{}/dashboard".format(DD_API_URL)
     DD_METRICS_QUERY_API = "{}/query".format(DD_API_URL)
 
     if DD_API_KEY == None or DD_APP_KEY == None:
-        return redener("Set Datadog API and APP Key", fake_chart_data())
+        return renderer("Set Datadog API and APP Key", fake_chart_data())
 
+    print("Making request to {}/{}".format(DD_DASHBOARD_API, DASHBOARD_ID))
     dashboard_json = http.get(
         "{}/{}".format(DD_DASHBOARD_API, DASHBOARD_ID),
         headers = {"DD-API-KEY": DD_API_KEY, "DD-APPLICATION-KEY": DD_APP_KEY, "Accept": "application/json"},
@@ -53,22 +55,34 @@ def main(config):
         )
         return render.Root(child = child)
 
-    first_widget = dashboard_json.get("widgets")[0]
+    # Select the wideget to display from the chart name
+    widget = None
+    for w in dashboard_json.get("widgets"):
+        if w.get("definition").get("title") == CHART_NAME:
+            widget = w
+            break
+
+    # If no chart name was provided, use the first widget
+    if widget == None:
+        for w in dashboard_json.get("widgets"):
+            if w.get("definition", {}).get("type") == "timeseries":
+                widget = w
+                break
 
     # check if the widget is a timeseries and if not, show an error
-    if first_widget.get("definition").get("type") != "timeseries":
+    if widget.get("definition").get("type") != "timeseries":
         child = render.Row(
             cross_align = "center",
             main_align = "center",
             children = [
-                render.WrappedText(content = "First widget on dashboard is not a timeseries."),
+                render.WrappedText(content = "Requested widget on dashboard is not a timeseries."),
             ],
         )
         return render.Root(child = child)
 
     # get the panel options
-    title = first_widget.get("definition").get("title")
-    query = first_widget.get("definition").get("requests")[0].get("queries")[0].get("query")
+    title = widget.get("definition").get("title")
+    query = widget.get("definition").get("requests")[0].get("queries")[0].get("query")
 
     # Query metrics API to get the list of points to plot
 
@@ -97,6 +111,15 @@ def main(config):
             ],
         )
         return render.Root(child = child)
+    elif query_response == None:
+        # The Datadog API sometimes returns > 50MB of data which causes a context deadline exceeded error
+        print("Error fetching data. Possibly too large of a response.")
+        print(query_response)
+        child = render.Marquee(
+            width = 48,
+            child = render.Text(content = "Error fetching data. Possibly too large of a response.", font = "6x13", color = "#fff"),
+        )
+        return render.Root(child = child)
 
     # Get the data from the response
     raw_points = query_response.get("series")[0].get("pointlist")
@@ -108,11 +131,13 @@ def main(config):
 
     # Add the last value to the title
     if SHOW_LAST_VALUE:
-        title = "{}: {}".format(title, datapoints[-1][1])
+        # convert scientific notation to decimal
+        datapoint = "{}".format(datapoints[-1][1]).split(".")[0]
+        title = "Last value: {}".format(datapoint)
 
-    return redener(title, datapoints)
+    return renderer(title, datapoints)
 
-def redener(display_name, datapoints):
+def renderer(display_name, datapoints):
     logo = render.Image(src = DATADOG_ICON, width = 16, height = 16)
     text = render.Marquee(
         width = 48,
@@ -174,7 +199,7 @@ def redener(display_name, datapoints):
 def get_schema():
     dd_site_options = [
         schema.Option(
-            display = "US",
+            display = "US1",
             value = "datadoghq.com",
         ),
         schema.Option(
@@ -210,19 +235,19 @@ def get_schema():
         ),
         schema.Option(
             display = "1 Day",
-            value = "1d",
+            value = "24h",
         ),
         schema.Option(
             display = "1 Week",
-            value = "1w",
+            value = "168h",
         ),
         schema.Option(
             display = "1 Month",
-            value = "1m",
+            value = "5040h",
         ),
         schema.Option(
             display = "3 Month",
-            value = "3m",
+            value = "15120h",
         ),
     ]
 
@@ -256,6 +281,12 @@ def get_schema():
                 name = "Dashboard ID",
                 desc = "DataDog Dashboard ID",
                 icon = "key",
+            ),
+            schema.Text(
+                id = "chart_name",
+                name = "Chart Name",
+                desc = "Name of the chart. If not provided or not found, the first chart on the dashboard will be used.",
+                icon = "chartLine",
             ),
             schema.Dropdown(
                 id = "chart_time_range",

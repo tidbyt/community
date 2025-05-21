@@ -9,6 +9,12 @@ Updated caching function
 
 v1.1
 The API is a round behind with the cancellation of Round 6. Monaco should be Round 7 but its appearing as Round 6. Added 1 to the round number for the race preview
+
+v1.2
+Updating for changes to team colours for 2024 sesason
+
+v1.3
+Updated for new API, thanks to @jvivona :)
 """
 
 load("encoding/json.star", "json")
@@ -20,9 +26,10 @@ load("time.star", "time")
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 
 #F1_URL = "http://ergast.com/api/f1/"
+#F1_URL = "https://tidbyt.apis.ajcomputers.com/f1/api/"
 
 # Alternate URL thanks to @jvivona for the hosting :)
-F1_URL = "https://tidbyt.apis.ajcomputers.com/f1/api/"
+F1_URL = "https://raw.githubusercontent.com/jvivona/tidbyt-data/refs/heads/main/formula1/"
 
 def main(config):
     RotationSpeed = config.get("speed", "3")
@@ -299,7 +306,7 @@ def getDriver(z, F1_JSON, Session):
             ConstructorID = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Constructor"]["constructorId"]
 
             # If its a Haas, use black color
-            if ConstructorID == "haas":
+            if ConstructorID == "haas" or ConstructorID == "sauber":
                 DriverFont = "#000"
 
             TeamColor = Team_Color(ConstructorID)
@@ -362,12 +369,12 @@ def getDriverGaps(z, F1_JSON, Session):
             Pos = F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["position"]
             DriverCode = F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["Driver"]["code"]
 
-            # if they retired show "DNF"
+            # if they retired show "DNF" or "DQ" if Disqualified
             if F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["status"] != "Finished":
                 if F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["positionText"] == "R":
                     Time = "DNF"
-                    # else they were lapped, trimmed to fit
-
+                elif F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["positionText"] == "D":
+                    Time = "DQ"
                 else:
                     Time = F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["status"]
                     Time = Time[:4]
@@ -542,13 +549,13 @@ def Team_Color(ConstructorID):
         return ("#0f1c2c")
     if ConstructorID == "mclaren":
         return ("#fd8000")
-    if ConstructorID == "alfa":
-        return ("#a50e2d")
+    if ConstructorID == "sauber":
+        return ("#00df00")
     if ConstructorID == "aston_martin":
         return ("#015850")
     if ConstructorID == "haas":
         return ("#f7f7f7")
-    if ConstructorID == "alphatauri":
+    if ConstructorID == "rb":
         return ("#022948")
     if ConstructorID == "williams":
         return ("#041e41")

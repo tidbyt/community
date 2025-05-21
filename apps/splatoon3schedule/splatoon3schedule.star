@@ -70,8 +70,7 @@ def make_salmon_run_mode(schedule_key, title_color):
         is_splatfest = False,
         title_color = title_color,
         subtitle_color_map = {},
-        # TODO: how will the boss object be defined for Eggstra Work?
-        subtitle_generator = lambda x: "%s (%s)" % (x["coopStage"]["name"], x["boss"]["name"]),
+        subtitle_generator = lambda x: x["coopStage"]["name"] + (" (%s)" % x["boss"]["name"] if x["boss"] else ""),
         images_accessor = lambda x: x["weapons"],
     )
 
@@ -92,27 +91,32 @@ def make_splatfest_mode(fest_mode):
     )
 
 def make_tricolor_turf_war():
-    def nodes_accessor(data):
-        current_fest = data["currentFest"]
-        return {
-            "nodes": [
+    def nodes_generator(current_fest):
+        if not current_fest:
+            return []
+        if not current_fest["timetable"]:
+            return [
                 {
                     "startTime": current_fest["midtermTime"],
                     "endTime": current_fest["endTime"],
-                    "setting": {
-                        "tricolorStage": [current_fest["tricolorStage"]],
-                    },
+                    "festMatchSettings": [
+                        {
+                            "vsStages": current_fest["tricolorStages"],
+                        },
+                    ],
                 },
-            ] if current_fest else [],
-        }
+            ]
+        return current_fest["timetable"]
 
     return struct(
-        nodes_accessor = nodes_accessor,
-        setting_key = "setting",
+        nodes_accessor = lambda x: {
+            "nodes": nodes_generator(x["currentFest"]),
+        },
+        setting_key = "festMatchSettings",
         is_splatfest = True,
         title_color = None,
         subtitle_generator = None,
-        images_accessor = lambda x: x["tricolorStage"],
+        images_accessor = lambda x: get_vs_stages(x[0]),
     )
 
 MODES = {

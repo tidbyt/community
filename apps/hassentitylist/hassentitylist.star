@@ -47,11 +47,16 @@ def add_children(config, *childs):
 
 def render_entity(entity_id, config):
     name = config.get(entity_id + "_name")
+    if not name:
+        name = config.get(entity_id)
     fetch = fetch_entity(entity_id, config)
     if not fetch:
         return 0, None
 
     count = int(fetch["state"])
+    unit = ""
+    if config.bool("show_units") and "attributes" in fetch and "unit_of_measurement" in fetch["attributes"]:
+        unit = fetch["attributes"]["unit_of_measurement"] + " "
     return count, render.Row(
         main_align = "space_between",
         expanded = True,
@@ -62,7 +67,7 @@ def render_entity(entity_id, config):
                 color = "#f1f1f1",
             ),
             render.Text(
-                content = num_format(fetch["state"]) + " ",
+                content = num_format(fetch["state"]) + " " + unit,
                 font = "tb-8",
                 color = get_color(count, config),
             ),
@@ -142,6 +147,13 @@ def get_schema():
                 desc = "Target value number. If set, then a red-to-green range will be used for values, with this number at the top of the range.",
                 icon = "compress",
                 default = "",
+            ),
+            schema.Toggle(
+                id = "show_units",
+                name = "Show units",
+                desc = "Show units for entities which have them.",
+                icon = "eye",
+                default = True,
             ),
         ] + entity_schema,
     )

@@ -10,6 +10,30 @@ v1.1
 Changed date logic from Eastern Time to Pacific Time as games were still being played when its the following day on the east coast
 Added Double A leagues & team colors
 Added team logos for both Triple-A and Double-A teams
+
+v1.2
+Changed the names on the league selection dropdown
+
+v1.3
+Changed date check to be Hawaii timezone - this will mean that the scores will not change to the following day until 6am ET, leaving the day's scores displayed on the Tidbyt for longer
+
+v1.3.1
+Updated status check for completed games
+
+v1.4
+Updated for 2025
+
+Team changes and updated colors
+- Mississippi Braves (MIS) are now Columbus Clingstones (COL) 
+- Bowie Baysox (BOW) are now Chesapeake Baysox (CHE) 
+- Tennessee Smokies (TNS) are now Knoxville Smokies (KNX) 
+
+New Logos
+- Oklahoma City Comets 
+- Salt Lake Bees
+- Corpus Christi Hooks
+
+Added new logic to color lookup as there are 2 COL teams now - Clippers and Clingstones
 """
 
 load("encoding/json.star", "json")
@@ -29,13 +53,14 @@ LOGO_PREFIX = "https://milbpng.blob.core.windows.net/milb/"
 LOGO_SUFFIX = ".png"
 
 PT_TIMEZONE = "America/Los_Angeles"
+HAWAII_TIMEZONE = "Pacific/Honolulu"
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 
 COLORS = """
 {
     "BUF": "#060da4",
     "CLT": "#00a5ce",
-    "COL": "#204885",
+    "COL1": "#204885",
     "DUR": "#0156a6",
     "GWN": "#74aa50",
     "IND": "#e31837",
@@ -70,7 +95,7 @@ COLORS = """
     "BLX": "#d95b73",
     "BNG": "#a3194a",
     "BIR": "#b3002a",
-    "BOW": "#e15c33",
+    "CHE": "#000",
     "CHA": "#ee3d42",
     "CC": "#5091cd",
     "ERI": "#d31145",
@@ -78,7 +103,7 @@ COLORS = """
     "HBG": "#d31245",
     "HFD": "#004b8d",
     "MID": "#f3901d",
-    "MIS": "#d31145",
+    "COL2": "#000",
     "MTG": "#d06f1a",
     "NH": "#e31837",
     "NWA": "#a40234",
@@ -90,7 +115,7 @@ COLORS = """
     "SA": "#002d62",
     "SOM": "#0d2240",
     "SPR": "#d31245",
-    "TNS": "#005696",
+    "KNX": "#005696",
     "TUL": "#005596",
     "WCH": "#f5002f"
 }
@@ -128,12 +153,11 @@ def main(config):
         Title = "TEXAS"
         SportID = "12"
 
-    # Get the date on the West Coast of US
-    now = time.now().in_location(PT_TIMEZONE)
+    # Get the date in Hawaii
+    now = time.now().in_location(HAWAII_TIMEZONE)
     strnow = str(now)
     date = strnow[:10]
 
-    #date = "2023-08-27"
     APIDate = "startDate=" + date + "&endDate=" + date
     API = API_PREFIX + SportID + "&" + APIDate + API_SUFFIX + SelectedLeague + API_SUFFIX2
     #print(API)
@@ -160,6 +184,8 @@ def main(config):
             HomeLogoURL = LOGO_PREFIX + str(HomeID) + LOGO_SUFFIX
             AwayAbbr = GameList[x]["teams"]["away"]["team"]["abbreviation"]
             AwayID = GameList[x]["teams"]["away"]["team"]["id"]
+
+            #print(AwayAbbr, AwayID)
             AwayLogoURL = LOGO_PREFIX + str(AwayID) + LOGO_SUFFIX
 
             DisplayHomeLogo = get_teamlogo(HomeLogoURL)
@@ -175,7 +201,7 @@ def main(config):
                 HomeScore = str(GameList[x]["teams"]["home"]["score"])
                 AwayScore = str(GameList[x]["teams"]["away"]["score"])
                 scoreFont = "Dina_r400-6"
-            elif Status == "F":
+            elif Status.startswith("F"):
                 # Game is finished
                 if GameList[x]["linescore"]["currentInning"] > 9:
                     GameSituation = "FINAL/" + str(GameList[x]["linescore"]["currentInning"])
@@ -219,8 +245,8 @@ def main(config):
                 HomeScore = ""
                 AwayScore = ""
 
-            awayColor = get_teamcolor(AwayAbbr)
-            homeColor = get_teamcolor(HomeAbbr)
+            awayColor = get_teamcolor(AwayAbbr, AwayID)
+            homeColor = get_teamcolor(HomeAbbr, HomeID)
 
             Display.extend(
                 [
@@ -325,31 +351,31 @@ def main(config):
 
 LeagueOptions = [
     schema.Option(
-        display = "Triple A",
+        display = "All Triple A",
         value = "1",
     ),
     schema.Option(
-        display = "International League",
+        display = "AAA - International League",
         value = "117",
     ),
     schema.Option(
-        display = "Pacific Coast League",
+        display = "AAA - Pacific Coast League",
         value = "112",
     ),
     schema.Option(
-        display = "Double A",
+        display = "All Double A",
         value = "2",
     ),
     schema.Option(
-        display = "Eastern League",
+        display = "AA - Eastern League",
         value = "113",
     ),
     schema.Option(
-        display = "Southern League",
+        display = "AA - Southern League",
         value = "111",
     ),
     schema.Option(
-        display = "Texas League",
+        display = "AA - Texas League",
         value = "109",
     ),
 ]
@@ -373,7 +399,13 @@ RotationOptions = [
     ),
 ]
 
-def get_teamcolor(TeamAbbr):
+# Which COL? Clippers are 445 and Clingstones are 6325
+def get_teamcolor(TeamAbbr, TeamID):
+    if TeamID == 445:
+        TeamAbbr = "COL1"
+    elif TeamID == 6325:
+        TeamAbbr = "COL2"
+
     colors = json.decode(COLORS)
     usecol = colors.get(TeamAbbr, "False")
     if usecol != "False":

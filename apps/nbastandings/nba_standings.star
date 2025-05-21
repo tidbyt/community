@@ -5,8 +5,6 @@ Description: Displays live and upcoming NBA standings from a data feed.
 Author: LunchBox8484
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -31,35 +29,31 @@ LEAGUE = "nba"
 API = "https://site.api.espn.com/apis/v2/sports/" + SPORT + "/" + LEAGUE + "/standings"
 ALT_COLOR = """
 {
-    "OKC": "#007AC1",
-    "DEN": "#0E2240",
-    "PHI": "#006BB6"
+    "GS": "#1D428A"
 }
 """
 ALT_LOGO = """
 {
     "HOU": "https://b.fssta.com/uploads/application/nba/team-logos/Rockets-alternate.png",
-    "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png"
+    "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png",
+    "TOR": "https://b.fssta.com/uploads/application/nba/team-logos/Raptors-alternate.png"
 }
 """
 MAGNIFY_LOGO = """
 {
     "BOS": 18,
-    "BKN": 18,
     "CHA": 18,
-    "CLE": 22,
     "DEN": 14,
-    "HOU": 20,
     "LAL": 18,
-    "MIL": 20,
-    "NO": 26,
-    "NY": 20,
-    "OKC": 26,
+    "MIL": 18,
+    "NO": 24,
+    "NY": 18,
+    "OKC": 24,
     "ORL": 18,
     "PHX": 18,
     "PHI": 14,
     "SA": 18,
-    "TOR": 14,
+    "TOR": 13,
     "WSH": 14
 }
 """
@@ -67,7 +61,7 @@ MAGNIFY_LOGO = """
 def main(config):
     renderCategory = []
     rotationSpeed = config.get("rotationSpeed", "5")
-    divisionType = config.get("divisionType", "5")
+    divisionType = config.get("divisionType", "1")
     teamsToShow = int(config.get("teamsOptions", "3"))
     displayTop = config.get("displayTop", "league")
     timeColor = config.get("displayTimeColor", "#FFA500")
@@ -81,23 +75,14 @@ def main(config):
     standings = get_standings(league)
 
     if (standings):
-        for i, s in enumerate(standings[0]["children"]):
+        for i, s in enumerate(standings):
             entries = s["standings"]["entries"]
 
             if entries:
                 entriesToDisplay = teamsToShow
                 divisionName = s["name"].replace(" Division", "").replace(" Conference", "")
-                stats = entries[0]["stats"]
 
-                statNumber = 0
-                statNumber2 = 0
-                for j, k in enumerate(stats):
-                    if k["name"] == "gamesBehind":
-                        statNumber = j
-                    if k["name"] == "winPercent":
-                        statNumber2 = j
-
-                entries = sorted(entries, key = lambda e: (e["stats"][statNumber]["value"], float(e["stats"][statNumber2]["value"])), reverse = False)
+                entries = sorted(entries, get_games_behind)
 
                 for x in range(0, len(entries), entriesToDisplay):
                     renderCategory.extend(
@@ -123,14 +108,36 @@ def main(config):
     else:
         return []
 
+def get_games_behind(entry):
+    for stat in entry.get("stats"):
+        if stat.get("name") == "gamesBehind":
+            return stat.get("value")
+    return 0  # will never get here, but need a return value
+
 divisionOptions = [
     schema.Option(
-        display = "Eastern Conference",
-        value = "5",
+        display = "Atlantic Division",
+        value = "1",
     ),
     schema.Option(
-        display = "Western Conference",
-        value = "6",
+        display = "Central Division",
+        value = "2",
+    ),
+    schema.Option(
+        display = "Southeast Division",
+        value = "9",
+    ),
+    schema.Option(
+        display = "Northwest Division",
+        value = "11",
+    ),
+    schema.Option(
+        display = "Pacific Division",
+        value = "4",
+    ),
+    schema.Option(
+        display = "Southwest Division",
+        value = "10",
     ),
 ]
 
@@ -417,17 +424,8 @@ def get_logoType(team, logo):
     return logo
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = ttl_seconds)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

@@ -5,9 +5,7 @@ Description: Displays a GitHub badge for the status of the configured action.
 Author: Cavallando
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -72,21 +70,23 @@ def fetch_workflow_data(config):
     workflow_id = config.str("workflow_id")
     branch = config.str("branch", DEFAULT_BRANCH)
 
+    headers = {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"}
     if access_token:
-        data = http.get(
-            "https://api.github.com/repos/{}/{}/actions/workflows/{}/runs".format(owner_name, repo_name, workflow_id),
-            params = {"branch": branch, "per_page": "1", "page": "1"},
-            headers = {"Accept": "application/vnd.github+json", "Authorization": "Bearer {}".format(access_token), "X-GitHub-Api-Version": "2022-11-28"},
-        ).json()
+        headers["Authorization"] = "Bearer {}".format(access_token)
 
-        if data and data.get("workflow_runs"):
-            return data.get("workflow_runs")[0], None
-        elif data.get("message"):
-            return [], data.get("message")
+    data = http.get(
+        "https://api.github.com/repos/{}/{}/actions/workflows/{}/runs".format(owner_name, repo_name, workflow_id),
+        params = {"branch": branch, "per_page": "1", "page": "1"},
+        headers = headers,
+        ttl_seconds = 240,
+    ).json()
 
-        return [], "Error occured"
-    else:
-        return [], None
+    if data and data.get("workflow_runs"):
+        return data.get("workflow_runs")[0], None
+    elif data.get("message"):
+        return [], data.get("message")
+
+    return [], "Error occurred"
 
 def get_display_text(config):
     return config.get("display_text") or "{}/{}".format(config.str("owner_name"), config.str("repo_name"))
@@ -129,21 +129,11 @@ def main(config):
         A Root view to render to the app
     """
     access_token = config.get("access_token") or None
-    repo_name = config.str("repo_name")
-    owner_name = config.str("owner_name")
     display_text = get_display_text(config)
-    CACHE_KEY = "{}-{}/{}".format(access_token, owner_name, repo_name)
 
     workflow_data = []
     err = None
-    cache_results = cache.get(CACHE_KEY)
-    if cache_results:
-        workflow_data = json.decode(cache_results)
-    else:
-        workflow_data, err = fetch_workflow_data(config)
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(CACHE_KEY, json.encode(workflow_data), ttl_seconds = 240)
+    workflow_data, err = fetch_workflow_data(config)
 
     if err:
         return render_status_badge("failed", err)
@@ -156,7 +146,7 @@ def main(config):
     elif workflow_data:
         return render_status_badge("failed", workflow_data)
     else:
-        return render_status_badge("failed", "Could not connect to Github")
+        return render_status_badge("failed", "Could not connect to GitHub")
 
 def get_schema():
     return schema.Schema(
@@ -164,8 +154,8 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "access_token",
-                name = "Github Personal Access Token",
-                desc = "Personal Access token",
+                name = "GitHub Personal Access Token",
+                desc = "Personal Access token (optional, only required for private repos)",
                 icon = "lock",
             ),
             schema.Text(
@@ -173,23 +163,26 @@ def get_schema():
                 name = "Repo Name",
                 desc = "Name of the repository",
                 icon = "boxArchive",
+                default = "pixlet",
             ),
             schema.Text(
                 id = "owner_name",
                 name = "User/Org Name",
                 desc = "Name of the user/organization that the repo belongs to",
                 icon = "user",
+                default = "tidbyt",
             ),
             schema.Text(
                 id = "workflow_id",
-                name = "Worflow",
-                desc = "The ID or File name of the workflow file (eg. deploy.yml)",
+                name = "Workflow",
+                desc = "The ID or File name of the workflow file (e.g., deploy.yml)",
                 icon = "lock",
+                default = "main.yml",
             ),
             schema.Text(
                 id = "display_text",
                 name = "Display text",
-                desc = "Text to display for the workflow, defaults to user/repo.",
+                desc = "Text to display for the workflow, defaults to user/repo",
                 icon = "font",
             ),
             schema.Text(

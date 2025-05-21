@@ -1,25 +1,19 @@
 """
-Applet: LibreNMS Devices
-Summary: LibreNMS Device Summary
+Applet: LibreNMS Availability Map
+Summary: LibreNMS Availability Map
 Description: Displays a LibreNMS device availability map.
 Author: @jtinel
 """
 
 load("encoding/base64.star", "base64")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 
 ENDPOINT_DEVICES = "/api/v0/devices"
 MARQUEE_SCROLL_SPEED = 100
 BOX_SIZE = 4
-
-RED = "F92323"
-GREEN = "#2AF923"
-ORANGE = "#FFA31A"
-WHITE = "#FFFFFF"
-BLACK = "000000"
-
 LIBRENMS_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAiklEQVQoU42SQRLAEAxF6wws
 a6dXcWhXqZ0u6wwpHTFEaG1MIn+en0Rsk3PrA1Q4BffMJu/dgLq8iNqADH6oGRIxEWRDsNaC
@@ -27,7 +21,14 @@ c66r64KYCDITyo0CKqwiLEQPtLCNX9EXgRLrV5Dwh8iSZp6QOPW0Ii67R4loYZxTaffMY86z
 G0G7SVeJFbVj4HbvAYKAnd83qTc7AAAAAElFTkSuQmCC
 """)
 
-# Define the configuration schema
+colors = {
+    "red": "F92323",
+    "green": "#2AF923",
+    "orange": "#FFA31A",
+    "white": "#FFFFFF",
+    "black": "000000",
+}
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -47,8 +48,7 @@ def get_schema():
         ],
     )
 
-# Print the logo and header text
-def render_header():
+def print_header():
     return render.Row(
         main_align = "space_evenly",
         cross_align = "center",
@@ -63,84 +63,84 @@ def render_header():
         ],
     )
 
-# Display an error message using render.Marquee.
-def render_error(error_msg):
-    return render.Root(
-        child = render.Box(
-            child = render.Column(
-                expanded = True,
-                main_align = "space_evenly",
-                children = [
-                    render_header(),
-                    render.Marquee(
-                        width = 64,
-                        offset_start = 64,
-                        offset_end = 64,
-                        align = "center",
-                        child = render.Text(
-                            content = error_msg,
-                        ),
-                    ),
-                ],
-            ),
-        ),
-    )
-
-# Render a one pixel line
-def render_line(color):
+def print_line(color):
     return render.Box(
         width = 64,
         height = 1,
         color = color,
     )
 
-# Render a single box representing a device's status
-def render_box(color, size = BOX_SIZE):
-    colors = {"green": GREEN, "red": RED, "orange": ORANGE}
+def print_box(color, size = BOX_SIZE):
     return render.Box(
         height = size,
         width = size,
-        color = colors[color],
+        color = color,
     )
 
-# Render rows of up/down data by querying LibreNMS server for device status
-def render_rows(devices):
-    boxes = list()
+def build_rows(device_info):
+    """ Create rows of boxes indicating up/down statuses.
+
+    Args:
+        device_info: dict object provided by librenms devices API
+    Returns:
+        children: a list object containing the rendered rows of boxes
+    """
     children = list()
 
+    if "demo" in device_info:
+        children.append(
+            render.Row(
+                children = [
+                    render.Text("Demo Mode", font = "tb-8"),
+                ],
+            ),
+        )
+        children.append(
+            render.Row(
+                children = [
+                    render.Text("Verify config", font = "tb-8"),
+                ],
+            ),
+        )
+
+    # Iterate through the devices and their statuses. Create a list
+    # of boxes, each box indicating a single device's availability status.
+
+    devices = device_info["devices"]
+    boxes = list()
+
     for device in devices:
-        # Device is currently offline
+        # Check if device is currently down
         if device["status"] == 0:
-            # See if the "Ignore Alerts" flag is set
+            # Check if ignore_alerts flag is set
             if device["ignore"] == 1:
-                # Device is offline but set to ignore alerts, mark as green
-                boxes.append(render_box("green"))
+                # Device offline; ignore alerts is set, mark as green
+                boxes.append(print_box(colors["green"]))
 
             else:
-                # Device is offline and not set to ignore alerts, mark as red
-                boxes.append(render_box("red"))
+                # Device offline; ignore alerts is NOT set, mark as red
+                boxes.append(print_box(colors["red"]))
 
-        else:
-            # Device is up, and uptime information is present in device record
+        else:  # Device is online
+            # Check if uptime information is present in device record
             if device["uptime"] != None:
-                # Check if the device has been up for more than 24 hours
+                # Check if device has been up for more than 24 hours
                 if int(device["uptime"]) < 86400:
-                    # Uptime is less than 24 hours, mark as orange
-                    boxes.append(render_box("orange"))
-
+                    # If uptime is less than 24 hours, mark as orange
+                    boxes.append(print_box(colors["orange"]))
                 else:
-                    # Device uptime is more than 24 hours, mark as green
-                    boxes.append(render_box("green"))
-
+                    # Uptime is more than 24 hours, mark as green
+                    boxes.append(print_box(colors["green"]))
             else:
                 # Device has no uptime data but is up - mark as green
-                boxes.append(render_box("green"))
+                boxes.append(print_box(colors["green"]))
 
+        # Add a 1px space between boxes
         boxes.append(
             render.Box(
                 height = BOX_SIZE,
                 width = 1,
-                color = "#000000",
+                color = colors["black"],
             ),
         )
 
@@ -157,41 +157,79 @@ def render_rows(devices):
 
         padding_row = render.Row(
             children = [
-                render_line(BLACK),
+                print_line(colors["black"]),
             ],
         )
         children.append(padding_row)
 
     return children
 
-def main(config):
-    children = list()
+def get_librenms_devices(config):
+    """
+    Get a list of devices and their data from the LibreNMS API.
 
-    librenms_url = config.str("librenms_url") or ""
-    if librenms_url == "":
-        return render_error("LibreNMS URL invalid - check config")
+    Args:
+        config: A dict containing the LibreNMS URL and API key.
+    Returns:
+        device_info: A dict, with the 'devices' key containing the devices
+        from LibreNMS. If the HTTP request was unsuccessful, instead return
+        the HTTP status code and sample device data.
+    """
 
-    api_key = config.str("api_key") or ""
-    if api_key == "":
-        return render_error("LibreNMS API key not specified - check config")
-    headers = {"X-Auth-Token": api_key}
+    headers = {"X-Auth-Token": config["api_key"]}
+    url = config["librenms_url"] + ENDPOINT_DEVICES
+    r = http.get(url, headers = headers)
 
-    r = http.get((librenms_url + ENDPOINT_DEVICES), headers = headers)
     if r.status_code != 200:
-        return render_error("Request failed with error {}".format(r.status_code))
+        return {"error": r.status_code}
 
-    devices = r.json()["devices"]
+    else:
+        return {"devices": r.json()["devices"]}
 
-    children += render_rows(devices)
+def render_error(error_msg):
+    return render.Root(
+        child = render.Box(
+            child = render.Column(
+                expanded = True,
+                main_align = "space_evenly",
+                children = [
+                    # Print the libreNMS header
+                    print_header(),
 
+                    # Print horizontal divider line
+                    print_line(colors["white"]),
+                    print_line(colors["black"]),
+
+                    # Print the error message
+                    render.Marquee(
+                        width = 64,
+                        offset_start = 48,
+                        offset_end = 64,
+                        align = "center",
+                        child = render.Text(
+                            content = error_msg,
+                        ),
+                    ),
+                ],
+            ),
+        ),
+    )
+
+def render_output(rows):
     return render.Root(
         delay = MARQUEE_SCROLL_SPEED,
         child = render.Column(
             expanded = True,
             children = [
-                render_header(),
-                render_line(WHITE),
-                render_line(BLACK),
+
+                # Print the libreNMS header
+                print_header(),
+
+                # Print horizontal divider line
+                print_line(colors["white"]),
+                print_line(colors["black"]),
+
+                # Print the results in a vertical marquee
                 render.Box(
                     width = 64,
                     child = render.Marquee(
@@ -204,10 +242,59 @@ def main(config):
                             expanded = False,
                             main_align = "center",
                             cross_align = "center",
-                            children = children,
+                            children = rows,
                         ),
                     ),
                 ),
             ],
         ),
     )
+
+def demo_data():
+    """ Creates sample data to be used if config is missing
+
+    Returns:
+        a dict with two keys:
+            demo: boolean field set to True indicating the data is sample data
+            devices: a list of dicts representing the sample device data
+
+    """
+    device_list = {}
+    device_list["demo"] = True
+    device_list["devices"] = []
+    for _ in range(1, random.number(15, 40)):
+        device_entry = {}
+        device_entry["status"] = 1 if random.number(1, 100) > 9 else 0
+        device_entry["uptime"] = random.number(86395, 86440)
+        device_entry["ignore"] = 0
+
+        device_list["devices"].append(device_entry)
+
+    rows = build_rows(device_list)
+    return render_output(rows)
+
+def main(config):
+    """ Display a LibreNMS device availability map.
+
+    Args:
+        config: The config object provided to main*( at runtime.
+
+    Returns:
+        Renders output to the Tidbyt display.
+
+    """
+    if "librenms_url" not in config or "api_key" not in config:
+        return demo_data()
+
+    # Get the list of device statuses
+    devices = get_librenms_devices(config)
+
+    # Display an error if the HTTP request failed
+    if "error" in devices:
+        return render_error("HTTP error {} - check config".format(devices["error"]))
+
+    # Create the rows to be rendered for output
+    rows = build_rows(devices)
+
+    # Render the display output
+    return render_output(rows)

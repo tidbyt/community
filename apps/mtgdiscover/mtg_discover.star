@@ -45,7 +45,7 @@ def main(config):
 
     # Main root render
     return render.Root(
-        delay = 200,
+        delay = 100,
         max_age = 30,
         show_full_animation = True,
         child = render.Column(
@@ -70,7 +70,7 @@ def main(config):
                         offset_start = 18,
                         scroll_direction = "vertical",
                         child = render.Column(
-                            children = render_details(card, show_rarity, show_prices),
+                            children = render_details(card, show_rarity, show_prices) + [render_line_break()] + render_details(card, show_rarity, show_prices),
                         ),
                     ),
                 ),
