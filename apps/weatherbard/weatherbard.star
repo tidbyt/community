@@ -272,39 +272,28 @@ def get_schema():
     )
 
 def main(ctx):
-    location = ctx.get("location")
-    if location == None:
-        location = "Washington,DC,US"
-    else:
-        location = str(location)
+    location = str(ctx.get("location") or "Washington,DC,US")
+    units = str(ctx.get("units") or "imperial")
 
-    units = ctx.get("units")
-    if units == None:
-        units = "imperial"
-    else:
-        units = str(units)
-
-    encrypted_key = ctx.get("weather_api_key")
-    weather_api_key = None
-    if encrypted_key != None:
-        weather_api_key = secret.decrypt(encrypted_key)
-    else:
-        weather_api_key = ctx.get("dev_api_key")
-
+    # Get encrypted API key securely from manifest.yaml
+    weather_api_key = secret.get("openweather_key")
     if weather_api_key == None:
         return render.Root(
             child = render.Text("Missing API key", font = "6x13"),
         )
 
-    # Fetch weather
+    # Fetch weather (with caching)
     cache_key = "weatherbard:" + location + ":" + units
     weather_json = cache.get(cache_key)
 
     if weather_json == None:
-        weather_data = http.get(
+        response = http.get(
             "https://api.openweathermap.org/data/2.5/weather?q=" + location +
             "&appid=" + weather_api_key + "&units=" + units,
-        ).json()
+        )
+        if response.status_code != 200:
+            return render.Root(child = render.Text("Weather fetch failed", font = "6x13"))
+        weather_data = response.json()
         cache.set(cache_key, json.encode(weather_data), ttl_seconds = 600)
     else:
         weather_data = json.decode(weather_json)
@@ -312,18 +301,15 @@ def main(ctx):
     condition = weather_data["weather"][0]["main"].lower()
     unit_label = "°F" if units == "imperial" else "°C"
     raw_temp = weather_data["main"].get("temp")
-    if raw_temp != None:
-        temp = str(int(raw_temp)) + unit_label
-    else:
-        temp = "--" + unit_label
+    temp = str(int(raw_temp)) + unit_label if raw_temp != None else "--" + unit_label
 
     # Select poem locally and rotate lines
     poem_lines = poems.get(condition, ["No verse today.", "Sky is silent."])
     offset = int(math.mod(time.now().unix, len(poem_lines)))
     poem = poem_lines[offset:] + poem_lines[:offset]
-    line1 = poem[0]
-    line2 = poem[1] if len(poem) > 1 else ""
-    line3 = poem[2] if len(poem) > 2 else ""
+    line1 = poem_lines[offset]
+    line2 = ""
+    line3 = ""
 
     # Layout with top box 7 high, flush against the top, right-aligned temp, spaced label
     return render.Root(
