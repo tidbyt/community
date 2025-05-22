@@ -277,16 +277,20 @@ def main(ctx):
 
     # Get encrypted API key securely from manifest.yaml
     weather_api_key = secret.get("openweather_key")
+
     if weather_api_key == None:
         return render.Root(
             child = render.Text("Missing API key", font = "6x13"),
         )
 
+
     # Fetch weather (with caching)
+
     cache_key = "weatherbard:" + location + ":" + units
     weather_json = cache.get(cache_key)
 
     if weather_json == None:
+
         response = http.get(
             "https://api.openweathermap.org/data/2.5/weather?q=" + location +
             "&appid=" + weather_api_key + "&units=" + units,
@@ -294,6 +298,7 @@ def main(ctx):
         if response.status_code != 200:
             return render.Root(child = render.Text("Weather fetch failed", font = "6x13"))
         weather_data = response.json()
+
         cache.set(cache_key, json.encode(weather_data), ttl_seconds = 600)
     else:
         weather_data = json.decode(weather_json)
@@ -301,7 +306,9 @@ def main(ctx):
     condition = weather_data["weather"][0]["main"].lower()
     unit_label = "°F" if units == "imperial" else "°C"
     raw_temp = weather_data["main"].get("temp")
+
     temp = str(int(raw_temp)) + unit_label if raw_temp != None else "--" + unit_label
+
 
     # Select poem locally and rotate lines
     poem_lines = poems.get(condition, ["No verse today.", "Sky is silent."])
@@ -310,6 +317,7 @@ def main(ctx):
     line1 = poem_lines[offset]
     line2 = ""
     line3 = ""
+
 
     # Layout with top box 7 high, flush against the top, right-aligned temp, spaced label
     return render.Root(
