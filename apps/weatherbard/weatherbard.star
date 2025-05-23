@@ -310,7 +310,7 @@ def main(ctx):
 
 
     # Select poem locally and rotate lines
-    poem_lines = poems.get(condition, ["No verse today.", "Sky is silent."])
+    poem_lines = poems[condition] if condition in poems else ["No verse today.", "Sky is silent."]
     offset = int(math.mod(time.now().unix, len(poem_lines)))
     poem = poem_lines[offset:] + poem_lines[:offset]
     line1 = poem_lines[offset]
