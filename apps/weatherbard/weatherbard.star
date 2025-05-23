@@ -284,14 +284,12 @@ def main(ctx):
             child = render.Text("Missing API key", font = "6x13"),
         )
 
-
     # Fetch weather (with caching)
 
     cache_key = "weatherbard:" + location + ":" + units
     weather_json = cache.get(cache_key)
 
     if weather_json == None:
-
         response = http.get(
             "https://api.openweathermap.org/data/2.5/weather?q=" + location +
             "&appid=" + weather_api_key + "&units=" + units,
@@ -310,15 +308,12 @@ def main(ctx):
 
     temp = str(int(raw_temp)) + unit_label if raw_temp != None else "--" + unit_label
 
-
     # Select poem locally and rotate lines
-    poem_lines = poems[condition] if condition in poems else ["No verse today.", "Sky is silent."]
+    poem_lines = poems.get(condition, ["No verse today."])
     offset = int(math.mod(time.now().unix, len(poem_lines)))
-    poem = poem_lines[offset:] + poem_lines[:offset]
     line1 = poem_lines[offset]
     line2 = ""
     line3 = ""
-
 
     # Layout with top box 7 high, flush against the top, right-aligned temp, spaced label
     return render.Root(
