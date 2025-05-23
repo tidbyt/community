@@ -26,8 +26,12 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAVFBMVEVHcEwOCgAAAAAAAACFciD/5UgA
 
 def main():
     # Time
-    timezone = "Australia/Melbourne"
+    timezone = "Australia/Melbourne"  # Placeholder timezone
     now = time.now().in_location(timezone)
+
+    # Weather
+    temperature = "69"  # Placeholder temperature
+    precipitation = "48%"  # Placeholder precipitation
 
     # Layout
     return render.Root(
@@ -51,8 +55,28 @@ def main():
                             ),
                         ],
                     ),
-                    # Render Weather Placeholder
-                    render.Image(src = PLACEHOLDER_WEATHER_ICON),
+                    render.Row(
+                        cross_align = "center",
+                        children = [
+                            # Render Weather Icon
+                            render.Image(src = PLACEHOLDER_WEATHER_ICON),
+                            render.Column(
+                                children = [
+                                    # Render Temperature
+                                    render.Text(
+                                        content = temperature,
+                                        font = "5x8",
+                                    ),
+                                    # Render Precipitation
+                                    render.Text(
+                                        content = precipitation,
+                                        font = "5x8",
+                                        color = "#848fEE",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
                 ],
             ),
         ),
