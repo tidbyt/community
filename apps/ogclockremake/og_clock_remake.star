@@ -29,14 +29,14 @@ def main():
     timezone = "Australia/Melbourne"
     now = time.now().in_location(timezone)
 
-    # Layout 
+    # Layout
     return render.Root(
         delay = 500,
         child = render.Box(
             render.Column(
-                expanded=True,
-                main_align="space_evenly",
-                cross_align="center",
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "center",
                 children = [
                     # Render Time
                     render.Animation(
@@ -49,10 +49,10 @@ def main():
                                 content = now.format("3 04 PM"),
                                 font = "6x13",
                             ),
-                        ]
+                        ],
                     ),
                     # Render Weather Placeholder
-                    render.Image(src=PLACEHOLDER_WEATHER_ICON),
+                    render.Image(src = PLACEHOLDER_WEATHER_ICON),
                 ],
             ),
         ),
