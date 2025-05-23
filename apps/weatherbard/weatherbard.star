@@ -12,6 +12,8 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
+ENCRYPTED_API_KEY = "AV6+xWcEyGZAXJz6fIH2xJDhQ8MparbbAKoATMOWWwXDzXhcUnLkMH6GckSJ70dfic09fJtFicDThu5qnhA4dwLTtYqBfSAMkJ9ccPq9mPvOUdD27DZQ5lJQ0xe4/H4amEvUl/01ev993RUQO6Qbew76RzHUe39ZyQd+4jrsWsNNbDOYZz0="
+
 poems = {
     "clear": [
         "The sun spills gold across the quiet field.",
@@ -276,7 +278,7 @@ def main(ctx):
     units = str(ctx.get("units") or "imperial")
 
     # Get encrypted API key securely from manifest.yaml
-    weather_api_key = secret.get("openweather_key")
+    weather_api_key = secret.decrypt("ENCRYPTED_API_KEY")
     if weather_api_key == None:
         return render.Root(
             child = render.Text("Missing API key", font = "6x13"),
