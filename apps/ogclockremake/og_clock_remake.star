@@ -13,15 +13,16 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAVFBMVEVHcEwOCgAAAAAAAACFciD/5UgA
 """)
 
 def main():
-    # return render.Root(
-    #     child = render.Text("Hello, World!")
-    # )
-
     return render.Root(
-        child = render.Row( # Row lays out its children horizontally
+        child = render.Box(
+            render.Column(
+                expanded=True,
+                main_align="space_evenly",
+                cross_align="center",
                 children = [
+                    render.Text("Time"),
                     render.Image(src=PLACEHOLDER_WEATHER_ICON),
-                    render.Text("Hello, World!")
                 ],
-        )
+            ),
+        ),
     )
