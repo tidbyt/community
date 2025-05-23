@@ -9,5 +9,5 @@ widgets:
   - weatherbard.star
 preview: weatherbard.gif
 secrets:
-  - weather_api_key
-
+  - name: openweather_key
+    value: ENC[AV6+xWcEyGZAXJz6fIH2xJDhQ8MparbbAKoATMOWWwXDzXhcUnLkMH6GckSJ70dfic09fJtFicDThu5qnhA4dwLTtYqBfSAMkJ9ccPq9mPvOUdD27DZQ5lJQ0xe4/H4amEvUl/01ev993RUQO6Qbew76RzHUe39ZyQd+4jrsWsNNbDOYZz0=]
