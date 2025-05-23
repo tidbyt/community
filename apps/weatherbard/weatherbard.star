@@ -304,7 +304,7 @@ def main(ctx):
 
     condition = weather_data["weather"][0]["main"].lower()
     unit_label = "°F" if units == "imperial" else "°C"
-    raw_temp = weather_data["main"].get("temp")
+    raw_temp = weather_data["main"]["temp"] if "temp" in weather_data["main"] else None
 
     temp = str(int(raw_temp)) + unit_label if raw_temp != None else "--" + unit_label
 
