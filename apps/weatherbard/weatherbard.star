@@ -276,7 +276,7 @@ def main(ctx):
     units = str(ctx.get("units") or "imperial")
 
     # Get encrypted API key securely from manifest.yaml
-    weather_api_key = secret.get_secret("openweather_key")
+    weather_api_key = ctx.get_secret("openweather_key")
     if weather_api_key == None:
         return render.Root(
             child = render.Text("Missing API key", font = "6x13"),
