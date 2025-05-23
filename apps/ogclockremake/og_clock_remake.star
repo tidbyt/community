@@ -3,6 +3,17 @@ Applet: OG Clock Remake
 Summary: OG Clock Remake
 Description: A remake of the original Tidbyt Clock App (Reddit initiative).
 Author: bendiep
+
+TODO:
+- Get real weather data from API
+- Get more weather icons
+- Get timezone from location
+- Add display location toggle option
+- Add 24-hour clock toggle option
+- Add display weather toggle option
+- Add blinking separator toggle option
+- Add temperature units option (Celsius/Fahrenheit)
+- Add time color option
 """
 
 load("encoding/base64.star", "base64")
