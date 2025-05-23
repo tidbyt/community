@@ -1,0 +1,8 @@
+---
+id: og-clock-remake
+name: OG Clock Remake
+summary: OG Clock Remake
+desc: A remake of the original Tidbyt Clock App (Reddit initiative).
+author: bendiep
+fileName: og_clock_remake.star
+packageName: ogclockremake
