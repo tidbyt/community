@@ -105,8 +105,8 @@ def main(config):
     color_label = config.get("label_color", "#0a0")  # green
     color_low = config.get("low_color", "#A00")  # red
     color_high = config.get("high_color", "#D2691E")  # nice orange
-    y_lim_min = config.get("y_lim_min", "")
-    y_lim_max = config.get("y_lim_max", "")
+    y_lim_min = config.get("y_lim_min", 0)
+    y_lim_max = config.get("y_lim_max", None)
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     lat = math.round(1000.0 * float(location["lat"])) / 1000.0  # Truncate to 3dp for better caching and to protect user privacy
     lon = math.round(1000.0 * float(location["lng"])) / 1000.0
@@ -204,8 +204,7 @@ def main(config):
                 units = "m"
             else:
                 v = int((float(pred["height"]) * 3.28 + 0.05) * 10) / 10.0  # round to 1 decimal
-
-            if y_lim_min == "" or v < y_lim_min:
+            if y_lim_min == "" or v < int(y_lim_min):
                 y_lim_min = v  # set the lower level of graph to be the lowest negative
 
             #  probably need to convert back to local here
@@ -292,7 +291,7 @@ def main(config):
         if y_lim_max == "":
             y_lim_max = None
         elif y_lim_max != None:
-            y_lim_max = float(y_lim_max)
+            y_lim_max = int(y_lim_max)
         data_graph = render.Plot(
             data = points,
             width = 64,
@@ -300,7 +299,7 @@ def main(config):
             color = "#00c",  #00c
             color_inverted = "#505",
             fill = True,
-            y_lim = (y_lim_min, y_lim_max),
+            y_lim = (int(y_lim_min), y_lim_max),
         )
     root_children = [main_text]
 
