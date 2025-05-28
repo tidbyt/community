@@ -6,6 +6,7 @@ Author: Josiah Winslow
 """
 
 load("encoding/base64.star", "base64")
+load("html.star", "html")
 load("http.star", "http")
 load("math.star", "math")
 load("random.star", "random")
@@ -281,7 +282,7 @@ def get_featured_items():
         return {
             "error": "Oscar's status code: %s" % rep.status_code,
         }
-    text = rep.json()["excerpt"]["rendered"]
+    text = html(rep.json()["excerpt"]["rendered"]).text()
 
     # Extract the sandwich of the month
     sandwich_match = re.match(
