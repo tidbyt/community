@@ -1,0 +1,6 @@
+---
+id: pixel-art-clock
+name: Pixel Art Clock
+summary: Clock & pixel-art weather
+desc: Displays a clock, today's max and min temperatures, with a pixel-art illustration by @abipixel matching today's forecast from AccuWeather. To request an AccuWeather API key, see https://developer.accuweather.com/getting-started. To determine AccuWeather location key, search https://www.accuweather.com for a location and extract trailing number, e.g. 2191987 for https://www.accuweather.com/en/us/lavallette/08735/weather-forecast/2191987.
+author: JavierM42

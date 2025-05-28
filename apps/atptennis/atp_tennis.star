@@ -1217,13 +1217,13 @@ def get_schema():
     )
 
 def titleBar(SelectedTourneyID):
-    if SelectedTourneyID == "154-2024":  # AO
+    if SelectedTourneyID == "154-2025":  # AO
         titleColor = "#0091d2"
-    elif SelectedTourneyID == "188-2024":  # Wimbledon
+    elif SelectedTourneyID == "188-2025":  # Wimbledon
         titleColor = "#006633"
-    elif SelectedTourneyID == "172-2024":  # French Open
+    elif SelectedTourneyID == "172-2025":  # French Open
         titleColor = "#c84e1e"
-    elif SelectedTourneyID == "189-2024":  # US Open
+    elif SelectedTourneyID == "189-2025":  # US Open
         titleColor = "#022686"
     else:
         titleColor = "#203764"

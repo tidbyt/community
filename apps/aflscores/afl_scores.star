@@ -477,13 +477,30 @@ def showLiveGame(CurrentRoundJSON, LiveJSON, IncompleteMatches, x):
     # loop through matches until we find a match
     for y in range(0, IncompleteMatches, 1):
         SquiggleHome = LiveJSON["games"][y]["hteam"]
+        # print(SquiggleHome)
+        # print(HomeTeamName)
+        # print(AwayTeamName)
 
         # GWS needs some fixing to work for the next condition
         # Western Bulldogs being referred to as Footscray by AFL website for their 100th year anniversary
+        # Added Indigenous names for teams
         if SquiggleHome == "Greater Western Sydney":
             SquiggleHome = "GWS Giants"
         if HomeTeamName == "Footscray":
             HomeTeamName = "Western Bulldogs"
+
+        if HomeTeamName == "Waalitj Marawar":
+            HomeTeamName = "West Coast"
+        if HomeTeamName == "Euro-Yroke":
+            HomeTeamName = "St Kilda"
+        if HomeTeamName == "Kuwarna":
+            HomeTeamName = "Adelaide"
+        if HomeTeamName == "Yartapuulti":
+            HomeTeamName = "Port Adelaide"
+        if HomeTeamName == "Walyalup":
+            HomeTeamName = "Fremantle"
+        if HomeTeamName == "Narrm":
+            HomeTeamName = "Melbourne"
 
         # if we find a match, get the score summary
         # and set LiveMatch to true, we found one!
@@ -575,6 +592,19 @@ def showLiveGame(CurrentRoundJSON, LiveJSON, IncompleteMatches, x):
                 SquiggleHome = "GWS Giants"
             if HomeTeamName == "Footscray":
                 HomeTeamName = "Western Bulldogs"
+
+            if HomeTeamName == "Waalitj Marawar":
+                HomeTeamName = "West Coast"
+            if HomeTeamName == "Euro-Yroke":
+                HomeTeamName = "St Kilda"
+            if HomeTeamName == "Kuwarna":
+                HomeTeamName = "Adelaide"
+            if HomeTeamName == "Yartapuulti":
+                HomeTeamName = "Port Adelaide"
+            if HomeTeamName == "Walyalup":
+                HomeTeamName = "Fremantle"
+            if HomeTeamName == "Narrm":
+                HomeTeamName = "Melbourne"
 
             if HomeTeamName[:5] == SquiggleHome[:5] or AwayTeamName[:5] == SquiggleHome[:5]:
                 CompOutput = showCompletedGame(CompletedJSON, q, True, home_team_abb, away_team_abb, home_team_font, away_team_font, home_team_bkg, away_team_bkg)
