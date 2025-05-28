@@ -1,11 +1,12 @@
 """
-Applet: Oscars's Custard
+Applet: Oscar's Custard
 Summary: Today's Oscar's flavors
 Description: Get today's flavors at Oscar's Frozen Custard.
 Author: Josiah Winslow
 """
 
 load("encoding/base64.star", "base64")
+load("html.star", "html")
 load("http.star", "http")
 load("math.star", "math")
 load("random.star", "random")
@@ -138,13 +139,13 @@ PALETTE_HINTS = {
     "COOKIE": PEACH,
     "CUSTARD": WHITE,
     "GRAND": RED,
-    "OL'": WHITE,
     "HEATH": ORANGE,
     "HOG": PINK,
     "MINT": LIGHT_GREEN,
     "MONKEY": BROWN,
     "MUDD": BEIGE,
     "-N-": WHITE,
+    "OL'": WHITE,
     "OSCAR'S": PEACH,
     "PEANUTBUTTER": TAN,
     "PISTACHIO": GREEN,
@@ -281,7 +282,7 @@ def get_featured_items():
         return {
             "error": "Oscar's status code: %s" % rep.status_code,
         }
-    text = rep.json()["excerpt"]["rendered"]
+    text = html(rep.json()["excerpt"]["rendered"]).text()
 
     # Extract the sandwich of the month
     sandwich_match = re.match(
@@ -382,8 +383,8 @@ def main():
         ),
     ] * 86)
 
-    # Calculate RNG seed based on flavor(s) of the day
     for flavor in items["flavors"]:
+        # Calculate RNG seed based on flavor(s) of the day
         flavor_seed = 0x600df00d ^ hash(flavor)
         random.seed(flavor_seed)
         bg_color, fg_color = palette_from_name(flavor)
