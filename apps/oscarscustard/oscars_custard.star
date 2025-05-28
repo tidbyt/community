@@ -1,5 +1,5 @@
 """
-Applet: Oscars's Custard
+Applet: Oscar's Custard
 Summary: Today's Oscar's flavors
 Description: Get today's flavors at Oscar's Frozen Custard.
 Author: Josiah Winslow
@@ -138,13 +138,13 @@ PALETTE_HINTS = {
     "COOKIE": PEACH,
     "CUSTARD": WHITE,
     "GRAND": RED,
-    "OL'": WHITE,
     "HEATH": ORANGE,
     "HOG": PINK,
     "MINT": LIGHT_GREEN,
     "MONKEY": BROWN,
     "MUDD": BEIGE,
     "-N-": WHITE,
+    "OL'": WHITE,
     "OSCAR'S": PEACH,
     "PEANUTBUTTER": TAN,
     "PISTACHIO": GREEN,
@@ -382,8 +382,8 @@ def main():
         ),
     ] * 86)
 
-    # Calculate RNG seed based on flavor(s) of the day
     for flavor in items["flavors"]:
+        # Calculate RNG seed based on flavor(s) of the day
         flavor_seed = 0x600df00d ^ hash(flavor)
         random.seed(flavor_seed)
         bg_color, fg_color = palette_from_name(flavor)
