@@ -5,8 +5,6 @@ Description: Displays the time using a quote from a piece of literature. Based o
 Author: Alysha Kwok
 """
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
