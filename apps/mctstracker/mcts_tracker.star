@@ -202,7 +202,7 @@ def get_stop_name_eta(stop_id):
     url = (
         "https://realtime.ridemcts.com/bustime/wireless/html/eta.jsp?route=" +
         "---&id=%s"
-    )% stop_id
+    ) % stop_id
     rep = http.get(url, ttl_seconds = TTL_SECONDS_NAME)
     if rep.status_code == 200:
         # Find stop name on page
