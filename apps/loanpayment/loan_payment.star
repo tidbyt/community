@@ -1,6 +1,6 @@
 """
 Applet: Loan Payment
-Summary: shows remaining loan
+Summary: Shows remaining loan
 Description: Shows the amount still to be repaid from your loan
 Author: devfle
 """
