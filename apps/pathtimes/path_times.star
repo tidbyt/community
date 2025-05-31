@@ -155,7 +155,7 @@ def main(config):
         row = render.Row([
             render.Padding(
                 child = render.Circle(
-                    color = train["color"],
+                    color = (train["color"] or "").split(',')[0],
                     diameter = 11,
                 ),
                 pad = (2, 0, 2, 0),
