@@ -44,6 +44,11 @@ SHORT_STATION_NAMES = {
     "33S": "33rd St",
 }
 
+SPECIAL_ROUTES = {
+    "Journal Square via Hoboken": "JSQ via HOB",
+    "33rd Street via Hoboken": "33S via HOB",
+}
+
 ALL_DIRECTION = "all"
 
 DIRECTIONS = {
@@ -125,7 +130,7 @@ def main(config):
                     "destination": target,
                     "arrival": arrival,
                     "secondsToArrival": int(message["secondsToArrival"]),
-                    "color": "#" + message["lineColor"],
+                    "colors": ["#" + x for x in message.get("lineColor", "fff").split(",")],
                     "lastUpdated": message["lastUpdated"],
                     "direction": direction,
                     "headSign": message["headSign"],
@@ -141,10 +146,12 @@ def main(config):
         head_sign = train["headSign"]
         dest = train["destination"]
         arrival = train["arrival"]
+        colors = train["colors"]
+        num_colors = len(colors)
 
         # Use the shorthand to avoid scrolling if the name matches what we expect.
-        if short_title and head_sign == STATIONS[dest]:
-            label = render.Text(SHORT_STATION_NAMES[dest], font = FONT)
+        if short_title and (head_sign == STATIONS[dest] or head_sign in SPECIAL_ROUTES):
+            label = render.Text(SPECIAL_ROUTES.get(head_sign) or SHORT_STATION_NAMES[dest], font = FONT)
         else:
             label = render.Marquee(child = render.Text(head_sign, font = FONT), width = 49)
 
@@ -152,12 +159,22 @@ def main(config):
             children.append(render.Row([render.Box(height = 1, color = "#666")]))
         else:
             first = False
+
+        if num_colors > 1:
+            icon = render.PieChart(
+                colors = colors,
+                weights = [360 / num_colors for _ in range(num_colors)],
+                diameter = 11,
+            )
+        else:
+            icon = render.Circle(
+                color = colors[0],
+                diameter = 11,
+            )
+
         row = render.Row([
             render.Padding(
-                child = render.Circle(
-                    color = (train["color"] or "").split(",")[0],
-                    diameter = 11,
-                ),
+                child = icon,
                 pad = (2, 0, 2, 0),
             ),
             render.Column(
