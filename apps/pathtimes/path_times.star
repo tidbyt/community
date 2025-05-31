@@ -162,8 +162,8 @@ def main(config):
 
         if num_colors > 1:
             icon = render.PieChart(
-                colors = colors + reversed(colors),
-                weights = [180 / num_colors for _ in range(num_colors * 2)],
+                colors = colors,
+                weights = [360 / num_colors for _ in range(num_colors)],
                 diameter = 11,
             )
         else:
