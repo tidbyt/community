@@ -1,0 +1,8 @@
+---
+id: path-times
+name: PATH Times
+summary: NJ Path schedule
+desc: Show real time NJ Path Train arrival times.
+author: DavidGoldman
+fileName: path_times.star
+packageName: pathtimes
