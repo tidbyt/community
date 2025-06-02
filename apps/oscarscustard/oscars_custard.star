@@ -16,7 +16,6 @@ load("render.star", "render")
 WIDTH = 64
 HEIGHT = 32
 
-TIMEZONE = "America/Chicago"  # Oscar's is a local chain in Wisconsin
 DELAY = 30
 ERROR_DELAY = 45
 SCROLL_SPEED = 2
@@ -127,6 +126,7 @@ PALETTE = [
 # NOTE Certain words in the flavor names suggest certain colors should
 # be used. I call these "palette hints".
 PALETTE_HINTS = {
+    "BADGER": WHITE,
     "BANANA": YELLOW,
     "BLACK": BLACK,
     "BLUE": TEAL,
@@ -136,20 +136,25 @@ PALETTE_HINTS = {
     "CARAMEL": ORANGE,
     "CHERRY": RED,
     "CHOCOLATE": TAN,
+    "CLAW": BRIGHT_RED,
     "COOKIE": PEACH,
     "CUSTARD": WHITE,
-    "GRAND": RED,
+    "GRAND": WHITE,
     "HEATH": ORANGE,
     "HOG": PINK,
+    "LEMON": YELLOW,
     "MINT": LIGHT_GREEN,
+    "MOON": PALE_CYAN,
     "MONKEY": BROWN,
     "MUDD": BEIGE,
+    "MUDDER": BEIGE,
     "-N-": WHITE,
-    "OL'": WHITE,
+    "OL'": RED,
     "OSCAR'S": PEACH,
     "PEANUTBUTTER": TAN,
     "PISTACHIO": GREEN,
     "RASPBERRY": LIGHT_GRAY,
+    "RED": CRIMSON,
     "ROAD": GRAY,
     "SNICKERS": BROWN,
     "STRAWBERRY": LIGHT_RED,
