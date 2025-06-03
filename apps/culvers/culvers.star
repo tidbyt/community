@@ -169,8 +169,10 @@ def get_wrapped_text_height(wrapped_text):
 def main(config):
     if "slug" in config:
         slug = json.decode(config["slug"])["value"]
+        flavor_image = None
     else:
         slug = DEFAULT_SLUG
+        flavor_image = IMAGE_PLACEHOLDER
     bg_color = config.get("bg_color", DEFAULT_BG_COLOR)
 
     flavor_info = get_flavor_info(slug)
@@ -226,6 +228,9 @@ def main(config):
         ):
             break
 
+    if not flavor_image:
+        flavor_image = get_image(flavor_info["image"]) or flavor_image
+
     return render.Root(
         delay = DELAY,
         child = render.Stack(
@@ -236,10 +241,7 @@ def main(config):
                 render.Padding(
                     pad = IMAGE_PAD,
                     child = render.Image(
-                        src = (
-                            get_image(flavor_info["image"]) or
-                            IMAGE_PLACEHOLDER
-                        ),
+                        src = flavor_image,
                         height = IMAGE_HEIGHT,
                     ),
                 ),
