@@ -18,6 +18,10 @@ Updated for new API, thanks to @jvivona :)
 
 v1.4
 Using different API lookup to check race calendar. This is to see how long since the last race ended, if less than 48hrs display the results, if more than 48hrs go to the next race
+
+1.5
+Back to one API lookup now
+Added handling for when not all 20 drivers start the race, eg Stroll DNS in Spain 2025
 """
 
 load("encoding/json.star", "json")
@@ -28,12 +32,8 @@ load("time.star", "time")
 
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 
-#F1_URL = "http://ergast.com/api/f1/"
-#F1_URL = "https://tidbyt.apis.ajcomputers.com/f1/api/"
-
 # Alternate URL thanks to @jvivona for the hosting :)
 F1_URL = "https://raw.githubusercontent.com/jvivona/tidbyt-data/refs/heads/main/formula1/"
-RACELIST_URL = "https://api.jolpi.ca/ergast/f1/2025/races.json"
 
 def main(config):
     RotationSpeed = config.get("speed", "3")
@@ -53,6 +53,7 @@ def main(config):
     now = time.now().in_location(timezone)
     Year = now.format("2006")
 
+    RACELIST_URL = F1_URL + "races.json"
     GetLast = get_cachable_data(RACELIST_URL, 86400)
     F1_LAST_JSON = json.decode(GetLast)
 
@@ -63,7 +64,7 @@ def main(config):
         RaceDate_Time = LocalRaceDate + " " + LocalRaceTime
         FormatRTime = time.parse_time(RaceDate_Time, format = "2006-01-02 15:04:00Z").in_location(timezone)
         RTimeDiff = FormatRTime - now
-        #print(RTimeDiff.hours)
+        print(RTimeDiff.hours)
 
         # if we're more than 2hrs but less than 48hrs after the last race start get the race results, and break
         # or if time next race is more than 0hrs, lets look ahead, and break when we find something
@@ -76,7 +77,7 @@ def main(config):
             break
 
         elif RTimeDiff.hours > 0:
-            F1_NEXT_URL = F1_URL + "/next.json"
+            F1_NEXT_URL = F1_URL + "next.json"
             GetNext = get_cachable_data(F1_NEXT_URL, 86400)
             F1_NEXT_JSON = json.decode(GetNext)
             CurrentRound = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["round"]
@@ -305,7 +306,7 @@ def getDriver(z, F1_JSON, Session):
     output.extend(TitleRow)
 
     for i in range(0, 4):
-        if i + z < 20:
+        if i + z < len(F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"]):
             DriverFont = "#fff"
             Pos = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["position"]
 
@@ -315,6 +316,8 @@ def getDriver(z, F1_JSON, Session):
             else:
                 Driver = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Driver"]["familyName"]
 
+            print(Pos)
+            print(Driver)
             ConstructorID = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Constructor"]["constructorId"]
 
             # If its a Haas, use black color
