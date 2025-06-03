@@ -21,7 +21,8 @@ Using different API lookup to check race calendar. This is to see how long since
 
 1.5
 Back to one API lookup now
-Added handling for when not all 20 drivers start the race, eg Stroll DNS in Spain 2025
+Added handling for when not all 20 drivers start the race, eg Stroll in Spain 2025
+Removed hard coding of Perez's name, not a driver anymore
 """
 
 load("encoding/json.star", "json")
@@ -64,7 +65,7 @@ def main(config):
         RaceDate_Time = LocalRaceDate + " " + LocalRaceTime
         FormatRTime = time.parse_time(RaceDate_Time, format = "2006-01-02 15:04:00Z").in_location(timezone)
         RTimeDiff = FormatRTime - now
-        print(RTimeDiff.hours)
+        #print(RTimeDiff.hours)
 
         # if we're more than 2hrs but less than 48hrs after the last race start get the race results, and break
         # or if time next race is more than 0hrs, lets look ahead, and break when we find something
@@ -310,14 +311,7 @@ def getDriver(z, F1_JSON, Session):
             DriverFont = "#fff"
             Pos = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["position"]
 
-            # it doesn't display Perez's surname corrected so hardcoded him in
-            if F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Driver"]["code"] == "PER":
-                Driver = "Perez"
-            else:
-                Driver = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Driver"]["familyName"]
-
-            print(Pos)
-            print(Driver)
+            Driver = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Driver"]["familyName"]
             ConstructorID = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Constructor"]["constructorId"]
 
             # If its a Haas, use black color
