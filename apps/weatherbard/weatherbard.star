@@ -316,7 +316,7 @@ def main(ctx):
     line3 = ""
 
     # Layout with top box 7 high, flush against the top, right-aligned temp, spaced label
-    return render.Root(
+    return [render.Root(
         delay = 150,
         child = render.Column(
             children = [
@@ -348,4 +348,4 @@ def main(ctx):
                 ),
             ],
         ),
-    )
+    )]
