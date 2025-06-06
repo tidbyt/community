@@ -124,6 +124,11 @@ SHATTERED_OBSERVATORY = {
     "name_with_label": "Shattered",
     "has_cm": True,
 }
+KINFALL = {
+    "name_without_label": "Kinfall",
+    "name_with_label": "Kinfall",
+    "has_cm": False,
+}
 
 DAILY_FRACTALS = [
     (NIGHTMARE, SNOWBLIND, VOLCANIC),
@@ -138,7 +143,7 @@ DAILY_FRACTALS = [
     (AQUATIC_RUINS, LONELY_TOWER, THAUMANOVA_REACTOR),
     (SUNQUA_PEAK, UNDERGROUND_FACILITY, URBAN_BATTLEGROUND),
     (AETHERBLADE, CHAOS, NIGHTMARE),
-    (CLIFFSIDE, LONELY_TOWER, SIRENS_REEF),
+    (CLIFFSIDE, LONELY_TOWER, KINFALL),
     (DEEPSTONE, SOLID_OCEAN, SWAMPLAND),
     (CAPTAIN_MAI_TRIN_BOSS, MOLTEN_BOSS, SHATTERED_OBSERVATORY),
 ]
@@ -167,11 +172,11 @@ RECOMMENDED_FRACTALS = [
     (
         {"scale": 19, "fractal": VOLCANIC},
         {"scale": 50, "fractal": LONELY_TOWER},
-        {"scale": 57, "fractal": URBAN_BATTLEGROUND},
+        {"scale": 70, "fractal": KINFALL},
     ),
     (
         {"scale": 15, "fractal": THAUMANOVA_REACTOR},
-        {"scale": 41, "fractal": TWILIGHT_OASIS},
+        {"scale": 48, "fractal": SHATTERED_OBSERVATORY},
         {"scale": 60, "fractal": SOLID_OCEAN},
     ),
     (
@@ -185,7 +190,7 @@ RECOMMENDED_FRACTALS = [
         {"scale": 75, "fractal": LONELY_TOWER},
     ),
     (
-        {"scale": 12, "fractal": SIRENS_REEF},
+        {"scale": 7, "fractal": AQUATIC_RUINS},
         {"scale": 40, "fractal": MOLTEN_BOSS},
         {"scale": 67, "fractal": DEEPSTONE},
     ),
