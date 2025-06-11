@@ -1,0 +1,7 @@
+---
+id: movie-challenge
+name: Movie Challenge
+summary: Letterboxd watch progress
+desc: This app shows your Letterboxd movie watching progress. It gets your Letterboxd list of watched movies, shows a counter of how many movies you've watched out of your goal (e.g., "42/100"), and displays a randomly selected movie from your list with its rating.
+author: caropinzonsilva
+fileName: movie_challenge.star
