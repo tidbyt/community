@@ -100,7 +100,7 @@ def calculate_hourly_average(data):
     index = 0
 
     for entry in data:
-        if entry["state"] == "unavailable":
+        if entry["state"] == "unavailable" or entry["state"] == "unknown":
             continue
 
         timestamp = entry["last_changed"]
@@ -135,7 +135,7 @@ def calc_stats(timezone, data):
     count = 0
 
     for entry in data:
-        if entry["state"] == "unavailable":
+        if entry["state"] == "unavailable" or entry["state"] == "unknown":
             continue
 
         value = float(entry["state"])

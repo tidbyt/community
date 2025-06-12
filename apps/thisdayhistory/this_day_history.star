@@ -5,13 +5,15 @@ Description: Display historical events from today including births and deaths (i
 Author: jvivona
 """
 
+# 2025-apr-01 - change URL to wikipedia REST API instead of the FEED api.   more reliable apparently
+
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 24300
+VERSION = 25091
 # NOTE: trying to determine if there's a widget display option available - but with all the text, I don't see a way at this time
 
 TEXT_COLOR = "#fff"
@@ -200,7 +202,9 @@ def includeOptions(language):
 
 def getData(language, timezone):
     # go get the data
-    url = "https://api.wikimedia.org/feed/v1/wikipedia/{}/onthisday/all/".format(language) + time.now().in_location(timezone).format("1/2")
+    # this is the old feed URL which is broken as of 2025-mar-28 - they are working on a fix.  switch to REST API for future.  leaving this in there - just in case
+    # url = "https://api.wikimedia.org/feed/v1/wikipedia/{}/onthisday/all/".format(language) + time.now().in_location(timezone).format("1/2")
+    url = "https://{}.wikipedia.org/api/rest_v1/feed/onthisday/all/".format(language) + time.now().in_location(timezone).format("01/02")
     response = http.get(url = url, ttl_seconds = CACHE_TTL_SECONDS)
     if response.status_code != 200:
         return -1, LANG[language]["Wikipedia error"].format(str(response.status_code))

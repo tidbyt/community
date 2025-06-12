@@ -64,6 +64,9 @@ Incorrect event ID listed for Indian Wells in WTA 1000 list
 
 v1.11
 Only show players if both names are listed in the scheduled match, prevents blank rows from appearing
+
+v1.12
+Updated for 2025 season
 """
 
 load("encoding/json.star", "json")
@@ -73,8 +76,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-SLAM_LIST = ["154-2024", "188-2024", "172-2024", "189-2024"]
-WTA1000_LIST = ["256-2024", "25-2024", "713-2024", "411-2024", "413-2024", "414-2024", "421-2024", "718-2024", "959-2024", "382-2024"]
+SLAM_LIST = ["154-2025", "188-2025", "172-2025", "189-2025"]
+WTA1000_LIST = ["256-2025", "25-2025", "713-2025", "411-2025", "413-2025", "414-2025", "421-2025", "718-2025", "959-2025", "382-2025"]
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 WTA_SCORES_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard"
 
@@ -1193,13 +1196,13 @@ def get_schema():
     )
 
 def titleBar(SelectedTourneyID):
-    if SelectedTourneyID == "154-2024":  # AO
+    if SelectedTourneyID == "154-2025":  # AO
         titleColor = "#0091d2"
-    elif SelectedTourneyID == "188-2024":  # Wimbledon
+    elif SelectedTourneyID == "188-2025":  # Wimbledon
         titleColor = "#006633"
-    elif SelectedTourneyID == "172-2024":  # French Open
+    elif SelectedTourneyID == "172-2025":  # French Open
         titleColor = "#c84e1e"
-    elif SelectedTourneyID == "189-2024":  # US Open
+    elif SelectedTourneyID == "189-2025":  # US Open
         titleColor = "#022686"
     else:
         titleColor = "#430166"

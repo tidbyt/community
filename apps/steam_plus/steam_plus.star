@@ -8,7 +8,6 @@ Author: Mike Toscano
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")  # @unused
 
 STEAM_LOGO_PATH = "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/7a48ed11-13b2-44e3-a982-8d763d500a3e/db6u02a-edde930a-c504-4284-a0ce-bc88e4ba15b2.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzdhNDhlZDExLTEzYjItNDRlMy1hOTgyLThkNzYzZDUwMGEzZVwvZGI2dTAyYS1lZGRlOTMwYS1jNTA0LTQyODQtYTBjZS1iYzg4ZTRiYTE1YjIucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.bH5kQSIO2Fp1YhXcwTgqQCG-n0HADfWmtPIdqxaF_ZI"
 STATUS = ["Offline", "Online", "Busy", "Away"]
@@ -17,7 +16,6 @@ STATUS_COLOR = ["#59707B", "#0a0", "#F67407", "#FFD100"]
 STEAM_LOGO = http.get(STEAM_LOGO_PATH).body()
 
 def main(config):
-    # secret.decrypt("AV6+xWcEJR5qELPaYxK0mTVpgPRRvSvB55VTzrvxgmXi94p9HmJxDHFeJWyTr3yrfegS9hGmu4kS/3Eqx75URHFhvScaAJG9azvs9LAHcu/xNt7bXRzgUKYksXtpw/90gD+hOqtEX9hsOnJ+obsMN6UayvQ28PAkIwLU7dIC0AlmnxrMVI0=")
     api_key = config.str("api_key") or ""
 
     STEAM_API_ENDPOINT = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids="

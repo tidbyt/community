@@ -124,6 +124,11 @@ SHATTERED_OBSERVATORY = {
     "name_with_label": "Shattered",
     "has_cm": True,
 }
+KINFALL = {
+    "name_without_label": "Kinfall",
+    "name_with_label": "Kinfall",
+    "has_cm": False,
+}
 
 DAILY_FRACTALS = [
     (NIGHTMARE, SNOWBLIND, VOLCANIC),
@@ -138,7 +143,7 @@ DAILY_FRACTALS = [
     (AQUATIC_RUINS, LONELY_TOWER, THAUMANOVA_REACTOR),
     (SUNQUA_PEAK, UNDERGROUND_FACILITY, URBAN_BATTLEGROUND),
     (AETHERBLADE, CHAOS, NIGHTMARE),
-    (CLIFFSIDE, LONELY_TOWER, SIRENS_REEF),
+    (CLIFFSIDE, LONELY_TOWER, KINFALL),
     (DEEPSTONE, SOLID_OCEAN, SWAMPLAND),
     (CAPTAIN_MAI_TRIN_BOSS, MOLTEN_BOSS, SHATTERED_OBSERVATORY),
 ]
@@ -167,11 +172,11 @@ RECOMMENDED_FRACTALS = [
     (
         {"scale": 19, "fractal": VOLCANIC},
         {"scale": 50, "fractal": LONELY_TOWER},
-        {"scale": 57, "fractal": URBAN_BATTLEGROUND},
+        {"scale": 70, "fractal": KINFALL},
     ),
     (
         {"scale": 15, "fractal": THAUMANOVA_REACTOR},
-        {"scale": 41, "fractal": TWILIGHT_OASIS},
+        {"scale": 48, "fractal": SHATTERED_OBSERVATORY},
         {"scale": 60, "fractal": SOLID_OCEAN},
     ),
     (
@@ -185,7 +190,7 @@ RECOMMENDED_FRACTALS = [
         {"scale": 75, "fractal": LONELY_TOWER},
     ),
     (
-        {"scale": 12, "fractal": SIRENS_REEF},
+        {"scale": 7, "fractal": AQUATIC_RUINS},
         {"scale": 40, "fractal": MOLTEN_BOSS},
         {"scale": 67, "fractal": DEEPSTONE},
     ),
@@ -230,10 +235,11 @@ THEME = {
 
 FRAMES_PER_SCREEN = 125
 
-def is_leap_year(year):
-    return (math.mod(year, 400) == 0 or
-            (math.mod(year, 4) == 0 and
-             math.mod(year, 100) != 0))
+# The length of the months, in days. We use this for calculating the DOY index.
+# The DOY index is static -- March 1 is always 60, whether it's a leap year or
+# not. When not in a leap year, the index skips from 58 -> 60. Therefore, for
+# the purposes of calculating our index, February always has 29 days.
+CALENDAR_MONTH_DURATIONS_FOR_INDICES = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 # Returns a day of year index (0-365) that is fixed to a given month and day. Meaning that for every combination
 # of month and day the index will be the same in both leap and non leap years. Notably this will skip the index
@@ -243,17 +249,9 @@ def is_leap_year(year):
 def get_day_of_year_index():
     utc = time.now().in_location("UTC")
 
-    common_calendar = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    leap_calendar = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-
-    if is_leap_year(utc.year):
-        calendar = leap_calendar
-    else:
-        calendar = common_calendar
-
     index = 0
     for month in range(utc.month - 1):
-        index += calendar[month]
+        index += CALENDAR_MONTH_DURATIONS_FOR_INDICES[month]
     index += utc.day - 1
 
     return index

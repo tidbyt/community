@@ -15,7 +15,8 @@ load("xpath.star", "xpath")
 WIDTH = 64
 HEIGHT = 32
 
-TTL_SECONDS = 60  # 1 minute
+TTL_SECONDS_INFO = 60  # 1 minute
+TTL_SECONDS_NAME = 60 * 60  # 1 hour
 DEFAULT_STOP_ID = "743"
 
 MCTS_ICON_WIDTH = 23
@@ -79,13 +80,15 @@ BUS_COLORS = {
 }
 
 def get_stop_info_bustime(stop_id, api_key):
-    url = "https://realtime.ridemcts.com/bustime/api/v3/getpredictions?format=json&key=%s&stpid=%s" % (api_key, stop_id)
-    rep = http.get(url, ttl_seconds = TTL_SECONDS)
+    url = (
+        "https://realtime.ridemcts.com/bustime/api/v3/getpredictions?format=" +
+        "json&key=%s&stpid=%s"
+    ) % (api_key, stop_id)
+    rep = http.get(url, ttl_seconds = TTL_SECONDS_INFO)
     if rep.status_code != 200:
         return {
             "error": "Bustime API status code: %s" % rep.status_code,
         }
-
     j = rep.json()
 
     # If response has an error
@@ -96,8 +99,11 @@ def get_stop_info_bustime(stop_id, api_key):
         # If error has stop ID associated with it
         if "stpid" in error:
             # This is probably something like "No arrival times"
+            # NOTE In this case, the response will not contain the name
+            # of the bus stop, so a backup method is used to get the
+            # name.
             return {
-                "name": "STOP %s" % stop_id,
+                "name": get_stop_name_eta(stop_id),
                 "info": message,
             }
         else:
@@ -135,29 +141,18 @@ def get_stop_info_bustime(stop_id, api_key):
     return stop_info
 
 def get_stop_info_eta(stop_id):
-    url = "https://realtime.ridemcts.com/bustime/eta/getStopPredictionsETA.jsp?route=all&stop=%s" % stop_id
-    rep = http.get(url, ttl_seconds = TTL_SECONDS)
+    url = (
+        "https://realtime.ridemcts.com/bustime/eta/getStopPredictionsETA.jsp" +
+        "?route=all&stop=%s"
+    ) % stop_id
+    rep = http.get(url, ttl_seconds = TTL_SECONDS_INFO)
     if rep.status_code != 200:
         return {
             "error": "ETA API status code: %s" % rep.status_code,
         }
-
     x = xpath.loads(rep.body())
 
-    # Fallback stop name
-    stop_name = "STOP %s" % stop_id
-
-    # NOTE: This is the best way I know of to get a stop's name without
-    # an API key. The webpage I request also has live tracking info, but
-    # it's harder to parse.
-    url = "https://realtime.ridemcts.com/bustime/wireless/html/eta.jsp?route=---&id=%s" % stop_id
-    rep = http.get(url, ttl_seconds = 60 * 60)  # 1 hour
-    if rep.status_code == 200:
-        # Find stop name on page
-        body = rep.body()
-        stop_name_match = re.match(r"SELECTED STOP \| (.*?) \- ETA", body)
-        if stop_name_match:
-            stop_name = stop_name_match[0][1]
+    stop_name = get_stop_name_eta(stop_id)
 
     # If there is a message instead of a bus prediction, return it
     no_prediction_message = x.query("/stop/noPredictionMessage")
@@ -196,6 +191,27 @@ def get_stop_info_eta(stop_id):
         stop_info["buses"].append((bus_id, bus_info))
 
     return stop_info
+
+def get_stop_name_eta(stop_id):
+    # Fallback stop name
+    stop_name = "STOP %s" % stop_id
+
+    # NOTE: This is the best way I know of to get a stop's name without
+    # an API key. The webpage I request also has live tracking info, but
+    # it's harder to parse.
+    url = (
+        "https://realtime.ridemcts.com/bustime/wireless/html/eta.jsp?route=" +
+        "---&id=%s"
+    ) % stop_id
+    rep = http.get(url, ttl_seconds = TTL_SECONDS_NAME)
+    if rep.status_code == 200:
+        # Find stop name on page
+        body = rep.body()
+        stop_name_match = re.match(r"SELECTED STOP \| (.*?) \- ETA", body)
+        if stop_name_match:
+            stop_name = stop_name_match[0][1]
+
+    return stop_name
 
 def render_mcts_logo(stop_id = "MCTS"):
     return render.Stack(
@@ -353,12 +369,15 @@ def main(config):
             ),
         ])
 
+    stop_name_line = None
+    if "name" in stop_info:
+        stop_name_line = render_stop_name_line(
+            stop_info["name"],
+            has_api_key = bool(api_key),
+        )
+
     # If result has an info message
     if "info" in stop_info:
-        stop_name_line = None
-        if "name" in stop_info:
-            stop_name_line = render_stop_name_line(stop_info["name"])
-
         return render_app(stop_id, [
             stop_name_line,
             render_message(stop_info["info"]),
@@ -366,10 +385,7 @@ def main(config):
 
     # Result has bus data
     return render_app(stop_id, [
-        render_stop_name_line(
-            stop_info["name"],
-            has_api_key = bool(api_key),
-        ),
+        stop_name_line,
     ] + [
         render_bus_info_line(*bus_data)
         for bus_data in stop_info["buses"]
