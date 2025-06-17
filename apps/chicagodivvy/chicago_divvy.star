@@ -16,7 +16,6 @@ load("schema.star", "schema")
 DIVVY_BIKE_STATIONS_URL = "https://gbfs.lyft.com/gbfs/2.3/chi/en/station_information.json"
 DIVVY_BIKE_STATION_STATUS_URL = "https://gbfs.lyft.com/gbfs/2.3/chi/en/station_status.json"
 DIVVY_MISSING_DATA = "DATA_NOT_FOUND"
-PLACEHOLDER_STATION_ID = "a3aa259c-a135-11e9-9cda-0a87ae2ba916"  #Halsted and Roscoe
 
 #Images
 DIVVY_BIKE_IMAGE = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABwAAAAUCAYAAACeXl35AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAHKADAAQAAAABAAAAFAAAAABUzb9jAAABZUlEQVRIDdVUO47CQAydrJAoOMByEqjScQ0mVS6DRE0P14AqHcXWnACx9QrakDcaW47HSSDaLdYS8ow/79keB+f+m9RRZN2WjfwZHaRGQtaItPWdEa/97+Q7AGjRgNZ9cbwnxDruQxtwR3WQ5enBZytujM0kHAP0as5EB3rveSwX7fyFOy8GEe1XG1evPwN0URRBX/wu6PNqxvGam96vL4ZzQEbi9rcaPylUDIFyYjwEe8zTPn1PRorussN3+FGnOqnz7ucZyLfTr1ZInuftycgOqTPZKXUIFN0ld9f4qqqqtR85sEMHGSKjAixSTUaYfaTJZ4FxQvrGicUA6Pn641wzRnSQjI3Yo4YfceENaRvh8zGgOMbDCMUFGVs9KcvS6eqskYB34Xf8FqG7EcUkWwoM61t6ZWyS38KAP3lDmfRn59baGixDfqQMxST+xBCJu+xGXZ2kEqP1DyAdBKgXiuxdegjjCc3PJietDLH4AAAAAElFTkSuQmCC""")
@@ -108,19 +107,21 @@ def get_schema():
 
 def main(config):
     station_config = config.get("station")
-    if station_config == None:
-        station_id = PLACEHOLDER_STATION_ID
+    if station_config == None:  # Generate fake data
+        ebikes_available = "3"
+        bikes_available = "5"
+        station_name = "Halsted & Roscoe"
     else:
         station_config = json.decode(station_config)
         station_id = station_config["value"]
-    station = find_station_status_by_id(station_id = station_id)
+        station = find_station_status_by_id(station_id = station_id)
 
-    # Number of ebikes
-    ebikes_available = str(int(station["num_ebikes_available"]))
+        # Number of ebikes
+        ebikes_available = str(int(station["num_ebikes_available"]))
 
-    # bikes_available includes classic and ebikes. Subtracting the ebikes to get classic (non-ebikes) count
-    bikes_available = str(int(station["num_bikes_available"] - int(station["num_ebikes_available"])))
-
+        # bikes_available includes classic and ebikes. Subtracting the ebikes to get classic (non-ebikes) count
+        bikes_available = str(int(station["num_bikes_available"] - int(station["num_ebikes_available"])))
+        station_name = find_station_name_by_id(station_id = station_id)
     return render.Root(
         render.Column(
             main_align = "space_evenly",
@@ -128,7 +129,7 @@ def main(config):
             children = [
                 render.Marquee(
                     child = render.Text(
-                        content = find_station_name_by_id(station_id = station_id),
+                        content = station_name,
                         font = "5x8",
                     ),
                     width = 64,
