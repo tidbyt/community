@@ -37,15 +37,15 @@ def get_schema():
                 default = "20",
             ),
             schema.Text(
-                id = "user",
-                name = "Username",
-                desc = "username of OpenSky account (optional, higher API access limits)",
+                id = "client_id",
+                name = "client_id",
+                desc = "From OpenSky API Client details (Note: OpenSky requiring new OAuth2 flow, replacing old Username + Password auth)",
                 icon = "person",
             ),
             schema.Text(
-                id = "pass",
-                name = "Password",
-                desc = "password of OpenSky account (optional, higher API access limits)",
+                id = "client_secret",
+                name = "client_secret",
+                desc = "From OpenSky API Client details (Note: OpenSky requiring new OAuth2 flow, replacing old Username + Password auth)",
                 icon = "lock",
             ),
         ],
@@ -247,7 +247,7 @@ def render_plane(planes):
                 ),
                 render.Text(content = "%s %s %s %s" % (typecode, planes[0]["dist_from_you"], planes[0]["arrow"], planes[0]["location_vs_you"])),
                 render.Marquee(
-                    child = render.Text(content = "Heading %s at %d mph, Altitude %d ft and %s" % (planes[0]["heading"], planes[0]["speed"], planes[0]["altitude"], planes[0]["climb"])),
+                    child = render.Text(content = "Heading %s at %d mph, Altitude %d ft, %s" % (planes[0]["heading"], planes[0]["speed"], planes[0]["altitude"], planes[0]["climb"])),
                     scroll_direction = "horizontal",
                     offset_end = 64,
                     width = 64,
@@ -258,18 +258,44 @@ def render_plane(planes):
     )
     return screen
 
+def get_fresh_token(client_id, client_secret):
+    if not client_id or not client_secret or client_id == "None" or client_secret == "None":
+        print("Skipping token fetch: missing client credentials.")
+        return "invalid-token"
+
+    body = "grant_type=client_credentials&client_id=" + client_id + "&client_secret=" + client_secret
+
+    token_response = http.post(
+        url = "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token",
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body = body,
+    )
+
+    if token_response.status_code != 200:
+        print("Failed to fetch token: " + str(token_response.status_code))
+        return "invalid-token"
+
+    token_json = token_response.json()
+
+    if "access_token" not in token_json:
+        print("No access_token in token response. Full body: " + token_response.body())
+        return "invalid-token"
+
+    return token_json["access_token"]
+
 def main(config):
     lat = float(config.str("lat", "34.023"))
     lng = float(config.str("lng", "-118.496"))
     your_coord = [lat, lng]
 
-    username = str(config.get("user"))
-    password = str(config.get("pass"))
-    credentials = (username, password)
+    client_id = str(config.get("client_id"))
+    client_secret = str(config.get("client_secret"))
 
     radius = float(config.str("radius", "20"))
     bbox = get_bounding_box(lat, lng, radius)
-    print(your_coord, credentials)
+    print(your_coord)
 
     params = {
         "lamin": str(math.round(bbox["lamin"] / .001) * .001),
@@ -279,13 +305,33 @@ def main(config):
         "extended": "1",
     }
 
-    api_result = http.get(
+    # Fetch a bearer token to use to later authenticate the GET request for states
+    token = get_fresh_token(client_id, client_secret)
+
+    # If we have no valid token, return a setup screen (lets pixlet check pass)
+    if token == "invalid-token":
+        return render.Root(
+            render.Column(
+                children = [
+                    render.WrappedText(content = "Configure OpenSky: Missing Credentials", font = "5x8", color = "#f7ba99"),
+                ],
+                cross_align = "center",
+            ),
+        )
+
+    headers = {
+        "Authorization": "Bearer " + token,
+    }
+
+    response = http.get(
         url = "https://opensky-network.org/api/states/all",
+        headers = headers,
         params = params,
-        auth = credentials,
     )
-    api_status_code = api_result.status_code
-    api_response = api_result.json()
+
+    api_status_code = response.status_code
+    api_response = response.json()
+
     print("OpenSky API HTTP Response: " + str(api_status_code))
 
     # testing a non-good HTTP return code
