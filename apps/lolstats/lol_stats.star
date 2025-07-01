@@ -5,11 +5,11 @@ Description: Displays League of Legends summoner wins/loss status, rank and rece
 Author: thiagoss
 """
 
+load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("http.star", "http")
 load("time.star", "time")
 
 PLAYER_FONT = "6x10-rounded"
@@ -361,11 +361,11 @@ def render_match(match_data):
         ],
     )
 
-    for i in range(60):
+    for _ in range(60):
         animation_children.append(kda_row)
-    for i in range(60):
+    for _ in range(60):
         animation_children.append(champ_row)
-    for i in range(60):
+    for _ in range(60):
         animation_children.append(gold_row)
 
     return render.Column(
