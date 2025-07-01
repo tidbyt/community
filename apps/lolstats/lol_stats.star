@@ -29,8 +29,8 @@ DEFAULT_REGION = "NA1"
 ENCRYPTED_API_KEY = ""
 
 # standard components:
-win = render.Text(content = "W", color = "#00FF00", font=WL_FONT)
-loss = render.Text(content = "L", color = "#FF0000", font=WL_FONT)
+win = render.Text(content = "W", color = "#00FF00", font = WL_FONT)
+loss = render.Text(content = "L", color = "#FF0000", font = WL_FONT)
 horizontal_rule = render.Box(
     height = 1,
     color = "#555",
@@ -38,15 +38,15 @@ horizontal_rule = render.Box(
 
 # Some LOL famous players:
 famous_players = [
-    struct(name="Faker", summoner_name="Hide on bush", tag_line="KR1", region="KR"),
-    struct(name="Viper", summoner_name="Blue", tag_line="KR33", region="KR"),
-    struct(name="Agurin", summoner_name="NAgurin", tag_line="EU1", region="NA1"),
-    struct(name="Nemesis", summoner_name="LR Nemesis", tag_line="LRAT", region="EUW1"),
-    struct(name="KatEvolved", summoner_name="KatEvolved", tag_line="666", region="NA1"),
-    struct(name="BrokenBlade", summoner_name="G2 BrokenBlade", tag_line="1819", region="NA1"),
-    struct(name="Rekkles", summoner_name="LR Rekkles", tag_line="SUP", region="EUW1"),
-    struct(name="Jankos", summoner_name="Jankos", tag_line="MYBAD", region="EUW1"),
-    struct(name="Baus", summoner_name="Thebausffs", tag_line="COOL", region="EUW1"),
+    struct(name = "Faker", summoner_name = "Hide on bush", tag_line = "KR1", region = "KR"),
+    struct(name = "Viper", summoner_name = "Blue", tag_line = "KR33", region = "KR"),
+    struct(name = "Agurin", summoner_name = "NAgurin", tag_line = "EU1", region = "NA1"),
+    struct(name = "Nemesis", summoner_name = "LR Nemesis", tag_line = "LRAT", region = "EUW1"),
+    struct(name = "KatEvolved", summoner_name = "KatEvolved", tag_line = "666", region = "NA1"),
+    struct(name = "BrokenBlade", summoner_name = "G2 BrokenBlade", tag_line = "1819", region = "NA1"),
+    struct(name = "Rekkles", summoner_name = "LR Rekkles", tag_line = "SUP", region = "EUW1"),
+    struct(name = "Jankos", summoner_name = "Jankos", tag_line = "MYBAD", region = "EUW1"),
+    struct(name = "Baus", summoner_name = "Thebausffs", tag_line = "COOL", region = "EUW1"),
 ]
 
 def random_famous_player():
@@ -59,8 +59,8 @@ def main(config):
     api_key = secret.decrypt(ENCRYPTED_API_KEY) or config.get("apikey", "")
     if not api_key:
         return render_error(
-            title="No API key",
-            msg="Please set the API key in the app settings. You can obtain it from the RIOT developer portal."
+            title = "No API key",
+            msg = "Please set the API key in the app settings. You can obtain it from the RIOT developer portal.",
         )
 
     configured_queue = config.str("queue", DEFAULT_QUEUE)
@@ -68,7 +68,7 @@ def main(config):
     tag_line = config.str("tagline", "")
     region = config.str("region", "")
 
-    summoner = struct(name=configured_summoner, summoner_name=configured_summoner, tag_line=tag_line, region=region)
+    summoner = struct(name = configured_summoner, summoner_name = configured_summoner, tag_line = tag_line, region = region)
 
     if summoner.summoner_name == "":
         summoner = random_famous_player()
@@ -110,6 +110,7 @@ def main(config):
                 print("Error fetching match data for match ID: %s, Error: %s" % (m[1].get("gameId", "Unknown"), m[0]))
                 error_code = m[0]
                 matches_error_msg = "An error occurred while fetching match data. Please try again later. Err: %s" % m[0]
+
         # if all are errors
         if len(match_results) == 0 and error_code != 200:
             matches_error_msg = "An error occurred while fetching match data. Please try again later. Err: %s" % error_code
@@ -127,7 +128,7 @@ def main(config):
                 content = "Error fetching matches",
                 font = LAST_MATCH_FONT,
                 color = "#FF0000",
-            )
+            ),
         )
         match_sequence_row = render.Marquee(
             child = render.Text(
@@ -141,7 +142,7 @@ def main(config):
     elif len(match_results) > 0:
         last_match_row = render.Padding(
             pad = (0, 1, 0, 0),
-            child = render_match(match_results[0])
+            child = render_match(match_results[0]),
         )
         match_sequence_row = render_match_sequence_row(match_results[1:])
     else:
@@ -151,29 +152,29 @@ def main(config):
                 content = "No matches found",
                 font = LAST_MATCH_FONT,
                 color = "#FF0000",
-            )
+            ),
         )
         match_sequence_row = render.Row(
-            children = []
+            children = [],
         )
 
     return render.Root(
-        child=render.Column(
-            children=[
+        child = render.Column(
+            children = [
                 player_row,
                 horizontal_rule,
                 total_win_losses_row,
                 horizontal_rule,
                 last_match_row,
-                match_sequence_row
+                match_sequence_row,
             ],
-        )
+        ),
     )
 
 def render_error(title, msg):
     return render.Root(
-        child=render.Column(
-            children=[
+        child = render.Column(
+            children = [
                 render.Marquee(
                     width = 64,
                     delay = 12,
@@ -202,24 +203,24 @@ def render_error(title, msg):
                         font = WL_FONT,
                         color = "#AAAAAA",
                     ),
-                )
-            ]
-        )
+                ),
+            ],
+        ),
     )
 
 def queue_name(q):
     if q == "RANKED_SOLO_5x5":
-        return 'solo'
+        return "solo"
     if q == "RANKED_FLEX_SR":
-        return 'flex'
-    return ''
+        return "flex"
+    return ""
 
 def queue_id(q):
-    if q == 'solo':
+    if q == "solo":
         return 420
-    if q == 'flex':
+    if q == "flex":
         return 440
-    return ''
+    return ""
 
 def tier_color(tier):
     colors = {
@@ -232,7 +233,7 @@ def tier_color(tier):
         "DIAMOND": "#B9F2FF",
         "MASTER": "#D3D3D3",
         "GRANDMASTER": "#FF4500",
-        "CHALLENGER": "#FFFC77"
+        "CHALLENGER": "#FFFC77",
     }
     return colors.get(tier, "#FFFFFF")  # Default to white if tier not found
 
@@ -266,7 +267,7 @@ def render_player_row(summoner, summoner_stats):
             render.Marquee(
                 width = 42,
                 delay = 12,
-                child = render.Text(summoner, height=10, font=PLAYER_FONT),
+                child = render.Text(summoner, height = 10, font = PLAYER_FONT),
             ),
             render.Box(
                 height = 11,
@@ -286,14 +287,14 @@ def render_total_win_losses_row(summoner_stats):
     points = summoner_stats["leaguePoints"]
     return render.Row(
         children = [
-            render.Text("W:", font=WL_FONT),
-            render.Text(str(int(wins)), font=WL_FONT, color="#00FF00"),
-            render.Text(" ", font=WL_FONT),
-            render.Text("L:", font=WL_FONT),
-            render.Text(str(int(losses)), font=WL_FONT, color="#FF0000"),
-            render.Text(" ", font=WL_FONT),
-            render.Text("LP:", font=WL_FONT),
-            render.Text(str(int(points)), font=WL_FONT, color="#FFFF00"),
+            render.Text("W:", font = WL_FONT),
+            render.Text(str(int(wins)), font = WL_FONT, color = "#00FF00"),
+            render.Text(" ", font = WL_FONT),
+            render.Text("L:", font = WL_FONT),
+            render.Text(str(int(losses)), font = WL_FONT, color = "#FF0000"),
+            render.Text(" ", font = WL_FONT),
+            render.Text("LP:", font = WL_FONT),
+            render.Text(str(int(points)), font = WL_FONT, color = "#FFFF00"),
         ],
     )
 
@@ -368,28 +369,28 @@ def render_match(match_data):
         animation_children.append(gold_row)
 
     return render.Column(
-            children = [
-                render.Row(
-                    children = [
-                        render.Text(
-                            content = "Last:",
-                            font = LAST_MATCH_FONT,
-                        ),
-                        win if match_data["win"] else loss,
-                        render.Text(
-                            content = " ",
-                            font = LAST_MATCH_FONT,
-                        ),
-                        render.Sequence(
-                            children = [
-                                render.Animation(
-                                    children = animation_children
-                                ),
-                            ],
-                        ),
-                    ]
-                ),
-            ]
+        children = [
+            render.Row(
+                children = [
+                    render.Text(
+                        content = "Last:",
+                        font = LAST_MATCH_FONT,
+                    ),
+                    win if match_data["win"] else loss,
+                    render.Text(
+                        content = " ",
+                        font = LAST_MATCH_FONT,
+                    ),
+                    render.Sequence(
+                        children = [
+                            render.Animation(
+                                children = animation_children,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
 
 def render_match_sequence_row(match_results):
@@ -481,7 +482,7 @@ def region_domain(region):
 
 # === RIOT API Fetching Functions
 def fetch_puuid(summoner, api_key):
-    account_url = routing_domain(summoner.region) + ACCOUNT_PATH + summoner.summoner_name + '/' + summoner.tag_line
+    account_url = routing_domain(summoner.region) + ACCOUNT_PATH + summoner.summoner_name + "/" + summoner.tag_line
     account_rep = http.get(account_url, headers = {"X-Riot-Token": api_key}, ttl_seconds = 60 * 60 * 10)
     if account_rep.status_code == 200:
         return 200, account_rep.json()["puuid"]
