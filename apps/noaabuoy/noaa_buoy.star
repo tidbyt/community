@@ -30,8 +30,11 @@ def debug_print(arg):
     if print_debug:
         print(arg)
 
-def swell_over_threshold(thresh, units, data):  # assuming threshold is already in preferred units
-    height = data["WVHT"]
+def swell_over_threshold(thresh, units, data, use_wind_swell):  # assuming threshold is already in preferred units
+    if use_wind_swell:
+        height = data.get("WIND_WVHT", "0")
+    else:
+        height = data.get("WVHT", "0")
     if thresh == "" or float(thresh) == 0.0:
         return True
     elif units == "m":
@@ -111,6 +114,11 @@ def fetch_data(buoy_id, last_data):
         wtmp = re.match(r".*<b>Water Temp:</b> ([0-9.]+) &#176;F.*", weather)
         if len(wtmp) > 0:
             data["WTMP"] = wtmp[0][1]
+
+        # Air Temp (ATMP)
+        atmp = re.match(r".*<b>Air Temp:</b> ([0-9.]+) &#176;F.*", weather)
+        if len(atmp) > 0:
+            data["ATMP"] = atmp[0][1]
 
     # Wave Summary section
     wave_start = html.find("<h2>Wave Summary</h2>")
@@ -331,7 +339,7 @@ def main(config):
             wt = int(float(wt) + 0.5)
             wtemp = " %s%s" % (str(wt), t_unit_pref)
 
-        if not swell_over_threshold(min_size, h_unit_pref, data):
+        if not swell_over_threshold(min_size, h_unit_pref, data, use_wind):
             return []
 
         period_display = str(int(float(period) + 0.5)) if type(period) == type("") and period.replace(".", "", 1).isdigit() else str(period)
