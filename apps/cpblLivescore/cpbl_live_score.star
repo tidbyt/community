@@ -31,8 +31,8 @@ url_upcoming = "https://api.b365api.com/v3/events/upcoming?sport_id=16&token=key
 
 TEAM_LOGO = """
 {
-    "315045": "https://www.cpbl.com.tw/files/file_pool/1/0l109765752096404797/logo_dragon.png",
-    "230422": "https://www.cpbl.com.tw/files/file_pool/1/0l109765754453009797/logo_brothers.png",
+    "315045": "https://assets.b365api.com/images/t2/b/267/534472.png",
+    "230422": "https://assets.b365api.com/images/t2/b/90/180564.png",
     "836779": "https://r2.thesportsdb.com/images/media/team/badge/gx1dgl1680852780.png",
     "329121": "https://assets.b365api.com/images/wp/o/8d4b8b442ce550b84187f6a388dd08e5.png",
     "229259": "https://assets.b365api.com/images/wp/o/dec78d508fac27062963e766d6fd4323.png",
