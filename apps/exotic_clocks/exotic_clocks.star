@@ -174,6 +174,8 @@ def img_of_koreanwords_minutes(minutes):
     unit = minutes % 10
     img_ten = KW_MINUTES[ten - 1]
     img_unit = KW_MINUTES[unit - 1]
+    if unit == 0:
+        return [img_ten, KW_MINUTES[9], KW_MIN]
     if ten == 0:
         return [img_unit, KW_MIN]
     if ten == 1:

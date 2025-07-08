@@ -33,13 +33,12 @@ lastByleague = "https://api.b365api.com/v3/events/ended?sport_id=16&token=key&le
 
 TEAM_LOGO = """
 {
-    "315045": "https://www.thesportsdb.com/images/media/team/badge/ljv5o51655923122.png",
-    "329121": "https://www.thesportsdb.com/images/media/team/badge/kk0rch1655923103.png",
-    "224095": "https://www.thesportsdb.com/images/media/team/badge/kehxfy1655923111.png",
-    "230422": "https://www.thesportsdb.com/images/media/team/badge/nbtugc1655923087.png",
-    "224094": "https://www.thesportsdb.com/images/media/team/badge/aj83wn1655923095.png",
-    "229259": "https://www.thesportsdb.com/images/media/team/badge/aj83wn1655923095.png",
-    "836779": "https://www.thesportsdb.com/images/media/team/badge/gx1dgl1680852780.png"
+    "315045": "https://r2.thesportsdb.com/images/media/team/badge/ljv5o51655923122.png",
+    "329121": "https://r2.thesportsdb.com/images/media/team/badge/kk0rch1655923103.png",
+    "224095": "https://r2.thesportsdb.com/images/media/team/badge/kehxfy1655923111.png",
+    "230422": "https://r2.thesportsdb.com/images/media/team/badge/nbtugc1655923087.png",
+    "229259": "https://r2.thesportsdb.com/images/media/team/badge/aj83wn1655923095.png",
+    "836779": "https://r2.thesportsdb.com/images/media/team/badge/gx1dgl1680852780.png"
 }
 """
 

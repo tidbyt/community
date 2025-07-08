@@ -5,8 +5,6 @@ Description: Displays the time using a quote from a piece of literature. Based o
 Author: Alysha Kwok
 """
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
@@ -14,7 +12,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 DEFAULT_TIMEZONE = "America/New_York"
-JSON_ENDPOINT = "https://raw.githubusercontent.com/alyshakwok/literature-clock/master/docs/times/"
+JSON_ENDPOINT = "https://raw.githubusercontent.com/JohannesNE/literature-clock/refs/heads/master/docs/times/"
 QUOTE_FIRST = "quote_first"
 QUOTE_TIME = "quote_time_case"
 QUOTE_LAST = "quote_last"
@@ -35,25 +33,12 @@ def get_data(fileTime, config):
         file += "0"
     file += str(fileTime.minute) + ".json"
 
-    # check if quotes is not empty, else one min back
-    cached_response = cache.get(file)
-
-    if cached_response != None:
-        if cached_response == EMPTY:
-            quotes = get_data(fileTime - time.minute, config)
-        else:
-            quotes = json.decode(cached_response)
+    # check if quotes request succeeded, else one min back
+    request = http.get(file, ttl_seconds = CACHE_TIME)
+    if request.status_code != 200:
+        quotes = get_data(fileTime - time.minute, config)
     else:
-        request = http.get(file)
-        if request.status_code != 200:
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(file, EMPTY, ttl_seconds = CACHE_TIME)
-            quotes = get_data(fileTime - time.minute, config)
-        else:
-            quotes = request.json()
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(file, json.encode(request.json()), ttl_seconds = CACHE_TIME)
+        quotes = request.json()
 
     if config.bool("sfw"):
         quotes = filter_sfw(quotes)
@@ -90,11 +75,13 @@ def main(config):
         fontFace = DEFAULT_FONT
 
     return render.Root(
+        delay = 65,
         show_full_animation = True,
         child = render.Marquee(
             height = 32,
             width = 64,
             offset_start = 25,
+            offset_end = 25,
             scroll_direction = "vertical",
             child =
                 render.Column(
