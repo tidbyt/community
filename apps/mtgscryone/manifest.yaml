@@ -1,0 +1,6 @@
+---
+id: mtg-scry-one
+name: MTG Scry One
+summary: Scry a random card from MTG
+desc: 'Scry a random card from Magic: The Gathering and displays its information.'
+author: UnBurn
