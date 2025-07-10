@@ -125,7 +125,7 @@ def get_cover(cover_url):
 
     dprint("Getting small thumbnail from %s" % data["images"][0]["thumbnails"]["small"])
     res = http.get(data["images"][0]["thumbnails"]["small"], ttl_seconds = COVER_CACHE_TTL, headers = {
-        "User-Agent": DEFAULT_USER_AGENT
+        "User-Agent": DEFAULT_USER_AGENT,
     })
 
     # if error, return default spinning record icon
