@@ -111,7 +111,7 @@ def get_cover(cover_url):
         return RECORD_ICON
 
     if (len(data["images"]) == 0):
-        dprint("Array images has no items")
+        dprint("images field is an empty array")
         return RECORD_ICON
 
     # check if there is a small thumbnail
@@ -130,7 +130,7 @@ def get_cover(cover_url):
 
     # if error, return default spinning record icon
     if res.status_code != 200:
-        print("Error getting cover data, status %d" % res.status_code)
+        print("Error getting cover image, status %d" % res.status_code)
         dprint(res.body())
         return RECORD_ICON
 
@@ -281,8 +281,6 @@ def album_search(album_name):
         schema.Option[]: List of album options for the user to pick.
     """
 
-    # authenticate with spotify to be able to use search api
-
     # fake field to signal error to the user
     fake_error_field = schema.Option(display = "ERROR: Please close this screen and try adding the app again.", value = "error")
 
@@ -294,7 +292,7 @@ def album_search(album_name):
         return []
 
     # build url
-    url = "https://musicbrainz.org/ws/2/release-group/?query=releasegroup:{}%20AND%20status:official&fmt=json".format(humanize.url_encode(stripped_name))
+    url = "https://musicbrainz.org/ws/2/release-group/?query=releasegroup:{}%20AND%20status:official&limit=50&fmt=json".format(humanize.url_encode(stripped_name))
     dprint("Calling %s" % url)
     res = http.get(url, headers = {
         "User-Agent": DEFAULT_USER_AGENT,
@@ -310,6 +308,7 @@ def album_search(album_name):
     # get data
     data = res.json()
 
+    # validate if something was returned
     if not "release-groups" in data:
         dprint("release-groups field not returned")
         return []
@@ -320,8 +319,11 @@ def album_search(album_name):
 
     dprint("Found %d albums" % len(data["release-groups"]))
 
+    # sort by release date, newest first
+    sorted_releases = sorted(data["release-groups"], key = get_release_date, reverse = True)
+
     options = []
-    for release in data["release-groups"]:
+    for release in sorted_releases:
         title = release["title"]
         type = release.get("primary-type", "Unknown").capitalize()
         artist = release["artist-credit"][0]["name"]
@@ -333,6 +335,14 @@ def album_search(album_name):
         ))
 
     return options
+
+def get_release_date(release):
+    """Returns the year of a release.
+
+    Args:
+        release (dict): The release object.
+    """
+    return release.get("first-release-date", "0000")[0:4]
 
 def dprint(message):
     """Prints messages when in debug mode.
