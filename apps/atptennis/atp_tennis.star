@@ -82,6 +82,9 @@ Bug fix - for when there is a tournament listed in the data feed but has null in
 
 v1.15
 Noted that ESPN data feed not indicating a winner, so adding logic to work it out
+
+v1.16
+If the next scheduled match is the final, then look ahead 48hrs instead of the normal 12hrs to make the final appear sooner
 """
 
 load("encoding/json.star", "json")
@@ -261,20 +264,25 @@ def main(config):
         for x in range(0, Number_Events, 1):
             if SelectedTourneyID == ATP_JSON["events"][x]["id"]:
                 EventIndex = x
+                TimeToCheck = 12
+                ATP_PREFIX = ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"]
 
                 # check if we are between the start & end date of the tournament
                 if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
-                    for y in range(0, len(ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"]), 1):
+                    for y in range(0, len(ATP_PREFIX), 1):
                         # if the match is scheduled ("pre") and the start time of the match is scheduled for next 12 hrs, add it to the list of scheduled matches
-                        if ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["state"] == "pre":
-                            P1Name = ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][0]["athlete"]["shortName"]
-                            P2Name = ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][1]["athlete"]["shortName"]
+                        if ATP_PREFIX[y]["status"]["type"]["state"] == "pre":
+                            P1Name = ATP_PREFIX[y]["competitors"][0]["athlete"]["shortName"]
+                            P2Name = ATP_PREFIX[y]["competitors"][1]["athlete"]["shortName"]
 
                             if P1Name != "TBD" and P2Name != "TBD":
+                                # if the next scheduled match is the final, lets look ahead 48hrs instead of 12hrs
+                                if ATP_PREFIX[y - 1]["round"]["displayName"] == "Semifinal" and ATP_PREFIX[y - 2]["round"]["displayName"] == "Semifinal":
+                                    TimeToCheck = 48
                                 MatchTime = ATP_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
                                 MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                                 diff = MatchTime - now
-                                if diff.hours < 12:
+                                if diff.hours < TimeToCheck:
                                     ScheduledMatchList.insert(0, y)
                                 else:
                                     # once we go past 12hrs break out from loop
