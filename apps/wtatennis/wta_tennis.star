@@ -67,6 +67,13 @@ Only show players if both names are listed in the scheduled match, prevents blan
 
 v1.12
 Updated for 2025 season
+
+v1.13
+Noted that ESPN data feed not indicating a winner, so adding logic to work it out
+Also updated the variable for player color to match the ATP app
+
+v1.14
+If the next scheduled match is the final, then look ahead 48hrs instead of the normal 12hrs to make the final appear sooner
 """
 
 load("encoding/json.star", "json")
@@ -249,22 +256,27 @@ def main(config):
         for x in range(0, Number_Events, 1):
             if SelectedTourneyID == WTA_JSON["events"][x]["id"]:
                 EventIndex = x
+                TimeToCheck = 12
+                WTA_PREFIX = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"]
 
                 # check if we are between the start & end date of the tournament
                 if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
                     if WTA_JSON["events"][x]["groupings"][0]["grouping"]["slug"] == "mens-singles":
                         GroupingsID = 1
-                    for y in range(0, len(WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"]), 1):
+                    for y in range(0, len(WTA_PREFIX), 1):
                         # if the match is scheduled ("pre") and the start time of the match is scheduled for next 12 hrs, add it to the list of scheduled matches
-                        if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["state"] == "pre":
-                            P1Name = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][0]["athlete"]["shortName"]
-                            P2Name = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][1]["athlete"]["shortName"]
+                        if WTA_PREFIX[y]["status"]["type"]["state"] == "pre":
+                            P1Name = WTA_PREFIX[y]["competitors"][0]["athlete"]["shortName"]
+                            P2Name = WTA_PREFIX[y]["competitors"][1]["athlete"]["shortName"]
 
                             if P1Name != "TBD" and P2Name != "TBD":
+                                # if the next scheduled match is the final, lets look ahead 48hrs instead of 12hrs
+                                if WTA_PREFIX[y - 1]["round"]["displayName"] == "Semifinal" and WTA_PREFIX[y - 2]["round"]["displayName"] == "Semifinal":
+                                    TimeToCheck = 48
                                 MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
                                 MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                                 diff = MatchTime - now
-                                if diff.hours < 12:
+                                if diff.hours < TimeToCheck:
                                     ScheduledMatchList.insert(0, y)
                                 else:
                                     break
