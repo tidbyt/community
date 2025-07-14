@@ -269,6 +269,7 @@ BRANCH_CODES = {
     "MK": "Montauk",
     "OB": "Oyster Bay",
     "HH": "Port Jefferson",
+    "PJ": "Port Jefferson",
     "PW": "Port Washington",
     "RK": "Ronkonkoma",
     "WH": "West Hempstead",
