@@ -9,7 +9,6 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("math.star", "math")
 load("render.star", "render")
 load("time.star", "time")
 
@@ -33,6 +32,7 @@ def getRoot(config, floor):
     """
     Determines which screen to display based on the floor status.
     """
+
     # Use .get() for safety in case the API response is malformed
     if floor.get("now", {}).get("value") == "voting":
         return renderVotingRoot(config, floor)
@@ -50,6 +50,7 @@ def renderVotingRoot(config, floor):
     # --- NEW ---
     # Get the original question text.
     question_text = floor.get("roll_call", {}).get("question", "Loading...")
+
     # Repeat the text 10 times to create a very long, continuous scroll.
     # This will feel like an endless loop to the user.
     scroll_text = (question_text + " ") * 10
@@ -134,6 +135,7 @@ def renderVotingTimer(now, floor):
     Timer function that formats overtime to include hours (H:MM:SS)
     after one hour has passed.
     """
+
     # First check if we have a valid "value" field
     timer_value = floor.get("timer", {}).get("value", "")
 
@@ -158,7 +160,8 @@ def renderVotingTimer(now, floor):
                             min = i // 60
                             sec = i % 60
                             sec_str = str(sec)
-                            if sec < 10: sec_str = "0" + sec_str
+                            if sec < 10:
+                                sec_str = "0" + sec_str
                             content_str = "-" + str(min) + ":" + sec_str
                         else:
                             # 1+ hour: -H:MM:SS
@@ -167,25 +170,33 @@ def renderVotingTimer(now, floor):
                             min = rem_sec // 60
                             sec = rem_sec % 60
                             min_str = str(min)
-                            if min < 10: min_str = "0" + min_str
+                            if min < 10:
+                                min_str = "0" + min_str
                             sec_str = str(sec)
-                            if sec < 10: sec_str = "0" + sec_str
+                            if sec < 10:
+                                sec_str = "0" + sec_str
                             content_str = "-" + str(hr) + ":" + min_str + ":" + sec_str
+
                         # --- END MODIFICATION ---
 
-                        for _ in range(8): frames.append(render.Text(content = content_str, color = "#FF0000"))
+                        for _ in range(8):
+                            frames.append(render.Text(content = content_str, color = "#FF0000"))
                     return render.Animation(children = frames)
                 else:
                     # Counting down - generate countdown to 0:00 then overtime
                     frames = []
+
                     # Countdown to 0:00
                     for i in range(total_seconds, -1, -1):
                         min = i // 60
                         sec = i % 60
                         sec_str = str(sec)
-                        if sec < 10: sec_str = "0" + sec_str
+                        if sec < 10:
+                            sec_str = "0" + sec_str
                         content_str = str(min) + ":" + sec_str
-                        for _ in range(8): frames.append(render.Text(content = content_str, color = "#FFFFFF"))
+                        for _ in range(8):
+                            frames.append(render.Text(content = content_str, color = "#FFFFFF"))
+
                     # Continue into overtime
                     for i in range(1, 301):
                         # --- MODIFICATION FOR H:MM:SS FORMAT ---
@@ -194,7 +205,8 @@ def renderVotingTimer(now, floor):
                             min = i // 60
                             sec = i % 60
                             sec_str = str(sec)
-                            if sec < 10: sec_str = "0" + sec_str
+                            if sec < 10:
+                                sec_str = "0" + sec_str
                             content_str = "-" + str(min) + ":" + sec_str
                         else:
                             # 1+ hour: -H:MM:SS (unlikely to be hit in this 5-min animation, but good practice)
@@ -203,13 +215,17 @@ def renderVotingTimer(now, floor):
                             min = rem_sec // 60
                             sec = rem_sec % 60
                             min_str = str(min)
-                            if min < 10: min_str = "0" + min_str
+                            if min < 10:
+                                min_str = "0" + min_str
                             sec_str = str(sec)
-                            if sec < 10: sec_str = "0" + sec_str
+                            if sec < 10:
+                                sec_str = "0" + sec_str
                             content_str = "-" + str(hr) + ":" + min_str + ":" + sec_str
+
                         # --- END MODIFICATION ---
 
-                        for _ in range(8): frames.append(render.Text(content = content_str, color = "#FF0000"))
+                        for _ in range(8):
+                            frames.append(render.Text(content = content_str, color = "#FF0000"))
                     return render.Animation(children = frames)
 
     # If value is "0:00" or unavailable, use timestamp-based calculation
@@ -230,7 +246,8 @@ def renderVotingTimer(now, floor):
             min = i // 60
             sec = i % 60
             sec_str = str(sec)
-            if sec < 10: sec_str = "0" + sec_str
+            if sec < 10:
+                sec_str = "0" + sec_str
             content_str = "-" + str(min) + ":" + sec_str
         else:
             # 1+ hour: -H:MM:SS
@@ -239,13 +256,17 @@ def renderVotingTimer(now, floor):
             min = rem_sec // 60
             sec = rem_sec % 60
             min_str = str(min)
-            if min < 10: min_str = "0" + min_str
+            if min < 10:
+                min_str = "0" + min_str
             sec_str = str(sec)
-            if sec < 10: sec_str = "0" + sec_str
+            if sec < 10:
+                sec_str = "0" + sec_str
             content_str = "-" + str(hr) + ":" + min_str + ":" + sec_str
+
         # --- END MODIFICATION ---
 
-        for _ in range(8): frames.append(render.Text(content = content_str, color = "#FF0000"))
+        for _ in range(8):
+            frames.append(render.Text(content = content_str, color = "#FF0000"))
 
     return render.Animation(children = frames)
 
@@ -305,6 +326,7 @@ def getNonVotingMarquee(floor):
     Builds the vertical marquee for the non-voting screen timeline.
     """
     marqueeText = []
+
     # THE CORRECTED LINE: Use type() to check if the value is a dictionary.
     if type(floor.get("timeline")) == "dict":
         for key in floor["timeline"]:
@@ -323,7 +345,7 @@ def getNonVotingMarquee(floor):
         align = "center",
         scroll_direction = "vertical",
         height = 5,
-        width  = 64,
+        width = 64,
         delay = 5,
     )
 
@@ -350,6 +372,7 @@ def getFloorActivityFromAPI():
     """
     Fetches floor activity from the Dome Watch API, with caching.
     """
+
     # Return mock data if in mock mode
     if MOCK_MODE:
         print("Using mock data with timer: " + MOCK_TIMER_VALUE)
@@ -358,32 +381,32 @@ def getFloorActivityFromAPI():
             "roll_call": {
                 "bill": {"id": "566", "number": "566"},
                 "number": "187",
-                "question": "H RES 566 - MOCK TEST - On Ordering the Previous Question (Timer: " + MOCK_TIMER_VALUE + ")"
+                "question": "H RES 566 - MOCK TEST - On Ordering the Previous Question (Timer: " + MOCK_TIMER_VALUE + ")",
             },
             "timeline": {"next_votes": {"text": "Next votes: Later this afternoon"}},
             "timer": {
                 "seconds_remaining": 1 if not MOCK_TIMER_VALUE.startswith("-") else 0,
                 "timestamp": "2025-07-04T16:15:29.017Z",
-                "value": MOCK_TIMER_VALUE
+                "value": MOCK_TIMER_VALUE,
             },
             "votes": {
                 "counts": {
                     "blue": {"nays": "82", "not_voting": "130", "present": "", "yeas": ""},
                     "red": {"nays": "", "not_voting": "193", "present": "", "yeas": "27"},
                     "totals": {"nays": "82", "not_voting": "323", "present": "", "yeas": "27"},
-                    "white": {"nays": "", "not_voting": "", "present": "", "yeas": ""}
+                    "white": {"nays": "", "not_voting": "", "present": "", "yeas": ""},
                 },
                 "roll_call": {
                     "bill": {"id": "566", "number": "566"},
                     "number": "187",
-                    "question": "H RES 566 - MOCK TEST - Timer: " + MOCK_TIMER_VALUE
+                    "question": "H RES 566 - MOCK TEST - Timer: " + MOCK_TIMER_VALUE,
                 },
                 "timer": {
                     "seconds_remaining": 1 if not MOCK_TIMER_VALUE.startswith("-") else 0,
                     "timestamp": "2025-07-02T13:33:39.949Z",
-                    "value": MOCK_TIMER_VALUE
-                }
-            }
+                    "value": MOCK_TIMER_VALUE,
+                },
+            },
         }
     floor_cached = cache.get("floor")
     if floor_cached != None:
