@@ -10,7 +10,7 @@ load("render.star", "render")
 load("time.star", "time")
 
 def main(config):
-    timezone = config.get("timezone") or "America/Chicago"
+    timezone = config.get("$tz") or "America/Chicago"
     now = time.now().in_location(timezone)
 
     dev_width = 64
