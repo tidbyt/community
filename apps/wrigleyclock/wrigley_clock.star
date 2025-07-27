@@ -16,20 +16,19 @@ def main(config):
     dev_width = 64
     dev_height = 32
 
-    #     # Clock radius
+    # Clock radius
     radius = min(dev_width, dev_height) // 2 - 1
 
-    #     # Get current time
-    now = time.now()
+    # Get current time
     hour = now.hour % 12
     minute = now.minute
 
-    #     # Calculate angles (in radians)
+    # Calculate angles (in radians)
     pi = math.pi
     hour_angle = (pi / 2) - (2 * pi) * ((hour + minute / 60.0) / 12.0)
     minute_angle = (pi / 2) - (2 * pi) * (minute / 60.0)
 
-    #     # Hand lengths
+    # Hand lengths
     hour_len = 0.6
     min_len = 1
     back_len = -0.2
