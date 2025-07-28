@@ -1,7 +1,7 @@
 ---
 id: bgg-hotness
 name: Geeky Hotness
-Summary: Board Game Hotness - Powered by BGG
+summary: Board Game Hotness - Powered by BGG
 desc: Shows the top items from BoardGameGeek's Board Game Hotness list.
 author: Henry So, Jr.
 fileName: bgg_hotness.star
