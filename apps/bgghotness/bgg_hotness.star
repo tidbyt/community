@@ -195,7 +195,7 @@ def scroll_frames(item, next_item):
         for offset in range(SCROLL_SIZE, SCROLL_LIMIT, SCROLL_SIZE)
     ]
 
-API_KEY = secret.decrypt("AV6+xWcE0BurBiQZCtCDKvsAFq3JxukpFlQ1DN1MmI2b6kjZWdQt9Cck6K9UR5Wr7fkOejqZLetAZYZPrCkUfqeWV+wfHop0zTUeast/u44OeDVZytLh/nV1cfdnoaVBxc4PBS5gQOqu1Os+j/FLEakxPW1fvtU7oMhDgbOjfnc4MjLmZq5rfgge")
+API_KEY = secret.decrypt("AV6+xWcERHMIh6gSb6efc8sw8opWeR5GxRZ12GWQ84b3iKtZA0Ks1iWJn7I+1Qv4IG30YAtVL4BfWFrGk5LEdPoAAQGvyJaQh+pP6Lntm/gCsyjUDH4DnbUQKWLlTojTQWOF5RgR9FeyEGU9Xf9xL37ITS7YXKm9MmPETM3om9OhL5TLflH0pcD5")
 
 URL = "http://boardgamegeek.com/xmlapi2/hot?type=boardgame"
 
