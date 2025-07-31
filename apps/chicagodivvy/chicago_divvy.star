@@ -49,6 +49,7 @@ def find_station_name_by_id(station_id):
     station_name_cached = cache.get(station_id + STATION_NAME_CACHE_SUFFIX)
     if station_name_cached != None:
         station_name = station_name_cached
+        return station_name
     else:
         rep = http.get(DIVVY_BIKE_STATIONS_URL)
         if rep.status_code != 200:
