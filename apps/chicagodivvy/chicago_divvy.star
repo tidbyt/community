@@ -30,6 +30,7 @@ def find_station_status_by_id(station_id):
     station_status_cached = cache.get(station_id + STATION_STATUS_NAME_SUFFIX)
     if station_status_cached != None:
         station_status = json.decode(station_status_cached)
+        return station_status
     else:
         rep = http.get(DIVVY_BIKE_STATION_STATUS_URL)
         if rep.status_code != 200:
