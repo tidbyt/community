@@ -1,0 +1,10 @@
+{
+  "id": "muni-departures",
+  "name": "Muni Departures",
+  "summary": "Shows upcoming SF Muni bus and train times.",
+  "description": "Displays real-time arrival info for selected Muni routes and stops in San Francisco. Configure with your chosen stop IDs to see the next departures.",
+  "author": "Bobby Schimm",
+  "icon": "icon.png",
+  "category": "Transit"
+}
+
