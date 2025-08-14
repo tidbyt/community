@@ -1,8 +1,6 @@
 """
-Applet: USGS Water Levels
-Summary: Shows USGS Water Info
-Description: This app shows data from the USGS sensor network, allowing you to display water levels, temperatures, and other info.
-Author: IamNabil
+USGS Water Levels Tidbyt App
+Displays local lake and river water levels as a graph using USGS data
 """
 
 load("cache.star", "cache")
@@ -43,55 +41,68 @@ def main(config):
             ),
         )
 
-    # Create the display - 85% content, 15% indicator
+    # Create the display - 3 box layout
     return render.Root(
         child = render.Row(
             children = [
-                # Left side: 85% of width for main content
+                # Left side: 85% of width for content
                 render.Box(
                     width = 54,  # 85% of 64 pixels
                     child = render.Column(
                         children = [
-                            # Top: Location and data type with marquee
-                            render.Column(
-                                children = [
-                                    render.Marquee(
-                                        width = 54,
-                                        child = render.Text(data["site_name"], color = "#888", font = "tom-thumb"),
-                                    ) if len(data["site_name"]) > 12 else render.Text(data["site_name"], color = "#888", font = "tom-thumb"),
-                                    render.Text(data["param_description"], color = "#AAA", font = "tom-thumb"),
-                                ],
+                            # Top: marquee section
+                            render.Box(
+                                height = 12,
+                                child = render.Column(
+                                    children = [
+                                        render.Marquee(
+                                            width = 54,
+                                            child = render.Text(data["site_name"], color = "#4A90E2", font = "tom-thumb"),
+                                        ) if len(data["site_name"]) > 12 else render.Text(data["site_name"], color = "#888", font = "tom-thumb"),
+                                        render.Text(data["param_description"], color = "#ff4", font = "tom-thumb"),
+                                    ],
+                                ),
                             ),
-                            # Spacer to push value to bottom
-                            render.Box(width = 1, height = 8),
-                            # Bottom: Large value aligned to the right
-                            render.Row(
-                                main_align = "end",
-                                children = [
-                                    render.Column(
-                                        cross_align = "end",
-                                        children = [
-                                            render.Text(
-                                                str(int(data["current_value"] * 100) / 100),
-                                                color = "#4A90E2",
-                                                font = "6x13",
-                                            ),
-                                            render.Text(
-                                                data["units"],
-                                                color = "#FFF",
-                                                font = "tom-thumb",
-                                            ),
-                                        ],
-                                    ),
-                                ],
+                            # Bottom: Large number display
+                            render.Box(
+                                height = 20,  # Remaining height
+                                child = render.Column(
+                                    main_align = "center",
+                                    cross_align = "center",
+                                    children = [
+                                        # Large number with units beside it
+                                        render.Row(
+                                            main_align = "center",
+                                            cross_align = "end",
+                                            children = [
+                                                render.Text(
+                                                    str(int(data["current_value"] * 100) / 100),
+                                                    color = "#4A90E2",
+                                                    font = "6x13",
+                                                ),
+                                                render.Text(
+                                                    " " + data["units"],
+                                                    color = "#FFF",
+                                                    font = "tom-thumb",
+                                                ),
+                                            ],
+                                        ),
+                                        # Small icon/description
+                                        render.Text(
+                                            get_param_icon(data["param_description"]),
+                                            color = "#888",
+                                            font = "tom-thumb",
+                                        ),
+                                    ],
+                                ),
                             ),
                         ],
                     ),
                 ),
-                # Right side: 15% of width for indicator, 100% height
+                # Right side: 15% of width, FULL HEIGHT for indicator
                 render.Box(
                     width = 10,  # 15% of 64 pixels
-                    height = 32,  # Full display height
+                    height = 32,  # FULL display height
                     child = render_indicator(data["current_value"], data.get("high_30d"), data.get("low_30d")),
                 ),
             ],
@@ -287,12 +298,24 @@ def get_param_units(param_code):
     units = {
         "00010": "°F",  # Temperature in Fahrenheit
         "00095": "μS/cm",
-        "00065": "ft",
-        "00062": "ft",
-        "62610": "ft",
-        "62611": "ft",
+        "00065": "ft",  # Gage height in feet
+        "00062": "ft",  # Lake elevation in feet
+        "62610": "ft",  # Lake elevation NGVD 1929 in feet
+        "62611": "ft",  # Lake elevation NAVD 1988 in feet
+        "62614": "ft",  # Daily lake level in feet
     }
     return units.get(param_code, "ft")
+
+def get_param_icon(param_description):
+    # Get a simple icon/symbol for the parameter type
+    icons = {
+        "Water Temp": "🌡️",
+        "Conductance": "⚡",
+        "Gage Height": "📏",
+        "Lake Level": "🌊",
+        "Daily Level": "📊",
+    }
+    return icons.get(param_description, "💧")
 
 def render_indicator(current_value, high_30d, low_30d):
     # Render a vertical indicator showing current value vs 30-day high/low
@@ -303,43 +326,75 @@ def render_indicator(current_value, high_30d, low_30d):
                 render.Text("x", color = "#4A90E2", font = "tom-thumb"),
             ],
         )
-
+    
     # Debug: print the values to see what's happening
     print("Current: " + str(current_value) + ", High: " + str(high_30d) + ", Low: " + str(low_30d))
-
-    # Create 20 positions from top to bottom for fine granularity
-    total_positions = 20
-    elements = []
-
-    # Calculate where current value should be positioned
-    if current_value >= high_30d:
-        current_pos = 0  # At the very top
-    elif current_value <= low_30d:
-        current_pos = total_positions - 1  # At the very bottom
-    else:
-        # Scale position between top and bottom based on value
-        range_val = high_30d - low_30d
+    
+    # Calculate where current value should be positioned (0 = top, 28 = bottom)
+    range_val = high_30d - low_30d
+    if range_val > 0:
+        # Position ratio: 0.0 = at high (top), 1.0 = at low (bottom)
         position_ratio = (current_value - low_30d) / range_val
-        current_pos = total_positions - 1 - int(position_ratio * (total_positions - 1))
-
-    print("Calculated position for X: " + str(current_pos))
-
-    # Build the indicator from top to bottom
-    for pos in range(total_positions):
-        if pos == current_pos:
-            # ALWAYS show blue X at calculated position (takes priority)
-            elements.append(render.Text("x", color = "#4A90E2", font = "tom-thumb"))
-        elif pos == 0 and current_pos != 0:
-            # Green dash at top (only if X is not there)
-            elements.append(render.Text("-", color = "#50E3C2", font = "tom-thumb"))
-        elif pos == (total_positions - 1) and current_pos != (total_positions - 1):
-            # Red dash at bottom (only if X is not there)
-            elements.append(render.Text("-", color = "#FF6B6B", font = "tom-thumb"))
-        else:
-            # Empty space
-            elements.append(render.Box(width = 1, height = 1))
-
-    return render.Column(
+        # Invert so high values go to top: 1.0 = at high (top), 0.0 = at low (bottom)  
+        position_ratio = 1.0 - position_ratio
+        # Scale to pixel range (0 to 28 pixels from top)
+        x_position = int(position_ratio * 28)
+    else:
+        x_position = 14  # Middle if no range
+    
+    print("Position ratio: " + str(1.0 - (current_value - low_30d) / range_val if range_val > 0 else 0.5))
+    print("X position (pixels from top): " + str(x_position))
+    
+    # Use Stack to position elements absolutely
+    elements = []
+    
+    # Always show green dash at top (unless current is at/above high)
+    if current_value >= high_30d:
+        elements.append(
+            render.Padding(
+                pad = (0, 0, 0, 0),
+                child = render.Text("x", color = "#4A90E2", font = "tom-thumb")
+            )
+        )
+        print("Added X at top (replacing green dash)")
+    else:
+        elements.append(
+            render.Padding(
+                pad = (0, 0, 0, 0),
+                child = render.Text("-", color = "#a7fc00", font = "tom-thumb")
+            )
+        )
+        print("Added green dash at top")
+    
+    # Show blue X at calculated position if current is between high and low
+    if current_value < high_30d and current_value > low_30d:
+        elements.append(
+            render.Padding(
+                pad = (0, x_position, 0, 0),  # Calculated position from top
+                child = render.Text("x", color = "#4A90E2", font = "tom-thumb")
+            )
+        )
+        print("Added X at calculated position: " + str(x_position))
+    
+    # Always show red dash at bottom (unless current is at/below low)
+    if current_value <= low_30d:
+        elements.append(
+            render.Padding(
+                pad = (0, 28, 0, 0),  # 28 pixels from top (near bottom)
+                child = render.Text("x", color = "#4A90E2", font = "tom-thumb")
+            )
+        )
+        print("Added X at bottom (replacing red dash)")
+    else:
+        elements.append(
+            render.Padding(
+                pad = (0, 28, 0, 0),  # 28 pixels from top
+                child = render.Text("-", color = "#FF6B6B", font = "tom-thumb")
+            )
+        )
+        print("Added red dash at bottom")
+    
+    return render.Stack(
         children = elements,
     )
 
