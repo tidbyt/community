@@ -326,74 +326,76 @@ def render_indicator(current_value, high_30d, low_30d):
                 render.Text("x", color = "#4A90E2", font = "tom-thumb"),
             ],
         )
-    
+
     # Debug: print the values to see what's happening
     print("Current: " + str(current_value) + ", High: " + str(high_30d) + ", Low: " + str(low_30d))
-    
+
     # Calculate where current value should be positioned (0 = top, 28 = bottom)
     range_val = high_30d - low_30d
     if range_val > 0:
         # Position ratio: 0.0 = at high (top), 1.0 = at low (bottom)
         position_ratio = (current_value - low_30d) / range_val
-        # Invert so high values go to top: 1.0 = at high (top), 0.0 = at low (bottom)  
+
+        # Invert so high values go to top: 1.0 = at high (top), 0.0 = at low (bottom)
         position_ratio = 1.0 - position_ratio
+
         # Scale to pixel range (0 to 28 pixels from top)
         x_position = int(position_ratio * 28)
     else:
         x_position = 14  # Middle if no range
-    
+
     print("Position ratio: " + str(1.0 - (current_value - low_30d) / range_val if range_val > 0 else 0.5))
     print("X position (pixels from top): " + str(x_position))
-    
+
     # Use Stack to position elements absolutely
     elements = []
-    
+
     # Always show green dash at top (unless current is at/above high)
     if current_value >= high_30d:
         elements.append(
             render.Padding(
                 pad = (0, 0, 0, 0),
-                child = render.Text("x", color = "#4A90E2", font = "tom-thumb")
-            )
+                child = render.Text("x", color = "#4A90E2", font = "tom-thumb"),
+            ),
         )
         print("Added X at top (replacing green dash)")
     else:
         elements.append(
             render.Padding(
                 pad = (0, 0, 0, 0),
-                child = render.Text("-", color = "#a7fc00", font = "tom-thumb")
-            )
+                child = render.Text("-", color = "#a7fc00", font = "tom-thumb"),
+            ),
         )
         print("Added green dash at top")
-    
+
     # Show blue X at calculated position if current is between high and low
     if current_value < high_30d and current_value > low_30d:
         elements.append(
             render.Padding(
                 pad = (0, x_position, 0, 0),  # Calculated position from top
-                child = render.Text("x", color = "#4A90E2", font = "tom-thumb")
-            )
+                child = render.Text("x", color = "#4A90E2", font = "tom-thumb"),
+            ),
         )
         print("Added X at calculated position: " + str(x_position))
-    
+
     # Always show red dash at bottom (unless current is at/below low)
     if current_value <= low_30d:
         elements.append(
             render.Padding(
                 pad = (0, 28, 0, 0),  # 28 pixels from top (near bottom)
-                child = render.Text("x", color = "#4A90E2", font = "tom-thumb")
-            )
+                child = render.Text("x", color = "#4A90E2", font = "tom-thumb"),
+            ),
         )
         print("Added X at bottom (replacing red dash)")
     else:
         elements.append(
             render.Padding(
                 pad = (0, 28, 0, 0),  # 28 pixels from top
-                child = render.Text("-", color = "#FF6B6B", font = "tom-thumb")
-            )
+                child = render.Text("-", color = "#FF6B6B", font = "tom-thumb"),
+            ),
         )
         print("Added red dash at bottom")
-    
+
     return render.Stack(
         children = elements,
     )
