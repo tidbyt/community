@@ -1,7 +1,7 @@
 """
-Applet: Mapper
-Summary: Mapper
-Description: Mapper.
+Applet: American Mapbook
+Summary: American Mapbook
+Description: Tracking your visits across the USA
 Author: Robert Ison
 """
 
@@ -2076,7 +2076,9 @@ def main(config):
     # keep track of the three different maps
     maps = [mainland_bounds, hawaii_bounds, alaska_bounds]
 
-    items_to_plot = []
+    #Create Frames for Display
+    animation_frames = []  #We want to display the map, but build up slowly, not just stack the whole thing at once
+    items_to_plot = []  #As we progress through the list of items for our display, we keep adding to stacked_items
     gridpoints = []
 
     # This map of USA includes Alaska and Hawaii
@@ -2099,7 +2101,10 @@ def main(config):
                 gridpoints = normalize_coordinates(subgroup, alaska_bounds, offsets[2][0], offsets[2][1])
                 items_to_plot.append(add_padding_to_child_element(get_plot(gridpoints, map_color), offsets[2][2], offsets[2][3]))
 
-    # now add all capitols
+            # Animation Frames start with each group of outlines for USA areas
+            animation_frames.append(render.Stack(children = items_to_plot))
+
+    # now add all items
     group_coordinates = [[], [], []]
     visited_group_coordinates = [[], [], []]
 
@@ -2147,7 +2152,11 @@ def main(config):
 
                 items_to_plot.append(add_padding_to_child_element(get_dot(unvisited_color), converted_x, converted_y))
 
+                # Next set of frames is MAP + unvisited Items one at a time
+                animation_frames.append(render.Stack(children = items_to_plot))
+
         # Loop through all three groups of visited
+        total_visited = 0
         for i, group in enumerate(visited_group_coordinates):
             gridpoints = normalize_coordinates(group, maps[i], offsets[i][0], offsets[i][1])
 
@@ -2158,22 +2167,28 @@ def main(config):
                 # these formulae account for those adjustments to get the items on the right spot on the right map
                 converted_x = point[0] + offsets[i][2]
                 converted_y = ((SCREEN_HEIGHT - offsets[i][1]) + offsets[i][1] - point[1] + offsets[i][3])
-
+                total_visited = total_visited + 1
                 items_to_plot.append(add_padding_to_child_element(get_dot(visited_color), converted_x, converted_y))
 
-        # Count of visited out of total:
-        total_visited = 0
-        for group in visited_group_coordinates:
-            total_visited += len(group)
+                if config.get("showCount") == "true":
+                    display_text = ("%s" % (total_visited))
+                    items_to_plot.append(add_padding_to_child_element(render.Box(color = "#000", width = 10, height = 5), SCREEN_WIDTH + 1 - (4 * len(display_text)), SCREEN_HEIGHT - 5))
+                    items_to_plot.append(add_padding_to_child_element(render.Text(display_text, font = "CG-pixel-3x5-mono", color = visited_color), SCREEN_WIDTH + 1 - (4 * len(display_text)), SCREEN_HEIGHT - 5))
 
-        display_text = ("%s" % (total_visited))
+                    # Frame 4 is map + unvisited + visited + Count
+                    animation_frames.append(render.Stack(children = items_to_plot))
 
-        if config.get("showCount") == "true":
-            items_to_plot.append(add_padding_to_child_element(render.Text(display_text, font = "CG-pixel-3x5-mono", color = visited_color), SCREEN_WIDTH + 1 - (4 * len(display_text)), SCREEN_HEIGHT - 5))
+                # Next set of frames is map + unvisited + visited one at a time + counter if selected
+                animation_frames.append(render.Stack(children = items_to_plot))
+
+    # Add several frames of the final product to keep on screen for longer
+    for _ in range(100):
+        animation_frames.append(render.Stack(children = items_to_plot))
 
     return render.Root(
-        child = render.Stack(
-            children = items_to_plot,
+        delay = 75,
+        child = render.Animation(
+            children = animation_frames,
         ),
     )
 
