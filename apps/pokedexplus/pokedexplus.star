@@ -2,7 +2,8 @@
 Applet: Pokedex+
 Summary: Pokémon Pokédex
 Description: Displays a random Pokedex entry from any generation. This includes its name, image, number, and a scrolling PokeDex entry description. Customizable font color and background color allows users to customize the app to their liking.
-Author: Forrest Syrett & Eric Pierce
+Author: Forrest Syrett
+Collaborators: Eric Pierce
 """
 
 load("encoding/json.star", "json")
