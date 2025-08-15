@@ -1,7 +1,7 @@
 """
-Applet: Mapper
-Summary: Mapper
-Description: Mapper.
+Applet: American Mapbook
+Summary: American Mapbook
+Description: Tracking your visits across the USA
 Author: Robert Ison
 """
 
