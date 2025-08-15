@@ -2076,10 +2076,9 @@ def main(config):
     # keep track of the three different maps
     maps = [mainland_bounds, hawaii_bounds, alaska_bounds]
 
-
     #Create Frames for Display
-    animation_frames = [] #We want to display the map, but build up slowly, not just stack the whole thing at once
-    items_to_plot = [] #As we progress through the list of items for our display, we keep adding to stacked_items
+    animation_frames = []  #We want to display the map, but build up slowly, not just stack the whole thing at once
+    items_to_plot = []  #As we progress through the list of items for our display, we keep adding to stacked_items
     gridpoints = []
 
     # This map of USA includes Alaska and Hawaii
@@ -2102,7 +2101,7 @@ def main(config):
                 gridpoints = normalize_coordinates(subgroup, alaska_bounds, offsets[2][0], offsets[2][1])
                 items_to_plot.append(add_padding_to_child_element(get_plot(gridpoints, map_color), offsets[2][2], offsets[2][3]))
 
-            # Animation Frames start with each group of outlines for USA areas 
+            # Animation Frames start with each group of outlines for USA areas
             animation_frames.append(render.Stack(children = items_to_plot))
 
     # now add all items
@@ -2173,8 +2172,9 @@ def main(config):
 
                 if config.get("showCount") == "true":
                     display_text = ("%s" % (total_visited))
-                    items_to_plot.append(add_padding_to_child_element(render.Box(color="#000", width=10,height=5),SCREEN_WIDTH + 1 - (4 * len(display_text)), SCREEN_HEIGHT - 5))
+                    items_to_plot.append(add_padding_to_child_element(render.Box(color = "#000", width = 10, height = 5), SCREEN_WIDTH + 1 - (4 * len(display_text)), SCREEN_HEIGHT - 5))
                     items_to_plot.append(add_padding_to_child_element(render.Text(display_text, font = "CG-pixel-3x5-mono", color = visited_color), SCREEN_WIDTH + 1 - (4 * len(display_text)), SCREEN_HEIGHT - 5))
+
                     # Frame 4 is map + unvisited + visited + Count
                     animation_frames.append(render.Stack(children = items_to_plot))
 
@@ -2184,13 +2184,12 @@ def main(config):
     # Add several frames of the final product to keep on screen for longer
     for _ in range(100):
         animation_frames.append(render.Stack(children = items_to_plot))
-    
+
     return render.Root(
         delay = 75,
         child = render.Animation(
             children = animation_frames,
         ),
-
     )
 
 def get_location_options(locations):
