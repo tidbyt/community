@@ -19,7 +19,7 @@ IMAGE_BASE_DARK = "https://a.espncdn.com/i/teamlogos/mlb/500-dark/scoreboard/"
 TEAMS = [
     {"name": "Angels", "id": 108, "nick": "LAA", "image": "%slaa.png" % IMAGE_BASE},
     {"name": "Astros", "id": 117, "nick": "HOU", "image": "%shou.png" % IMAGE_BASE},
-    {"name": "Athletics", "id": 133, "nick": "OAK", "image": "%soak.png" % IMAGE_BASE_DARK},
+    {"name": "Athletics", "id": 133, "nick": "ATH", "image": "%soak.png" % IMAGE_BASE_DARK},
     {"name": "Blue Jays", "id": 141, "nick": "TOR", "image": "%stor.png" % IMAGE_BASE},
     {"name": "Braves", "id": 144, "nick": "ATL", "image": "%satl.png" % IMAGE_BASE},
     {"name": "Brewers", "id": 158, "nick": "MIL", "image": "%smil.png" % IMAGE_BASE},
