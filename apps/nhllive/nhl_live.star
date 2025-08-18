@@ -15,7 +15,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-APP_VERSION = "2.2.0"
+APP_VERSION = "2.3.0"
 
 # Constants
 DEFAULT_LOCATION = """
@@ -94,7 +94,7 @@ TEAMS_LIST = {
     # 53: {"name": "Arizona Coyotes", "abbreviation": "ARI"}, LOL
     54: {"name": "Vegas Golden Knights", "abbreviation": "VGK"},
     55: {"name": "Seattle Kraken", "abbreviation": "SEA"},
-    59: {"name": "Utah Hockey Club", "abbreviation": "UTA", "abbr_fix": "UTAH"},
+    68: {"name": "Utah Mammoth", "abbreviation": "UTA", "abbr_fix": "UTAH"},
 }
 
 # Main App
