@@ -354,7 +354,7 @@ KC_TEAM_ID = 118  #Kansas City Royals
 LAD_TEAM_ID = 119  #Los Angeles Dodgers
 WAS_TEAM_ID = 120  #Washington Nationals
 NYM_TEAM_ID = 121  #New York Mets
-OAK_TEAM_ID = 133  #Oakland Athletics
+ATH_TEAM_ID = 133  #Athletics
 PIT_TEAM_ID = 134  #Pittsburgh Pirates
 SD_TEAM_ID = 135  #San Diego Padres
 SEA_TEAM_ID = 136  #Seattle Mariners
@@ -445,8 +445,8 @@ NYM_LOGO = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAB30lEQVRYCe1XXU7DMAxOxp7gJgXtSkg7AsfhAQnOBDsJ4gko+aLacRI7IV0RQiJSW/fz3+fESTfvDnez+8Wxs3LP1w8Olxwa1tP3fLw2A/MUEnsZupb9yzEDS7KZEi9hnv0p9wG8x00blEAGJuxtetRcXNR/7N18uGc9+cSiGE2CugQaU7gQmcvTbYqwSJTIXbwLXWovK6ZKQESoRKuSyvCbwDAB9MaWJMYJoLINSQwR8M/HNLEbkRgiEIuX269LIhh0hnoOwIc6vvSPs4DEdEjtQteHrUddznjhyLukxNccRBUJ2m2tgo2DaHgJUMB8E05KBKTlQOIlOWOxUmIWX9Rbk0AeTCQMoSoSASvtkVHDgNNQCdB6kpF8VgE/U4h4PhhFWzG73wKZnGUkQSNiKeQARs0p8Iq00CX6AuyJWjWcZOmFXgzSryJAzuWTSZSKxvtqAjKZJTfysmo1AY5wpqAS6H3tND2wKy9/C4BZagjNBxbmLtC6mTFjq71OT4iZjZ6POgOyy7G+dFFkqdcwsufeCN8LzQe+5seIAreeVB0nahkbOnUGDNsfgf8J/K0ZkHuZGhCNkcn4VzUwzHPAiiGTSRvGjTNC2kp5aAnKvUz7XQYsbaROk886B7SAo9gXR3+qFEXscLkAAAAASUVORK5CYII=
 """)
 
-#id: 133 - Oakland Athletics
-OAK_LOGO = base64.decode("""
+#id: 133 - Athletics
+ATH_LOGO = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAADvElEQVRYCe1XO28TQRCevbNjG/K4KOmQ8oKAQocQCKFISDwSCXD8BxC/gZIGAR0l/4MGE1EQFERBBUIKFKAQEZKCBhLZsazYTpw75tv13u05uTtHMaJhLe9jdh7fzM7O2oIunfPoHzbrMLZL9zcJ3262jgBow07+s7TdTRCpJG9grK+wSjZ/0JzCOvdNKtFJGnwyJGlH6WIjAOP9+RWyXZiQXctWIu6OMSVqqsxPhpSpCCASKxyFySNHIRGAGWZ19oiExfFIFA0Bj1rEHoFpPFCgRCwGkcuOBOTW7LAJGutGkrLM7CKV6sEx1B+nKHN1hfZyV8h+2JCQDtJhOhYJAILO7Aei7DCHG/7qpo5ArXo0UY6ulyM3xSo90BuyZsicQakTitUDnU77uRPoVfvhvmeIysVxpm2H6aEbEWxl2LBFv6lmt6zpLVGm6qsbvNpgHOo6661YAOX5CYm0Upxi/qaU8TyvBQpLl/puL/nVsSY2qfb2DvU+qEha3xxqBtHuwk0SdoOqb+7Szutp33vsRR6BeU5g9PgDv7ZeTGDJIEZlUbLtQblGt1vfpMFH/pJs8ZMXJyg9847SLktbDaovTktwWn9sBAJV8JVZW8+WFjb3MTfpmJeLl8l1WzljAX6WstfeM/BlP2qREWhXjlLsCigzm1o7cx85sc6HAIBr/GmFNnIXeSaoXPslIyYT2s36ShIjgNswMLcmBSoyIclHrxKUVYhhX6E5+XGvn+yZZ7Rr7SrywgV1m6zAkY4jAA26DJtGoubyGnOoPS9N6etL5FCdvB3kUWAcsocCoIxBAQKnR0UFuBKN+seAHCjRGbk5wA8aiQyXB6SyRRVOYJ0vsQBk+PPrJHD1XowqS229U/jOlFSbX4pJG8GjZTZNBy0WABgE7bHDqniYgtgDwCb7BCVxydQuB1nd4uQUDxt3W0VIC+kRiqvFU3rJObLqJ6gmAiS+US0SAISc/DcpVyl2+usnXGahYyC/HGVb0vcdgYnWtTIc2nDWQgo8ZlhRnoVAoVFN6+gtrNFWcUyTDxx9AFrIya+Ry1UrCA2/+zNfOaPxHqjm5L/w+qwEASAlGvOvaPiqKvAmWK1DjxIAjDu3PnFK9jN9j31OGQBcyuSOUUb+GIWYKx+jfUqNJ1dxNfm6JR+dHwGXjetKBwVmM71C9dtnHMyiyl2vL2Zx4emkidLzkdYTE35MTGF9PKAdaJzp4DnOCZe2stRoblPt5VQkr6lbdPOvWSdATeOYdxVAu/JO1kGyd8L9F3j+A/gD8NpGOtOs364AAAAASUVORK5CYII=
 """)
 
@@ -530,6 +530,7 @@ def struct_TeamDefinition(name, abbrev, logo, foreground_color, background_color
 
 TEAM_INFO = {
     ARI_TEAM_ID: struct_TeamDefinition("Arizona DiamondBacks", "ARI", ARI_LOGO, "#E3D4AD", "#A71930"),
+    ATH_TEAM_ID: struct_TeamDefinition("Athletics", "ATH", ATH_LOGO, "#EFB21E", "#003831"),
     ATL_TEAM_ID: struct_TeamDefinition("Atlanta Braves", "ATL", ATL_LOGO, "#FFFFFF", "#13274F"),
     BOS_TEAM_ID: struct_TeamDefinition("Boston Red Sox", "BOS", BOS_LOGO, "#FFFFFF", "#0C2340"),
     BAL_TEAM_ID: struct_TeamDefinition("Baltimore Orioles", "BAL", BAL_LOGO, "#DF4701", "#000000"),
@@ -548,7 +549,6 @@ TEAM_INFO = {
     MIN_TEAM_ID: struct_TeamDefinition("Minnesota Twins", "MIN", MIN_LOGO, "#FFFFFF", "#002B5C"),
     NYM_TEAM_ID: struct_TeamDefinition("New York Mets", "NYM", NYM_LOGO, "#FF5910", "#002D72"),
     NYY_TEAM_ID: struct_TeamDefinition("New York Yankees", "NYY", NYY_LOGO, "#C4CED3", "#0C2340"),
-    OAK_TEAM_ID: struct_TeamDefinition("Oakland Athletics", "OAK", OAK_LOGO, "#EFB21E", "#003831"),
     PHI_TEAM_ID: struct_TeamDefinition("Philadelphia Phillies", "PHI", PHI_LOGO, "#FFFFFF", "#E81828"),
     PIT_TEAM_ID: struct_TeamDefinition("Pittsburgh Pirates", "PIT", PIT_LOGO, "#FDB827", "#27251F"),
     SEA_TEAM_ID: struct_TeamDefinition("Seattle Mariners", "SEA", SEA_LOGO, "#C4CED4", "#0C2C56"),

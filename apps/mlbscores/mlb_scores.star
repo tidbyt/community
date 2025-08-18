@@ -517,6 +517,10 @@ teamOptions = [
         value = "ARI",
     ),
     schema.Option(
+        display = "Athletics",
+        value = "ATH",
+    ),
+    schema.Option(
         display = "Atlanta Braves",
         value = "ATL",
     ),
@@ -587,10 +591,6 @@ teamOptions = [
     schema.Option(
         display = "New York Yankees",
         value = "NYY",
-    ),
-    schema.Option(
-        display = "Oakland Athletics",
-        value = "OAK",
     ),
     schema.Option(
         display = "Philadelphia Phillies",
