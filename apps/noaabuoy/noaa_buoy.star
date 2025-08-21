@@ -73,7 +73,7 @@ def fetch_data(buoy_id, last_data):
     debug_print("url: " + url)
     resp = http.get(url, ttl_seconds = 600)  # 10 minutes http cache time
     debug_print(resp)
-    if resp.status_code != 200:
+    if resp.status_code != 200 or "Invalid Station ID" in resp.body():
         if len(last_data) != 0:
             if "stale" not in last_data:
                 last_data["stale"] = 1
@@ -84,6 +84,10 @@ def fetch_data(buoy_id, last_data):
         elif resp.status_code == 404:
             data["name"] = buoy_id
             data["error"] = "No Data"
+            return data
+        elif "Invalid Station ID" in resp.body():
+            data["name"] = buoy_id
+            data["error"] = "Invalid Station"
             return data
         else:
             data["name"] = buoy_id
@@ -124,7 +128,9 @@ def fetch_data(buoy_id, last_data):
     wave_start = html.find("<h2>Wave Summary</h2>")
     wave_p_start = html.find("<p>", wave_start)
     wave_p_end = html.find("</p>", wave_p_start)
+    wave_summary_found = False
     if wave_start != -1 and wave_p_start != -1 and wave_p_end != -1:
+        wave_summary_found = True
         wave = html[wave_p_start + 3:wave_p_end]
 
         # Swell (WVHT, override if present)
@@ -185,7 +191,21 @@ def fetch_data(buoy_id, last_data):
     # Wind Speed, Gust, Direction (not present in mobile page)
 
     # Fallback to last_data for missing fields
-    for k in ["WVHT", "DPD", "MWD", "WTMP"]:
+    # If Wave Summary section was not found, mark data as stale and use last_data for swell fields
+    if not wave_summary_found and len(last_data) != 0:
+        if "stale" not in data:
+            data["stale"] = 1
+        else:
+            data["stale"] = data["stale"] + 1
+        debug_print("Wave Summary missing, using last data. Stale counter: " + str(data.get("stale", 0)))
+
+        # Use last_data for swell-related fields when wave summary is missing
+        for k in ["WVHT", "DPD", "MWD", "WIND_WVHT", "WIND_DPD", "WIND_MWD"]:
+            if k not in data or data[k] == None:
+                data[k] = last_data.get(k)
+
+    # General fallback for all fields
+    for k in ["WVHT", "DPD", "MWD", "WTMP", "WIND_WVHT", "WIND_DPD", "WIND_MWD"]:
         if k not in data or data[k] == None:
             data[k] = last_data.get(k)
 
@@ -528,6 +548,92 @@ def main(config):
                     ),
                 ),
             )
+            # Even if no misc data, check if we have swell data to display instead of "Nothing to Display"
+
+        elif data.get("DPD"):
+            # If wind swell option is selected and wind swell data is present, display wind swell instead of ground swell
+            show_wind_swell = config.bool("wind_swell", False)
+            use_wind = show_wind_swell and data.get("WIND_WVHT") and data.get("WIND_DPD")
+            if use_wind:
+                height = data["WIND_WVHT"]
+                period = data["WIND_DPD"]
+                mwd = data.get("WIND_MWD", "--")
+            else:
+                height = data["WVHT"]
+                period = data["DPD"]
+                mwd = data.get("MWD", "--")
+            if type(height) == type(""):
+                if height.replace(".", "", 1).isdigit():
+                    height_f = float(height)
+                else:
+                    height_f = 0.0
+            else:
+                height_f = float(height)
+            if (height_f < 2):
+                swell_color = color_small
+            elif (height_f < 5):
+                swell_color = color_medium
+            elif (height_f < 12):
+                swell_color = color_big
+            elif (height_f >= 13):
+                swell_color = color_huge
+
+            unit_display = "f"
+            if h_unit_pref == "meters":
+                unit_display = "m"
+
+                # Only convert if height is a number
+                if type(height) == type("") and height.replace(".", "", 1).isdigit():
+                    height = float(height) / 3.281
+                    height = int(height * 10)
+                    height = height / 10.0
+                elif type(height) != type(""):
+                    height = float(height) / 3.281
+                    height = int(height * 10)
+                    height = height / 10.0
+
+            wtemp = ""
+            if (data.get("WTMP") and config.bool("display_temps", True)):
+                wt = data["WTMP"]
+                if (t_unit_pref == "C"):
+                    wt = FtoC(wt)
+                wt = int(float(wt) + 0.5)
+                wtemp = " %s%s" % (str(wt), t_unit_pref)
+
+            if not swell_over_threshold(min_size, h_unit_pref, data, use_wind):
+                return []
+
+            period_display = str(int(float(period) + 0.5)) if type(period) == type("") and period.replace(".", "", 1).isdigit() else str(period)
+
+            # Add stale indicator if data is stale
+            buoy_display_name = buoy_name
+            if "stale" in data and data["stale"] > 0:
+                buoy_display_name = buoy_name + "*"
+
+            return render.Root(
+                child = render.Box(
+                    render.Column(
+                        cross_align = "center",
+                        main_align = "center",
+                        children = [
+                            render.Text(
+                                content = buoy_display_name,
+                                font = "tb-8",
+                                color = swell_color,
+                            ),
+                            render.Text(
+                                content = "%s%s %ss" % (height, unit_display, period_display),
+                                font = "6x13",
+                                color = swell_color,
+                            ),
+                            render.Text(
+                                content = "%s°%s" % (mwd, wtemp),
+                                color = "#FFAA00",
+                            ),
+                        ],
+                    ),
+                ),
+            )
         else:
             return render.Root(
                 child = render.Box(
@@ -554,30 +660,116 @@ def main(config):
                 ),
             )
     else:
-        return render.Root(
-            child = render.Box(
-                render.Column(
-                    cross_align = "center",
-                    main_align = "center",
-                    children = [
-                        render.Text(
-                            content = buoy_name,
-                            font = "tb-8",
-                            color = swell_color,
-                        ),
-                        render.Text(
-                            content = "Nothing to",
-                            font = "tb-8",
-                            color = "#FF0000",
-                        ),
-                        render.Text(
-                            content = "Display",
-                            color = "#FF0000",
-                        ),
-                    ],
+        # Check if we have swell data to display instead of "Nothing to Display"
+        if data.get("DPD"):
+            # If wind swell option is selected and wind swell data is present, display wind swell instead of ground swell
+            show_wind_swell = config.bool("wind_swell", False)
+            use_wind = show_wind_swell and data.get("WIND_WVHT") and data.get("WIND_DPD")
+            if use_wind:
+                height = data["WIND_WVHT"]
+                period = data["WIND_DPD"]
+                mwd = data.get("WIND_MWD", "--")
+            else:
+                height = data["WVHT"]
+                period = data["DPD"]
+                mwd = data.get("MWD", "--")
+            if type(height) == type(""):
+                if height.replace(".", "", 1).isdigit():
+                    height_f = float(height)
+                else:
+                    height_f = 0.0
+            else:
+                height_f = float(height)
+            if (height_f < 2):
+                swell_color = color_small
+            elif (height_f < 5):
+                swell_color = color_medium
+            elif (height_f < 12):
+                swell_color = color_big
+            elif (height_f >= 13):
+                swell_color = color_huge
+
+            unit_display = "f"
+            if h_unit_pref == "meters":
+                unit_display = "m"
+
+                # Only convert if height is a number
+                if type(height) == type("") and height.replace(".", "", 1).isdigit():
+                    height = float(height) / 3.281
+                    height = int(height * 10)
+                    height = height / 10.0
+                elif type(height) != type(""):
+                    height = float(height) / 3.281
+                    height = int(height * 10)
+                    height = height / 10.0
+
+            wtemp = ""
+            if (data.get("WTMP") and config.bool("display_temps", True)):
+                wt = data["WTMP"]
+                if (t_unit_pref == "C"):
+                    wt = FtoC(wt)
+                wt = int(float(wt) + 0.5)
+                wtemp = " %s%s" % (str(wt), t_unit_pref)
+
+            if not swell_over_threshold(min_size, h_unit_pref, data, use_wind):
+                return []
+
+            period_display = str(int(float(period) + 0.5)) if type(period) == type("") and period.replace(".", "", 1).isdigit() else str(period)
+
+            # Add stale indicator if data is stale
+            buoy_display_name = buoy_name
+            if "stale" in data and data["stale"] > 0:
+                buoy_display_name = buoy_name + "*"
+
+            return render.Root(
+                child = render.Box(
+                    render.Column(
+                        cross_align = "center",
+                        main_align = "center",
+                        children = [
+                            render.Text(
+                                content = buoy_display_name,
+                                font = "tb-8",
+                                color = swell_color,
+                            ),
+                            render.Text(
+                                content = "%s%s %ss" % (height, unit_display, period_display),
+                                font = "6x13",
+                                color = swell_color,
+                            ),
+                            render.Text(
+                                content = "%s°%s" % (mwd, wtemp),
+                                color = "#FFAA00",
+                            ),
+                        ],
+                    ),
                 ),
-            ),
-        )
+            )
+        else:
+            return render.Root(
+                child = render.Box(
+                    render.Column(
+                        cross_align = "center",
+                        main_align = "center",
+                        children = [
+                            render.Text(
+                                content = buoy_name,
+                                font = "tb-8",
+                                color = swell_color,
+                            ),
+                            render.Text(
+                                content = "Nothing to",
+                                font = "tb-8",
+                                color = "#FF0000",
+                            ),
+                            render.Text(
+                                content = "Display",
+                                color = "#FF0000",
+                            ),
+                        ],
+                    ),
+                ),
+            )
 
 def get_stations(location):
     station_options = list()
