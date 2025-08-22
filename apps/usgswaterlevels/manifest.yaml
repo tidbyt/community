@@ -1,0 +1,6 @@
+---
+id: usgs-water-levels
+name: USGS Water Levels
+summary: Shows USGS Water Info
+desc: This app shows data from the USGS sensor network, allowing you to display water levels, temperatures, and other info.
+author: nalanbar
