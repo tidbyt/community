@@ -3,6 +3,7 @@ Applet: Pokedex+
 Summary: Pokémon Pokédex
 Description: Displays a random Pokedex entry from any generation. This includes its name, image, number, and a scrolling PokeDex entry description. Customizable font color and background color allows users to customize the app to their liking.
 Author: Forrest Syrett
+Collaborators: Eric Pierce
 """
 
 load("encoding/json.star", "json")
@@ -33,7 +34,7 @@ def main(config):
 
     if region == "National":
         min = 1
-        max = 898
+        max = 1025
     elif region == "Kanto":
         min = 1
         max = 151
@@ -58,6 +59,12 @@ def main(config):
     elif region == "Galar":
         min = 810
         max = 898
+    elif region == "Hisui":
+        min = 899
+        max = 905
+    elif region == "Paldea":
+        min = 906
+        max = 1025
     else:
         pass
 
@@ -138,7 +145,7 @@ def main(config):
     )
 
 def get_schema():
-    regions = ["National", "Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar"]
+    regions = ["National", "Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea"]
     regionOptions = []
     for region in regions:
         regionOptions.append(schema.Option(display = region, value = region))

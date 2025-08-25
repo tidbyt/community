@@ -22,6 +22,9 @@ CPI_DATA_SET_KEY_NAME = "cpi_tracker_CPIDataSetKeyName"
 CPI_CON_COLORS = ["#B31942", "#FFFFFF", "#0A3161", "#B31942", "#FFFFFF"]
 SELECTED_SERIES_DATA = [["CUUR0000SA0", "All Items", "#FFD700", "Gold"], ["CUUR0000SA0E", "Energy", "#FFFF00", "Yellow"], ["CUUR0000SAC", "Commodities", "#8B4513", "Earthy Brown"], ["CUUR0000SAD", "Durables", "#4682B4", "Steel Blue"], ["CUUR0000SAF1", "Food", "#32CD32", "Green"], ["CUUR0000SAH", "Housing", "#B22222", "Brick Red"], ["CUUR0000SAT", "Transportation", "#FF8C00", "Orange"], ["CUUR0000SAM", "Medical", "#FFFFFF", "White"], ["CUUR0000SAE1", "Education", "#1E90FF", "Academic Blue"]]
 
+SCREEN_HEIGHT = 32
+SCREEN_WIDTH = 64
+
 display_type = [
     schema.Option(display = "Display The Main CPI Index", value = "CPI"),
     schema.Option(display = "Display selected categories of CPI", value = "Categories"),
@@ -43,7 +46,7 @@ def get_category_options(type):
     # Loop through each item and print the values
     if (type == "Categories"):
         for item in SELECTED_SERIES_DATA:
-            display_options.append(schema.Toggle(id = item[0], name = item[1], desc = "%s  (in %s)" % (item[1], item[3]), icon = "gear", default = False))
+            display_options.append(schema.Toggle(id = item[0], name = item[1], desc = "%s  (in %s)" % (item[1], item[3]), icon = "check", default = False))
 
     return display_options
 
@@ -67,22 +70,22 @@ def display_instructions(config):
         render.Column(
             children = [
                 render.Marquee(
-                    width = 64,
+                    width = SCREEN_WIDTH,
                     child = render.Text(title, color = CPI_CON_COLORS[0], font = "5x8"),
                 ),
                 render.Marquee(
-                    width = 64,
+                    width = SCREEN_WIDTH,
                     child = render.Text(instructions_1, color = CPI_CON_COLORS[1]),
                     offset_start = len(title) * 5,
                 ),
                 render.Marquee(
                     offset_start = (len(title) + len(instructions_1)) * 5,
-                    width = 64,
+                    width = SCREEN_WIDTH,
                     child = render.Text(instructions_2, color = CPI_CON_COLORS[2]),
                 ),
                 render.Marquee(
                     offset_start = (len(title) + len(instructions_2) + len(instructions_1)) * 5,
-                    width = 64,
+                    width = SCREEN_WIDTH,
                     child = render.Text(instructions_3, color = CPI_CON_COLORS[3]),
                 ),
             ],
@@ -145,13 +148,13 @@ def plot_cpi_data(formatted_data, color, show_info_bar):
     # Combine months and values into a list of data points
     data = [(month, value) for month, value in zip(months, cpi_values)]
 
-    height = 25 if show_info_bar else 32
+    height = SCREEN_HEIGHT - 7 if show_info_bar else SCREEN_HEIGHT
 
     # Use render.plot to create a line graph
     return render.Plot(
         data = data,
         color = color,
-        width = 64,
+        width = SCREEN_WIDTH,
         height = height,
     )
 
@@ -219,11 +222,10 @@ def main(config):
 
     show_info_bar = config.bool("info_bar", False)
 
-    # We will display data now, let's plot each selected series
-
     # store the items we add to the display in children
-    children = []
-    messages = []
+    animation_frames = []  #
+    children = []  #Items that go into a stack
+    messages = []  #building up the string to display
 
     # default to sample data
     data = SAMPLE_DATA
@@ -251,6 +253,33 @@ def main(config):
         plot_data = extract_filtered_data(data, item, int(config.get("display_time_period", display_time_period[0].value)))
         children.append(plot_cpi_data(plot_data, get_series_color(item), show_info_bar))
 
+    #snapshot of just the chart display lines
+    chart_display_children = children
+
+    # I have the chart display, but I want to expose it one pixel column at a time
+    current_scene = render.Box(color = "#000", width = SCREEN_WIDTH, height = SCREEN_HEIGHT)
+    for i in range(SCREEN_WIDTH + 1):  #range(SCREEN_WIDTH):
+        #Create animation images of the stack chart, and a box so that the animation works
+
+        current_scene = render.Stack(
+            children = [
+                render.Stack(children = chart_display_children),
+                add_padding_to_child_element(
+                    render.Box(color = "#000", width = SCREEN_WIDTH - i, height = SCREEN_HEIGHT),
+                    i,
+                ),
+            ],
+        )
+
+        animation_frames.append(current_scene)
+
+    # Hold for a few frames
+    for i in range(25):
+        animation_frames.append(current_scene)
+
+    #Reset Children for the overlay of info
+    children = []
+
     # Add some generic info on the time period from the first data set
     first_item = json.decode(data)["Results"]["series"][0]["data"][0]
     year = first_item["year"]
@@ -266,7 +295,7 @@ def main(config):
 
     if show_info_bar:
         children.append(add_padding_to_child_element(render.Marquee(
-            width = 64,
+            width = SCREEN_WIDTH,
             child = render.Row(messages),
             offset_start = 0,
             offset_end = 0,
@@ -275,12 +304,16 @@ def main(config):
     else:
         #display some data
         message = "%s months" % (int(config.get("display_time_period", display_time_period[0].value)))
-        children.append(add_padding_to_child_element(render.Text(message, color = "#666", font = "CG-pixel-3x5-mono"), 64 - (len(message) * 4), 32 - 5))
+        children.append(add_padding_to_child_element(render.Text(message, color = "#666", font = "CG-pixel-3x5-mono"), SCREEN_WIDTH - (len(message) * 4), SCREEN_HEIGHT - 5))
+
+    all_elements = [
+        render.Animation(children = animation_frames),
+    ]
+
+    all_elements.append(render.Stack(children = children))
 
     return render.Root(
-        render.Stack(
-            children = children,
-        ),
+        child = render.Stack(children = all_elements),
         show_full_animation = True,
         delay = int(config.get("scroll", 45)),
     )

@@ -502,6 +502,10 @@ teamOptions = [
         value = "DAL",
     ),
     schema.Option(
+        display = "Golden State Valkyries",
+        value = "GS",
+    ),
+    schema.Option(
         display = "Indiana Fever",
         value = "IND",
     ),

@@ -1,0 +1,6 @@
+---
+id: muni-departures
+name: Muni Departures
+summary: SF Muni Departures
+desc: Displays real-time arrival info for selected Muni routes and stops in San Francisco. Configure with your chosen stop IDs to see the next departures.
+author: Bobby Schimm

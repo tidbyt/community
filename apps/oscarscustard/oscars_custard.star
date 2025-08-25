@@ -301,7 +301,7 @@ def get_featured_items():
 
     # Extract the flavor of the day
     flavor_match = re.match(
-        r"Flavor of the Day.+:\s+(.+)(?:January|February|March|April|May|" +
+        r"FLAVOR OF THE DAY.+:\s+(.+)(?:January|February|March|April|May|" +
         r"June|July|August|September|October|November|December) ",
         text,
     )
