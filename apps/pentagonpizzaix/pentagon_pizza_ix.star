@@ -40,9 +40,10 @@ def extract(data):
 
 ppi_up_color = "#f00"
 ppi_down_color = "#0f0"
-bg_color = "#000000"
 up_arrow = "↑"
 down_arrow = "↓"
+bg_color = "#000000"
+pizza_slice = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"> <defs> <style> .crust { fill: #c68642; stroke: #000; stroke-width: 2; } .cheese { fill: #f7d774; stroke: #000; stroke-width: 2; } .pep { fill: #b33a3a; stroke: #b33a3a; stroke-width: 1; } </style> <clipPath id="sliceClip"> <polygon points="10,10 110,10 60,110"/> </clipPath> </defs> <polygon points="10,10 110,10 60,110" class="cheese"/> <rect x="10" y="5" width="100" height="10" rx="5" ry="5" class="crust"/> <g clip-path="url(#sliceClip)"> <!-- Left side --> <circle cx="25" cy="28" r="7" class="pep"/> <circle cx="35" cy="55" r="7" class="pep"/> <circle cx="40" cy="80" r="7" class="pep"/> <circle cx="95" cy="28" r="7" class="pep"/> <circle cx="75" cy="55" r="7" class="pep"/> <circle cx="65" cy="80" r="7" class="pep"/> <circle cx="50" cy="38" r="7" class="pep"/> <circle cx="60" cy="60" r="7" class="pep"/> <circle cx="55" cy="78" r="7" class="pep"/> <circle cx="60" cy="95" r="7" class="pep"/> <circle cx="70" cy="42" r="7" class="pep"/> <circle cx="80" cy="72" r="7" class="pep"/> </g> </svg>'
 
 def getArrow(val):
     if val > 0:
@@ -67,69 +68,54 @@ def main():
     d1_arrow, d1_arrow_color = getArrow(d1h)
     d24_arrow, d24_arrow_color = getArrow(d24h)
 
-    background = render.Box(color = bg_color)
+    marqueeDisplay = render.Marquee(
+        width = 64,
+        height = 10,
+        child = render.Row(
+            expanded = True,
+            main_align = "start",
+            cross_align = "start",
+            children = [
+                render.Image(pizza_slice, height = 10, width = 10),
+                render.Text("Pentagon Pizza Index: " + str(int(cur))),
+                render.Text(cur_arrow, color = cur_arrow_color),
+                render.Image(pizza_slice, height = 10, width = 10),
+                render.Text("1H:" + str(d1h)),
+                render.Text(d1_arrow, color = d1_arrow_color),
+                render.Image(pizza_slice, height = 10, width = 10),
+                render.Text("24H:" + str(d24h)),
+                render.Text(d24_arrow, color = d24_arrow_color),
+                render.Image(pizza_slice, height = 10, width = 10),
+            ],
+        ),
+        offset_start = 64,
+        offset_end = 64,
+    )
 
-    marqueeDisplay = render.Row(
+    spacer = render.Row(
         expanded = True,
         main_align = "start",
         cross_align = "start",
         children = [
-            render.Text("Pentagon Pizza Index: " + str(int(cur))),
-            render.Text(cur_arrow, color = cur_arrow_color),
-            render.Text(".....1H:" + str(d1h)),
-            render.Text(d1_arrow, color = d1_arrow_color),
-            render.Text(".....24H:" + str(d24h)),
-            render.Text(d24_arrow, color = d24_arrow_color),
+            render.Box(color = bg_color, height = 1),
         ],
     )
 
-    chart = render.Column(
-        children = [
-            render.Row(
-                expanded = True,
-                main_align = "start",
-                cross_align = "start",
-                children = [
-                    render.Marquee(
-                        width = 64,
-                        height = 10,
-                        child = marqueeDisplay,
-                        offset_start = 5,
-                        offset_end = 64,
-                    ),
-                ],
-            ),
-            render.Row(
-                expanded = True,
-                main_align = "start",
-                cross_align = "start",
-                children = [
-                    render.Box(color = bg_color, height = 1),
-                ],
-            ),
-            render.Row(
-                expanded = True,
-                main_align = "start",
-                cross_align = "start",
-                children = [
-                    render.Plot(
-                        series,
-                        width = 64,
-                        height = 22,
-                        color = ppi_up_color,
-                        y_lim = (-100, 50),
-                        color_inverted = ppi_down_color,
-                        fill = True,
-                    ),
-                ],
-            ),
-        ],
+    chartDisplay = render.Plot(
+        series,
+        width = 64,
+        height = 21,
+        color = ppi_up_color,
+        y_lim = (-100, 100),
+        color_inverted = ppi_down_color,
+        fill = True,
     )
 
-    display = render.Stack(
+    display = render.Column(
         children = [
-            background,
-            chart,
+            marqueeDisplay,
+            spacer,
+            chartDisplay,
         ],
     )
 
