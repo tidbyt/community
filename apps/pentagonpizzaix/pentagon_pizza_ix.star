@@ -97,7 +97,7 @@ def main():
         main_align = "start",
         cross_align = "start",
         children = [
-            render.Box(color = bg_color, height = 1),
+            render.Box(color = bg_color, height = 2),
         ],
     )
 
