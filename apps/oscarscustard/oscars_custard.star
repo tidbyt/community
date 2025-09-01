@@ -296,13 +296,18 @@ def get_featured_items():
     )
     if sandwich_match:
         items["sandwich"] = normalize_flavor_name(sandwich_match[0][1])
+
+        # HACK The regex doesn't properly handle when the following
+        # description starts with the capitalized word "A", so I remove
+        # it here.
+        items["sandwich"] = items["sandwich"].removesuffix(" A")
     else:
         items["sandwich"] = "Unrecognized sandwich"
 
     # Extract the flavor of the day
     flavor_match = re.match(
-        r"FLAVOR OF THE DAY.+:\s+(.+)(?:January|February|March|April|May|" +
-        r"June|July|August|September|October|November|December) ",
+        r"FLAVOR OF THE DAY.+:\s+(.+)(?:JANUARY|FEBRUARY|MARCH|APRIL|MAY|" +
+        r"JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER) ",
         text,
     )
     if flavor_match:
