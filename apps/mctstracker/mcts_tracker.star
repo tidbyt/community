@@ -47,12 +47,12 @@ BUS_COLORS = {
     "20": ("#93d400", "#fff"),
     "21": ("#01b3e3", "#fff"),
     "22": ("#ec012c", "#fff"),
-    "24": ("#0f4b91", "#fff"),
+    "24": ("#a67cc6", "#fff"),
     "28": ("#ffd601", "#332f2a"),
     "30": ("#00af97", "#fff"),
     "31": ("#00b252", "#fff"),
     "33": ("#ec012c", "#fff"),
-    "34": ("#863498", "#fff"),
+    "34": ("#a67cc6", "#fff"),
     "35": ("#863498", "#fff"),
     "40U": ("#008558", "#fff"),
     "44U": ("#008558", "#fff"),
@@ -65,6 +65,7 @@ BUS_COLORS = {
     "56": ("#863498", "#fff"),
     "57": ("#0074cb", "#fff"),
     "58": ("#ff8400", "#fff"),
+    "59": ("#21417e", "#fff"),
     "60": ("#ffd601", "#332f2a"),
     "63": ("#01b3e3", "#fff"),
     "66": ("#863498", "#fff"),
@@ -74,6 +75,8 @@ BUS_COLORS = {
     "81": ("#ff8400", "#fff"),
     "88": ("#ff8400", "#fff"),
     "92": ("#b31782", "#fff"),
+    "HF1": ("#c8c8c8", "#332f2a"),
+    "HF2": ("#c8c8c8", "#332f2a"),
     "RR1": ("#0065fd", "#fff"),
     "RR2": ("#0000cb", "#fff"),
     "RR3": ("#039a01", "#fff"),
@@ -178,12 +181,20 @@ def get_stop_info_eta(stop_id):
 
         # "Prediction units"
         # NOTE: The units are almost always " MINUTES", but they can be
-        # "APPROACHING" or "DELAYED" if the bus is in those states.
+        # "APPROACHING" or "DELAYED" if the bus is in those states. It
+        # can also be something like "3:04 PM SCH" if the bus is
+        # scheduled to come later.
         pu = pre.query("pu")
         if pu == "APPROACHING":
             bus_info = "DUE"
         elif pu == "DELAYED":
             bus_info = "DLY"
+        elif pu.endswith(" SCH"):
+            pu = pu.removesuffix(" SCH")
+
+            # Remove space, and remove "M" in "AM" or "PM"
+            pu = pu.replace(" ", "").replace("M", "")
+            bus_info = pu
         else:
             # Prediction time (in minutes)
             bus_info = "%s MIN" % pre.query("pt")
