@@ -58,7 +58,7 @@ def getArrow(val):
 def isPizzaClosed():
     now = time.now().in_location("America/New_York")
 
-    return now.hour >= 0 and now.hour > 10
+    return now.hour >= 0 and now.hour < 10
 
 def noPizza():
     display = render.Stack(
