@@ -1,12 +1,13 @@
 """
 Applet: Pentagon Pizza IX
 Summary: Track Pentagon Pizza Index
-Description: My index tracking pizza prices near the pentagon!
+Description: My index tracking pizza prices near the pentagon! Powered by BestTime http://besttime.app !
 Author: eSoLu
 """
 
 load("http.star", "http")
 load("render.star", "render")
+load("time.star", "time")
 
 # ---- Hardcoded settings ----
 ENDPOINT = "https://qsoybchuihyhdillvant.functions.supabase.co/ppi-public"
@@ -44,6 +45,7 @@ up_arrow = "↑"
 down_arrow = "↓"
 bg_color = "#000000"
 pizza_slice = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"> <defs> <style> .crust { fill: #c68642; stroke: #000; stroke-width: 2; } .cheese { fill: #f7d774; stroke: #000; stroke-width: 2; } .pep { fill: #b33a3a; stroke: #b33a3a; stroke-width: 1; } </style> <clipPath id="sliceClip"> <polygon points="10,10 110,10 60,110"/> </clipPath> </defs> <polygon points="10,10 110,10 60,110" class="cheese"/> <rect x="10" y="5" width="100" height="10" rx="5" ry="5" class="crust"/> <g clip-path="url(#sliceClip)"> <!-- Left side --> <circle cx="25" cy="28" r="7" class="pep"/> <circle cx="35" cy="55" r="7" class="pep"/> <circle cx="40" cy="80" r="7" class="pep"/> <circle cx="95" cy="28" r="7" class="pep"/> <circle cx="75" cy="55" r="7" class="pep"/> <circle cx="65" cy="80" r="7" class="pep"/> <circle cx="50" cy="38" r="7" class="pep"/> <circle cx="60" cy="60" r="7" class="pep"/> <circle cx="55" cy="78" r="7" class="pep"/> <circle cx="60" cy="95" r="7" class="pep"/> <circle cx="70" cy="42" r="7" class="pep"/> <circle cx="80" cy="72" r="7" class="pep"/> </g> </svg>'
+pizza_pie = "https://qsoybchuihyhdillvant.supabase.co/storage/v1/object/public/pizza/pizza.png"
 
 def getArrow(val):
     if val > 0:
@@ -53,7 +55,26 @@ def getArrow(val):
 
     return "", ppi_down_color
 
-def main():
+def isPizzaClosed():
+    now = time.now().in_location("America/New_York")
+
+    return now.hour >= 0 and now.hour > 10
+
+def noPizza():
+    display = render.Stack(
+        children = [
+            render.Box(
+                render.Image(http.get(pizza_pie).body(), height = 30, width = 30),
+            ),
+            render.Box(
+                render.WrappedText("No Pizza!"),
+            ),
+        ],
+    )
+
+    return display
+
+def buildPizzaRates():
     data = fetch_json()
     cur, d1h, d24h, series = extract(data)
 
@@ -118,6 +139,22 @@ def main():
             chartDisplay,
         ],
     )
+
+    display = render.Column(
+        children = [
+            marqueeDisplay,
+            spacer,
+            chartDisplay,
+        ],
+    )
+
+    return display
+
+def main():
+    if isPizzaClosed():
+        display = noPizza()
+    else:
+        display = buildPizzaRates()
 
     return render.Root(
         display,
