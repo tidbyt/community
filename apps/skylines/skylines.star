@@ -9,7 +9,6 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-
 SCREEN_WIDTH = 64
 SCREEN_HEIGHT = 32
 DEFAULT_COLORS = ["#fff", "#f00", "#00A550", "#0057B7", "#CCD9FF", "#FFECC2"]  #1 Skyline, 2 Red Dots, 3 Green Trees, 4 Text Color, 5 Star color, 6 alt star color
@@ -1061,7 +1060,6 @@ def pick_stars(coords, num_stars, seed = 0, min_spacing = 2):
     return chosen
 
 def main(config):
-
     CITIES_BY_NAME = {city["name"]: city for city in CITIES}
     city_names = CITIES_BY_NAME.keys()
 
