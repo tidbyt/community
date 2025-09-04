@@ -1,7 +1,0 @@
----
-id: pawcast
-name: Pawcast
-summary: Dog Walking Weather App
-desc: A Tidbyt app that helps dog owners determine safe walking conditions based on current weather data. Pawcast displays temperature, humidity, heat index, and provides risk assessments for walking dogs in hot weather.
-author: JosephScharnweber
-filename: pawcast.star
