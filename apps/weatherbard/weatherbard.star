@@ -121,7 +121,7 @@ poems = {
         "Mist remakes the morning in gray brushstrokes.",
         "The hills wear cloaks of shifting white.",
         "The day forgets its outlines here.",
-        "I wait as the fog writes its silence."
+        "I wait as the fog writes its silence.",
     ],
     "fog": [
         "The world walks in silence, hooded and barefoot.",
@@ -177,7 +177,6 @@ poems = {
         "The drizzle waits for no applause.",
         "A slow wetness, as if the sky is remembering.",
     ],
-
 }
 
 def get_schema():
