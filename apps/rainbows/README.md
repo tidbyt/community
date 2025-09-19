@@ -4,7 +4,8 @@ Bring colorful animated rainbow magic to your Tidbyt! This app displays stunning
 
 ## ✨ Features
 
-- **Four unique animation styles** to choose from:
+- **Five unique animation styles** to choose from:
+  - 🎨 **Rainbow Splats (Default)**: Colorful paint splats that appear randomly and fade with realistic color mixing
   - 🪄 **Magic**: Ethereal rainbow waves that flow across the display
   - 💧 **Drops**: Cascading rainbow droplets falling from above
   - 💨 **Smoke**: Swirling rainbow smoke patterns
@@ -12,6 +13,9 @@ Bring colorful animated rainbow magic to your Tidbyt! This app displays stunning
 
 
 ## 🎨 Animation Styles
+
+### Rainbow Splats 🎨
+Vibrant paint splats that appear randomly across your display with realistic color mixing. Watch as different colored splats overlap and blend together, creating bright mixed colors where they meet. Each splat fades naturally over time, creating a mesmerizing paint-on-canvas effect.
 
 ### Magic ✨
 Mesmerizing rainbow waves that dance across your Tidbyt with a magical, ethereal quality.
