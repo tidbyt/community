@@ -5,6 +5,8 @@ Description: Choose between Rainbow Magic, Rainbow Smoke, Rainbow Drops (water r
 Author: andersheie
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -57,8 +59,44 @@ def to_hex_fast(val):
     """Fast hex conversion matching original"""
     return HEX_CHARS[val // 16] + HEX_CHARS[val % 16]
 
-def rainbow_flag_main():
-    """Paint Splats - Irregular shaped paint splats that appear and fade in place"""
+def get_cached_animation(style):
+    """Get cached animation frames for the given style"""
+    cache_key = "rainbows_pixels_%s" % style
+    cached_pixels = cache.get(cache_key)
+
+    if cached_pixels != None:
+        # Reconstruct frames from cached pixel data
+        pixel_data = json.decode(cached_pixels)
+        return build_frames_from_pixels(pixel_data)
+
+    # Generate new pixel data
+    if style == "flag":
+        pixel_data = rainbow_flag_pixels()
+    else:
+        # For other styles, use flag for now
+        pixel_data = rainbow_flag_pixels()
+
+    # Cache pixel data as JSON for 1 hour (3600 seconds)
+    cache.set(cache_key, json.encode(pixel_data), ttl_seconds = 3600)
+    return build_frames_from_pixels(pixel_data)
+
+def build_frames_from_pixels(pixel_data):
+    """Build render frames from pixel color data"""
+    frames = []
+    for frame_pixels in pixel_data:
+        rows = []
+        for row_pixels in frame_pixels:
+            pixels_in_row = []
+            for hex_color in row_pixels:
+                pixels_in_row.append(render.Box(width = 1, height = 1, color = hex_color))
+            rows.append(render.Row(children = pixels_in_row))
+        frame_render = render.Column(children = rows)
+        frames.append(frame_render)
+    return frames
+
+def rainbow_flag_pixels():
+    """Generate Paint Splat pixel color data"""
+
     # Bright rainbow colors for paint
     paint_colors = ["#ff0000", "#ff8000", "#ffff00", "#00ff00", "#0080ff", "#8000ff", "#ff0080"]
 
@@ -209,10 +247,10 @@ def rainbow_flag_main():
 
                 canvas[py][px] = [new_r, new_g, new_b]
 
-        # Convert canvas to render elements
-        rows = []
+        # Convert canvas to hex color data
+        frame_pixels = []
         for y in range(height):
-            pixels_in_row = []
+            row_pixels = []
             for x in range(width):
                 pixel_r, pixel_g, pixel_b = canvas[y][x]
 
@@ -226,16 +264,13 @@ def rainbow_flag_main():
                 else:
                     hex_color = "#000000"
 
-                pixels_in_row.append(render.Box(width = 1, height = 1, color = hex_color))
+                row_pixels.append(hex_color)
 
-            rows.append(render.Row(children = pixels_in_row))
+            frame_pixels.append(row_pixels)
 
-        frame_render = render.Column(children = rows)
-        frames.append(frame_render)
+        frames.append(frame_pixels)
 
-    return render.Root(
-        child = render.Animation(children = frames)
-    )
+    return frames
 
 def main(config):
     style = config.get("style", "flag")
@@ -260,8 +295,9 @@ def main(config):
     # Debug: Print which style is being used (visible in pixlet serve output)
     print("Config style:", original_style, "-> Running:", style)
 
-    if style == "flag":
-        return rainbow_flag_main()
-    else:
-        # For now, just return the paint splats for all other modes
-        return rainbow_flag_main()
+    # Get cached animation frames
+    frames = get_cached_animation(style)
+
+    return render.Root(
+        child = render.Animation(children = frames),
+    )
