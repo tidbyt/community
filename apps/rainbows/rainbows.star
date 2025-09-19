@@ -1373,7 +1373,7 @@ def rainbow_drops_main():
 # ============================================================================
 
 def main(config):
-    style = config.get("style", "magic")
+    style = config.get("style", "drops")
     original_style = style
 
     # Handle random selection
