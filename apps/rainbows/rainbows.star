@@ -22,10 +22,10 @@ def get_schema():
                 name = "Animation Style",
                 desc = "Choose your preferred wave animation",
                 icon = "palette",
-                default = "magic",
+                default = "drops",
                 options = [
                     schema.Option(
-                        display = "Rainbow Magic (Default)",
+                        display = "Rainbow Magic",
                         value = "magic",
                     ),
                     schema.Option(
@@ -37,7 +37,7 @@ def get_schema():
                         value = "random",
                     ),
                     schema.Option(
-                        display = "Rainbow Drops",
+                        display = "Rainbow Drops (Default)",
                         value = "drops",
                     ),
                     schema.Option(
