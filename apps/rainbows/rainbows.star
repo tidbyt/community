@@ -119,8 +119,8 @@ def rainbow_flag_pixels():
         rand4 = (base_rand * 563) % 6857
         rand5 = (base_rand * 701) % 5813
 
-        # Staggered birth frames (0-45, ensuring 5+ frames to fade)
-        birth_frame = rand5 % 45
+        # Staggered birth frames (0-35, ensuring 5+ frames to fade)
+        birth_frame = rand5 % 35
 
         # Random position anywhere on screen (including borders)
         center_x = rand1 % width
@@ -201,15 +201,15 @@ def rainbow_flag_pixels():
                             side_intensity = (1.0 - (side_dist / side_size)) * 0.7
                             splat_pixels.append([spx, spy, side_intensity])
 
-        # Fade duration - early splats get longer fades, all finish at frame 50
-        fade_duration = 50 - birth_frame  # Always fade to exactly frame 50
+        # Fade duration - early splats get longer fades, all finish at frame 40
+        fade_duration = 40 - birth_frame  # Always fade to exactly frame 40
 
         splats.append([splat_pixels, r, g, b, birth_frame, fade_duration])
 
     frames = []
 
-    # Create 50 frames
-    for frame in range(50):
+    # Create 40 frames
+    for frame in range(40):
         # Create frame canvas
         canvas = []
         for y in range(height):
