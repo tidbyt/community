@@ -191,7 +191,7 @@ BORED_ACTIVITIES = [
     {"activity": "Write a manifesto about the superiority of forks over spoons", "effort": 0.5},
     {"activity": "Pretend you're being interviewed about your sock-matching technique", "effort": 0.3},
     {"activity": "Have a staring contest with a clock", "effort": 0.2},
-    {"activity": "Practice your Oscar acceptance speech for 'Best Human'", "effort": 0.3}
+    {"activity": "Practice your Oscar acceptance speech for 'Best Human'", "effort": 0.3},
 ]
 
 def main(config):
@@ -203,6 +203,7 @@ def main(config):
     if activity_index == None:
         # Start at a random position in the list instead of always starting at 0
         activity_index = random.number(0, len(BORED_ACTIVITIES) - 1)
+
         # Cache the random starting position immediately
         cache.set(cache_key, str(activity_index), ttl_seconds = 3600)
         print("Starting at random activity index: " + str(activity_index))
@@ -276,12 +277,26 @@ def main(config):
         # Create very smooth gradient with many more color steps
         gradient_colors = [
             "#00FF00",  # Pure green
-            "#19FF00", "#33FF00", "#4CFF00", "#66FF00", "#7FFF00",
-            "#99FF00", "#B2FF00", "#CCFF00", "#E5FF00",
+            "#19FF00",
+            "#33FF00",
+            "#4CFF00",
+            "#66FF00",
+            "#7FFF00",
+            "#99FF00",
+            "#B2FF00",
+            "#CCFF00",
+            "#E5FF00",
             "#FFFF00",  # Pure yellow (middle)
-            "#FFE500", "#FFCC00", "#FFB200", "#FF9900", "#FF7F00",
-            "#FF6600", "#FF4C00", "#FF3300", "#FF1900",
-            "#FF0000"   # Pure red
+            "#FFE500",
+            "#FFCC00",
+            "#FFB200",
+            "#FF9900",
+            "#FF7F00",
+            "#FF6600",
+            "#FF4C00",
+            "#FF3300",
+            "#FF1900",
+            "#FF0000",  # Pure red
         ]
 
         gradient_segments = []
@@ -298,7 +313,7 @@ def main(config):
                         height = meter_height,
                         color = segment_color,
                     ),
-                )
+                ),
             )
 
         meter_content = render.Stack(
@@ -375,7 +390,7 @@ def main(config):
     )
 
     # Combine everything
-    child = render.Column(
+    display_content = render.Column(
         children = [
             main_content,
             render.Padding(
@@ -391,7 +406,7 @@ def main(config):
 
     return render.Root(
         delay = int(config.get("speed", 45)),
-        child = child,
+        child = display_content,
     )
 
 def get_schema():
@@ -429,7 +444,6 @@ def get_schema():
             value = "#FFFFFF",
         ),
     ]
-
 
     speed_options = [
         schema.Option(
