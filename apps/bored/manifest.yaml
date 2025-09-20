@@ -2,7 +2,7 @@
 id: bored
 name: Bored
 summary: Things to do when bored
-desc: This app will suggest things you can do alone or with your friends if you are bored.
+desc: This app will give you things to do suggestion if you're bored. Or add your own. We're cool with that.
 author: Anders Heie
 fileName: bored.star
 packageName: bored
