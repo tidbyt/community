@@ -207,12 +207,12 @@ def render_display(exec_order, color, speed):
                             ],
                         ),
                     ),
-                    # Date centered at bottom, moved down 1 pixel
+                    # Date centered at bottom, moved up 1 pixel
                     render.Padding(
-                        pad = (0, 25, 0, 0),
+                        pad = (0, 24, 0, 0),
                         child = render.Box(
                             width = 62,
-                            height = 5,
+                            height = 7,
                             child = render.Row(
                                 main_align = "center",
                                 children = [
