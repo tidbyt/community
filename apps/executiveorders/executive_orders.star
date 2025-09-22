@@ -12,7 +12,6 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-
 # Federal Register API endpoint for executive orders
 FEDERAL_REGISTER_API = "https://www.federalregister.gov/api/v1/articles.json"
 CACHE_TTL = 3600  # Cache for 1 hour
