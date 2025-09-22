@@ -1,0 +1,8 @@
+---
+id: executiveorders
+name: Executive Orders
+summary: Latest executive orders
+desc: Shows the last executive orders from the President.
+author: Anders Heie
+fileName: executive_orders.star
+packageName: executiveorders
