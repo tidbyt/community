@@ -7,7 +7,6 @@ Description: Show METAR (aviation weather) text for one airport or flight
     by commas to display multiple airports.
 """
 
-load("cache.star", "cache")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
