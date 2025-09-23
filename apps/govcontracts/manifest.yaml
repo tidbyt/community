@@ -1,0 +1,8 @@
+---
+id: govcontracts
+name: Government Contracts
+summary: Government Contracts
+desc: Shows the most recent government contract awards from USAspending.gov with animated patriotic display. Select from multiple agencies. No API key required.
+author: Anders Heie
+fileName: gov_contracts.star
+packageName: govcontracts
