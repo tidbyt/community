@@ -1095,7 +1095,7 @@ def get_schema():
                 id = "min_value",
                 name = "Minimum Contract Value",
                 desc = "Filter contracts by minimum dollar amount",
-                icon = "dollar-sign",
+                icon = "coins",
                 default = min_value_options[0].value,  # Default to "All Contracts"
                 options = min_value_options,
             ),
