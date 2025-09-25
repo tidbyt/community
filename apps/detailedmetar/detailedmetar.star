@@ -22,7 +22,7 @@ def main(config):
     f_selector = config.bool("fahrenheit_temperatures", False)
 
     # API URL
-    apiURL = "https://www.aviationweather.gov/cgi-bin/data/metar.php?ids=" + airport + "&format=json"
+    apiURL = "https://www.aviationweather.gov/api/data/metar?requestType=retrieve&format=json&ids=%s&mostrecentforeachstation=constraint&hoursBeforeNow=2"
 
     # Store cahces by airport. That way if two users are pulling the same airport's METAR it is only fetched once.
     cacheName = "metar/" + airport
@@ -37,7 +37,7 @@ def main(config):
     else:
         print("No cached metar data found for " + cacheName)
 
-        rep = http.get(apiURL)
+        rep = http.get(apiURL % airport)
 
         if rep.status_code != 200:
             fail("API Error: Failure")
@@ -482,7 +482,7 @@ def getWindSpeed(decodedMetar):
         windSpeedText = "Calm"
 
     # Set wind gust variable
-    if decodedMetar["wgst"] != None:
+    if decodedMetar.get("wgst", None) != None:
         windGust = int(decodedMetar["wgst"])
         windSpeedText = str(windSpeed) + "-" + str(windGust) + "kts"
 
@@ -498,7 +498,7 @@ def getWindSpeed(decodedMetar):
 
 # Returns raw wind direction value.
 def getWindSpeed_value(decodedMetar):
-    return int(decodedMetar["wspd"])
+    return int(decodedMetar.get("wspd", 0))
 
 # Returns wind direction in degrees
 def getWindDirection(decodedMetar):
@@ -523,7 +523,7 @@ def getWindDirection(decodedMetar):
 
 # Returns raw wind direction value.
 def getWindDirection_value(decodedMetar):
-    return str(int(decodedMetar["wdir"]))
+    return str(int(decodedMetar.get("wdir", 0)))
 
 # Returns current flight category.
 def getFlightCategory(decodedMetar):
@@ -660,7 +660,7 @@ def getCloudCeiling_textColor(ceilingHeight):
     return ceilingColor
 
 def wxDisplay(decodedMetar):
-    presentWeather = decodedMetar["wxString"]
+    presentWeather = decodedMetar.get("wxString", None)
 
     result = "empty"
     color = getTextColor(decodedMetar)
