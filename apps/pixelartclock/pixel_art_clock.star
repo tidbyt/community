@@ -1,7 +1,7 @@
 """
 Applet: Pixel Art Clock
 Summary: Clock & pixel-art weather
-Description: Displays a clock, today's max and min temperatures, with a pixel-art illustration by @abipixel matching today's forecast from AccuWeather. To request an AccuWeather API key, see https://developer.accuweather.com/getting-started. To determine AccuWeather location key, search https://www.accuweather.com for a location and extract trailing number, e.g. 2191987 for https://www.accuweather.com/en/us/lavallette/08735/weather-forecast/2191987.
+Description: Displays a clock, today's max and min temperatures, with a pixel-art illustration by @abipixel matching today's forecast from OpenMeteo.
 Author: JavierM42
 """
 
@@ -15,7 +15,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-ACCUWEATHER_FORECAST_URL = "http://dataservice.accuweather.com/forecasts/v1/daily/1day/{location_key}?apikey={api_key}&details=true"
+FORECAST_URL = "https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&daily=temperature_2m_min,temperature_2m_max&temperature_unit=fahrenheit&timezone=auto&timeformat=unixtime&current_weather=true&forecast_days=1"
 
 max_temp_color = "#fcc"
 min_temp_color = "#ccf"
@@ -178,16 +178,18 @@ def get_temp(f_temp, display_celsius):
         return int(math.round((f_temp - 32) / 1.8))
     return f_temp
 
-def get_result_forecast(temp_min, temp_max, icon_num, display_celsius):
+def get_result_forecast(temp_min, temp_max, weather_code, is_day, windspeed, display_celsius):
     return {
-        "temp_min": get_temp(temp_min, display_celsius),
-        "temp_max": get_temp(temp_max, display_celsius),
-        "icon_num": icon_num,
+        "temp_min": int(get_temp(temp_min, display_celsius)),
+        "temp_max": int(get_temp(temp_max, display_celsius)),
+        "is_day": is_day,
+        "windspeed": windspeed,
+        "weather_code": weather_code,
     }
 
 def main(config):
-    api_key = config.get("apiKey", None)
-    location_key = config.get("locationKey", None)
+    latitude = config.get("latitude", None)
+    longitude = config.get("longitude", None)
     temp_units = config.get("tempUnits", "F")
 
     # clock
@@ -195,68 +197,58 @@ def main(config):
     now = time.now().in_location(timezone)
 
     # get weather info
-    display_sample = not (api_key and location_key)
+    display_sample = not (latitude and longitude)
     display_celsius = (temp_units == "C")
 
     if display_sample:
-        # sample data to display if user-specified API / location key are not available, also useful for testing
-        result_forecast = get_result_forecast(65, 75, 1, display_celsius)
+        # sample data to display if lat & long are not set
+        result_forecast = get_result_forecast(65, 75, 1, True, 0, display_celsius)
     else:
-        resp = http.get(ACCUWEATHER_FORECAST_URL.format(location_key = location_key, api_key = api_key), ttl_seconds = 3600)
+        resp = http.get(FORECAST_URL.format(latitude = latitude, longitude = longitude), ttl_seconds = 3600)
         if resp.status_code != 200:
-            fail("AccuWeather forecast request failed with status", resp.status_code)
+            fail("OpenMeteo request failed with status", resp.status_code)
 
         resp_json = resp.json()
 
-        raw_forecast = resp_json["DailyForecasts"][0]
-
         # day/night
-        rise_epoch = int(raw_forecast["Sun"]["EpochRise"])
-        set_epoch = int(raw_forecast["Sun"]["EpochSet"])
-        now_epoch = now.unix
-        is_day = (rise_epoch <= now_epoch) and (now_epoch <= set_epoch)
-        day_or_night = "Day" if is_day else "Night"
+        is_day = resp_json["current_weather"]["is_day"] == 1
 
         result_forecast = get_result_forecast(
-            int(raw_forecast["Temperature"]["Minimum"]["Value"]),
-            int(raw_forecast["Temperature"]["Maximum"]["Value"]),
-            int(raw_forecast[day_or_night]["Icon"]),
+            float(resp_json["daily"]["temperature_2m_min"][0]),
+            float(resp_json["daily"]["temperature_2m_max"][0]),
+            int(resp_json["current_weather"]["weathercode"]),
+            is_day,
+            float(resp_json["current_weather"]["windspeed"]),
             display_celsius,
         )
 
-    # # weather icon, see https://developer.accuweather.com/weather-icons
-    icon_num = result_forecast["icon_num"]
+    weather_code = result_forecast["weather_code"]
+    is_day = result_forecast["is_day"]
+    windspeed = result_forecast["windspeed"]
 
-    if icon_num == 1:
-        # sunny
-        weather = "sunny"
-    elif icon_num >= 2 and icon_num <= 5:
-        # mostly sunny
-        weather = "sunnyish"
-    elif (icon_num >= 6 and icon_num <= 8) or icon_num == 11:
-        # cloudy
-        weather = "cloudy"
-    elif (icon_num >= 12 and icon_num <= 14) or icon_num == 18 or icon_num == 39 or icon_num == 40:
-        # rainy
+    if weather_code == 0:
+        weather = "sunny" if is_day else "clear_night"
+    elif weather_code == 1:
+        weather = "sunnyish" if is_day else "clear_night"
+    elif weather_code == 2:
+        weather = "sunnyish" if is_day else "cloudy_night"
+    elif weather_code == 3:
+        weather = "cloudy" if is_day else "cloudy_night"
+    elif weather_code in [45, 48]:
+        weather = "cloudy" if is_day else "cloudy_night"
+    elif weather_code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
         weather = "rainy"
-    elif icon_num >= 15 and icon_num <= 17 or icon_num == 41 or icon_num == 42:
-        # thunderstorm
-        weather = "thunderstorm"
-    elif (icon_num >= 19 and icon_num <= 26) or icon_num == 29 or icon_num == 43 or icon_num == 44:
-        # snow
+    elif weather_code in [56, 57, 66, 67, 71, 73, 75, 77, 85, 86]:
         weather = "snowy"
-    elif icon_num == 32:
-        # wind
-        weather = "windy"
-    elif (icon_num >= 33 and icon_num <= 34):
-        # clear night
-        weather = "clear_night"
-    elif (icon_num >= 35 and icon_num <= 38):
-        # cloudy night
-        weather = "cloudy_night"
+    elif weather_code in [95, 96, 99]:
+        weather = "thunderstorm"
     else:
-        # default to sunny, but should never happen
         weather = "sunny"
+
+    # We used to get "windy" from accuweather, but openmeteo doesn't provide that.
+    # So we derive "windy" from windspeed if it's not rainy/snowy/thunderstorm, only during the day (no windy night illustration)
+    if (weather == "sunny" or weather == "sunnyish" or weather == "cloudy") and windspeed > 9:  # ~20 mph ≈ 9 m/s
+        weather = "windy"
 
     # temperatures
     temperatures = render.Column(
@@ -335,11 +327,6 @@ def main(config):
                         render.Column(children = [temperatures], main_align = "end", cross_align = "start", expanded = True),
                     ], main_align = "start", cross_align = "end", expanded = True),
                 ),
-                render.Row(
-                    children = [render.Text("SAMPLE" if display_sample else "", font = "6x13", color = "#FF0000", height = 22)],
-                    main_align = "center",
-                    expanded = True,
-                ),
             ],
         ),
     )
@@ -359,15 +346,15 @@ def get_schema():
         version = "1",
         fields = [
             schema.Text(
-                id = "apiKey",
-                name = "AccuWeather API Key",
-                desc = "API key for AccuWeather data access",
-                icon = "gear",
+                id = "latitude",
+                name = "Latitude",
+                desc = "",
+                icon = "locationDot",
             ),
             schema.Text(
-                id = "locationKey",
-                name = "AccuWeather Location Key",
-                desc = "Location key for AccuWeather data access",
+                id = "longitude",
+                name = "Longitude",
+                desc = "",
                 icon = "locationDot",
             ),
             schema.Text(
