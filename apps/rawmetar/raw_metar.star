@@ -37,7 +37,20 @@ def main(config):
     max_line_width = 12
     lines_per_page = 4
 
-    lines_to_display = [content[i:i + max_line_width] for i in range(0, len(content), max_line_width)]
+    words = content.split()
+    lines_to_display = []
+    current_line = ""
+
+    for word in words:
+        if len(current_line) + len(word) + 1 > max_line_width and current_line:
+            lines_to_display.append(current_line)
+            current_line = word
+        else:
+            current_line = current_line + (" " + word if current_line else word)
+
+    if current_line:
+        lines_to_display.append(current_line)
+
     pages_to_display = [lines_to_display[i:i + lines_per_page] for i in range(0, len(lines_to_display), lines_per_page)]
 
     frames = []
