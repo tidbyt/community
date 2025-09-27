@@ -76,8 +76,8 @@ BERLIN_TIMEZONE = "Europe/Berlin"
 #Departure Board API Tuning Parameters
 MAX_DEPARTURES = 8  #maximum number of departures to fetch
 MAX_MINUTES_IN_FUTURE = "59"  #limit to departures in the next hour
-DEPARTURES_TTL_CACHE_LENGTH_SECONDS = 60  #cache the departure board for one minute
-ICON_TTL_CACHE_LENGTH_SECONDS = 14400  #cache the modality icon for 4 hours
+DEPARTURES_TTL_CACHE_LENGTH_SECONDS = 300  #cache the departure board for 5 minutes
+ICON_TTL_CACHE_LENGTH_SECONDS = 604800  #cache the modality icon for one week
 JSON_FORMAT = "json"
 
 #Station Lookup API Tuning Parameters
@@ -97,11 +97,12 @@ def main(config):
     #Parse the station data. The "value" field is a stringified JSON object holding the station-id and station-name
     station = config.get(CONFIG_STATION)
     if not station:
-        return get_error_message("No station selected")
+        #Print preview results until user selects a station
+        departures = get_preview()
+        return get_root_element(departures)
+
     data = json.decode(json.decode(station)[CONFIG_STATION_VALUE])
     station_id = data[CONFIG_STATION_ID]
-    if not station_id:
-        return get_error_message("No station selected")
 
     #Pull product class configurations from the schema
     show_u_bahn = config.bool(CONFIG_SHOW_U_BAHN, True)
@@ -119,7 +120,6 @@ def main(config):
         return get_error_message("Invalid departure time offset selected")
 
     departures = get_station_departures(station_id, product_list, offset_minutes)
-
     return get_root_element(departures)
 
 #RENDERING FUNCTIONS
@@ -128,7 +128,7 @@ def main(config):
 #departures: the list of departures to render
 def get_root_element(departures):
     return render.Root(
-        max_age = 120,
+        max_age = 30,
         child = render.Column(
             children = [
                 render_departures(departures),
@@ -632,7 +632,7 @@ def fetch_stations(location):
     truncated_lng = math.round(1000.0 * float(location["lng"])) / 1000.0  # Means to the nearest ~110 metres.
     params = {
         "type_sf": "coord",
-        "name_sf": "coord:" + str(truncated_lat) + ":" + str(truncated_lng) + ":WGS84[dd.ddddd]",
+        "name_sf": "coord:" + str(truncated_lng) + ":" + str(truncated_lat) + ":WGS84[dd.ddddd]",
         "anyObjFilter_sf": "2",  #limits this to just stations
         "outputFormat": JSON_FORMAT,
         "coordOutputFormat": "EPSG:4326",
@@ -643,3 +643,39 @@ def fetch_stations(location):
         return None
 
     return resp.json()
+
+def get_preview():
+    return [
+        {
+            "direction": "Karlsruhe Hbf",
+            "timeUntilDeparture": 1,
+            "timeColor": "#FFA500",
+            "icon": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\n<svg version=\"1.1\" id=\"zug-nah\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\n\t width=\"24px\" height=\"24px\" viewBox=\"0 0 24 24\" style=\"enable-background:new 0 0 24 24;\" xml:space=\"preserve\">\n<style type=\"text/css\">\n\t.st0{fill:#FFFFFF;}\n</style>\n<g>\n\t<path class=\"st0\" d=\"M17.4,16.7c-0.1,0.3-0.3,0.6-0.6,0.9c-0.3,0.2-0.6,0.3-1,0.3H7.9c-0.4,0-0.7-0.1-1.1-0.4\n\t\tc-0.3-0.2-0.5-0.6-0.6-0.9l-0.6-2.2V7.9c0-0.1,0-0.3,0-0.4s0.1-0.3,0.1-0.4L7,3.8c0.1-0.3,0.3-0.6,0.6-0.9c0.3-0.2,0.7-0.3,1.1-0.3\n\t\th6.7c0.4,0,0.8,0.1,1.1,0.3c0.3,0.2,0.5,0.5,0.6,0.9l1.1,3.1c0.1,0.3,0.2,0.6,0.2,0.9v6.6L17.4,16.7z M11.5,4.4\n\t\tc0-0.2-0.1-0.3-0.3-0.3H8.1C8,4.1,7.9,4.2,7.8,4.3L6.8,7c0,0.1,0,0.2,0,0.3C6.9,7.4,7,7.5,7.1,7.5h4.2c0.1,0,0.1,0,0.2-0.1\n\t\tc0.1-0.1,0.1-0.1,0.1-0.2L11.5,4.4L11.5,4.4z M9.4,16.1c0-0.3-0.1-0.5-0.3-0.7s-0.4-0.3-0.7-0.3s-0.5,0.1-0.7,0.3s-0.3,0.4-0.3,0.7\n\t\tc0,0.3,0.1,0.5,0.3,0.7c0.2,0.2,0.4,0.3,0.7,0.3s0.5-0.1,0.7-0.3C9.3,16.6,9.4,16.3,9.4,16.1z M13,9.8c0-0.3-0.1-0.5-0.3-0.7\n\t\tS12.3,8.8,12,8.8s-0.5,0.1-0.7,0.3C11.1,9.2,11,9.5,11,9.8s0.1,0.5,0.3,0.7s0.4,0.3,0.7,0.3s0.5-0.1,0.7-0.3S13,10,13,9.8z\n\t\t M16.2,4.3c-0.1-0.2-0.2-0.2-0.3-0.2h-3.2c-0.2,0-0.3,0.1-0.3,0.3v2.8c0,0.1,0,0.1,0.1,0.2s0.1,0.1,0.2,0.1h4.2\n\t\tc0.1,0,0.2,0,0.3-0.1s0.1-0.2,0-0.3L16.2,4.3z M16.6,16.1c0-0.3-0.1-0.5-0.3-0.7s-0.4-0.3-0.7-0.3s-0.5,0.1-0.7,0.3\n\t\ts-0.3,0.4-0.3,0.7c0,0.3,0.1,0.5,0.3,0.7s0.4,0.3,0.7,0.3s0.5-0.1,0.7-0.3C16.5,16.6,16.6,16.3,16.6,16.1z\"/>\n\t<polygon class=\"st0\" points=\"8.5,21.4 7,21.4 8.5,18.9 9.5,18.9 \t\"/>\n\t<polygon class=\"st0\" points=\"17,21.4 15.5,21.4 14.5,18.9 15.5,18.9 \t\"/>\n</g>\n</svg>\n",
+            "line": "RE73",
+            "lineColor": "8E949E",
+        },
+        {
+            "direction": "Heidelberg Bismarckplatz",
+            "timeUntilDeparture": 2,
+            "timeColor": "#FFA500",
+            "icon": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!-- Generator: Adobe Illustrator 21.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\n<svg version=\"1.1\" id=\"bus\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\n\t width=\"24px\" height=\"24px\" viewBox=\"0 0 24 24\" style=\"enable-background:new 0 0 24 24;\" xml:space=\"preserve\">\n<style type=\"text/css\">\n\t.st0{fill:#FFFFFF;}\n</style>\n<g>\n\t<path class=\"st0\" d=\"M18.2035,18.9103v1.3648c0,0.2762-0.0937,0.5078-0.2804,0.6948c-0.187,0.1865-0.4186,0.2802-0.6948,0.2802\n\t\th-0.4875c-0.2765,0-0.5081-0.0937-0.6945-0.2802c-0.1872-0.187-0.2804-0.4186-0.2804-0.6948v-1.3648H8.2345v1.3648\n\t\tc0,0.2762-0.0937,0.5078-0.2804,0.6948C7.7671,21.1563,7.5355,21.25,7.2595,21.25H6.7718c-0.2765,0-0.5081-0.0937-0.6945-0.2802\n\t\tc-0.187-0.187-0.2804-0.4186-0.2804-0.6948v-1.3648H3.7249c0-2.3402,0.0367-3.8545,0.1098-6.5444\n\t\tc0.0731-2.6894,0.329-5.5533,0.7677-8.5923c0.0488-0.4389,0.3251-0.6824,0.8289-0.7315C6.6012,2.929,7.775,2.8517,8.9536,2.811\n\t\tc1.1781-0.0407,1.3601-0.061,2.5466-0.061c1.186,0,2.3683,0.0203,3.5466,0.061c1.1781,0.0407,2.3521,0.118,3.5223,0.2311\n\t\tc0.5036,0.0491,0.7801,0.2926,0.8287,0.7315c0.4389,3.039,0.6948,5.9029,0.7679,8.5923c0.0731,2.6899,0.1096,4.2042,0.1096,6.5444\n\t\tH18.2035z M19.1296,11.2813c-0.0327-0.6338-0.0731-1.3241-0.1217-2.0719c-0.0488-0.7473-0.1141-1.5195-0.1951-2.3159\n\t\tc-0.0327-0.2108-0.1096-0.3858-0.2316-0.5237c-0.1217-0.1379-0.2886-0.2073-0.4996-0.2073H5.9188\n\t\tc-0.2115,0-0.3779,0.0694-0.4996,0.2073c-0.122,0.1379-0.1994,0.3129-0.2316,0.5237C5.106,7.6898,5.0413,8.462,4.9924,9.2093\n\t\tc-0.0486,0.7478-0.0895,1.4382-0.1217,2.0719c-0.0164,0.2113,0.0486,0.3863,0.1949,0.5242s0.3248,0.2068,0.5363,0.2068h12.7964\n\t\tc0.211,0,0.39-0.0689,0.5363-0.2068C19.0807,11.6676,19.1457,11.4925,19.1296,11.2813z M8.3562,15.6687\n\t\tc0-0.1299-0.0486-0.2435-0.1463-0.3412c-0.0974-0.0977-0.2113-0.1463-0.3412-0.1463H5.675c-0.1304,0-0.2437,0.0486-0.3412,0.1463\n\t\tc-0.0977,0.0977-0.1463,0.2113-0.1463,0.3412v1.219c0,0.1299,0.0486,0.2435,0.1463,0.3412\n\t\tc0.0974,0.0977,0.2108,0.1463,0.3412,0.1463h2.1937c0.1299,0,0.2437-0.0486,0.3412-0.1463\n\t\tc0.0977-0.0977,0.1463-0.2113,0.1463-0.3412V15.6687z M17.3502,3.725H6.65v1.4625h10.7002V3.725z M18.8127,15.6687\n\t\tc0-0.1299-0.0486-0.2435-0.1463-0.3412c-0.0974-0.0977-0.2113-0.1463-0.3412-0.1463h-2.1937c-0.1304,0-0.2437,0.0486-0.3414,0.1463\n\t\tc-0.0974,0.0977-0.146,0.2113-0.146,0.3412v1.219c0,0.1299,0.0486,0.2435,0.146,0.3412c0.0977,0.0977,0.211,0.1463,0.3414,0.1463\n\t\th2.1937c0.1299,0,0.2437-0.0486,0.3412-0.1463c0.0977-0.0977,0.1463-0.2113,0.1463-0.3412V15.6687z\"/>\n</g>\n</svg>\n",
+            "line": "33",
+            "lineColor": "#B40DF7",
+        },
+        {
+            "direction": "Mannheim Hbf",
+            "timeUntilDeparture": 4,
+            "timeColor": "#FFA500",
+            "icon": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\n<svg version=\"1.1\" id=\"zug-nah\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\n\t width=\"24px\" height=\"24px\" viewBox=\"0 0 24 24\" style=\"enable-background:new 0 0 24 24;\" xml:space=\"preserve\">\n<style type=\"text/css\">\n\t.st0{fill:#FFFFFF;}\n</style>\n<g>\n\t<path class=\"st0\" d=\"M17.4,16.7c-0.1,0.3-0.3,0.6-0.6,0.9c-0.3,0.2-0.6,0.3-1,0.3H7.9c-0.4,0-0.7-0.1-1.1-0.4\n\t\tc-0.3-0.2-0.5-0.6-0.6-0.9l-0.6-2.2V7.9c0-0.1,0-0.3,0-0.4s0.1-0.3,0.1-0.4L7,3.8c0.1-0.3,0.3-0.6,0.6-0.9c0.3-0.2,0.7-0.3,1.1-0.3\n\t\th6.7c0.4,0,0.8,0.1,1.1,0.3c0.3,0.2,0.5,0.5,0.6,0.9l1.1,3.1c0.1,0.3,0.2,0.6,0.2,0.9v6.6L17.4,16.7z M11.5,4.4\n\t\tc0-0.2-0.1-0.3-0.3-0.3H8.1C8,4.1,7.9,4.2,7.8,4.3L6.8,7c0,0.1,0,0.2,0,0.3C6.9,7.4,7,7.5,7.1,7.5h4.2c0.1,0,0.1,0,0.2-0.1\n\t\tc0.1-0.1,0.1-0.1,0.1-0.2L11.5,4.4L11.5,4.4z M9.4,16.1c0-0.3-0.1-0.5-0.3-0.7s-0.4-0.3-0.7-0.3s-0.5,0.1-0.7,0.3s-0.3,0.4-0.3,0.7\n\t\tc0,0.3,0.1,0.5,0.3,0.7c0.2,0.2,0.4,0.3,0.7,0.3s0.5-0.1,0.7-0.3C9.3,16.6,9.4,16.3,9.4,16.1z M13,9.8c0-0.3-0.1-0.5-0.3-0.7\n\t\tS12.3,8.8,12,8.8s-0.5,0.1-0.7,0.3C11.1,9.2,11,9.5,11,9.8s0.1,0.5,0.3,0.7s0.4,0.3,0.7,0.3s0.5-0.1,0.7-0.3S13,10,13,9.8z\n\t\t M16.2,4.3c-0.1-0.2-0.2-0.2-0.3-0.2h-3.2c-0.2,0-0.3,0.1-0.3,0.3v2.8c0,0.1,0,0.1,0.1,0.2s0.1,0.1,0.2,0.1h4.2\n\t\tc0.1,0,0.2,0,0.3-0.1s0.1-0.2,0-0.3L16.2,4.3z M16.6,16.1c0-0.3-0.1-0.5-0.3-0.7s-0.4-0.3-0.7-0.3s-0.5,0.1-0.7,0.3\n\t\ts-0.3,0.4-0.3,0.7c0,0.3,0.1,0.5,0.3,0.7s0.4,0.3,0.7,0.3s0.5-0.1,0.7-0.3C16.5,16.6,16.6,16.3,16.6,16.1z\"/>\n\t<polygon class=\"st0\" points=\"8.5,21.4 7,21.4 8.5,18.9 9.5,18.9 \t\"/>\n\t<polygon class=\"st0\" points=\"17,21.4 15.5,21.4 14.5,18.9 15.5,18.9 \t\"/>\n</g>\n</svg>\n",
+            "line": "RE10b",
+            "lineColor": "8E949E",
+        },
+        {
+            "direction": "Kaiserslautern Hbf",
+            "timeUntilDeparture": 7,
+            "timeColor": "#0AE300",
+            "icon": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\n<svg version=\"1.1\" id=\"sbahn\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\n\t width=\"24px\" height=\"24px\" viewBox=\"0 0 24 24\" style=\"enable-background:new 0 0 24 24;\" xml:space=\"preserve\">\n<style type=\"text/css\">\n\t.st0{fill:#FFFFFF;}\n</style>\n<g>\n\t<path class=\"st0\" d=\"M8.6,6.6c0-1,1-1.9,2.6-1.9c3,0,5.5,1.6,7.1,3.4V4.9c-1.9-1.5-4.4-2.4-7.1-2.4c-3.3,0-6.9,2-6.9,5.7\n\t\tc0,7.1,10.7,4.5,10.7,8.6c0,1.1-1.4,2.1-3.2,2.1c-2.9,0-5.8-1.8-7.4-4v3.8c1.7,1.5,4.7,2.7,7.4,2.7c4.8,0,7.6-3.4,7.6-6.3\n\t\tC19.6,7.9,8.6,11,8.6,6.6z\"/>\n</g>\n</svg>\n",
+            "line": "S2",
+            "lineColor": "#0AE300",
+        },
+    ]

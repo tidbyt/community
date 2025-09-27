@@ -2,7 +2,7 @@
 Applet: NS Timetable
 Author: tim-hanssen
 Summary: NS Timetable
-Description: Shows a timetable for a station in the Dutch Railways.
+Description: Shows a timetable for a station in the Netherlands (NS).
 """
 
 load("cache.star", "cache")
@@ -21,6 +21,10 @@ INFO_BACKGROUND_COLOR = "#FF7700"
 MAINTENANCE_BACKGROUND_COLOR = "#FFB519"
 CANCELED_BACKGROUND_COLOR = "#DB0029"
 
+TIME_GREEN = "#5fdb00"
+TIME_ORANGE = "#FF7700"
+TIME_RED = "#DB0029"
+
 BLACK_TEXT_COLOR = "#000"
 CORE_TEXT_COLOR = "#FFFFFF"
 NORMAL_TEXT_COLOR = "#FFC917"
@@ -34,30 +38,31 @@ DEFAULT_STATION = "ehv"
 def main(config):
     station_id = config.str("station")
     station_dest = config.str("dest_station")
-    skiptime = config.get("skiptime", 0)
+    skip_time = config.get("skiptime", 0)
+    time_to_leave = config.bool("time_to_leave", False)
 
     if station_id == None:
         station_id = DEFAULT_STATION
     else:
         station_id = json.decode(station_id)["value"]
 
-    # Check if we need to convert the skiptime to Int
-    if (skiptime):
-        if type(skiptime) == "string":
-            skiptime = int(skiptime)
+    # Check if we need to convert the skip_time to Int
+    if (skip_time):
+        if type(skip_time) == "string":
+            skip_time = int(skip_time)
 
     # Check that the skip time is valid
-    if skiptime < 0:
-        skiptime = 0
+    if skip_time < 0:
+        skip_time = 0
 
     # If we don't have a Trip, list trains for station.
     if station_dest == None:
         # Normal Train Operations
-        stops = getTrains(station_id, skiptime)
+        stops = getTrains(station_id, skip_time)
 
     else:
         station_dest = json.decode(station_dest)["value"]
-        stops = getTrip(station_id, station_dest, skiptime)
+        stops = getTrip(station_id, station_dest, skip_time)
 
     if stops == None or len(stops) == 0:
         return render.Root(
@@ -70,24 +75,24 @@ def main(config):
         )
 
     if len(stops) == 1:
-        return render.Root(child = renderTrain(stops[0]))
+        return render.Root(child = renderTrain(stops[0], skip_time, time_to_leave))
 
     return render.Root(
         show_full_animation = True,
         child = render.Column(
             children = [
-                renderTrain(stops[0]),
+                renderTrain(stops[0], skip_time, time_to_leave),
                 render.Box(
                     color = "#ffffff",
                     width = 64,
                     height = 1,
                 ),
-                renderTrain(stops[1]),
+                renderTrain(stops[1], skip_time, time_to_leave),
             ],
         ),
     )
 
-def renderTrain(stop_info):
+def renderTrain(stop_info, skip_time, time_to_leave):
     backgroundColor = CORE_BACKGROUND_COLOR
     textColor = CORE_TEXT_COLOR
 
@@ -102,8 +107,6 @@ def renderTrain(stop_info):
     departureTimeText = humanize.relative_time(time.now(), parse_time(stop_info["actualDateTime"]))
     departureTimeText = re.sub("(minutes|minute)", "min", departureTimeText)
     departureTimeText = re.sub("(seconds|second)", "sec", departureTimeText)
-
-    # destination = train + " " + destination
 
     # Info messages.
     message = None
@@ -198,35 +201,71 @@ def renderTrain(stop_info):
 
             departureTimeRender = render.Animation(children = renderTimeChild)
 
+    # Render Time To Leave indicator
+    timeToLeaveColor = TIME_GREEN
+
+    if time_to_leave == True:
+        departureTimeInSeconds = (parse_time(stop_info["actualDateTime"]) - time.now()).seconds
+
+        # LESS THAN SKIP TIME + 3 MIN
+        if departureTimeInSeconds < ((skip_time * 60) + 180):
+            timeToLeaveColor = TIME_RED
+
+        # LESS THAN SKIP TIME + 6 MIN
+        if departureTimeInSeconds < ((skip_time * 60) + 360):
+            if departureTimeInSeconds > ((skip_time * 60) + 180):
+                timeToLeaveColor = TIME_ORANGE
+
+        # Hide TTL indicator if cancelled
+        if stop_info["cancelled"] == True:
+            timeToLeaveColor = BLACK_TEXT_COLOR
+
+    # Render Final rows
+    renderTrainFinal = []
+
+    if time_to_leave == True:
+        renderTrainFinal.extend([
+            render.Padding(
+                pad = (0, 0, 0, 2),
+                child = render.Box(
+                    width = 2,
+                    height = 10,
+                    color = timeToLeaveColor,
+                ),
+            ),
+        ])
+
+    renderTrainFinal.extend([
+        render.Padding(
+            pad = 2,
+            child = render.Box(
+                width = 10,
+                height = 10,
+                color = backgroundColor,
+                child = render.Text(
+                    color = textColor,
+                    content = stop_info.get("actualTrack", "-"),
+                ),
+            ),
+        ),
+        render.Column(
+            children = [
+                render.Marquee(
+                    width = 64 - 14,
+                    child = render.Text(
+                        content = destination.upper(),
+                    ),
+                ),
+                departureTimeRender,
+            ],
+        ),
+    ])
+
     return render.Row(
         expanded = True,
         main_align = "space_between",
         cross_align = "end",
-        children = [
-            render.Padding(
-                pad = 2,
-                child = render.Box(
-                    width = 10,
-                    height = 10,
-                    color = backgroundColor,
-                    child = render.Text(
-                        color = textColor,
-                        content = stop_info.get("actualTrack", "-"),
-                    ),
-                ),
-            ),
-            render.Column(
-                children = [
-                    render.Marquee(
-                        width = 64 - 13,
-                        child = render.Text(
-                            content = destination.upper(),
-                        ),
-                    ),
-                    departureTimeRender,
-                ],
-            ),
-        ],
+        children = renderTrainFinal,
     )
 
 def format_duration(d):
@@ -245,7 +284,7 @@ def parse_time(time_string):
     time_obj = time.parse_time(time_string[0:19], format = "2006-01-02T15:04:05", location = "Europe/Amsterdam")
     return time_obj
 
-def getTrip(station_id, station_dest, skiptime):
+def getTrip(station_id, station_dest, skip_time):
     resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/trips", params = {"fromStation": station_id, "toStation": station_dest}, headers = {"Ocp-Apim-Subscription-Key": API_KEY}, ttl_seconds = 30)
 
     if resp.status_code != 200:
@@ -267,8 +306,8 @@ def getTrip(station_id, station_dest, skiptime):
             continue
 
         # Skip trains that are not in allowed frame.
-        if skiptime > 0:
-            timeStart = time.parse_duration("%im" % skiptime) + time.now()
+        if skip_time > 0:
+            timeStart = time.parse_duration("%im" % skip_time) + time.now()
             timeDepart = time.parse_time(originTime[0:19], format = "2006-01-02T15:04:05", location = "Europe/Amsterdam")
             if timeDepart >= timeStart:
                 stops.append(
@@ -299,7 +338,7 @@ def getTrip(station_id, station_dest, skiptime):
 
     return stops
 
-def getTrains(station_id, skiptime):
+def getTrains(station_id, skip_time):
     resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params = {"station": station_id}, headers = {"Ocp-Apim-Subscription-Key": API_KEY}, ttl_seconds = 30)
 
     if resp.status_code != 200:
@@ -314,8 +353,8 @@ def getTrains(station_id, skiptime):
 
     startID = 0
 
-    if skiptime > 0:
-        timeStart = time.parse_duration("%im" % skiptime) + time.now()
+    if skip_time > 0:
+        timeStart = time.parse_duration("%im" % skip_time) + time.now()
 
         for i, train in enumerate(departuresTrains):
             timeDepart = time.parse_time(train["actualDateTime"][0:19], format = "2006-01-02T15:04:05", location = "Europe/Amsterdam")
@@ -387,6 +426,12 @@ def get_schema():
                 name = "Departure Offset (Minutes)",
                 desc = "Shows the connections starting n minutes in the future.",
                 icon = "clock",
+            ),
+            schema.Toggle(
+                id = "time_to_leave",
+                name = "Time To Leave",
+                desc = "Shows a green/orange/red line to indicate how soon you need to leave your house to catch the train. (uses Departure Offset to render the indicator).",
+                icon = "personWalking",
             ),
         ],
     )

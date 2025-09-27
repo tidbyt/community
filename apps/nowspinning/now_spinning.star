@@ -23,9 +23,8 @@ DEFAULT_ALBUM_COLOR = "#e833f2"
 DEFAULT_ARTIST_COLOR = "#ffffff"
 DEFAULT_HIDE_APP = False
 
-DEFAULT_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
+DEFAULT_USER_AGENT = "Tidbyt/1.0.0 ( https://www.tidbyt.dev )"
 
-TOKEN_CACHE_TTL = 3120  # 52 minutes
 COVER_CACHE_TTL = 86400  # 1 day
 
 DEBUG = False
@@ -91,14 +90,47 @@ def get_cover(cover_url):
         return RECORD_ICON
 
     # fetch cover from url
-    dprint("Getting cover: %s" % cover_url)
+    dprint("Getting cover info: %s" % cover_url)
     res = http.get(cover_url, ttl_seconds = COVER_CACHE_TTL, headers = {
+        "Accept": "application/json",
         "User-Agent": DEFAULT_USER_AGENT,
     })
 
     # if error, return default spinning record icon
     if res.status_code != 200:
-        print("Error getting cover, status %d" % res.status_code)
+        print("Error getting cover info, status %d" % res.status_code)
+        dprint(res.body())
+        return RECORD_ICON
+
+    # get data
+    data = res.json()
+
+    # check if there are images
+    if not "images" in data:
+        dprint("No images field")
+        return RECORD_ICON
+
+    if (len(data["images"]) == 0):
+        dprint("images field is an empty array")
+        return RECORD_ICON
+
+    # check if there is a small thumbnail
+    if not "thumbnails" in data["images"][0]:
+        dprint("No thumbnails field")
+        return RECORD_ICON
+
+    if not "small" in data["images"][0]["thumbnails"]:
+        dprint("No small field inside thumbnails")
+        return RECORD_ICON
+
+    dprint("Getting small thumbnail from %s" % data["images"][0]["thumbnails"]["small"])
+    res = http.get(data["images"][0]["thumbnails"]["small"], ttl_seconds = COVER_CACHE_TTL, headers = {
+        "User-Agent": DEFAULT_USER_AGENT,
+    })
+
+    # if error, return default spinning record icon
+    if res.status_code != 200:
+        print("Error getting cover image, status %d" % res.status_code)
         dprint(res.body())
         return RECORD_ICON
 
@@ -249,31 +281,8 @@ def album_search(album_name):
         schema.Option[]: List of album options for the user to pick.
     """
 
-    # authenticate with spotify to be able to use search api
-
     # fake field to signal error to the user
     fake_error_field = schema.Option(display = "ERROR: Please close this screen and try adding the app again.", value = "error")
-
-    res = http.get(
-        "https://open.spotify.com/get_access_token?reason=transport&productType=web_player",
-        ttl_seconds = TOKEN_CACHE_TTL,
-        headers = {
-            "User-Agent": DEFAULT_USER_AGENT,
-        },
-    )
-
-    if res.status_code != 200:
-        print("API error {}: {}".format(str(res.status_code), res.body()))
-
-        # return the fake field to signal error to the user
-        return [fake_error_field]
-
-    # get auth data
-    data = res.json()
-
-    # get token
-    access_token = data["accessToken"]
-    dprint("Access token: %s" % access_token)
 
     # strip spaces
     stripped_name = album_name.strip()
@@ -283,10 +292,9 @@ def album_search(album_name):
         return []
 
     # build url
-    url = "https://api.spotify.com/v1/search?q={}&type=album&limit=30&offset=0".format(humanize.url_encode(stripped_name))
+    url = "https://musicbrainz.org/ws/2/release-group/?query=releasegroup:{}%20AND%20status:official&limit=50&fmt=json".format(humanize.url_encode(stripped_name))
     dprint("Calling %s" % url)
     res = http.get(url, headers = {
-        "Authorization": "Bearer %s" % access_token,
         "User-Agent": DEFAULT_USER_AGENT,
     })
     dprint("Response: %d" % res.status_code)
@@ -300,27 +308,27 @@ def album_search(album_name):
     # get data
     data = res.json()
 
-    if not "albums" in data:
-        dprint("albums field not returned")
+    # validate if something was returned
+    if not "release-groups" in data:
+        dprint("release-groups field not returned")
         return []
 
-    if not "items" in data["albums"]:
-        dprint("albums.items field not returned")
+    if len(data["release-groups"]) == 0:
+        dprint("release-groups array is empty")
         return []
 
-    if len(data["albums"]["items"]) == 0:
-        dprint("albums.items is empty")
-        return []
+    dprint("Found %d albums" % len(data["release-groups"]))
 
-    dprint("Found %d albums" % len(data["albums"]["items"]))
+    # sort by release date, newest first
+    sorted_releases = sorted(data["release-groups"], key = get_release_date, reverse = True)
 
     options = []
-    for release in data["albums"]["items"]:
-        title = release["name"]
-        type = release["type"].capitalize()
-        artist = release["artists"][0]["name"]
-        date = release.get("release_date", "0000")[0:4]
-        cover_url = get_cover_url(release)
+    for release in sorted_releases:
+        title = release["title"]
+        type = release.get("primary-type", "Unknown").capitalize()
+        artist = release["artist-credit"][0]["name"]
+        date = release.get("first-release-date", "0000")[0:4]
+        cover_url = "https://coverartarchive.org/release-group/{}/".format(release["id"])
         options.append(schema.Option(
             display = "{} by {} ({}, {})".format(title, artist, type, date),
             value = "|".join([title, artist, cover_url]),  # concatenate album|artist|cover
@@ -328,14 +336,13 @@ def album_search(album_name):
 
     return options
 
-def get_cover_url(release):
-    images = release.get("images", [])
+def get_release_date(release):
+    """Returns the year of a release.
 
-    if len(images) == 0:
-        return "none"
-
-    # get last image as it's usually the smaller size
-    return images[len(images) - 1]["url"]
+    Args:
+        release (dict): The release object.
+    """
+    return release.get("first-release-date", "0000")[0:4]
 
 def dprint(message):
     """Prints messages when in debug mode.

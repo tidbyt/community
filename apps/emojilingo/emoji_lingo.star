@@ -15,11 +15,18 @@ load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
-default_locale = "fr_CA"
-default_vendor = "apple"
+# can be useful to change during testing
+default_locale = "en"
+default_vendor = "apple"  # apple, google or microsoft (added in May 2025)
 
+# for testing, can be set to a number matching the number in Unicode release
+# currently used (see that release's full emoji list)
 test_emoji = None
 
+# As of 2025-05-02, the current list of emojis and base64 are Unicode 16.0
+# Emoji names are from CLDR's release 47 of 2025-03-12
+# Apple emojis are from macos 15.4
+# Google emojis are from Noto font's 2024-10-03 release
 EMOJI_LIST_URL = "https://emoji-lingo.s3.amazonaws.com/emoji-list-%s.csv"
 EMOJI_NAMES_URL = "https://emoji-lingo.s3.amazonaws.com/locale/%s.csv"
 EMOJI_BASE64_URL = "https://emoji-lingo.s3.amazonaws.com/base64/%s/%s.txt"
@@ -365,6 +372,10 @@ def get_schema():
                     schema.Option(
                         display = "Google",
                         value = "google",
+                    ),
+                    schema.Option(
+                        display = "Microsoft",
+                        value = "microsoft",
                     ),
                 ],
             ),

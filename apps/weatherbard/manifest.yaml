@@ -1,0 +1,13 @@
+id: weatherbard
+name: Weatherbard
+summary: Poetic weather display
+desc: Weather and poetry together in the voice of Mary Oliver.
+author: mgtkach
+source_url: https://github.com/mgtkach/community/tree/main/apps/weatherbard
+config: true
+widgets:
+  - weatherbard.star
+preview: weatherbard.gif
+secrets:
+  - name: openweather_key
+    value: ENC[AV6+xWcEyGZAXJz6fIH2xJDhQ8MparbbAKoATMOWWwXDzXhcUnLkMH6GckSJ70dfic09fJtFicDThu5qnhA4dwLTtYqBfSAMkJ9ccPq9mPvOUdD27DZQ5lJQ0xe4/H4amEvUl/01ev993RUQO6Qbew76RzHUe39ZyQd+4jrsWsNNbDOYZz0=]

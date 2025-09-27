@@ -1,0 +1,8 @@
+---
+id: loan-payment
+name: Loan Payment
+summary: Shows remaining loan
+desc: Shows the amount still to be repaid from your loan.
+author: devfle
+fileName: loan_payment.star
+packageName: loanPayment
