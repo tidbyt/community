@@ -1,0 +1,33 @@
+id: atb-bus-times
+name: AtB Bus Times
+desc: Bus departures in Oslo.
+author: jakobbbb
+summary: Bus departures in Oslo
+category: Transportation
+filename: atb_bus_times.star
+type: app
+config:
+  - name: stop_id
+    type: string
+    desc: The Entur stop ID (e.g., NSR:StopPlace:6286 for Colletts gate).
+    required: true
+  - name: quay_id
+    type: string
+    desc: The Entur quay ID (e.g., NSR:Quay:11544 for Colletts gate).
+    required: true
+  - name: stop_name
+    type: string
+    desc: The display name for the bus stop.
+    required: true
+entrypoint: main
+tags:
+  - transportation
+  - norway
+  - trondheim
+  - bus
+  - atb
+  - real-time
+  - public-transport
+  - travel
+  - commute
+  - schedule 
