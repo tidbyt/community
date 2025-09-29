@@ -37,31 +37,24 @@ def main(config):
 
         if line.startswith("END:VEVENT"):
             creatingEvent = False
-            if event["date"] >= time.now():
-                events.append(event)
+            date = event.get("date")
+            if date != None:
+                if date >= time.now():
+                    events.append(event)
 
         if creatingEvent:
             if line.startswith("SUMMARY:"):
                 event["name"] = line.split(":")[1]
 
             if line.startswith("DTSTART:"):
-                # 20250426T000000Z
-                # YYYYMMDDTHHMMSSZ
+                timestamp = line.split(":")[1].replace("\x0d", "")
 
-                timestamp = line.split(":")[1]
-                year = timestamp[0:4]
-                month = timestamp[4:6]
-                day = timestamp[6:8]
-                hour = timestamp[9:11]
-                minutes = timestamp[11:13]
-
-                # 2021-03-22T23:20:50.52Z
-                adjustedTimestamp = year + "-" + month + "-" + day + "T" + hour + ":" + minutes + ":00.00Z"
-
-                parsedTime = time.parse_time(adjustedTimestamp)
+                dateFormat = "20060102T150405Z"
                 timezone = config.get("timezone") or "America/New_York"
-                event["date"] = parsedTime
-                event["formattedDate"] = parsedTime.in_location(timezone).format("01/02")
+                eventDate = time.parse_time(timestamp, dateFormat, timezone)
+
+                event["date"] = eventDate
+                event["formattedDate"] = eventDate.in_location(timezone).format("01/02")
 
     maxEvents = int(config.get("number_of_events", "5"))
     events = sorted(events, key = lambda x: x["date"])[:maxEvents]

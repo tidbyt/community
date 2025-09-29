@@ -16,6 +16,9 @@ Using logic to work out when the next round starts rather that relying on the da
 v1.2
 Reduced match cache time for the weekend. We need check more often when the games are about to start
 Added leading zero for when seconds on game clock is <10
+
+v1.3
+Updated for finals
 """
 
 load("encoding/json.star", "json")
@@ -67,6 +70,13 @@ def main(config):
 
     CurrentRound = int(LadderJSON["currentRound"])
     NextRound = int(CurrentRound) + 1
+    isFinals = False
+
+    # If we're beyond round 19, ie. in the Finals, go to the end of all listed matches and get the round number
+    # This will be the "Current Round" and set Finals to be true
+    if NextRound > 19:
+        CurrentRound = int(MatchesJSON["matches"][len(AllMatches) - 1]["roundNumber"])
+        isFinals = True
 
     for x in range(0, len(AllMatches), 1):
         # The data in Ladder API does not update "Current Round" quickly enough so we need to look ahead
@@ -87,7 +97,6 @@ def main(config):
 
         if int(MatchesJSON["matches"][y]["roundNumber"]) == CurrentRound:
             Status = MatchesJSON["matches"][y]["matchStatus"]
-
             HomeTeam = MatchesJSON["matches"][y]["homeSquadId"]
             AwayTeam = MatchesJSON["matches"][y]["awaySquadId"]
             HomeTeam = int(HomeTeam)
@@ -115,7 +124,7 @@ def main(config):
                 AwayFound = 0
 
                 # if not finals, show team records
-                if int(LadderJSON["round"]) < 20:
+                if isFinals == False:
                     for y in range(0, 10, 1):
                         if str(HomeTeam) == str(LadderJSON["ladder"][y]["squadId"]):
                             HomeWins = str(LadderJSON["ladder"][y]["won"])

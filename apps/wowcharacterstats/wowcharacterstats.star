@@ -69,7 +69,7 @@ DEFAULT_REGION = "us"
 DEFAULT_AUTH_TTL = 86399
 
 CURRENT_EXPANSION = "The War Within"
-CURRENT_INSTANCE = "Liberation of Undermine"
+CURRENT_INSTANCE = "Manaforge Omega"
 
 def main(config):
     client_id = secret.decrypt(

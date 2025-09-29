@@ -12,6 +12,17 @@ The API is a round behind with the cancellation of Round 6. Monaco should be Rou
 
 v1.2
 Updating for changes to team colours for 2024 sesason
+
+v1.3
+Updated for new API, thanks to @jvivona :)
+
+v1.4
+Using different API lookup to check race calendar. This is to see how long since the last race ended, if less than 48hrs display the results, if more than 48hrs go to the next race
+
+1.5
+Back to one API lookup now
+Added handling for when not all 20 drivers start the race, eg Stroll in Spain 2025
+Removed hard coding of Perez's name, not a driver anymore
 """
 
 load("encoding/json.star", "json")
@@ -22,10 +33,8 @@ load("time.star", "time")
 
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 
-#F1_URL = "http://ergast.com/api/f1/"
-
 # Alternate URL thanks to @jvivona for the hosting :)
-F1_URL = "https://tidbyt.apis.ajcomputers.com/f1/api/"
+F1_URL = "https://raw.githubusercontent.com/jvivona/tidbyt-data/refs/heads/main/formula1/"
 
 def main(config):
     RotationSpeed = config.get("speed", "3")
@@ -45,62 +54,71 @@ def main(config):
     now = time.now().in_location(timezone)
     Year = now.format("2006")
 
-    # When was the last race?
-    F1_LAST_URL = F1_URL + "current/last/results.json"
-    GetLast = get_cachable_data(F1_LAST_URL, 60 * 60)
+    RACELIST_URL = F1_URL + "races.json"
+    GetLast = get_cachable_data(RACELIST_URL, 86400)
     F1_LAST_JSON = json.decode(GetLast)
-    LocalRaceDate = F1_LAST_JSON["MRData"]["RaceTable"]["Races"][0]["date"]
-    LocalRaceTime = F1_LAST_JSON["MRData"]["RaceTable"]["Races"][0]["time"]
-    RaceDate_Time = LocalRaceDate + " " + LocalRaceTime
-    FormatRTime = time.parse_time(RaceDate_Time, format = "2006-01-02 15:04:00Z").in_location(timezone)
-    RTimeDiff = FormatRTime - now
 
-    # if less than 48 hrs since the last race start, show that
-    if RTimeDiff.hours > -47:
-        Session = "R"
-        F1_JSON = F1_LAST_JSON
-
-        # else if more than 48 hrs past, lets go to the next round
-    else:
-        F1_NEXT_URL = F1_URL + "/next.json"
-        GetNext = get_cachable_data(F1_NEXT_URL, 86400)
-        F1_NEXT_JSON = json.decode(GetNext)
-        CurrentRound = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["round"]
-        CurrentRace = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["raceName"]
-
-        # What time is qualifying at your local time
-        QualyDate = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["Qualifying"]["date"]
-        QualyTime = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["Qualifying"]["time"]
-        QualyDate_Time = QualyDate + " " + QualyTime
-        FormatQTime = time.parse_time(QualyDate_Time, format = "2006-01-02 15:04:00Z").in_location(timezone)
-        QTimeDiff = FormatQTime - now
-
-        # What time is the race at your local time
-        LocalRaceDate = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["date"]
-        LocalRaceTime = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["time"]
+    # iterate through the race calendar
+    for x in range(0, len(F1_LAST_JSON["MRData"]["RaceTable"]["Races"]), 1):
+        LocalRaceDate = F1_LAST_JSON["MRData"]["RaceTable"]["Races"][x]["date"]
+        LocalRaceTime = F1_LAST_JSON["MRData"]["RaceTable"]["Races"][x]["time"]
         RaceDate_Time = LocalRaceDate + " " + LocalRaceTime
         FormatRTime = time.parse_time(RaceDate_Time, format = "2006-01-02 15:04:00Z").in_location(timezone)
-        MyRaceDate = FormatRTime.format("Jan 2")
-        MyRaceTime = FormatRTime.format("15:04")
         RTimeDiff = FormatRTime - now
+        #print(RTimeDiff.hours)
 
-        # Has qualifying completed? Allow for 2hrs post session
-        if QTimeDiff.hours < -1:
-            F1_QUALY_URL = F1_URL + Year + "/" + CurrentRound + "/" + "qualifying.json"
-            GetQualy = get_cachable_data(F1_QUALY_URL, 60 * 60)
-            F1_QUALY_JSON = json.decode(GetQualy)
-            F1_JSON = F1_QUALY_JSON
-            Session = "Q"
-
-        # Has race completed? Allow for 3hrs post race. This to take precedence over qualifying
-        # Might not actually get here depending how quickly "CurrentRound" advances to the next but if they do advance quickly then race results should still get picked up earlier (L38)
-        if RTimeDiff.hours < -2:
-            F1_RACE_URL = F1_URL + Year + "/" + CurrentRound + "/" + "results.json"
-            GetRace = get_cachable_data(F1_RACE_URL, 60 * 60)
-            F1_RACE_JSON = json.decode(GetRace)
-            F1_JSON = F1_RACE_JSON
+        # if we're more than 2hrs but less than 48hrs after the last race start get the race results, and break
+        # or if time next race is more than 0hrs, lets look ahead, and break when we find something
+        if RTimeDiff.hours < -2 and RTimeDiff.hours > -48:
+            RaceRound = F1_LAST_JSON["MRData"]["RaceTable"]["Races"][x]["round"]
+            F1_RACE_URL = F1_URL + Year + "/" + RaceRound + "/" + "results.json"
+            GetResults = get_cachable_data(F1_RACE_URL, 60 * 60)
+            F1_JSON = json.decode(GetResults)
             Session = "R"
+            break
 
+        elif RTimeDiff.hours > 0:
+            F1_NEXT_URL = F1_URL + "next.json"
+            GetNext = get_cachable_data(F1_NEXT_URL, 86400)
+            F1_NEXT_JSON = json.decode(GetNext)
+            CurrentRound = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["round"]
+            CurrentRace = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["raceName"]
+
+            # What time is qualifying at your local time
+            QualyDate = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["Qualifying"]["date"]
+            QualyTime = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["Qualifying"]["time"]
+            QualyDate_Time = QualyDate + " " + QualyTime
+            FormatQTime = time.parse_time(QualyDate_Time, format = "2006-01-02 15:04:00Z").in_location(timezone)
+            QTimeDiff = FormatQTime - now
+
+            # What time is the race at your local time
+            LocalRaceDate = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["date"]
+            LocalRaceTime = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["time"]
+            RaceDate_Time = LocalRaceDate + " " + LocalRaceTime
+            FormatRTime = time.parse_time(RaceDate_Time, format = "2006-01-02 15:04:00Z").in_location(timezone)
+            MyRaceDate = FormatRTime.format("Jan 2")
+            MyRaceTime = FormatRTime.format("15:04")
+            RTimeDiff = FormatRTime - now
+
+            # Has qualifying completed? Allow for 2hrs post session
+            if QTimeDiff.hours < -1:
+                F1_QUALY_URL = F1_URL + Year + "/" + CurrentRound + "/" + "qualifying.json"
+                GetQualy = get_cachable_data(F1_QUALY_URL, 60 * 60)
+                F1_QUALY_JSON = json.decode(GetQualy)
+                F1_JSON = F1_QUALY_JSON
+                Session = "Q"
+
+            # Has race completed? Allow for 3hrs post race. This to take precedence over qualifying
+            # Might not actually get here depending how quickly "CurrentRound" advances to the next but if they do advance quickly then race results should still get picked up earlier (L38)
+            if RTimeDiff.hours < -2:
+                F1_RACE_URL = F1_URL + Year + "/" + CurrentRound + "/" + "results.json"
+                GetRace = get_cachable_data(F1_RACE_URL, 60 * 60)
+                F1_RACE_JSON = json.decode(GetRace)
+                F1_JSON = F1_RACE_JSON
+                Session = "R"
+            break
+
+    # if no Session defined show the next race details
     if Session == "":
         # API feed is one round behind, so bumping by 1 to match the official F1 round number
         CurrentRound = str(int(CurrentRound) + 1)
@@ -289,16 +307,11 @@ def getDriver(z, F1_JSON, Session):
     output.extend(TitleRow)
 
     for i in range(0, 4):
-        if i + z < 20:
+        if i + z < len(F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"]):
             DriverFont = "#fff"
             Pos = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["position"]
 
-            # it doesn't display Perez's surname corrected so hardcoded him in
-            if F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Driver"]["code"] == "PER":
-                Driver = "Perez"
-            else:
-                Driver = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Driver"]["familyName"]
-
+            Driver = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Driver"]["familyName"]
             ConstructorID = F1_JSON["MRData"]["RaceTable"]["Races"][0][SessionCode][i + z]["Constructor"]["constructorId"]
 
             # If its a Haas, use black color
@@ -365,12 +378,12 @@ def getDriverGaps(z, F1_JSON, Session):
             Pos = F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["position"]
             DriverCode = F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["Driver"]["code"]
 
-            # if they retired show "DNF"
+            # if they retired show "DNF" or "DQ" if Disqualified
             if F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["status"] != "Finished":
                 if F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["positionText"] == "R":
                     Time = "DNF"
-                    # else they were lapped, trimmed to fit
-
+                elif F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["positionText"] == "D":
+                    Time = "DQ"
                 else:
                     Time = F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["status"]
                     Time = Time[:4]

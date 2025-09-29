@@ -1,7 +1,7 @@
 """
-Applet: The Weekendest
-Summary: The Weekendest - NYC subway
-Description: Real-time New York City Subway projected departure times for a selected station, as seen on The Weekendest app. Takes into account of overnight and weekend service changes.
+Applet: Subway Now
+Summary: Subway Now - NYC Subway
+Description: More accurate realtime New York City Subway arrival times for a selected station, as seen on Subway Now app. Shows actual train destinations including overnight and weekend service changes.
 Author: blahblahblah-
 """
 
@@ -16,8 +16,8 @@ load("time.star", "time")
 DEFAULT_STOP_ID = "M16"
 DEFAULT_DIRECTION = "both"
 DEFAULT_TRAVEL_TIME = '{"display": "0", "value": "0", "text": "0"}'
-GOOD_SERVICE_STOPS_URL_BASE = "https://goodservice.io/api/stops/"
-GOOD_SERVICE_ROUTES_URL = "https://goodservice.io/api/routes/"
+SUBWAY_NOW_STOPS_URL_BASE = "https://api.subwaynow.app/stops/"
+SUBWAY_NOW_ROUTES_URL = "https://api.subwaynow.app/routes/"
 
 DISPLAY_ORDER_ETA = "eta"
 DISPLAY_ORDER_ALPHABETICAL = "alphabetical"
@@ -62,18 +62,18 @@ DIAMONDS = {
 }
 
 def main(config):
-    routes_req = http.get(GOOD_SERVICE_ROUTES_URL)
+    routes_req = http.get(SUBWAY_NOW_ROUTES_URL)
     if routes_req.status_code != 200:
-        fail("goodservice routes request failed with status %d", routes_req.status_code)
+        fail("Subway Now routes request failed with status %d", routes_req.status_code)
 
     stop_id = config.str("stop_id", DEFAULT_STOP_ID)
-    stop_req = http.get(GOOD_SERVICE_STOPS_URL_BASE + stop_id + "?agent=tidbyt")
+    stop_req = http.get(SUBWAY_NOW_STOPS_URL_BASE + stop_id + "?agent=tidbyt")
     if stop_req.status_code != 200:
-        fail("goodservice stop request failed with status %d", stop_req.status_code)
+        fail("Subway Now stop request failed with status %d", stop_req.status_code)
 
-    stops_req = http.get(GOOD_SERVICE_STOPS_URL_BASE)
+    stops_req = http.get(SUBWAY_NOW_STOPS_URL_BASE)
     if stops_req.status_code != 200:
-        fail("goodservice stops request failed with status %d", stops_req.status_code)
+        fail("Subway Now stops request failed with status %d", stops_req.status_code)
 
     travel_time_raw = json.decode(config.get("travel_time", DEFAULT_TRAVEL_TIME))["value"]
     if not is_parsable_integer(travel_time_raw):
@@ -276,9 +276,9 @@ def travel_time_search(pattern):
         return [create_option(pattern)] + [create_option(pattern + str(i)) for i in range(10) if int_pattern * 10 + i < 60]
 
 def get_schema():
-    stops_req = http.get(GOOD_SERVICE_STOPS_URL_BASE)
+    stops_req = http.get(SUBWAY_NOW_STOPS_URL_BASE)
     if stops_req.status_code != 200:
-        fail("goodservice stops request failed with status %d", stops_req.status_code)
+        fail("Subway Now stops request failed with status %d", stops_req.status_code)
 
     stops_options = []
 

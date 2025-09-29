@@ -1,0 +1,8 @@
+---
+id: countdowntimer
+name: Countdown Timer
+summary: Countdown with options
+desc: A beautiful countdown timer that displays time remaining until your important events with an animated dot grid visualization. Features customizable colors, flexible layout, and smooth animations.
+author: Matthew Grasmick
+fileName: countdowntimer.star
+packageName: countdowntimer

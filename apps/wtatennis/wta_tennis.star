@@ -67,6 +67,13 @@ Only show players if both names are listed in the scheduled match, prevents blan
 
 v1.12
 Updated for 2025 season
+
+v1.13
+Noted that ESPN data feed not indicating a winner, so adding logic to work it out
+Also updated the variable for player color to match the ATP app
+
+v1.14
+If the next scheduled match is the final, then look ahead 48hrs instead of the normal 12hrs to make the final appear sooner
 """
 
 load("encoding/json.star", "json")
@@ -249,22 +256,27 @@ def main(config):
         for x in range(0, Number_Events, 1):
             if SelectedTourneyID == WTA_JSON["events"][x]["id"]:
                 EventIndex = x
+                TimeToCheck = 12
+                WTA_PREFIX = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"]
 
                 # check if we are between the start & end date of the tournament
                 if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
                     if WTA_JSON["events"][x]["groupings"][0]["grouping"]["slug"] == "mens-singles":
                         GroupingsID = 1
-                    for y in range(0, len(WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"]), 1):
+                    for y in range(0, len(WTA_PREFIX), 1):
                         # if the match is scheduled ("pre") and the start time of the match is scheduled for next 12 hrs, add it to the list of scheduled matches
-                        if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["state"] == "pre":
-                            P1Name = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][0]["athlete"]["shortName"]
-                            P2Name = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][1]["athlete"]["shortName"]
+                        if WTA_PREFIX[y]["status"]["type"]["state"] == "pre":
+                            P1Name = WTA_PREFIX[y]["competitors"][0]["athlete"]["shortName"]
+                            P2Name = WTA_PREFIX[y]["competitors"][1]["athlete"]["shortName"]
 
                             if P1Name != "TBD" and P2Name != "TBD":
+                                # if the next scheduled match is the final, lets look ahead 48hrs instead of 12hrs
+                                if WTA_PREFIX[y - 1]["round"]["displayName"] == "Semifinal" and WTA_PREFIX[y - 2]["round"]["displayName"] == "Semifinal":
+                                    TimeToCheck = 48
                                 MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
                                 MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                                 diff = MatchTime - now
-                                if diff.hours < 12:
+                                if diff.hours < TimeToCheck:
                                     ScheduledMatchList.insert(0, y)
                                 else:
                                     break
@@ -592,6 +604,8 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
         Player2SetScoreList = []
         Player1SetWinnerList = []
         Player2SetWinnerList = []
+        P1SetWinner = False
+        P2SetWinner = False
 
         SetScores1 = []
         SetScores2 = []
@@ -603,8 +617,8 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             break
         else:
             LoopMax = LoopMax + 1
-            Player1NameColor = "#fff"
-            Player2NameColor = "#fff"
+            Player1Color = "#fff"
+            Player2Color = "#fff"
 
             # pop the index from the list and go straight to that match
             x = CompletedMatchList.pop()
@@ -620,9 +634,9 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             Player2_Winner = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][1]["winner"]
 
             if (Player1_Winner):
-                Player1NameColor = "#ff0"
+                Player1Color = "#ff0"
             elif (Player2_Winner):
-                Player2NameColor = "#ff0"
+                Player2Color = "#ff0"
 
             # if its not a walkover
             if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["status"]["type"]["description"] != "Walkover":
@@ -679,6 +693,14 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
 
                     MasterSetScores1.extend(SetScores1)
                     MasterSetScores2.extend(SetScores2)
+
+                # ESPN not updating the match winner field lately, so I'll work it out myself
+                # Whoever won the last set is the winner
+                if Player1_Winner == False and Player2_Winner == False:
+                    if (P1SetWinner):
+                        Player1Color = "#ff0"
+                    else:
+                        Player2Color = "#ff0"
 
             else:
                 # it is a walkover, indicate that in the set score field
@@ -744,7 +766,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
                                         content = Player1_Name[3:15],
-                                        color = Player1NameColor,
+                                        color = Player1Color,
                                         font = displayfont,
                                     ),
                                 ),
@@ -768,7 +790,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
                                         content = Player2_Name[3:15],
-                                        color = Player2NameColor,
+                                        color = Player2Color,
                                         font = displayfont,
                                     ),
                                 ),
@@ -1196,13 +1218,13 @@ def get_schema():
     )
 
 def titleBar(SelectedTourneyID):
-    if SelectedTourneyID == "154-2024":  # AO
+    if SelectedTourneyID == "154-2025":  # AO
         titleColor = "#0091d2"
-    elif SelectedTourneyID == "188-2024":  # Wimbledon
+    elif SelectedTourneyID == "188-2025":  # Wimbledon
         titleColor = "#006633"
-    elif SelectedTourneyID == "172-2024":  # French Open
+    elif SelectedTourneyID == "172-2025":  # French Open
         titleColor = "#c84e1e"
-    elif SelectedTourneyID == "189-2024":  # US Open
+    elif SelectedTourneyID == "189-2025":  # US Open
         titleColor = "#022686"
     else:
         titleColor = "#430166"

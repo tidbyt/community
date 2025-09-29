@@ -1,0 +1,8 @@
+---
+id: norway-transit
+name: Norway Transit
+summary: Check departures in Norway
+desc: Check your favorite stop in real time, anywhere in Norway.
+author: Mats Grosvik
+fileName: norway_transit.star
+packageName: norwaytransit

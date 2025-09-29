@@ -79,6 +79,12 @@ Updated for 2025 season
 
 v1.14.1
 Bug fix - for when there is a tournament listed in the data feed but has null info
+
+v1.15
+Noted that ESPN data feed not indicating a winner, so adding logic to work it out
+
+v1.16
+If the next scheduled match is the final, then look ahead 48hrs instead of the normal 12hrs to make the final appear sooner
 """
 
 load("encoding/json.star", "json")
@@ -258,20 +264,25 @@ def main(config):
         for x in range(0, Number_Events, 1):
             if SelectedTourneyID == ATP_JSON["events"][x]["id"]:
                 EventIndex = x
+                TimeToCheck = 12
+                ATP_PREFIX = ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"]
 
                 # check if we are between the start & end date of the tournament
                 if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
-                    for y in range(0, len(ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"]), 1):
+                    for y in range(0, len(ATP_PREFIX), 1):
                         # if the match is scheduled ("pre") and the start time of the match is scheduled for next 12 hrs, add it to the list of scheduled matches
-                        if ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["state"] == "pre":
-                            P1Name = ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][0]["athlete"]["shortName"]
-                            P2Name = ATP_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["competitors"][1]["athlete"]["shortName"]
+                        if ATP_PREFIX[y]["status"]["type"]["state"] == "pre":
+                            P1Name = ATP_PREFIX[y]["competitors"][0]["athlete"]["shortName"]
+                            P2Name = ATP_PREFIX[y]["competitors"][1]["athlete"]["shortName"]
 
                             if P1Name != "TBD" and P2Name != "TBD":
+                                # if the next scheduled match is the final, lets look ahead 48hrs instead of 12hrs
+                                if ATP_PREFIX[y - 1]["round"]["displayName"] == "Semifinal" and ATP_PREFIX[y - 2]["round"]["displayName"] == "Semifinal":
+                                    TimeToCheck = 48
                                 MatchTime = ATP_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
                                 MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                                 diff = MatchTime - now
-                                if diff.hours < 12:
+                                if diff.hours < TimeToCheck:
                                     ScheduledMatchList.insert(0, y)
                                 else:
                                     # once we go past 12hrs break out from loop
@@ -612,6 +623,8 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
         Player2SetScoreList = []
         Player1SetWinnerList = []
         Player2SetWinnerList = []
+        P1SetWinner = False
+        P2SetWinner = False
 
         SetScores1 = []
         SetScores2 = []
@@ -698,6 +711,14 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
 
                     MasterSetScores1.extend(SetScores1)
                     MasterSetScores2.extend(SetScores2)
+
+                # ESPN not updating the match winner field lately, so I'll work it out myself
+                # Whoever won the last set is the winner
+                if Player1_Winner == False and Player2_Winner == False:
+                    if (P1SetWinner):
+                        Player1Color = "#ff0"
+                    else:
+                        Player2Color = "#ff0"
 
             else:
                 # it is a walkover, indicate that in the set score field
@@ -1217,13 +1238,13 @@ def get_schema():
     )
 
 def titleBar(SelectedTourneyID):
-    if SelectedTourneyID == "154-2024":  # AO
+    if SelectedTourneyID == "154-2025":  # AO
         titleColor = "#0091d2"
-    elif SelectedTourneyID == "188-2024":  # Wimbledon
+    elif SelectedTourneyID == "188-2025":  # Wimbledon
         titleColor = "#006633"
-    elif SelectedTourneyID == "172-2024":  # French Open
+    elif SelectedTourneyID == "172-2025":  # French Open
         titleColor = "#c84e1e"
-    elif SelectedTourneyID == "189-2024":  # US Open
+    elif SelectedTourneyID == "189-2025":  # US Open
         titleColor = "#022686"
     else:
         titleColor = "#203764"
