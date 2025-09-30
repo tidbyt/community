@@ -1,0 +1,9 @@
+---
+id: og_clock
+name: OG Clock
+summary: Display time & weather
+desc: Display the time in addition to current weather and humidity from either OpenWeather or National Weather Service (no API key required for NWS). To request an OpenWeather API key, see https://home.openweathermap.org/users/sign_up.
+author: g3rmanaviator (with thanks to bendiep and jwinslow23)
+fileName: og_clock.star
+packageName: og_clock
+recommended_interval: 1
