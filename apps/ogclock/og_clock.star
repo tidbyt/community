@@ -255,7 +255,6 @@ def main(config):
     # Initialize weather variables
     icon_ref = None
     result_current_conditions = {}
-    hours = now.hour
 
     if display_sample:
         # Sample data to display if user-specified API / location key are not available
