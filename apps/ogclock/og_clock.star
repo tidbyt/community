@@ -10,7 +10,6 @@ Version: 1.0
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -118,7 +117,7 @@ def get_openweather_air_pollution(api_key, latitude, longitude):
     air_quality = {}
     air_quality["index"] = int(res.json()["list"][0]["main"]["aqi"])
     return air_quality
-	
+
 def nightScreen(now, config):
     # Use OG Clock’s settings
     use_24_hour = config.bool("24hour_format", False)
@@ -167,14 +166,13 @@ def nightScreen(now, config):
         ),
     )
 
-
 def main(config):
     # Get location info from config or use default
     location_info = json.decode(config.get("location", DEFAULT_LOCATION))
     timezone = location_info["timezone"]
     latitude = float(location_info["lat"])
     longitude = float(location_info["lng"])
-    
+
     # Add this right after getting the current time
     now = time.now().in_location(timezone)
 
@@ -200,13 +198,13 @@ def main(config):
     # Update variable names to match:
     start_total = nightModeStartHr * 60 + nightModeStartMin
     end_total = dayModeEndHr * 60 + dayModeEndMin
-    
+
     night_mode_enabled = config.bool("night_mode", False)
     if night_mode_enabled:
         current_hour = now.hour
         current_minute = now.minute
         current_total = current_hour * 60 + current_minute
-        
+
         # Check if night mode crosses midnight
         if start_total > end_total:
             # Crosses midnight (e.g., 23:00 to 07:00)
@@ -214,14 +212,14 @@ def main(config):
         else:
             # Same day (e.g., 01:00 to 05:00)
             in_night_mode = current_total >= start_total and current_total < end_total
-        
+
         if in_night_mode:
             return nightScreen(now, config)
-               
+
     # Get display settings from OG Clock
     use_24_hour = config.bool("24hour_format", False)
     time_color = config.get("time_color", "fff")
-    
+
     # Get blinking separator setting (matching custom clock implementation)
     if config.bool("blink", True):
         blink_vec = [render.Text(":", font = "6x13", color = time_color)] * 5
@@ -229,13 +227,13 @@ def main(config):
         blink_text = render.Animation(blink_vec)
     else:
         blink_text = render.Text(":", font = "6x13", color = time_color)
-    
+
     # Weather settings
     api_service = config.get("weatherApiService") or "OpenWeather"
     api_key = config.get("apiKey", "")
     system_of_measurement = config.get("systemOfMeasurement", "Imperial").lower()
     temp_color = config.get("tempColor", TEMP_COLOR_DEFAULT)
-    
+
     display_metric = (system_of_measurement == "metric")
     display_sample = not (api_key) and api_service != "Open-Meteo" and api_service != "National Weather Service (NWS)"
 
@@ -261,101 +259,100 @@ def main(config):
         icon_ref = "sunnyish.png"
         result_current_conditions["temp"] = 14 if display_metric else 57
         result_current_conditions["humidity"] = 50
-    else:
-        if api_service == "National Weather Service (NWS)":
-            hourly_forecast_url = get_nws_hourly_grid_forecast_url(latitude, longitude, 3600)
-            raw_current_conditions = get_current_weather_conditions(hourly_forecast_url, 300)["properties"]["periods"][0]
+    elif api_service == "National Weather Service (NWS)":
+        hourly_forecast_url = get_nws_hourly_grid_forecast_url(latitude, longitude, 3600)
+        raw_current_conditions = get_current_weather_conditions(hourly_forecast_url, 300)["properties"]["periods"][0]
 
-            result_current_conditions["icon"] = {"condition": str(raw_current_conditions["shortForecast"]).lower(), "daytime": raw_current_conditions["isDaytime"]}
-            temperature = int(raw_current_conditions["temperature"])
-            result_current_conditions["temp"] = int(temperature if raw_current_conditions["temperatureUnit"] == "F" and not (display_metric) else ((temperature - 32) * (5 / 9)))
+        result_current_conditions["icon"] = {"condition": str(raw_current_conditions["shortForecast"]).lower(), "daytime": raw_current_conditions["isDaytime"]}
+        temperature = int(raw_current_conditions["temperature"])
+        result_current_conditions["temp"] = int(temperature if raw_current_conditions["temperatureUnit"] == "F" and not (display_metric) else ((temperature - 32) * (5 / 9)))
 
-            icon_phrase = result_current_conditions["icon"]["condition"]
-            is_daytime = result_current_conditions["icon"]["daytime"]
-            if (icon_phrase == "sunny" or "fair" in icon_phrase or "clear" in icon_phrase) and is_daytime:
-                icon_ref = "sunny.png"
-            elif ("mostly sunny" in icon_phrase or "partly sunny" in icon_phrase or "few clouds" in icon_phrase or "partly cloudy" in icon_phrase) and is_daytime:
-                icon_ref = "sunnyish.png"
-            elif icon_phrase == "cloudy" or "mostly cloudy" in icon_phrase or "overcast" in icon_phrase:
-                icon_ref = "cloudy.png"
-            elif "rain" in icon_phrase:
-                icon_ref = "rainy.png"
-            elif "thunderstorm" in icon_phrase:
-                icon_ref = "thundery.png"
-            elif "snow" in icon_phrase:
-                icon_ref = "snowy2.png"
-            elif ("fair" in icon_phrase or "clear" in icon_phrase) and not (is_daytime):
-                icon_ref = "moony.png"
-            elif ("few clouds" in icon_phrase or "partly cloudy" in icon_phrase) and not (is_daytime):
-                icon_ref = "moonyish.png"
+        icon_phrase = result_current_conditions["icon"]["condition"]
+        is_daytime = result_current_conditions["icon"]["daytime"]
+        if (icon_phrase == "sunny" or "fair" in icon_phrase or "clear" in icon_phrase) and is_daytime:
+            icon_ref = "sunny.png"
+        elif ("mostly sunny" in icon_phrase or "partly sunny" in icon_phrase or "few clouds" in icon_phrase or "partly cloudy" in icon_phrase) and is_daytime:
+            icon_ref = "sunnyish.png"
+        elif icon_phrase == "cloudy" or "mostly cloudy" in icon_phrase or "overcast" in icon_phrase:
+            icon_ref = "cloudy.png"
+        elif "rain" in icon_phrase:
+            icon_ref = "rainy.png"
+        elif "thunderstorm" in icon_phrase:
+            icon_ref = "thundery.png"
+        elif "snow" in icon_phrase:
+            icon_ref = "snowy2.png"
+        elif ("fair" in icon_phrase or "clear" in icon_phrase) and not (is_daytime):
+            icon_ref = "moony.png"
+        elif ("few clouds" in icon_phrase or "partly cloudy" in icon_phrase) and not (is_daytime):
+            icon_ref = "moonyish.png"
 
-            result_current_conditions["humidity"] = int(raw_current_conditions["relativeHumidity"]["value"])
+        result_current_conditions["humidity"] = int(raw_current_conditions["relativeHumidity"]["value"])
 
-        elif api_service == "OpenWeather":
-            request_url = OPENWEATHER_CURRWEATHER_URL.format(
-                latitude = latitude,
-                longitude = longitude,
-                api_key = api_key,
-                units = system_of_measurement,
-            )
-            raw_current_conditions = get_current_weather_conditions(request_url, 300)
+    elif api_service == "OpenWeather":
+        request_url = OPENWEATHER_CURRWEATHER_URL.format(
+            latitude = latitude,
+            longitude = longitude,
+            api_key = api_key,
+            units = system_of_measurement,
+        )
+        raw_current_conditions = get_current_weather_conditions(request_url, 300)
 
-            result_current_conditions["temp"] = int(raw_current_conditions["main"]["temp"])
-            result_current_conditions["humidity"] = int(raw_current_conditions["main"]["humidity"])
+        result_current_conditions["temp"] = int(raw_current_conditions["main"]["temp"])
+        result_current_conditions["humidity"] = int(raw_current_conditions["main"]["humidity"])
 
-            icon_num = int(raw_current_conditions["weather"][0]["id"])
-            icon_code = str(raw_current_conditions["weather"][0]["icon"])
-            if icon_num == 800 and "d" in icon_code:
-                icon_ref = "sunny.png"
-            elif icon_num >= 801 and icon_num <= 802 and "d" in icon_code:
-                icon_ref = "sunnyish.png"
-            elif icon_num >= 803 and icon_num <= 804 and "d" in icon_code:
-                icon_ref = "cloudy.png"
-            elif (icon_num >= 300 and icon_num < 400) or (icon_num >= 500 and icon_num < 600) or icon_num == 701:
-                icon_ref = "rainy.png"
-            elif icon_num >= 200 and icon_num < 300:
-                icon_ref = "thundery.png"
-            elif icon_num >= 600 and icon_num < 700:
-                icon_ref = "snowy2.png"
-            elif icon_num == 731:
-                icon_ref = "windy.png"
-            elif icon_num == 800 and "n" in icon_code:
-                icon_ref = "moony.png"
-            elif icon_num >= 801 and icon_num <= 804 and "n" in icon_code:
-                icon_ref = "moonyish.png"
+        icon_num = int(raw_current_conditions["weather"][0]["id"])
+        icon_code = str(raw_current_conditions["weather"][0]["icon"])
+        if icon_num == 800 and "d" in icon_code:
+            icon_ref = "sunny.png"
+        elif icon_num >= 801 and icon_num <= 802 and "d" in icon_code:
+            icon_ref = "sunnyish.png"
+        elif icon_num >= 803 and icon_num <= 804 and "d" in icon_code:
+            icon_ref = "cloudy.png"
+        elif (icon_num >= 300 and icon_num < 400) or (icon_num >= 500 and icon_num < 600) or icon_num == 701:
+            icon_ref = "rainy.png"
+        elif icon_num >= 200 and icon_num < 300:
+            icon_ref = "thundery.png"
+        elif icon_num >= 600 and icon_num < 700:
+            icon_ref = "snowy2.png"
+        elif icon_num == 731:
+            icon_ref = "windy.png"
+        elif icon_num == 800 and "n" in icon_code:
+            icon_ref = "moony.png"
+        elif icon_num >= 801 and icon_num <= 804 and "n" in icon_code:
+            icon_ref = "moonyish.png"
 
-        elif api_service == "OpenWeatherOneCall":
-            request_url = OPENWEATHER_ONECALL_URL.format(
-                latitude = latitude,
-                longitude = longitude,
-                api_key = api_key,
-                units = system_of_measurement,
-            )
-            raw_current_conditions = get_current_weather_conditions(request_url, 300)
+    elif api_service == "OpenWeatherOneCall":
+        request_url = OPENWEATHER_ONECALL_URL.format(
+            latitude = latitude,
+            longitude = longitude,
+            api_key = api_key,
+            units = system_of_measurement,
+        )
+        raw_current_conditions = get_current_weather_conditions(request_url, 300)
 
-            result_current_conditions["temp"] = int(raw_current_conditions["current"]["temp"])
-            result_current_conditions["humidity"] = int(raw_current_conditions["current"]["humidity"])
+        result_current_conditions["temp"] = int(raw_current_conditions["current"]["temp"])
+        result_current_conditions["humidity"] = int(raw_current_conditions["current"]["humidity"])
 
-            icon_num = int(raw_current_conditions["current"]["weather"][0]["id"])
-            icon_code = str(raw_current_conditions["current"]["weather"][0]["icon"])
-            if icon_num == 800 and "d" in icon_code:
-                icon_ref = "sunny.png"
-            elif icon_num >= 801 and icon_num <= 802 and "d" in icon_code:
-                icon_ref = "sunnyish.png"
-            elif icon_num >= 803 and icon_num <= 804 and "d" in icon_code:
-                icon_ref = "cloudy.png"
-            elif (icon_num >= 300 and icon_num < 400) or (icon_num >= 500 and icon_num < 600) or icon_num == 701:
-                icon_ref = "rainy.png"
-            elif icon_num >= 200 and icon_num < 300:
-                icon_ref = "thundery.png"
-            elif icon_num >= 600 and icon_num < 700:
-                icon_ref = "snowy2.png"
-            elif icon_num == 731:
-                icon_ref = "windy.png"
-            elif icon_num == 800 and "n" in icon_code:
-                icon_ref = "moony.png"
-            elif icon_num >= 801 and icon_num <= 804 and "n" in icon_code:
-                icon_ref = "moonyish.png"
+        icon_num = int(raw_current_conditions["current"]["weather"][0]["id"])
+        icon_code = str(raw_current_conditions["current"]["weather"][0]["icon"])
+        if icon_num == 800 and "d" in icon_code:
+            icon_ref = "sunny.png"
+        elif icon_num >= 801 and icon_num <= 802 and "d" in icon_code:
+            icon_ref = "sunnyish.png"
+        elif icon_num >= 803 and icon_num <= 804 and "d" in icon_code:
+            icon_ref = "cloudy.png"
+        elif (icon_num >= 300 and icon_num < 400) or (icon_num >= 500 and icon_num < 600) or icon_num == 701:
+            icon_ref = "rainy.png"
+        elif icon_num >= 200 and icon_num < 300:
+            icon_ref = "thundery.png"
+        elif icon_num >= 600 and icon_num < 700:
+            icon_ref = "snowy2.png"
+        elif icon_num == 731:
+            icon_ref = "windy.png"
+        elif icon_num == 800 and "n" in icon_code:
+            icon_ref = "moony.png"
+        elif icon_num >= 801 and icon_num <= 804 and "n" in icon_code:
+            icon_ref = "moonyish.png"
 
     # Prepare weather display components
     if icon_ref:
@@ -369,17 +366,17 @@ def main(config):
         font = "5x8",
         color = temp_color,
     )
-    
+
     humidity_text = render.Text(
         content = str(result_current_conditions.get("humidity", "?")) + "%",
-        font = "5x8",        
+        font = "5x8",
         color = "#848fEE",
     )
 
     # Layout - keeping OG Clock structure but adding weather
     return render.Root(
         delay = 500,
-		max_age = 60,
+        max_age = 60,
         child = render.Box(
             render.Column(
                 expanded = True,
@@ -515,13 +512,13 @@ def get_schema():
                 icon = "gear",
                 default = True,
             ),
-			schema.Toggle(
-				id = "night_mode",
-				name = "Night Mode",
-				desc = "Enable night mode - Dim the display and show only the clock",
-				icon = "gear",
-				default = False,
-			),
+            schema.Toggle(
+                id = "night_mode",
+                name = "Night Mode",
+                desc = "Enable night mode - Dim the display and show only the clock",
+                icon = "gear",
+                default = False,
+            ),
             schema.Text(
                 id = "nightModeStart",
                 name = "Night Mode Start",
@@ -530,7 +527,7 @@ def get_schema():
                 default = "2300",
             ),
             schema.Text(
-                id = "nightModeEnd", 
+                id = "nightModeEnd",
                 name = "Night Mode End",
                 icon = "clock",
                 desc = "Use 24-hour format (HHmm), e.g. 0730",
