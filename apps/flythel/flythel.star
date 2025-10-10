@@ -158,10 +158,11 @@ def main(config):
     game = None
     if current_hour < hour_to_switch:
         # want to do yesterday's game, if it exists (will be 0-index if it is there)
-        event = sched.get("dates")[0]
-        if event.get("date") == yesterday:
-            # TODO: add handling for doubleheaders somehow
-            game = event.get("games")[0]
+        if len(sched.get("dates")) > 0:
+            event = sched.get("dates")[0]
+            if event.get("date") == yesterday:
+                # TODO: add handling for doubleheaders somehow
+                game = event.get("games")[0]
 
     # if we didn't find a game above, find one now
     if not game:
