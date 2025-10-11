@@ -21,9 +21,11 @@ def main(config):
                 child = render.WrappedText("Enter a Google Calender iCal URL", font = "tom-thumb"),
             ),
         )
-    rep = http.get(url)
-    if rep.status_code != 200:
-        fail("Google Calender request failed with status %d", rep.status_code)
+    rep = http.get(url, headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"})
+    if rep.status_code not in [200, 202]:
+        fail("Calendar request failed with status %d", rep.status_code)
+    
+    
     lines = rep.body().split("\n")
 
     events = []
@@ -49,14 +51,50 @@ def main(config):
             if line.startswith("DTSTART:"):
                 timestamp = line.split(":")[1].replace("\x0d", "")
 
+                # Parse as UTC (like JavaScript does)
                 dateFormat = "20060102T150405Z"
+                eventDate = time.parse_time(timestamp, dateFormat, "UTC")
+                
+                # For display, convert to local timezone
                 timezone = config.get("timezone") or "America/New_York"
+                localEventDate = eventDate.in_location(timezone)
+
+                event["date"] = eventDate  # Keep as UTC for comparison
+                event["formattedDate"] = localEventDate.format("01/02")  # Display in local timezone
+
+            if line.startswith("DTSTART;VALUE=DATE:"):
+                dateString = line.split(":")[1].replace("\x0d", "")
+                
+                year = int(dateString[0:4])
+                month = int(dateString[4:6])
+                day = int(dateString[6:8])
+                
+                # For all-day events, create a timestamp at noon local time to avoid timezone issues
+                timezone = config.get("timezone") or "America/New_York"
+                
+                # Create timestamp string manually (avoiding % formatting)
+                yearStr = str(year)
+                monthStr = str(month)
+                dayStr = str(day)
+                
+                # Pad with zeros if needed
+                if len(yearStr) < 4:
+                    yearStr = "0" * (4 - len(yearStr)) + yearStr
+                if len(monthStr) < 2:
+                    monthStr = "0" + monthStr
+                if len(dayStr) < 2:
+                    dayStr = "0" + dayStr
+                
+                timestamp = yearStr + monthStr + dayStr + "T120000"
+                
+                # Parse in local timezone to avoid date shifting
+                dateFormat = "20060102T150405"
                 eventDate = time.parse_time(timestamp, dateFormat, timezone)
 
                 event["date"] = eventDate
                 event["formattedDate"] = eventDate.in_location(timezone).format("01/02")
 
-    maxEvents = int(config.get("number_of_events", "5"))
+    maxEvents = int(config.get("number_of_events", "50"))
     events = sorted(events, key = lambda x: x["date"])[:maxEvents]
 
     layout = []
