@@ -52,7 +52,7 @@ def main(config):
 
                 dateFormat = "20060102T150405Z"
                 eventDate = time.parse_time(timestamp, dateFormat, "UTC")
-                
+
                 # For display, convert to local timezone
                 timezone = config.get("timezone") or "America/New_York"
                 localEventDate = eventDate.in_location(timezone)
@@ -62,19 +62,19 @@ def main(config):
 
             if line.startswith("DTSTART;VALUE=DATE:"):
                 dateString = line.split(":")[1].replace("\x0d", "")
-                
+
                 year = int(dateString[0:4])
                 month = int(dateString[4:6])
                 day = int(dateString[6:8])
-                
+
                 # For all-day events, create a timestamp at noon local time to avoid timezone issues
                 timezone = config.get("timezone") or "America/New_York"
-                
+
                 # Create timestamp string manually (avoiding % formatting)
                 yearStr = str(year)
                 monthStr = str(month)
                 dayStr = str(day)
-                
+
                 # Pad with zeros if needed
                 if len(yearStr) < 4:
                     yearStr = "0" * (4 - len(yearStr)) + yearStr
@@ -82,9 +82,9 @@ def main(config):
                     monthStr = "0" + monthStr
                 if len(dayStr) < 2:
                     dayStr = "0" + dayStr
-                
+
                 timestamp = yearStr + monthStr + dayStr + "T120000"
-                
+
                 # Parse in local timezone to avoid date shifting
                 dateFormat = "20060102T150405"
                 eventDate = time.parse_time(timestamp, dateFormat, timezone)
