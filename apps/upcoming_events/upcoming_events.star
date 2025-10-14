@@ -45,7 +45,7 @@ def main(config):
 
         if creatingEvent:
             if line.startswith("SUMMARY:"):
-                event["name"] = line.split(":")[1]
+                event["name"] = ":".join(line.split(":")[1:])
 
             if line.startswith("DTSTART:"):
                 timestamp = line.split(":")[1].replace("\x0d", "")
