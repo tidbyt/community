@@ -42,12 +42,13 @@ DAY_LABELS = [
 def main(config):
     # Config
     location = json.decode(config.get("location") or DEFAULT_LOCATION)
+    celsius = config.bool("celsius", False)
 
-    response = http.get(WEATHER_URL + location["lat"] + "," + location["lng"], ttl_seconds = 300)
+    response = http.get(WEATHER_URL + location["lat"] + "," + location["lng"])
     if response.status_code != 200:
         fail("failed to fetch weather %d", response.status_code)
 
-    forecast = http.get(response.json()["properties"]["forecastHourly"], ttl_seconds = 300)
+    forecast = http.get(response.json()["properties"]["forecastHourly"])
     if forecast.status_code != 200:
         fail("failed to fetch forecast %d", forecast.status_code)
 
@@ -66,7 +67,7 @@ def main(config):
             prevDay = day
         days[len(days) - 1].append(period)
 
-    nowTemp = int(math.round(rightNow["temperature"]))
+    nowTemp = to_celsius(int(math.round(rightNow["temperature"])), celsius)
     cols = [render.Column(
         cross_align = "center",
         children = [
@@ -80,7 +81,7 @@ def main(config):
         if len(cols) >= MAX_DAYS_TO_SHOW:
             break
         dayStart = time.parse_time(day[0]["startTime"])
-        temps = [p["temperature"] for p in day]
+        temps = [to_celsius(p["temperature"], celsius) for p in day]
         high = int(math.round(max(temps)))
         forecast = mode([p["shortForecast"] for p in day])
 
@@ -151,8 +152,21 @@ def get_schema():
                 desc = "Location for which to display weather data.",
                 icon = "locationDot",
             ),
+            schema.Toggle(
+                id = "celsius",
+                name = "Celsius",
+                desc = "Enable to show temperature in Celsius",
+                icon = "temperatureHalf",
+                default = False,
+            ),
         ],
     )
+
+def to_celsius(val, is_celsius):
+  if is_celsius:
+    return int(math.round((val - 32) * 5/9))
+  else:
+    return val
 
 # Weather icons from https://www.flaticon.com/free-icons/weather
 # (free with attribution)
