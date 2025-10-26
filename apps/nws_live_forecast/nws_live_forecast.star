@@ -44,11 +44,11 @@ def main(config):
     location = json.decode(config.get("location") or DEFAULT_LOCATION)
     celsius = config.bool("celsius", False)
 
-    response = http.get(WEATHER_URL + location["lat"] + "," + location["lng"])
+    response = http.get(WEATHER_URL + location["lat"] + "," + location["lng"], ttl_seconds = 300)
     if response.status_code != 200:
         fail("failed to fetch weather %d", response.status_code)
 
-    forecast = http.get(response.json()["properties"]["forecastHourly"])
+    forecast = http.get(response.json()["properties"]["forecastHourly"], ttl_seconds = 300)
     if forecast.status_code != 200:
         fail("failed to fetch forecast %d", forecast.status_code)
 
