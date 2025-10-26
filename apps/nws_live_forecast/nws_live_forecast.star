@@ -163,10 +163,10 @@ def get_schema():
     )
 
 def to_celsius(val, is_celsius):
-  if is_celsius:
-    return int(math.round((val - 32) * 5/9))
-  else:
-    return val
+    if is_celsius:
+        return int(math.round((val - 32) * 5 / 9))
+    else:
+        return val
 
 # Weather icons from https://www.flaticon.com/free-icons/weather
 # (free with attribution)
