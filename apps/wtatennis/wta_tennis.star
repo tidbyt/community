@@ -74,6 +74,9 @@ Also updated the variable for player color to match the ATP app
 
 v1.14
 If the next scheduled match is the final, then look ahead 48hrs instead of the normal 12hrs to make the final appear sooner
+
+v1.14.1
+Bug fix - allowed for situations where "Womens Doubles" is first listed event for tournament (as in WTA Finals), similar to Mens Singles
 """
 
 load("encoding/json.star", "json")
@@ -133,6 +136,8 @@ def main(config):
                 # Sometimes results for both ATP & WTA will be listed, so check if the first "groupings" is Mens Singles
                 # and if so, Womens Singles will be next (GroupingsID = 1)
                 if WTA_JSON["events"][x]["groupings"][0]["grouping"]["slug"] == "mens-singles":
+                    GroupingsID = 1
+                if WTA_JSON["events"][x]["groupings"][0]["grouping"]["slug"] == "womens-doubles":
                     GroupingsID = 1
                 TotalMatches = len(WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"])
 
@@ -215,6 +220,8 @@ def main(config):
                 if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
                     if WTA_JSON["events"][x]["groupings"][0]["grouping"]["slug"] == "mens-singles":
                         GroupingsID = 1
+                    if WTA_JSON["events"][x]["groupings"][0]["grouping"]["slug"] == "womens-doubles":
+                        GroupingsID = 1
                     for y in range(0, len(WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"]), 1):
                         MatchState = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["description"]
 
@@ -262,6 +269,8 @@ def main(config):
                 # check if we are between the start & end date of the tournament
                 if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
                     if WTA_JSON["events"][x]["groupings"][0]["grouping"]["slug"] == "mens-singles":
+                        GroupingsID = 1
+                    if WTA_JSON["events"][x]["groupings"][0]["grouping"]["slug"] == "womens-doubles":
                         GroupingsID = 1
                     for y in range(0, len(WTA_PREFIX), 1):
                         # if the match is scheduled ("pre") and the start time of the match is scheduled for next 12 hrs, add it to the list of scheduled matches
@@ -370,6 +379,8 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
             Player2NameColor = "#fff"
 
             if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "mens-singles":
+                GroupingsID = 1
+            if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "womens-doubles":
                 GroupingsID = 1
 
             # pop the index from the list and go straight to that match
@@ -624,6 +635,8 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             x = CompletedMatchList.pop()
 
             if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "mens-singles":
+                GroupingsID = 1
+            if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "womens-doubles":
                 GroupingsID = 1
 
             Player1_Name = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
@@ -959,6 +972,8 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
             x = ScheduledMatchList.pop()
 
             if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "mens-singles":
+                GroupingsID = 1
+            if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "womens-doubles":
                 GroupingsID = 1
 
             # check that we have players before displaying them or display blank line
