@@ -1,4 +1,4 @@
-daysUntilStale: 30
+daysUntilStale: 120
 daysUntilClose: 1
 
 exemptLabels:
@@ -9,4 +9,4 @@ markComment: false
 
 closeComment: >
   We're automatically closing this issue because it hasn't had any activity
-  in 30 days. If that seems like a mistake, please feel free to re-open. Thanks!
+  in 120 days. If that seems like a mistake, please feel free to re-open. Thanks!
