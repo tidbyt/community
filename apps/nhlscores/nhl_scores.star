@@ -60,6 +60,7 @@ ALT_COLOR = """
 """
 ALT_LOGO = """
 {
+    "CGY": "https://i.ibb.co/Kj1tk49W/flames.png"
 }
 """
 MAGNIFY_LOGO = """
@@ -614,8 +615,8 @@ teamOptions = [
         value = "TOR",
     ),
     schema.Option(
-        display = "Utah Hockey Club",
-        value = "UTAH",
+        display = "Utah Mammoth",
+        value = "UTA",
     ),
     schema.Option(
         display = "Vancouver Canucks",
