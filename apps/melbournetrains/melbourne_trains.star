@@ -34,9 +34,9 @@ ENCRYPTED_API_ID = "AV6+xWcEVunEQ8Hfmjxvyso7/q0tQvMr5lmVqXY5SqIa3wgEbGnTQEfx26kA
 ENCRYPTED_API_KEY = "AV6+xWcE+zx9jIl732gRf/QP+gF+n4kgZk06KPRzujW8XTnpZc/TMznuBRLcPZoqBtvkzo5OUvbI13hbngdFFPf+Fhd9aUWJiAWlPpmV0JXCkJc6HMnWwG9K9sV3TM89PZGmmXYWsHWW0eLFoWMi3Npn1YDCiQ2Pqi0aW5tMfBIaVyDrzVx9yYI6"
 
 COLOR_CODE_MERNDA_HURSTBRIDGE = "#D47664"
-COLOR_CODE_SUNBURY_CRAIGIEBURN_UPFIELD = "#F3B22C"
+COLOR_CODE_CRAIGIEBURN_UPFIELD = "#F3B22C"
 COLOR_CODE_BELGRAVE_LILYDALE_ALAMEIN_GLENWAVERLY = "#184977"
-COLOR_CODE_CRANBOURNE_PAKENHAM = "#31AAD5"
+COLOR_CODE_CRANBOURNE_PAKENHAM_SUNBURY = "#31AAD5"
 COLOR_CODE_FRANKSTON_WERRIBEE_WILLIAMSTOWN = "#4FA367"
 COLOR_CODE_SANDRINGHAM = "#E997B7"
 COLOR_CODE_STONYPOINT = "#5DA971"
@@ -315,21 +315,21 @@ def get_remaining_time_minutes(departure_time):
 # Helper - Return color code theme for each train line
 def get_train_line_color_code(route_name):
     group_mernda_hurstbridge = ["Mernda", "Hurstbridge"]
-    group_sunbury_craigieburn_upfield = ["Sunbury", "Craigieburn", "Upfield"]
+    group_craigieburn_upfield = ["Craigieburn", "Upfield"]
     group_belgrave_lilydale_alamein_glenwaverly = ["Belgrave", "Lilydale", "Alamein", "Glen Waverley"]
-    group_cranbourne_pakenham = ["Cranbourne", "Pakenham"]
+    group_cranbourne_pakenham_sunbury = ["Cranbourne", "Pakenham", "Sunbury"]
     group_frankston_werribee_williamstown = ["Frankston", "Werribee", "Williamstown"]
     group_sandringham = ["Sandringham"]
     group_stonypoint = ["Stony Point"]
 
     if route_name in group_mernda_hurstbridge:
         return COLOR_CODE_MERNDA_HURSTBRIDGE
-    elif route_name in group_sunbury_craigieburn_upfield:
-        return COLOR_CODE_SUNBURY_CRAIGIEBURN_UPFIELD
+    elif route_name in group_craigieburn_upfield:
+        return COLOR_CODE_CRAIGIEBURN_UPFIELD
     elif route_name in group_belgrave_lilydale_alamein_glenwaverly:
         return COLOR_CODE_BELGRAVE_LILYDALE_ALAMEIN_GLENWAVERLY
-    elif route_name in group_cranbourne_pakenham:
-        return COLOR_CODE_CRANBOURNE_PAKENHAM
+    elif route_name in group_cranbourne_pakenham_sunbury:
+        return COLOR_CODE_CRANBOURNE_PAKENHAM_SUNBURY
     elif route_name in group_frankston_werribee_williamstown:
         return COLOR_CODE_FRANKSTON_WERRIBEE_WILLIAMSTOWN
     elif route_name in group_sandringham:
