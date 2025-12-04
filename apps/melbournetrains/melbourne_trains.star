@@ -15,6 +15,7 @@ Shoutouts to the following developers below for code examples in their apps:
 Changelog:
 - v1.0 - First release to Tidbyt
 - v1.1 - Add support for East Pakenham Station
+- v1.2 - Add support for Anzac Station, State Library Station and Town Hall Station
 """
 
 load("hmac.star", "hmac")
@@ -696,6 +697,10 @@ CraigieburnStopOptions = [
 ]
 CranbourneStopOptions = [
     schema.Option(
+        display = "Anzac Station",
+        value = "1236,Anzac Station",
+    ),
+    schema.Option(
         display = "Armadale Station",
         value = "1008,Armadale Station",
     ),
@@ -792,8 +797,16 @@ CranbourneStopOptions = [
         value = "1183,Springvale Station",
     ),
     schema.Option(
+        display = "State Library Station",
+        value = "1234,State Library Station",
+    ),
+    schema.Option(
         display = "Toorak Station",
         value = "1194,Toorak Station",
+    ),
+    schema.Option(
+        display = "Town Hall Station",
+        value = "1235,Town Hall Station",
     ),
     schema.Option(
         display = "Westall Station",
@@ -1360,6 +1373,10 @@ LilydaleStopOptions = [
 ]
 PakenhamStopOptions = [
     schema.Option(
+        display = "Anzac Station",
+        value = "1236,Anzac Station",
+    ),
+    schema.Option(
         display = "Armadale Station",
         value = "1008,Armadale Station",
     ),
@@ -1476,8 +1493,16 @@ PakenhamStopOptions = [
         value = "1183,Springvale Station",
     ),
     schema.Option(
+        display = "State Library Station",
+        value = "1234,State Library Station",
+    ),
+    schema.Option(
         display = "Toorak Station",
         value = "1194,Toorak Station",
+    ),
+    schema.Option(
+        display = "Town Hall Station",
+        value = "1235,Town Hall Station",
     ),
     schema.Option(
         display = "Westall Station",
@@ -1598,6 +1623,10 @@ SunburyStopOptions = [
         value = "1003,Albion Station",
     ),
     schema.Option(
+        display = "Anzac Station",
+        value = "1236,Anzac Station",
+    ),
+    schema.Option(
         display = "Diggers Rest Station",
         value = "1055,Diggers Rest Station",
     ),
@@ -1650,6 +1679,10 @@ SunburyStopOptions = [
         value = "1184,St Albans Station",
     ),
     schema.Option(
+        display = "State Library Station",
+        value = "1234,State Library Station",
+    ),
+    schema.Option(
         display = "Sunbury Station",
         value = "1187,Sunbury Station",
     ),
@@ -1660,6 +1693,10 @@ SunburyStopOptions = [
     schema.Option(
         display = "Tottenham Station",
         value = "1196,Tottenham Station",
+    ),
+    schema.Option(
+        display = "Town Hall Station",
+        value = "1235,Town Hall Station",
     ),
     schema.Option(
         display = "Watergardens Station",
