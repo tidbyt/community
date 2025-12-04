@@ -50,7 +50,7 @@ DEFAULT_ROUTE_NAME = "Pakenham"
 DEFAULT_STOP_ID = "1150"
 DEFAULT_STOP_NAME = "Oakleigh Station"
 DEFAULT_DIRECTION_ID = "1"
-DEFAULT_DIRECTION_DATA = ["1", "City (Flinders Street)"]
+DEFAULT_DIRECTION_DATA = ["1", "City"]
 
 def main(config):
     schema_train_line = config.get("train-line")
@@ -199,7 +199,7 @@ def build_departure_row(departure):
                     render.Marquee(
                         width = 48,
                         child = render.Text(
-                            departure["direction_name"].replace(" (Flinders Street)", "").upper() +
+                            departure["direction_name"].upper() +
                             " (" + departure["stop_name"].replace(" Station", "") + ")",
                             font = "Dina_r400-6",
                             offset = -2,
@@ -1900,12 +1900,12 @@ AlameinDirectionOptions = [
         value = "0,Alamein",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),0,Alamein",
+        value = "All,1,City,0,Alamein",
     ),
 ]
 BelgraveDirectionOptions = [
@@ -1914,12 +1914,12 @@ BelgraveDirectionOptions = [
         value = "3,Belgrave",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),3,Belgrave",
+        value = "All,1,City,3,Belgrave",
     ),
 ]
 CraigieburnDirectionOptions = [
@@ -1928,12 +1928,12 @@ CraigieburnDirectionOptions = [
         value = "2,Craigieburn",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),2,Craigieburn",
+        value = "All,1,City,2,Craigieburn",
     ),
 ]
 CranbourneDirectionOptions = [
@@ -1942,12 +1942,12 @@ CranbourneDirectionOptions = [
         value = "4,Cranbourne",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),4,Cranbourne",
+        value = "All,1,City,4,Cranbourne",
     ),
 ]
 MerndaDirectionOptions = [
@@ -1956,12 +1956,12 @@ MerndaDirectionOptions = [
         value = "9,Mernda",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),9,Mernda",
+        value = "All,1,City,9,Mernda",
     ),
 ]
 FrankstonDirectionOptions = [
@@ -1970,12 +1970,12 @@ FrankstonDirectionOptions = [
         value = "5,Frankston",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),5,Frankston",
+        value = "All,1,City,5,Frankston",
     ),
 ]
 GlenWaverleyDirectionOptions = [
@@ -1984,12 +1984,12 @@ GlenWaverleyDirectionOptions = [
         value = "6,Glen Waverley",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),6,Glen Waverley",
+        value = "All,1,City,6,Glen Waverley",
     ),
 ]
 HurstbridgeDirectionOptions = [
@@ -1998,12 +1998,12 @@ HurstbridgeDirectionOptions = [
         value = "7,Hurstbridge",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),7,Hurstbridge",
+        value = "All,1,City,7,Hurstbridge",
     ),
 ]
 LilydaleDirectionOptions = [
@@ -2012,12 +2012,12 @@ LilydaleDirectionOptions = [
         value = "8,Lilydale",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),8,Lilydale",
+        value = "All,1,City,8,Lilydale",
     ),
 ]
 PakenhamDirectionOptions = [
@@ -2026,12 +2026,12 @@ PakenhamDirectionOptions = [
         value = "10,Pakenham",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),10,Pakenham",
+        value = "All,1,City,10,Pakenham",
     ),
 ]
 SandringhamDirectionOptions = [
@@ -2040,12 +2040,12 @@ SandringhamDirectionOptions = [
         value = "11,Sandringham",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),11,Sandringham",
+        value = "All,1,City,11,Sandringham",
     ),
 ]
 StonyPointDirectionOptions = [
@@ -2068,12 +2068,12 @@ SunburyDirectionOptions = [
         value = "13,Sunbury",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),13,Sunbury",
+        value = "All,1,City,13,Sunbury",
     ),
 ]
 UpfieldDirectionOptions = [
@@ -2082,12 +2082,12 @@ UpfieldDirectionOptions = [
         value = "14,Upfield",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),14,Upfield",
+        value = "All,1,City,14,Upfield",
     ),
 ]
 WerribeeDirectionOptions = [
@@ -2096,12 +2096,12 @@ WerribeeDirectionOptions = [
         value = "15,Werribee",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),15,Werribee",
+        value = "All,1,City,15,Werribee",
     ),
 ]
 WilliamstownDirectionOptions = [
@@ -2110,12 +2110,12 @@ WilliamstownDirectionOptions = [
         value = "16,Williamstown",
     ),
     schema.Option(
-        display = "City (Flinders Street)",
-        value = "1,City (Flinders Street)",
+        display = "City",
+        value = "1,City",
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),16,Williamstown",
+        value = "All,1,City,16,Williamstown",
     ),
 ]
 
