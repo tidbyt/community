@@ -1,0 +1,8 @@
+---
+id: solea-tram
+name: Solea Tram
+summary: Mulhouse tram departures
+desc: Real-time tram departures for the Solea network in Mulhouse, France. Shows next trams with official line colors, destinations and waiting times.
+author: QuentinDevly
+fileName: solea_tram.star
+packageName: soleatram
