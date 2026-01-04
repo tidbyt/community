@@ -1,6 +1,6 @@
 ---
 id: 4-day-weather
 name: 4 Day Weather
-summary: Use api.openweathermap.org
+summary: Get appid openweathermap.org
 desc: Using api.openweathermap.org forecast.
 author: jslevine
