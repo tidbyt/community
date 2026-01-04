@@ -42,18 +42,16 @@ def main(config):
         # We loop through the first 4 days of the daily forecast
         # index 0 = Today, 1 = Tomorrow, etc.
 
-        for i in range(1, 5):
+        for i in range(0, 4):
             day = data["daily"][i]
 
-            # 1. Calculate Day Letter (M, T, W, etc.)
+            # 1. Calculate Day (Mon, Tue, Wed, etc.)
             # We add the offset to the timestamp to force it into local time
 
             local_ts = int(day["dt"]) + tz_offset
             t = time.from_timestamp(local_ts, 0)
 
-            # format("Monday") -> "Monday", taking index [0] -> "M"
-
-            day_letter = t.format("Monday")[0]
+	    day_letter = t.format("Mon")
 
             # 2. Get Description & Temp
 
@@ -63,7 +61,7 @@ def main(config):
             temp_str = "%d/%d" % (min_c, max_c)
 
             # 3. Combine for the Marquee
-            # Example: "M: scattered clouds"
+            # Example: "Mon: scattered clouds"
 
             full_text = "%s:%s" % (day_letter, desc)
 
