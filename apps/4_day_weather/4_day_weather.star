@@ -1,11 +1,11 @@
 """
-Applet: 4 Day Weather
+Applet:  4 Day Weather
 Summary: Use api.openweathermap.org
-Description: Using api.openweathermap.org forecast.
+Description: Using api.openweathermap.org forecast. 
 Author: jslevine
 """
 
-load("http.star", "http")
+load("http. star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -51,7 +51,7 @@ def main(config):
             local_ts = int(day["dt"]) + tz_offset
             t = time.from_timestamp(local_ts, 0)
 
-	    day_letter = t.format("Mon")
+            day_letter = t.format("Mon")
 
             # 2. Get Description & Temp
 
@@ -61,7 +61,7 @@ def main(config):
             temp_str = "%d/%d" % (min_c, max_c)
 
             # 3. Combine for the Marquee
-            # Example: "Mon: scattered clouds"
+            # Example:  "Mon: scattered clouds"
 
             full_text = "%s:%s" % (day_letter, desc)
 
@@ -100,6 +100,9 @@ def get_data(url):
     return res.json()
 
 def render_row(text, temp, color):
+    # Force exactly 8 pixels per row
+    # Left Side: "M: description..."
+    # Right Side: Temp "-2/4"
     return render.Box(
         width = 64,
         height = 8,
@@ -125,9 +128,7 @@ def render_row(text, temp, color):
                 ),
             ],
         ),
-    )  # Force exactly 8 pixels per row
-    # Left Side: "M: description..."
-    # Right Side: Temp "-2/4"
+    )
 
 def get_schema():
     return schema.Schema(version = "1", fields = [schema.Text(
