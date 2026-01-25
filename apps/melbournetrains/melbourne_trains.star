@@ -15,7 +15,7 @@ Shoutouts to the following developers below for code examples in their apps:
 Changelog:
 - v1.0 - First release to Tidbyt
 - v1.1 - Add support for East Pakenham Station
-- v1.2 - Add support for Anzac Station, State Library Station and Town Hall Station
+- v1.2 - Add support for New Metro Tunnel Stations (Anzac Station, Arden Station, Parkville Station, State Library Station and Town Hall Station)
 """
 
 load("hmac.star", "hmac")
@@ -1623,8 +1623,8 @@ SunburyStopOptions = [
         value = "1003,Albion Station",
     ),
     schema.Option(
-        display = "Anzac Station",
-        value = "1236,Anzac Station",
+        display = "Arden Station",
+        value = "1232,Arden Station",
     ),
     schema.Option(
         display = "Diggers Rest Station",
@@ -1665,6 +1665,10 @@ SunburyStopOptions = [
     schema.Option(
         display = "Parliament Station",
         value = "1155,Parliament Station",
+    ),
+    schema.Option(
+        display = "Parkville Station",
+        value = "1233,Parkville Station",
     ),
     schema.Option(
         display = "South Kensington Station",
