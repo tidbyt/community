@@ -227,6 +227,10 @@ FIAT_LOGO_18x18 = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAEYklEQVQ4jT2U229TBQCHv9NzbU+v67a26zZ2YxtgHNPJXcWADszmSDQmagzJlphoiJf/wASjRmQqooiS+ABqYsREBAXN0MgtglFuRRiBrbtA17Vdb1uvp8ewBx9/D9/39MsnDA/vwTRNRFFEUWTS6XkikbvPZzPpPqumdvnrgtWeKq8hK8q0IkvnM+n09/F4fMRqtaEoEqbJIivdk8iyvDhGR8cenwjf/jAQ8C1vaG1BstmQdR3B7kAVxYAqCD26TXvF7/ediESiLycSiTFVVRZ56Z5AEATCY5MvORy2/YOv7iA7X+T65UtEb9yklEqRWshyt5wFRaWjbQX3LevsbW5quKqpSm+hWDpts1kR9n12gJs3bvVHIlNHXhjczszVUX7c/ymV22HqiwJB7OjYiVLkb6JMuSxUagOsfHQjwzvfQnc6+n/+6cRRKTmX8kxMjB++eusapZ1vM/7HSQLA/UAT1QSpxYeGV/ezUMhxLDXCydRNRhdK/PpUP4898ODH4YnJo2JXV8+7k3cm1llFidZIAmsiRu/mbQT9HTiKDtyNDahPP0LOApW2AN1r+uluWUL0zjTv/3IMuWS4Fav1rNjTs+pLZMHeVBvAee4fWga2sXnXTiK3x/EObEbobiO//Qm0ei+pfIbA/jeoigtk/rxGuL2WGpebZZ3L7ZZiIeeWFJmO9k5spoBY7WF671dEPt9FyaqRtyksvP4J2YujiNNpwgePM/7OQZxzZbZu2URJsJBMZVZZcrn5sq47eGjNWlRZITV6i0pXO47gStK3xpm/M0OuNUDOX0WuzslCLAEemXgmzoZ1D1MuG4RCV1wW0SJi1x3UtLSiOh0UpyMU2oKYTQ0UZmPk40lm66ykaqwUxQr5+QzZ+SQZqcyK7pUsaWwgHouZFk3TZMEwSBSLuFoaKUoWFo6fIntmBMOtU/Q50Q7/Rmnft+T9HoxKidnkDPaOJvyqlXKpjFkxUxZZ0TK51BzXR0NUdbaDYYLfRwHL4qv1uiBSfS2STUWtrUH2eonlMjRuXE0CCF26jLfKc0UyDPMH0zSHvtjzAetRqa6uITYVJiVUSE5NYreYFDNp8tE4uVAIM5FghhybBno5fe4vpifDLOvsPCTpdv3N5Fx+yKsouFavJX7gEL8PH6Ne9pL86huUSgVZlDAMg2zoPHHm8XgbGHN4OHv0MEvblkY0q/a11Ny8ZOp6obBD1/S9Tz73LLFaPxcGX2SmFEcETAADFEAGdEnFvrWPU2dOYyxkaGhqfsZu1xG3bNmK2+25MDsbt126cH79qoE+6upaKBsV3LoHj6Mar8ePzVNLxRdEW78Bx/JWKokousMz6K5yHTErBsLu3R9xLwWCIPJv6NpQrpB/r6a5sUqSJByKilk0KJRKTEejJHJZLEYZn80eqq7xveZ0OUdEUaBUKvN/2CRZQpYVYrNxTyw6M1QoFvsM6JA11SqIkimLUsrjdF2ULZbvZEU6ZLVqGEYZw6ggCAL/AXM414OenkHTAAAAAElFTkSuQmCC
 """)
 
+RIVIAN_LOGO_18x18 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAACzElEQVR4nIXT3WsVdBzH8dfv7Jydnc15PDtLRdysYPZgQdACQUhyuWVJLSYKYUVeVyBBt6Orgv4CC7ooKjjZXOg2nDVJIoiMyIwuNmG2QPegZz7tyXPOr4t2hk/U5+bH78f38+b7+z5wD8UoAfGQVBz0ehy0P/Yuvy2fdyrcBSmoCXuV4zE5wVfSOkQsGlKyL3S7FqNECCq3+hL3hHyuGcNW67CEErJ2SRqKBdkQVKpZ3wVagfTJW21ITrurLqrYYcFzlSsuy9kmYyAOWn0nLFGtSdirHAuapAzJazdrzLx9Kq6LiokFe8yakLdN2UDs1xiCSrVmofrfeMQaSUOabVU06rouTT4256yoQcZ6sw5q9J2sVpd8r+iF8JobsVfiX8hJdZK+kbdV0ZgFu2R8aIMO0ZRo2ka7K3V6zdtp1oQm2+X0xZOS4T2VEA/bpNZR93vc3y6Ys13a+9brMWVc1IG04Fv32eCCzxYXfZBe5ZSN8s77WVl3UtpTUk6ZdNycj9Q6qFmPSecWbno287JxiH2eMe2EtV5NT5m05GmTDkjKKGtPikoSplQsqJgVZZcbcbMuurbS35KrapWWb1lLrqg3LahToxTiMY+IjtukxYRR83ZK+8Q6O0z5Q9SlJCVl2FptLhqw5G31TmrR6rxRCbsSYbc/zXvCX36T0yajz7w3TBnxgC0q9qtxwIPaTBtQ9qaMo9ZoNe6nmYueDM87F1YGsd8GSSfkParotOu65fW74QfRKg0eds0r0gblPGbGr6LO8KKZWFATbpvqI1qknJD3kMt+ccNb6tSDOQsaHdJki0vOKOsML5mseleWdgV22CZ1huVsVjS2FO2pTUjha2u0Kvrdoq7Q40LVc9f23warN6zRZpdFBE1UrjibWNR5J+SeigU1MPelljjodBwR44gYB/wYv7Du1pj/VTUwFmTjkHfjgHfipxr+C/IPGhU9UVUz2AAAAAAASUVORK5CYII=
+""")
+
 def render_fail(rep):
     content = json.decode(rep.body())
     return render.Root(render.Box(render.WrappedText(str(rep.status_code) + " : " + content["String"], color = RED)))
@@ -909,6 +913,8 @@ def get_ev_logo(name):
         return CUPRA_LOGO_18x18
     elif name == "FIAT":
         return FIAT_LOGO_18x18
+    elif name == "RIVIAN":
+        return RIVIAN_LOGO_18x18
     else:
         return BMW_LOGO_18x18
 
@@ -1087,6 +1093,10 @@ def get_schema():
                     schema.Option(
                         display = "Renault",
                         value = "RENAULT",
+                    ),
+                    schema.Option(
+                        display = "Rivian",
+                        value = "RIVIAN",
                     ),
                     schema.Option(
                         display = "Seat",
