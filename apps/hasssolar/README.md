@@ -228,6 +228,7 @@ You can further customize the screen with the following options:
   - Hyundai
   - Opel
   - Renault
+  - Rivian
   - Seat
   - Skoda
   - Tesla
