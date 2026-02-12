@@ -5,26 +5,24 @@ Description: Top 8 NBA teams in each conference.
 Author: adamh0903
 """
 
-load("render.star", "render")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 STANDINGS_URL = "https://site.web.api.espn.com/apis/v2/sports/basketball/nba/standings"
 
 FAVORITE_TEAM = "ORL"
 
-EAST_COLOR = "#1D428A"   # Blue
-WEST_COLOR = "#C8102E"   # Red
+EAST_COLOR = "#1D428A"  # Blue
+WEST_COLOR = "#C8102E"  # Red
 PLAYOFF_COLOR = "#00FF00"
 GB_COLOR = "#AAAAAA"
-
 
 def stat_value(stats, name):
     for s in stats:
         if s["name"] == name:
             return s["value"]
     return 0
-
 
 def fetch_standings():
     res = http.get(STANDINGS_URL)
@@ -49,33 +47,31 @@ def fetch_standings():
 
     return east[:8], west[:8]
 
-
 def build_page(title, teams, start_index, color):
     rows = [
-        render.Text("NBA " + title, color=color),
+        render.Text("NBA " + title, color = color),
         render.Text(""),
     ]
 
     rank = start_index + 1
 
-    for t in teams[start_index:start_index+4]:
+    for t in teams[start_index:start_index + 4]:
         team, wins, losses, gb = t
 
         if rank <= 4:
             line = str(rank) + " " + team + " " + str(wins) + "-" + str(losses)
-            rows.append(render.Text(line, color=PLAYOFF_COLOR))
+            rows.append(render.Text(line, color = PLAYOFF_COLOR))
         else:
             line = str(rank) + " " + team + " " + str(wins) + "-" + str(losses)
             rows.append(render.Text(line))
 
-        rows.append(render.Text("GB: " + gb, color=GB_COLOR))
+        rows.append(render.Text("GB: " + gb, color = GB_COLOR))
 
         rank += 1
 
     return render.Root(
-        child=render.Column(children=rows)
+        child = render.Column(children = rows),
     )
-
 
 def build_favorite_slide(east, west):
     combined = east + west
@@ -85,19 +81,18 @@ def build_favorite_slide(east, west):
 
         if team == FAVORITE_TEAM:
             return render.Root(
-                child=render.Column(children=[
-                    render.Text("YOUR TEAM", color="#FFD700"),
+                child = render.Column(children = [
+                    render.Text("YOUR TEAM", color = "#FFD700"),
                     render.Text(""),
-                    render.Text(team, color="#FFFFFF"),
+                    render.Text(team, color = "#FFFFFF"),
                     render.Text("Record: " + str(wins) + "-" + str(losses)),
-                    render.Text("GB: " + gb, color=GB_COLOR),
-                ])
+                    render.Text("GB: " + gb, color = GB_COLOR),
+                ]),
             )
 
     return None
 
-
-def main(config):
+def main():
     east, west = fetch_standings()
 
     slides = [
@@ -113,6 +108,4 @@ def main(config):
 
     return slides
 
-
-app_schema = schema.Schema(version="1")
-
+app_schema = schema.Schema(version = "1")
