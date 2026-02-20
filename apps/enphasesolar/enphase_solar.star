@@ -28,7 +28,6 @@ ACCESS_TOKEN_KEY = "access_token_{}"
 REFRESH_TOKEN_KEY = "refresh_token_{}"
 SYSTEM_ID_KEY = "system_id_{}"
 ENERGY_TODAY_KEY = "energy_today_{}"
-INIT_KEY = "init_{}"
 
 SCROLL_MSG_LEN = 36
 
@@ -39,16 +38,17 @@ TTL_SECONDS = 3600
 def check_response(response):
     if response.status_code == 200:
         return 200, response.json()
-    elif response.status_code == 401 and EXPIRE_MSG in response.json().get("details"):
-        print("Access token is expired and refresh token now. Call next time.")
+    elif response.status_code == 401:
+        details = response.json().get("details", "")
+        print("Access token is expired or invalid: {}".format(details))
         return 401, None
     else:
         print("Request is failed with status code {} {}".format(response.status_code, response.json()))
         return response.status_code, None
 
-def get_system_id(api_key, unique_suffix):
+def get_system_id(api_key, access_token):
     headers = {
-        "Authorization": "Bearer " + cache.get(ACCESS_TOKEN_KEY.format(unique_suffix)),
+        "Authorization": "Bearer " + access_token,
         "Content-Type": "application/json",
     }
 
@@ -71,9 +71,9 @@ def get_system_id(api_key, unique_suffix):
         msg = "No result returned."
         return status, msg
 
-def get_system_stats(api_key, unique_suffix, system_id):
+def get_system_stats(api_key, access_token, system_id):
     headers = {
-        "Authorization": "Bearer " + cache.get(ACCESS_TOKEN_KEY.format(unique_suffix)),
+        "Authorization": "Bearer " + access_token,
         "Content-Type": "application/json",
     }
 
@@ -92,42 +92,65 @@ def get_system_stats(api_key, unique_suffix, system_id):
         msg = "No result returned."
         return status, msg
 
-def request_refresh_token(refresh_token_code, client_id, client_secret):
-    encoded_client_secrets = base64.encode("{}:{}".format(client_id, client_secret))
+def get_access_token(config_refresh_token, client_id, client_secret):
+    """Return {"status": int, "access_token": string|None, "error": string|None}.
+
+    1. Return cached access token if present.
+    2. Otherwise, refresh using cached refresh token (falls back to config refresh token).
+    3. Cache new tokens on success.
+    """
     unique_suffix = hash.md5(client_id)
 
+    # 1. Cache hit — return immediately
+    cached_token = cache.get(ACCESS_TOKEN_KEY.format(unique_suffix))
+    if cached_token != None:
+        return {"status": 200, "access_token": cached_token, "error": None}
+
+    # 2. Determine best available refresh token
+    refresh_token_code = cache.get(REFRESH_TOKEN_KEY.format(unique_suffix))
+    if refresh_token_code == None:
+        refresh_token_code = config_refresh_token
+
+    if refresh_token_code == None:
+        return {"status": 401, "access_token": None, "error": "No refresh token available"}
+
+    # 3. Call Enphase token endpoint (GET with query params)
+    encoded_client_secrets = base64.encode("{}:{}".format(client_id, client_secret))
     headers = {
         "Authorization": "Basic {}".format(encoded_client_secrets),
-        "Content-Type": "application/json",
     }
     params = {
         "grant_type": "refresh_token",
         "refresh_token": refresh_token_code,
     }
 
-    response = http.post(AUTH_URL, params = params, headers = headers)
+    response = http.get(AUTH_URL, params = params, headers = headers)
     if response.status_code == 200:
-        print("Refresh token successfully.")
+        body = response.json()
+        new_access_token = body["access_token"]
+        new_refresh_token = body["refresh_token"]
+        expires_in = int(body["expires_in"])
 
         # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             ACCESS_TOKEN_KEY.format(unique_suffix),
-            response.json()["access_token"],
-            ttl_seconds = int(response.json()["expires_in"]),
+            new_access_token,
+            ttl_seconds = expires_in,
         )
 
         # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             REFRESH_TOKEN_KEY.format(unique_suffix),
-            response.json()["refresh_token"],
-            ttl_seconds = int(response.json()["expires_in"]) * 7,
+            new_refresh_token,
+            ttl_seconds = expires_in * 7,
         )
-    else:
-        msg = "Refresh token failed with status code {}, message {}".format(
-            response.status_code,
-            response.json(),
-        )
-        render_msg(msg)
+        return {"status": 200, "access_token": new_access_token, "error": None}
+
+    msg = "Refresh token failed with status code {}, message {}".format(
+        response.status_code,
+        response.json(),
+    )
+    return {"status": response.status_code, "access_token": None, "error": msg}
 
 def format_msg(msg):
     return render.WrappedText(
@@ -175,49 +198,52 @@ def main(config):
     if not config.bool("switch", True):
         return render_msg("Switch is off, so take a rest.")
 
-    access_token = config.str("access_token")
-    refresh_token = config.str("refresh_token")
+    config_access_token = config.str("access_token")
+    config_refresh_token = config.str("refresh_token")
     client_id = config.str("client_id")
     client_secret = config.str("client_secret")
     api_key = config.str("api_key")
-    unique_suffix = None
-    if client_id != None:
-        unique_suffix = hash.md5(client_id)
 
-    if not all([access_token, refresh_token, client_id, client_secret, api_key]):
+    if not all([config_access_token, config_refresh_token, client_id, client_secret, api_key]):
         msg = "Missing credential information. In order to show number of kWh energy generated everyday, please provide Access Token, Refresh Token, Client ID, Client Secret and API Key in the App Configuration."
         return render_msg(msg)
 
-    # check if it is initial invocation by check "init" flag in the cache
-    init = cache.get(INIT_KEY.format(unique_suffix))
-    if init == None:
-        # Cache is scoped to the app, not individual user. So the cache keys need to be
-        # unique to the user/configuration
+    unique_suffix = hash.md5(client_id)
 
+    # Seed config tokens into cache on first run (cache miss = first run or expired)
+    if cache.get(ACCESS_TOKEN_KEY.format(unique_suffix)) == None and cache.get(REFRESH_TOKEN_KEY.format(unique_suffix)) == None:
         # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             ACCESS_TOKEN_KEY.format(unique_suffix),
-            access_token,
+            config_access_token,
             ttl_seconds = TTL_SECONDS,
         )
 
         # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             REFRESH_TOKEN_KEY.format(unique_suffix),
-            refresh_token,
+            config_refresh_token,
             ttl_seconds = TTL_SECONDS * 7,
         )
 
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(INIT_KEY.format(unique_suffix), "1")
-
-    # refresh access token
-    request_refresh_token(cache.get(REFRESH_TOKEN_KEY.format(unique_suffix)), client_id, client_secret)
+    # Obtain a valid access token (cache-first, then refresh)
+    token_result = get_access_token(config_refresh_token, client_id, client_secret)
+    if token_result["status"] != 200:
+        return render_msg(token_result["error"])
+    access_token = token_result["access_token"]
 
     # Get "system_id"
     system_id_cached = cache.get(SYSTEM_ID_KEY.format(unique_suffix))
     if system_id_cached == None:
-        status, system_id = get_system_id(api_key, unique_suffix)
+        status, system_id = get_system_id(api_key, access_token)
+        if status == 401:
+            # Invalidate and retry once
+            cache.set(ACCESS_TOKEN_KEY.format(unique_suffix), "", ttl_seconds = 1)
+            token_result = get_access_token(config_refresh_token, client_id, client_secret)
+            if token_result["status"] != 200:
+                return render_msg(token_result["error"])
+            access_token = token_result["access_token"]
+            status, system_id = get_system_id(api_key, access_token)
         if status == 200:
             # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(
@@ -225,18 +251,23 @@ def main(config):
                 system_id,
                 ttl_seconds = TTL_SECONDS,
             )
-        elif status == 401:
-            request_refresh_token(cache.get(REFRESH_TOKEN_KEY.format(unique_suffix)), client_id, client_secret)
-            return render_msg("System token just refreshed wait for next call.")
         else:
             return render_msg("Unable to get system id, status code: {}".format(status))
     else:
         system_id = system_id_cached
 
     # Get "energy_today"
-    engery_cached = cache.get(ENERGY_TODAY_KEY.format(unique_suffix))
-    if engery_cached == None:
-        status, energy_today = get_system_stats(api_key, unique_suffix, system_id)
+    energy_cached = cache.get(ENERGY_TODAY_KEY.format(unique_suffix))
+    if energy_cached == None:
+        status, energy_today = get_system_stats(api_key, access_token, system_id)
+        if status == 401:
+            # Invalidate and retry once
+            cache.set(ACCESS_TOKEN_KEY.format(unique_suffix), "", ttl_seconds = 1)
+            token_result = get_access_token(config_refresh_token, client_id, client_secret)
+            if token_result["status"] != 200:
+                return render_msg(token_result["error"])
+            access_token = token_result["access_token"]
+            status, energy_today = get_system_stats(api_key, access_token, system_id)
         if status == 200:
             # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(
@@ -244,14 +275,11 @@ def main(config):
                 energy_today,
                 ttl_seconds = TTL_SECONDS,
             )
-        elif status == 401:
-            request_refresh_token(cache.get(REFRESH_TOKEN_KEY.format(unique_suffix)), client_id, client_secret)
-            return render_msg("Summary token just refreshed wait for next call.")
         else:
             return render_msg("Unable to get system stats, status code: {}".format(status))
     else:
         print("Hit! Displaying cached data.")
-        energy_today = engery_cached
+        energy_today = energy_cached
 
     msg = "{} kWh energy generated today".format(humanize.float("#.##", float(energy_today) / 1000))
     return render_msg(msg)
