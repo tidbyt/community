@@ -5,13 +5,12 @@ Description: Displays random Tekken 8 move frame data as a study tool. Shows cha
 Author: mek01
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("random.star", "random")
-load("time.star", "time")
+load("render.star", "render")
+load("schema.star", "schema")
 
 FONT = "tom-thumb"
 
