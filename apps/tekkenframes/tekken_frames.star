@@ -47,14 +47,46 @@ TAG_MAP = {
 }
 
 CHARACTERS = [
-    "alisa", "anna", "armor-king", "asuka", "azucena",
-    "bryan", "claudio", "clive", "devil-jin", "dragunov",
-    "eddy", "fahkumram", "feng", "heihachi", "hwoarang",
-    "jack-8", "jin", "jun", "kazuya", "king",
-    "kuma", "lars", "law", "lee", "leo",
-    "leroy", "lidia", "lili", "miary-zo", "nina",
-    "panda", "paul", "raven", "reina", "shaheen",
-    "steve", "victor", "xiaoyu", "yoshimitsu", "zafina",
+    "alisa",
+    "anna",
+    "armor-king",
+    "asuka",
+    "azucena",
+    "bryan",
+    "claudio",
+    "clive",
+    "devil-jin",
+    "dragunov",
+    "eddy",
+    "fahkumram",
+    "feng",
+    "heihachi",
+    "hwoarang",
+    "jack-8",
+    "jin",
+    "jun",
+    "kazuya",
+    "king",
+    "kuma",
+    "lars",
+    "law",
+    "lee",
+    "leo",
+    "leroy",
+    "lidia",
+    "lili",
+    "miary-zo",
+    "nina",
+    "panda",
+    "paul",
+    "raven",
+    "reina",
+    "shaheen",
+    "steve",
+    "victor",
+    "xiaoyu",
+    "yoshimitsu",
+    "zafina",
 ]
 
 CACHE_TTL = 21600  # 6 hours
@@ -142,14 +174,22 @@ def main(config):
 
     # Row 3: F (frames/startup) left | B (block) right
     row3 = render_labeled_split_row(
-        "F", startup if startup != "" else "--", COLOR_WHITE,
-        "B", block if block != "" else "--", block_color,
+        "F",
+        startup if startup != "" else "--",
+        COLOR_WHITE,
+        "B",
+        block if block != "" else "--",
+        block_color,
     )
 
     # Row 4: H (hit) left | CH (counter hit) right — CH has no space
     row4 = render_labeled_split_row(
-        "H", hit if hit != "" else "--", COLOR_WHITE,
-        "CH", counter_hit if counter_hit != "" else "--", COLOR_WHITE,
+        "H",
+        hit if hit != "" else "--",
+        COLOR_WHITE,
+        "CH",
+        counter_hit if counter_hit != "" else "--",
+        COLOR_WHITE,
     )
 
     # Row 5: Damage (left) | Tags/properties (right), 50/50
@@ -162,12 +202,20 @@ def main(config):
 
     if quiz_mode:
         hidden_row3 = render_labeled_split_row(
-            "F", "?", COLOR_GRAY,
-            "B", "?", COLOR_GRAY,
+            "F",
+            "?",
+            COLOR_GRAY,
+            "B",
+            "?",
+            COLOR_GRAY,
         )
         hidden_row4 = render_labeled_split_row(
-            "H", "?", COLOR_GRAY,
-            "CH", "?", COLOR_GRAY,
+            "H",
+            "?",
+            COLOR_GRAY,
+            "CH",
+            "?",
+            COLOR_GRAY,
         )
 
         frame_hidden = render_layout(row1, row2, hidden_row3, hidden_row4, row5)
@@ -178,12 +226,20 @@ def main(config):
                 render_hit_level(hit_level),
             ),
             render_labeled_split_row(
-                "F ", startup if startup != "" else "--", COLOR_WHITE,
-                "B ", block if block != "" else "--", block_color,
+                "F ",
+                startup if startup != "" else "--",
+                COLOR_WHITE,
+                "B ",
+                block if block != "" else "--",
+                block_color,
             ),
             render_labeled_split_row(
-                "H", hit if hit != "" else "--", COLOR_WHITE,
-                "CH", counter_hit if counter_hit != "" else "--", COLOR_WHITE,
+                "H",
+                hit if hit != "" else "--",
+                COLOR_WHITE,
+                "CH",
+                counter_hit if counter_hit != "" else "--",
+                COLOR_WHITE,
             ),
             render_split_row(
                 render.Text(damage if damage != "" else "--", font = FONT, color = COLOR_WHITE),
@@ -315,9 +371,15 @@ def filter_moves(moves, config):
     if not all_filters:
         # "custom" — check if any individual filter is on
         filter_keys = [
-            "filter_launchers", "filter_plus", "filter_pc",
-            "filter_he", "filter_hom", "filter_trn",
-            "filter_bbr", "filter_lows", "filter_throws",
+            "filter_launchers",
+            "filter_plus",
+            "filter_pc",
+            "filter_he",
+            "filter_hom",
+            "filter_trn",
+            "filter_bbr",
+            "filter_lows",
+            "filter_throws",
         ]
         any_active = False
         for key in filter_keys:
