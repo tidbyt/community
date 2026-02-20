@@ -1,0 +1,5 @@
+id: tekken-frames
+name: Tekken Frames
+summary: Tekken 8 frame data
+desc: Displays random Tekken 8 move frame data as a study tool. Shows character, command, hit level, and color-coded frame data. Supports filtering by character and move type with an optional quiz mode.
+author: mek01
