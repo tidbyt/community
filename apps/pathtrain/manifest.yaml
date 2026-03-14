@@ -1,0 +1,7 @@
+id: path-train
+name: PATH Train
+summary: Real-Time PATH Departures
+desc: Never miss your PATH train again. See real-time departures for any station at a glance, with color-coded lines and countdown ETAs right on your Tidbyt.
+author: Shri Vignesh Senthil Kumar
+fileName: PATH_train.star
+packageName: pathtrain
