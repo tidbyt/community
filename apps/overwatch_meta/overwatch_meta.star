@@ -1,7 +1,7 @@
 """
 Applet: Overwatch Meta
 Summary: Overatch 2 Meta Statistics
-Description: This app polls the Overwatch 2 Meta information from Overbuff.
+Description: This app polls the Overwatch 2 Meta information from Blizzard.
 Author: GeoffBarrett
 """
 
@@ -20,19 +20,16 @@ LEFT_PAD_1PX = (1, 0, 0, 0)  # left pad by 1
 # request constants
 CACHE_TIMEOUT_DEFAULT = 120
 DAY_IN_SECONDS = 86400
-BASE_URL = "https://www.overbuff.com"
+BASE_URL = "https://overwatch.blizzard.com"
 USER_AGENT = "Tidbyt"
 
 # content regex patterns
-PCT_PATTERN = "(\\d+\\.\\d+)$"
+PCT_PATTERN = "((100(?:\\.0+)?)|([0-9]?[0-9](?:\\.[0-9]+)?))$"
+
 ALPHA_ALPHA_NUM_PATTERN = "([a-zA-Z]+\\d+\\.\\d+)"
-CHAR_TYPE_PATTERN = "(Support|Damage|Tank)$"
 
-PICK_RATE_START = "Pick Rate"
-PICK_RATE_STOP = "Highest Win Rate"
-
-HIGHEST_WIN_RATE_START = "Win Rate"
-HIGHEST_WIN_RATE_STOP = "Highest KDA Ratio"
+RATES_START = "Pick RateWin Rate"
+RATES_STOP = "Frequently"
 
 # the statistics types to render.
 STATISTICS_TYPES = struct(win_rate = "win_rate", pick_rate = "pick_rate")
@@ -43,11 +40,23 @@ STATISTICS_TITLE = {
     STATISTICS_TYPES.pick_rate: "Pick Rate",
 }
 
+#: The endpoint for blizzard.com to extract the pick / win rates from.
+RATES_ENDPONT = "en-us/rates/"
+
+#: the endpoint for blizzard.com to extract hero information from.
+HEROES_ENDPOINT = "en-us/heroes/"
+
+#: text used to extract the list of heroes.
+HEROES = "/heroes/"
+
 # platform types
-PLATFORM_TYPES = struct(console = "console", pc = "pc")
+PLATFORM_TYPES = struct(console = "Console", pc = "PC")
 
 # game modes
-GAME_MODES = struct(quickplay = "quickplay", competitive = "competitive")
+GAME_MODES = struct(quickplay = "0", competitive = "1")
+
+# regions
+REGION = struct(americas = "Americas", asia = "Asia", europe = "Europe")
 
 # hero roles
 ROLES = struct(
@@ -55,16 +64,6 @@ ROLES = struct(
     damage = "damage",
     tank = "tank",
     support = "support",
-)
-
-# time modes
-TIME_WINDOWS = struct(
-    all_time = "all_time",
-    this_week = "week",
-    this_month = "month",
-    last_three_months = "3months",
-    last_six_months = "6months",
-    last_year = "year",
 )
 
 # skill tiers
@@ -167,101 +166,98 @@ def split_by_number(input_text):
     """
     return get_split_string_cleaned(input_text, ALPHA_ALPHA_NUM_PATTERN)
 
-def get_pick_rate_raw_list(input_text):
-    """Retrieves a list of un-processed strings containing the pick-rates.
+def get_rates_list(input_text, statistic):
+    """Retreives a list of un-processed strings containing the pick and win rates.
 
-    The strings are in the following format: "{Character}{CharacterType}{PickPercentage}"
+    The strings are following format: "{Character}{WinRate}{PickRate}"
 
-    i.e. "AnaSupport5.00"
+    i.e. "Ana50.0%50.0%"
 
     Args:
-        input_text (str): the input text to extract the pick rates from.
+        input_text (str): the input text to extract the rates from.
+        statistic (str): the statistic value to extract (win rate or pick rate).
 
     Returns:
-        List[str]: the extracted pick-rates.
+        List[Tuple[str, str]]: a list of tuples in the following format:
+            ("character_name", "statistic_value")
     """
-
-    start_idx = input_text.rfind(PICK_RATE_START)
+    start_idx = input_text.rfind(RATES_START)
     if start_idx == -1:
         return []
 
-    stop_idx = input_text.find(PICK_RATE_STOP)
+    stop_idx = input_text.find(RATES_STOP)
     if stop_idx == -1:
         return []
 
-    pick_rates = input_text[start_idx + len(PICK_RATE_START):stop_idx]
+    rates = input_text[start_idx + len(RATES_START):stop_idx]
 
-    return split_by_percentage(pick_rates)
+    # If there's not enough data, the rate will be "--"
+    # replace these with "0.0%"
+    rates = rates.replace("--", "0.0%")
+    rates_split = split_by_percentage(rates)
 
-def get_win_rate_raw_list(input_text):
-    """Retrieves a list of un-processed strings containing the win-rates.
+    # `rates_split` is structured in the following format:
+    # ["{Char1}{WinRateChar1}", "{PickRateChar1}", "{Char2}{WinRateChar2}", ...]
+    # Lets join every other list item together.
+    result_rates = []
+    for idx in range(0, len(rates_split) - 1):
+        if idx % 2 == 1:
+            continue
 
-    The win-rates are in the following format: "{Character}{CharacterType}{WinRate}"
+        parse_results = parse_char_type_percentage(rates_split[idx])
+        if parse_results == None:
+            continue
 
-    i.e. "AnaSupport5.00"
+        (character_name, win_rate) = parse_results
+        pick_rate = rates_split[idx + 1]
 
-    Args:
-        input_text (str): the input text to extract the win rates from.
+        if statistic == STATISTICS_TYPES.pick_rate:
+            result_rates.append((character_name, pick_rate))
+        elif statistic == STATISTICS_TYPES.win_rate:
+            result_rates.append((character_name, win_rate))
+        else:
+            return render_error("Received unsupported statistic: '{}'.".format(statistic))
 
-    Returns:
-        List[str]: the extracted win-rates.
-    """
+    # the values are not sorted... sort them.
+    sorted_rates = sorted(result_rates, key = lambda x: float(x[1]), reverse = True)
 
-    start_idx = input_text.rfind(HIGHEST_WIN_RATE_START)
-    if start_idx == -1:
-        return []
-
-    stop_idx = input_text.find(HIGHEST_WIN_RATE_STOP)
-    if stop_idx == -1:
-        return []
-
-    win_rates = input_text[start_idx + len(HIGHEST_WIN_RATE_START):stop_idx]
-
-    return split_by_percentage(win_rates)
+    return sorted_rates
 
 def parse_char_type_percentage(input_text):
-    """Extract the Character - Character Type - Percentage value from text.
+    """Extract the Character - Percentage value from text.
 
     This text contains the statistics in the following format:
-    "{Character}{CharacterType}{PickPercentage}".
+    "{Character}{WinRate}".
 
     Args:
         input_text (str): HTML text from Overbuff containing the statistics content.
 
     Returns:
-        Optional[Tuple[str, str, str]]: an optional
-            (character, character_type, statistic_value) tuple containing the statistic
+        Optional[Tuple[str, str]]: an optional
+            (character, win_rate) tuple containing the statistic
             details.
     """
 
     # extract statistic value
-    statistic_value = re.findall(PCT_PATTERN, input_text)
-    if len(statistic_value) == 0:
+    statistic_values = re.findall(PCT_PATTERN, input_text)
+    if len(statistic_values) != 1:
         return None
 
-    statistic_value = statistic_value[0]
-
-    # extract character type
-    input_text = re.split(statistic_value, input_text)[0]
-    character_type = re.findall(CHAR_TYPE_PATTERN, input_text)
-    if len(character_type) == 0:
-        return None
-
-    character_type = character_type[0]
+    win_rate = statistic_values[0]
 
     # extract the character's name
-    character = re.split(character_type, input_text)[0]
-    return (character, character_type, statistic_value)
+    character = input_text[:len(input_text) - len(win_rate)]
+    return (character, win_rate)
 
-def make_overbuff_get_request(
+def make_blizzard_get_request(
         parameters = {},
-        endpoint = "meta",
+        endpoint = RATES_ENDPONT,
         timeout = CACHE_TIMEOUT_DEFAULT):
-    """Retrieve a BeautifulSoup object instance ingesting the response from overbuff.com.
+    """Retrieve a BeautifulSoup object instance ingesting the response from blizzard.com.
 
     Args:
         parameters (Optional[Dict[str, str]]): the request parameters. Defaults to None.
-        endpoint (str, optional): the overbuff endpoint. Defaults to "meta".
+        endpoint (str, optional): the blizzard endpoint. Defaults to "en-us/rates/".
         timeout (int): the timeout to cache the response.
 
     Returns:
@@ -273,22 +269,22 @@ def make_overbuff_get_request(
 
     return response_html
 
-def get_overbuff_soup_object(
+def get_blizzard_soup_object(
         parameters = {},
-        endpoint = "meta",
+        endpoint = RATES_ENDPONT,
         timeout = CACHE_TIMEOUT_DEFAULT):
-    """Retrieve a BeautifulSoup object instance ingesting the response from overbuff.com.
+    """Retrieve a BeautifulSoup object instance ingesting the response from blizzard.com.
 
     Args:
         parameters (Optional[Dict[str, str]]): the request parameters. Defaults to None.
-        endpoint (str, optional): the overbuff endpoint. Defaults to "meta".
+        endpoint (str, optional): the blizzard endpoint. Defaults to "en-us/rates/".
         timeout (int): the timeout to cache the response.
 
     Returns:
         SoupNode: the SoupNode instance.
     """
 
-    response = make_overbuff_get_request(
+    response = make_blizzard_get_request(
         parameters = parameters,
         endpoint = endpoint,
         timeout = timeout,
@@ -296,49 +292,47 @@ def get_overbuff_soup_object(
     soup = bsoup.parseHtml(response)
     return soup
 
-def get_overbuff_text(
+def get_blizzard_text(
         platform = PLATFORM_TYPES.pc,
-        game_mode = None,
-        role = None,
-        time_window = None,
-        skill_tier = None,
-        endpoint = "meta",
+        game_mode = GAME_MODES.quickplay,
+        skill_tier = SKILL_TIERS.all,
+        region = REGION.americas,
+        endpoint = RATES_ENDPONT,
         timeout = CACHE_TIMEOUT_DEFAULT):
-    """Retrieves the text contents from Overbuff's end-point.
+    """Retrieves the text contents from Blizzard's end-point.
 
     Args:
         platform (str, optional): the platform to extract the data for. Defaults to "pc".
         game_mode (str, optional): the game-mode to extract the data for. Defaults to None.
-        role (str, optional): the hero role to extract the data for. Defaults to None.
-        time_window (str, optional): the time-window to filter the data by. Defaults to None.
         skill_tier (str, optional): the skill tier to filter the data by. Defaults to None.
-        endpoint (str, optional): the overbuff endpoint to retrieve text from. Defaults to "meta".
+        region (str, optional): the region to filter the data by. Defaults to None.
+        endpoint (str, optional): the blizzard endpoint to retrieve text from. Defaults to "en-us/rates/".
         timeout (int): the timeout to cache the response.
 
     Returns:
-        str: the text content in the "https://www.overbuff.com/{endpoint}" page.
+        str: the text content in the "https://overwatch.blizzard.com/{endpoint}" page.
     """
 
     # initialize the query parameters (platform is not optional)
-    params = {"platform": platform}
+    # note: changing the `role` parameter still returns the full list of statistics. This
+    # is a UI filter.
+    params = {"input": platform, "map": "all-maps", "role": "All"}
+
+    if region:
+        params["region"] = region.title()
 
     # add the game mode if there is one
     if game_mode:
-        params["gameMode"] = game_mode
+        params["rq"] = game_mode
 
-    # add the hero role
-    if role != None and role != ROLES.all:
-        params["role"] = role
-
-    # add a time window if there is one (and it isn't all time)
-    if time_window != None and time_window != TIME_WINDOWS.all_time:
-        params["timeWindow"] = time_window
+        if game_mode == GAME_MODES.quickplay:
+            skill_tier = SKILL_TIERS.all
 
     # add a skill tier if there is one (and it isn't all)
-    if skill_tier != None and skill_tier != SKILL_TIERS.all:
-        params["skillTier"] = skill_tier
+    if skill_tier:
+        params["tier"] = skill_tier.title()
 
-    response = make_overbuff_get_request(
+    response = make_blizzard_get_request(
         parameters = params,
         endpoint = endpoint,
         timeout = timeout,
@@ -346,61 +340,71 @@ def get_overbuff_text(
 
     return html(response).text()
 
-def get_heroes():
-    """Retrieve a list of heroes.
-
-    Returns:
-        List[str]: The Overwatch heroes.
-    """
-    heroes = []
-    soup = get_overbuff_soup_object(
-        parameters = {},
-        endpoint = "heroes",
-        timeout = DAY_IN_SECONDS,
-    )
-    for link in soup.find_all("a"):
-        if "/heroes/" in str(link):
-            hero = link.get_text()
-            if not hero:
-                continue
-            heroes.append(hero)
-    return heroes
-
-def find_image_with_size(image_sources, max_width = 50):
-    """Retrieves the image source that does not exceed the `max_width` value.
+def get_hero_name_from_blz_card(hero_card):
+    """Retrieve the hero name from the blz-card.
 
     Args:
-        image_sources (str): a string containing comma separated image sources.
-        max_width (float, optional): the maximum width (in pixels). Defaults to 50.
+        hero_card (SoupNode): the soup node
+            for the ("blz-card") type.
 
     Returns:
-        Optional[str]: the image source.
+        Optional[str]: The Overwatch hero name.
     """
-    image_source = None
-    image_width = 0
+    hero_name_text = hero_card.find("h2")
+    hero_name = None
+    if hero_name_text != None:
+        hero_name = hero_name_text.get_text()
+    return hero_name
 
-    images = get_split_string_cleaned(image_sources, ",")
-    for image in images:
-        image_components = get_split_string_cleaned(image, " ")
-        if len(image_components) != 2:
+def get_hero_role_from_blz_card(hero_card):
+    """Retrieve the hero role from the blz-card.
+
+    Args:
+        hero_card (SoupNode): the soup node
+            for the ("blz-card") type.
+
+    Returns:
+        Optional[str]: The Overwatch hero role.
+    """
+    blz_icon = hero_card.find("blz-icon")
+    blz_icon_text = str(blz_icon)
+
+    role = None
+    if ROLES.support in blz_icon_text:
+        role = ROLES.support
+    elif ROLES.damage in blz_icon_text:
+        role = ROLES.damage
+    elif ROLES.tank in blz_icon_text:
+        role = ROLES.tank
+    return role
+
+def get_heroes():
+    """Retrieve a map of heroe names to roles.
+
+    Returns:
+        Dict[str, str]: The Overwatch heroes mapped to their roles.
+    """
+    heroes = {}
+    soup = get_blizzard_soup_object(
+        parameters = {},
+        endpoint = HEROES_ENDPOINT,
+        timeout = DAY_IN_SECONDS,
+    )
+    for hero_card in soup.find_all("blz-card"):
+        hero_name = get_hero_name_from_blz_card(hero_card)
+        hero_role = get_hero_role_from_blz_card(hero_card)
+        if hero_name == None or hero_role == None:
             continue
-        (image_src, image_size) = image_components
-        width = float(get_split_string_cleaned(image_size, "w")[0])
-        if width <= max_width:
-            if width > image_width:
-                image_width = width
-                image_source = image_src
-    return image_source
 
-def get_hero_image_map(
-        heroes = None,
-        max_width = 200):
+        heroes[hero_name] = hero_role
+    return heroes
+
+def get_hero_image_map(heroes = None):
     """Retrieve a dictionary mapping the hero names to their respective images.
 
     Args:
         heroes (Optional[List[str]], optional): an optional list of hero names. Defaults to None.
             If None, the list of hero names will be retrieved.
-        max_width (int, optional): the maximum image width. Defaults to 50.
 
     Returns:
         Dict[str, str]: a map of hero name to image.
@@ -411,23 +415,25 @@ def get_hero_image_map(
         # retrieve the list of heroes
         heroes = get_heroes()
 
-    soup = get_overbuff_soup_object(
+    soup = get_blizzard_soup_object(
         parameters = {},
-        endpoint = "heroes",
+        endpoint = HEROES_ENDPOINT,
     )
 
-    for image in soup.find_all("img"):
-        image_attrs = image.attrs()
-        hero_name = image_attrs.get("alt")
+    for hero_card in soup.find_all("blz-card"):
+        image = hero_card.find("blz-image")
+        if image == None:
+            continue
 
-        if not hero_name:
+        hero_name = get_hero_name_from_blz_card(hero_card)
+        if hero_name == None:
             continue
 
         if hero_name not in heroes:
             continue
 
-        hero_image = find_image_with_size(image_attrs.get("srcset"), max_width = max_width)
-        hero_image_map[hero_name] = "{}{}".format(BASE_URL, hero_image)
+        image_attrs = image.attrs()
+        hero_image_map[hero_name] = image_attrs.get("src")
 
     return hero_image_map
 
@@ -514,8 +520,9 @@ def render_statistics(
         platform = PLATFORM_TYPES.pc,
         game_mode = GAME_MODES.quickplay,
         role = ROLES.all,
-        time_window = TIME_WINDOWS.last_three_months,
-        skill_tier = SKILL_TIERS.all):
+        skill_tier = SKILL_TIERS.all,
+        region = REGION.americas,
+        max_length = 5):
     """Renders the hero statistics.
 
     Args:
@@ -524,36 +531,31 @@ def render_statistics(
         game_mode (str, optional): an optional game mode to query statistics from. Defaults to
             "quickplay".
         role (str, optional): the hero role to extract the data for. Defaults to "all".
-        time_window (str, optional): an optional time window to query statistics from. Defaults to
-            "3months".
         skill_tier (str, optional): an optional skill tier to query statistics from. Defaults to
             "all".
+        region (str, optional): an optional region to filter the statistics by. Defaults to "Americas".
+        max_length (int): the integer for the max number of hero statistics to show.
 
     Returns:
         Root: a root render instance.
     """
 
     # retreive the HTML text
-    meta_text = get_overbuff_text(
+    meta_text = get_blizzard_text(
         platform = platform,
         game_mode = game_mode,
-        role = role,
-        time_window = time_window,
         skill_tier = skill_tier,
-        endpoint = "meta",
+        region = region,
+        endpoint = RATES_ENDPONT,
     )
 
-    # retrieve a map of hero name to hero icon
-    hero_image_map = get_hero_image_map()
+    # retrieve the heroes
+    heroes = get_heroes()
 
-    if statistic == STATISTICS_TYPES.pick_rate:
-        # list of pick rates (hero_name, hero_class, pick_rate)
-        statistics_list = get_pick_rate_raw_list(meta_text)
-    elif statistic == STATISTICS_TYPES.win_rate:
-        # list of win rates (hero_name, hero_class, win_rate)
-        statistics_list = get_win_rate_raw_list(meta_text)
-    else:
-        return render_error("Received unsupported statistic: '{}'.".format(statistic))
+    # retrieve a map of hero name to hero icon
+    hero_image_map = get_hero_image_map(heroes)
+
+    statistics_list = get_rates_list(meta_text, statistic)
 
     if len(statistics_list) == 0:
         return render_error("Unable to retrieve the '{}' statistic.".format(statistic))
@@ -562,17 +564,25 @@ def render_statistics(
     sections = []
 
     # add child contents (Hero Image - Hero Name - Statistic %)
-    for stat in statistics_list:
-        if len(stat) == 3:
+    for stat_details in statistics_list:
+        if len(sections) >= max_length:
+            break
+
+        if stat_details == None or len(stat_details) != 2:
             continue
 
-        stat_details = parse_char_type_percentage(stat)
-        if stat_details == None or len(stat_details) != 3:
-            continue
-
-        (hero_name, _, stat_value) = stat_details
+        (hero_name, stat_value) = stat_details
         if hero_name not in hero_image_map:
             continue
+
+        if hero_name not in heroes:
+            continue
+
+        # filter by hero role
+        if role != ROLES.all:
+            hero_role = heroes[hero_name]
+            if role != hero_role:
+                continue
 
         image_url = hero_image_map[hero_name]
         image_rep = http.get(image_url, ttl_seconds = DAY_IN_SECONDS)
@@ -602,7 +612,7 @@ def main(config):
         game_mode = config.get("game_mode", GAME_MODES.quickplay),
         role = config.get("role", ROLES.all),
         skill_tier = config.get("skill_tier", SKILL_TIERS.all),
-        time_window = config.get("time_window", TIME_WINDOWS.last_three_months),
+        region = config.get("regions", REGION.americas),
     )
 
 def get_schema():
@@ -678,19 +688,16 @@ def get_schema():
                 default = SKILL_TIERS.all,
             ),
             schema.Dropdown(
-                id = "time_window",
-                name = "Time Window",
-                desc = "The time window to filter statistics by.",
-                icon = "clock",
+                id = "regions",
+                name = "Regions",
+                desc = "The region filter statistics by.",
+                icon = "globe",
                 options = [
-                    schema.Option(display = "All Time", value = TIME_WINDOWS.all_time),
-                    schema.Option(display = "This Week", value = TIME_WINDOWS.this_week),
-                    schema.Option(display = "This Month", value = TIME_WINDOWS.this_month),
-                    schema.Option(display = "Last 3 Months", value = TIME_WINDOWS.last_three_months),
-                    schema.Option(display = "Last 6 Months", value = TIME_WINDOWS.last_six_months),
-                    schema.Option(display = "Last Year", value = TIME_WINDOWS.last_year),
+                    schema.Option(display = "Americas", value = REGION.americas),
+                    schema.Option(display = "Asia", value = REGION.asia),
+                    schema.Option(display = "Europe", value = REGION.europe),
                 ],
-                default = TIME_WINDOWS.last_three_months,
+                default = REGION.americas,
             ),
         ],
     )
