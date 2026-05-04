@@ -1,0 +1,7 @@
+id: jiminypeak
+name: Jiminy Peak
+summary: Jiminy Peak ski conditions
+desc: Displays live snow conditions for Jiminy Peak Mountain Resort in Hancock, Massachusetts. Shows resort open/closed status, trails and lifts open, current temperature, and recent snowfall. Data sourced from OnTheSnow and Open-Meteo.
+author: baglesho
+fileName: jiminy_peak.star
+packageName: jiminypeak
