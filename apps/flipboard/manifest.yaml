@@ -1,0 +1,8 @@
+---
+id: flipboard
+name: Flipboard
+summary: Retro split-flap display
+desc: Shows a custom or preset message in the style of a vintage train-station or airport split-flap board, with the signature scramble-and-settle animation.
+author: itschriswilliams
+fileName: flipboard.star
+packageName: flipboard
