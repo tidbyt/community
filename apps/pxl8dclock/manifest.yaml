@@ -1,0 +1,8 @@
+---
+id: pxl8d-clock
+name: 24 Hour Big Clock
+summary: Big 7-segment 24hr clock
+desc: A giant 24-hour clock with custom seven-segment digits built from 1x1 Pixlet Box widgets. Configurable color, background, and timezone. Pure pixel art — no fonts, no anti-aliasing, just discrete LEDs.
+author: PXL8D
+fileName: pxl8d_clock.star
+packageName: pxl8dclock

@@ -1,8 +1,8 @@
 ---
 id: big-clock
-name: Big Clock
-summary: A large retro-style clock
-desc: Display a large retro-style clock; the clock can change color at night based on sunrise and sunset times for a given location, supports 24-hour and 12-hour variants and optionally flashes the separator.
-author: Joey Hoer
+name: 24 Hour Big Clock
+summary: Big 7-segment 24hr clock
+desc: A giant 24-hour clock with custom seven-segment digits built from 1x1 Pixlet Box widgets. Configurable color, background, and timezone. Pure pixel art — no fonts, no anti-aliasing, just discrete LEDs.
+author: PXL8D
 fileName: big_clock.star
 packageName: bigclock
