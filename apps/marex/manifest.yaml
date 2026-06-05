@@ -1,0 +1,9 @@
+---
+id: marex
+name: Marex
+summary: Brazilian tide times
+desc: Shows today's tide table for a Brazilian beach using the Tabua Mare API.
+author: Flavio
+fileName: marex.star
+packageName: marex
+recommendedInterval: 30
