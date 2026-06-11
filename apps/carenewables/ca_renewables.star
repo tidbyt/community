@@ -12,7 +12,7 @@ load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 
-FUEL_URL = "https://www.caiso.com/outlook/SP/fuelsource.csv"
+FUEL_URL = "https://www.caiso.com/outlook/current/fuelsource.csv"
 
 # Large hydro and batteries are not officially 'green' but are certainly "clean" -- these can be toggled via the config
 
