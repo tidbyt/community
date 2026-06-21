@@ -1,0 +1,8 @@
+---
+id: sky-today
+name: Sky Today
+summary: Live diorama of your sky
+desc: Renders your location's real sky as a pixel diorama — sun, moon phase, clouds, current weather, wind, and severe-weather alerts.
+author: Evan VanDyke
+fileName: sky_today.star
+packageName: skytoday
