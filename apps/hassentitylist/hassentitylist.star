@@ -6,6 +6,7 @@ Author: James Woglom
 """
 
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 
@@ -53,7 +54,7 @@ def render_entity(entity_id, config):
     if not fetch:
         return 0, None
 
-    count = int(fetch["state"])
+    count = float(fetch["state"])
     unit = ""
     if config.bool("show_units") and "attributes" in fetch and "unit_of_measurement" in fetch["attributes"]:
         unit = fetch["attributes"]["unit_of_measurement"] + " "
@@ -67,18 +68,37 @@ def render_entity(entity_id, config):
                 color = "#f1f1f1",
             ),
             render.Text(
-                content = num_format(fetch["state"]) + " " + unit,
+                content = num_format(fetch["state"], config.get("decimal_places")) + " " + unit,
                 font = "tb-8",
                 color = get_color(count, config),
             ),
         ],
     )
 
-def num_format(raw):
+def group_thousands(int_part):
+    neg = int_part.startswith("-")
+    digits = int_part[1:] if neg else int_part
+    grouped = ""
+    for i in range(len(digits)):
+        if i > 0 and (len(digits) - i) % 3 == 0:
+            grouped += ","
+        grouped += digits[i]
+    return ("-" + grouped) if neg else grouped
+
+def num_format(raw, precision):
     num = raw + ""
-    if len(num) > 3:
-        return num[:-3] + "," + num[-3:]
-    return num
+
+    # Fixed precision: round and group thousands via humanize.
+    if precision and precision.isdigit():
+        places = int(precision)
+        format = "#,###." + ("#" * places) if places > 0 else "#,###."
+        return humanize.float(format, float(num))
+
+    # Auto: keep the value as reported, only grouping the integer part so
+    # decimals (e.g. "7.032") are no longer mangled into "7,.032".
+    parts = num.split(".")
+    parts[0] = group_thousands(parts[0])
+    return ".".join(parts)
 
 def get_color(count, config):
     if not config.get("target_value"):
@@ -154,6 +174,13 @@ def get_schema():
                 desc = "Show units for entities which have them.",
                 icon = "eye",
                 default = True,
+            ),
+            schema.Text(
+                id = "decimal_places",
+                name = "Decimal places",
+                desc = "Number of decimal places to show. Leave blank to show the value as reported.",
+                icon = "hashtag",
+                default = "",
             ),
         ] + entity_schema,
     )
