@@ -7,12 +7,11 @@ Description: Show METAR (aviation weather) text for one airport or flight
     by commas to display multiple airports.
 """
 
-load("cache.star", "cache")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-ADDS_URL = "https://www.aviationweather.gov/cgi-bin/data/dataserver.php?dataSource=metars&requestType=retrieve&format=csv&stationString=%s&mostrecentforeachstation=constraint&hoursBeforeNow=2"
+ADDS_URL = "https://aviationweather.gov/api/data/metar?ids=%s&format=json&hours=2"
 DEFAULT_AIRPORT = "KJFK, KLGA, KBOS, KDCA"
 
 # encryption, schema
@@ -22,63 +21,27 @@ DEFAULT_AIRPORT = "KJFK, KLGA, KBOS, KDCA"
 MAX_AGE = 60 * 10
 
 def decoded_result_for_airport(airport):
-    cache_key = "metar_cache_" + airport
-    cached_result = cache.get(cache_key)
-    if (cached_result != None):
-        result = cached_result
-    else:
-        rep = http.get(ADDS_URL % airport)
-        if rep.status_code != 200:
-            return {
-                "color": "#000000",
-                "text": "Received error %s for %s" % (rep.status_code, airport),
-                "flight_category": "ERR",
-            }
-
-        result = rep.body()
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(cache_key, result, ttl_seconds = 60)
-        print("fetched for %s" % airport)
-
-    lines = result.strip().split("\n")
-
-    key_line = None
-    data_line = None
-
-    for line in lines:
-        if line.startswith("raw_text"):
-            key_line = line
-        elif line.startswith(airport + " "):
-            data_line = line
-
-    if data_line == None:
+    rep = http.get(ADDS_URL % airport, ttl_seconds = 60)
+    if rep.status_code != 200:
         return {
             "color": "#000000",
-            "text": "Invalid airport code %s" % airport,
+            "text": "Received error %s for %s" % (rep.status_code, airport),
             "flight_category": "ERR",
         }
 
-    if key_line == None:
-        return {
-            "color": "#000000",
-            "text": "Could not parse METAR",
-            "flight_category": "ERR",
-        }
+    result = rep.json()[0]
 
-    decoded = {}
-    for label, value in zip(key_line.split(","), data_line.split(",")):
-        decoded[label] = value
+    print("fetched for %s" % airport)
 
     response = {
-        "color": color_for_state(decoded),
-        "text": decoded["raw_text"],
-        "flight_category": decoded["flight_category"],
+        "color": color_for_state(result),
+        "text": result["rawOb"],
+        "flight_category": result["fltCat"],
     }
     return response
 
 def color_for_state(result):
-    category = result["flight_category"]
+    category = result["fltCat"]
     if category == "VFR":
         return "#00FF00"
     elif category == "IFR":
