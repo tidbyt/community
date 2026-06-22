@@ -1,0 +1,6 @@
+---
+id: libre-glucose
+name: Libre Glucose
+summary: Glucose Monitor
+desc: Displays real-time glucose from Freestyle Libre via LibreLinkUp. Shows current value, trend arrow, 4-hour history graph, and color alerts for high and low values.
+author: Bob
