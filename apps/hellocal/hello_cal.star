@@ -67,7 +67,7 @@ SWITCH_LEAD = 5 * 60  # seconds: switch to a contiguous next event 5 min early
 # width = sum(advances) - 1.
 CHAR_ADV = {"!": 2, "'": 2, ".": 2, ":": 2, " ": 3, "(": 3, ")": 3, ",": 3, "+": 4, "-": 4, "?": 4, "I": 4, "J": 4, "T": 4, "c": 4, "i": 4, "j": 4, "l": 4, "s": 4, "v": 4, "&": 5, "/": 5, "0": 5, "1": 5, "2": 5, "3": 5, "4": 5, "5": 5, "6": 5, "7": 5, "8": 5, "9": 5, "A": 5, "B": 5, "C": 5, "D": 5, "E": 5, "F": 5, "G": 5, "H": 5, "K": 5, "L": 5, "N": 5, "O": 5, "P": 5, "Q": 5, "R": 5, "S": 5, "U": 5, "X": 5, "Z": 5, "a": 5, "b": 5, "d": 5, "e": 5, "f": 5, "g": 5, "h": 5, "k": 5, "n": 5, "o": 5, "p": 5, "q": 5, "r": 5, "t": 5, "u": 5, "x": 5, "y": 5, "z": 5, "M": 6, "V": 6, "W": 6, "Y": 6, "m": 6, "w": 6}
 DEFAULT_ADV = 6  # unknown chars: assume widest, so we never under-estimate & clip
-TITLE_STATIC_MAX = 61  # px; title <= this fits at x=3 without clipping -> static
+TITLE_STATIC_MAX = 58  # px; title <= this fits at x=3 with 3px right margin -> static
 
 def text_width(s):
     if len(s) == 0:
@@ -162,13 +162,12 @@ def title_row(title):
             child = render.Text(content = title, color = WHITE, font = FONT),
         )
     return render.Padding(
-        pad = (0, 14, 0, 0),
+        pad = (3, 14, 0, 0),
         child = render.Marquee(
-            width = 64,
-            # Hold the title still at the 3px left margin (offset_start = 3) for
-            # ~500ms (10 frames * 50ms default frame delay) before scrolling
-            # edge-to-edge. Re-holds at the start of each loop.
-            offset_start = 3,
+            width = 58,
+            # 3px margins on both sides are in the Padding above; offset_start = 0.
+            # delay = 10 holds the text still for ~500ms before scrolling starts.
+            offset_start = 0,
             delay = 10,
             child = render.Text(content = title, color = WHITE, font = FONT),
         ),
@@ -197,7 +196,7 @@ def render_event(event):
                 ),
                 # ROW 1 — date text, 2px right of the icon
                 render.Padding(
-                    pad = (14, 3, 0, 0),
+                    pad = (14, 4, 0, 0),
                     child = render.Text(content = date_str, color = PINK, font = FONT),
                 ),
 
@@ -226,7 +225,7 @@ def render_no_url():
                     child = render.Image(src = CALENDAR_PNG, width = 8, height = 8),
                 ),
                 render.Padding(
-                    pad = (14, 3, 0, 0),
+                    pad = (14, 4, 0, 0),
                     child = render.Text(content = "Hello :)", color = PINK, font = FONT),
                 ),
 
@@ -261,7 +260,7 @@ def render_empty_day(now):
                     child = render.Image(src = CALENDAR_PNG, width = 8, height = 8),
                 ),
                 render.Padding(
-                    pad = (14, 3, 0, 0),
+                    pad = (14, 4, 0, 0),
                     child = render.Text(content = date_str, color = PINK, font = FONT),
                 ),
 
@@ -301,7 +300,7 @@ def render_no_events(tz):
             child = render.Image(src = CALENDAR_PNG, width = 8, height = 8),
         ),
         render.Padding(
-            pad = (14, 3, 0, 0),
+            pad = (14, 4, 0, 0),
             child = render.Text(content = date_str, color = PINK, font = FONT),
         ),
 
