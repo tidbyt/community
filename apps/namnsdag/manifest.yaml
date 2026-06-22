@@ -1,0 +1,8 @@
+---
+id: namnsdag
+name: Namnsdag
+summary: Show the Swedish name day
+desc: Display todays name day in Sweden.
+author: sebastianekstrom
+fileName: namnsdag.star
+packageName: namnsdag
