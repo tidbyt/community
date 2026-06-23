@@ -60,7 +60,9 @@ QUIET_PHRASES = [
     ["Let the good", "times roll"],
     ["Room to", "wander"],
 ]
-SWITCH_LEAD = 5 * 60  # seconds: switch to a contiguous next event 5 min early
+PREPARATION_TIME = 15 * 60  # seconds: show next event this early before it starts
+PERSISTENCE_TIME = 10 * 60  # seconds: extended events show for this long before deferring
+EXTENDED_THRESHOLD = 4 * 60 * 60  # seconds: events longer than this are "extended" (flights, etc.)
 
 # tb-8 per-character advance widths in pixels (measured empirically). Used to
 # decide whether a title fits without scrolling. A rendered string's pixel
@@ -352,43 +354,109 @@ def all_day_sort_key(e):
         e["summary"],
     )  # 3. alphabetical by title
 
+def is_extended(e):
+    return e["end"].unix - e["start"].unix > EXTENDED_THRESHOLD
+
+def synthesize_event(group):
+    # Given events sharing the same start time: return the single event unchanged,
+    # or synthesize a display event highlighting the shortest with "+ N other(s)".
+    if len(group) == 1:
+        return group[0]
+    best = group[0]
+    for e in group[1:]:
+        dur_best = best["end"].unix - best["start"].unix
+        dur_e = e["end"].unix - e["start"].unix
+        if dur_e < dur_best or (dur_e == dur_best and e["summary"] < best["summary"]):
+            best = e
+    n = len(group) - 1
+    suffix = "other" if n == 1 else "others"
+    return {
+        "summary": best["summary"] + " + " + str(n) + " " + suffix,
+        "start": best["start"],
+        "end": best["end"],
+        "all_day": False,
+    }
+
 def select_event(events, now):
     timed = [e for e in events if not e["all_day"]]
 
-    # 1. Timed event currently in progress (earliest end if several overlap).
+    # Step 1 — Current event: most recently started wins; synthesize same-start group.
+    current_candidates = [e for e in timed if e["start"] <= now and e["end"] > now]
     current = None
-    for e in timed:
-        if e["start"] <= now and e["end"] > now:
-            if current == None or e["end"] < current["end"]:
-                current = e
+    if len(current_candidates) > 0:
+        raw_best = current_candidates[0]
+        for e in current_candidates[1:]:
+            if e["start"] > raw_best["start"]:
+                raw_best = e
+            elif e["start"].unix == raw_best["start"].unix:
+                dur_e = e["end"].unix - e["start"].unix
+                dur_best = raw_best["end"].unix - raw_best["start"].unix
+                if dur_e < dur_best or (dur_e == dur_best and e["summary"] < raw_best["summary"]):
+                    raw_best = e
+        same_start = [e for e in current_candidates if e["start"].unix == raw_best["start"].unix]
+        current = synthesize_event(same_start)
 
-    # Soonest timed event starting after now (used for contiguity + "next").
+    # Step 2 — Next upcoming timed event: synthesize same-start group.
+    upcoming = [e for e in timed if e["start"] > now]
     next_timed = None
-    for e in timed:
-        if e["start"] > now:
-            if next_timed == None or e["start"] < next_timed["start"]:
-                next_timed = e
+    if len(upcoming) > 0:
+        min_start = upcoming[0]["start"]
+        for e in upcoming[1:]:
+            if e["start"] < min_start:
+                min_start = e["start"]
+        next_group = [e for e in upcoming if e["start"].unix == min_start.unix]
+        next_timed = synthesize_event(next_group)
 
+    # Step 3 — Dispatch.
     if current != None:
-        # 2. If the next timed event is contiguous (starts within 5 min of the
-        #    current one ending), switch to it 5 min before the current ends.
-        if next_timed != None and is_contiguous(current, next_timed):
-            if now >= add_seconds(current["end"], -SWITCH_LEAD):
+        # 3a. Prep check: always first; applies to all event types; overrides persistence.
+        if next_timed != None:
+            if now >= add_seconds(next_timed["start"], -PREPARATION_TIME):
                 return next_timed
+
+        # 3b. Extended persistence: after PERSISTENCE_TIME elapses, defer to regular events.
+        if is_extended(current):
+            if now >= add_seconds(current["start"], PERSISTENCE_TIME):
+                # i. Regular event currently in progress?
+                reg_ip = [e for e in current_candidates if not is_extended(e)]
+                if len(reg_ip) > 0:
+                    reg_best = reg_ip[0]
+                    for e in reg_ip[1:]:
+                        if e["start"] > reg_best["start"]:
+                            reg_best = e
+                        elif e["start"].unix == reg_best["start"].unix:
+                            dur_e = e["end"].unix - e["start"].unix
+                            dur_best = reg_best["end"].unix - reg_best["start"].unix
+                            if dur_e < dur_best or (dur_e == dur_best and e["summary"] < reg_best["summary"]):
+                                reg_best = e
+                    reg_same_start = [e for e in reg_ip if e["start"].unix == reg_best["start"].unix]
+                    return synthesize_event(reg_same_start)
+
+                # ii. Regular event upcoming today?
+                reg_up = [e for e in upcoming if not is_extended(e) and same_day(e["start"], now)]
+                if len(reg_up) > 0:
+                    reg_min = reg_up[0]["start"]
+                    for e in reg_up[1:]:
+                        if e["start"] < reg_min:
+                            reg_min = e["start"]
+                    reg_next_group = [e for e in reg_up if e["start"].unix == reg_min.unix]
+                    return synthesize_event(reg_next_group)
+
+                # iii. No regular alternatives: extended event continues showing.
+
         return current
 
-    # 3. Next upcoming timed event later today.
+    # No event currently in progress.
     if next_timed != None and same_day(next_timed["start"], now):
         return next_timed
 
-    # No timed event is active or still upcoming today.
+    # No timed event active or upcoming today.
     timed_today_existed = False
     for e in timed:
         if same_day(e["start"], now):
             timed_today_existed = True
 
-    # 4. If there were no timed events at all today, fall back to today's
-    #    all-day events (e.g. holidays), cycling through them if multiple.
+    # Fall back to today's all-day events (e.g. holidays) when no timed events today.
     if not timed_today_existed:
         all_day_today = [e for e in events if e["all_day"] and same_day(e["start"], now)]
         n = len(all_day_today)
@@ -398,7 +466,6 @@ def select_event(events, now):
             all_day_today = sorted(all_day_today, key = all_day_sort_key)
             return all_day_today[(now.unix // 60) % n]
 
-    # 5. No timed events remain today.
     if now.hour < 20:
         if not timed_today_existed:
             return "EMPTY_DAY"  # zero events ever scheduled today
@@ -409,17 +476,17 @@ def select_event(events, now):
     if is_new_years_eve(now):
         return None
 
-    # 4b. At or after 8 PM → first timed event of tomorrow (never all-day).
+    # At or after 8 PM: show the first timed event of tomorrow (with synthesis).
     tomorrow = add_seconds(now, 24 * 60 * 60)
-    next_tomorrow = None
-    for e in timed:
-        if same_day(e["start"], tomorrow) and e["start"] > now:
-            if next_tomorrow == None or e["start"] < next_tomorrow["start"]:
-                next_tomorrow = e
-    return next_tomorrow
-
-def is_contiguous(current, nxt):
-    return nxt["start"] <= add_seconds(current["end"], SWITCH_LEAD)
+    tomorrow_timed = [e for e in timed if same_day(e["start"], tomorrow) and e["start"] > now]
+    if len(tomorrow_timed) == 0:
+        return None
+    min_start = tomorrow_timed[0]["start"]
+    for e in tomorrow_timed[1:]:
+        if e["start"] < min_start:
+            min_start = e["start"]
+    tomorrow_group = [e for e in tomorrow_timed if e["start"].unix == min_start.unix]
+    return synthesize_event(tomorrow_group)
 
 # ---------------------------------------------------------------------------
 # iCal parsing
