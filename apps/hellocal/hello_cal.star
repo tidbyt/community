@@ -117,6 +117,9 @@ def main(config):
     if not ical_url:
         return render_no_url()
 
+    alert_enabled = config.get("alert_enabled") != "false"
+    alert_window_mins = int(config.get("alert_window") or "3")
+
     events = fetch_events(tz, ical_url, now)
     event = select_event(events, now)
 
@@ -125,7 +128,7 @@ def main(config):
     if event == None:
         return render_no_events(tz)
 
-    return render_event(event)
+    return render_event(event, now, alert_enabled, alert_window_mins)
 
 def get_schema():
     # Exposes the iCal URL as a config field. In `pixlet serve`, this renders an
@@ -147,6 +150,27 @@ def get_schema():
                 desc = "Used to show dates and times in your local timezone.",
                 icon = "locationDot",
             ),
+            schema.Toggle(
+                id = "alert_enabled",
+                name = "Meeting alert",
+                desc = "Flash the time row when a meeting is about to start",
+                icon = "bell",
+                default = True,
+            ),
+            schema.Dropdown(
+                id = "alert_window",
+                name = "Alert timing",
+                desc = "How many minutes before a meeting starts to show the alert",
+                icon = "clock",
+                default = "3",
+                options = [
+                    schema.Option(display = "1 minute", value = "1"),
+                    schema.Option(display = "2 minutes", value = "2"),
+                    schema.Option(display = "3 minutes", value = "3"),
+                    schema.Option(display = "4 minutes", value = "4"),
+                    schema.Option(display = "5 minutes", value = "5"),
+                ],
+            ),
         ],
     )
 
@@ -154,17 +178,19 @@ def get_schema():
 # Rendering
 # ---------------------------------------------------------------------------
 
-def title_row(title):
+def title_row(title, top = 14):
     # The Row 2 title. If it fits within the static width, render plain text at
     # the 3px left margin (like the other static rows). Only when it's too wide
     # do we fall back to a full-width, edge-to-edge scrolling marquee.
+    # top: vertical offset from display origin; default 14; pass 13 when the
+    # title should be raised 1px (alert state).
     if text_width(title) <= TITLE_STATIC_MAX:
         return render.Padding(
-            pad = (3, 14, 0, 0),
+            pad = (3, top, 0, 0),
             child = render.Text(content = title, color = WHITE, font = FONT),
         )
     return render.Padding(
-        pad = (3, 14, 0, 0),
+        pad = (3, top, 0, 0),
         child = render.Marquee(
             width = 58,
             # 3px margins on both sides are in the Padding above; offset_start = 0.
@@ -175,7 +201,7 @@ def title_row(title):
         ),
     )
 
-def render_event(event):
+def render_event(event, now, alert_enabled, alert_window_mins):
     date_str = format_date(event["start"])
     title = event["summary"]  # preserved exactly as in the calendar
 
@@ -183,6 +209,61 @@ def render_event(event):
         time_str = "All day"
     else:
         time_str = format_time(event["start"])
+
+    # Alert state: fire when we are within alert_window_mins of an upcoming event.
+    alert = (
+        alert_enabled and
+        not event["all_day"] and
+        event["start"] > now and
+        now >= add_seconds(event["start"], -alert_window_mins * 60)
+    )
+
+    if alert:
+        # Shared top rows (icon, date, title raised 1px).
+        icon_row = render.Padding(
+            pad = (3, 3, 0, 0),
+            child = render.Image(src = CALENDAR_PNG, width = 8, height = 8),
+        )
+        date_row = render.Padding(
+            pad = (14, 4, 0, 0),
+            child = render.Text(content = date_str, color = PINK, font = FONT),
+        )
+
+        # Normal phase: yellow text on black (title raised 1px).
+        nf = render.Stack(children = [
+            render.Box(width = 64, height = 32, color = BLACK),
+            icon_row,
+            date_row,
+            title_row(title, top = 13),
+            render.Padding(
+                pad = (3, 22, 0, 0),
+                child = render.Text(content = time_str, color = YELLOW, font = FONT),
+            ),
+        ])
+
+        # Inverted phase: full-width yellow bar (2px gap at bottom), black text.
+        inv = render.Stack(children = [
+            render.Box(width = 64, height = 32, color = BLACK),
+            icon_row,
+            date_row,
+            title_row(title, top = 13),
+            render.Padding(
+                pad = (0, 22, 0, 0),
+                child = render.Box(width = 64, height = 8, color = YELLOW),
+            ),
+            render.Padding(
+                pad = (3, 22, 0, 0),
+                child = render.Text(content = time_str, color = BLACK, font = FONT),
+            ),
+        ])
+
+        # 20 × 50ms = 1 second per phase. Pixlet collapses identical frames and
+        # accumulates their delays, so static titles produce 2 stored frames × 1s.
+        frames = [nf for _ in range(20)] + [inv for _ in range(20)]
+        return render.Root(
+            child = render.Animation(children = frames),
+            delay = 50,
+        )
 
     return render.Root(
         child = render.Stack(
