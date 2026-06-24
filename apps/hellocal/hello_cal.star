@@ -118,7 +118,7 @@ def main(config):
         return render_no_url()
 
     alert_enabled = config.get("alert_enabled") != "false"
-    alert_window_mins = int(config.get("alert_window") or "3")
+    alert_window_mins = int(config.get("alert_window") or "5")
 
     events = fetch_events(tz, ical_url, now)
     event = select_event(events, now)
@@ -162,7 +162,7 @@ def get_schema():
                 name = "Alert timing",
                 desc = "How many minutes before a meeting starts to show the alert",
                 icon = "clock",
-                default = "3",
+                default = "5",
                 options = [
                     schema.Option(display = "1 minute", value = "1"),
                     schema.Option(display = "2 minutes", value = "2"),
