@@ -1,0 +1,7 @@
+id: is-claude-up
+name: Is Claude Up
+summary: Live Claude.ai status check
+desc: Shows current Anthropic and Claude.ai service health. Displays the overall status indicator, individual component health (Web, API, Workspaces), and scrolls any active incident details. Data sourced from status.anthropic.com.
+author: Jolars721
+fileName: is_claude_up.star
+packageName: is_claude_up
