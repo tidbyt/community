@@ -1,0 +1,8 @@
+---
+id: discovercashback
+name: Discover Category
+summary: Shows Discover category
+desc: Displays the current Discover cash back category.
+author: Denton-L
+fileName: discovercashback.star
+packageName: discovercashback
