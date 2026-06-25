@@ -1,0 +1,8 @@
+---
+id: astral-clock
+name: Astral Clock
+summary: Cosmic neon digital clock
+desc: A unique creative digital clock featuring a deep space background, neon cyan time display with magenta chromatic aberration glow, twinkling stars, subtle planet orbs, and elegant decorative accents. Supports configurable timezone via location and 12/24-hour format toggle.
+author: gcrft123
+fileName: astral_clock.star
+packageName: astralclock
