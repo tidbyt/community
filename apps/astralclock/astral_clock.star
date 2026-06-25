@@ -2,7 +2,7 @@
 Applet: Astral Clock
 Summary: Cosmic neon digital clock
 Description: A unique creative digital clock featuring a deep space background, neon cyan time display with magenta chromatic aberration glow, twinkling stars, subtle planet orbs, and elegant decorative accents. Supports configurable timezone via location and 12/24-hour format toggle.
-Author: Gabriel
+Author: gcrft123
 """
 
 load("encoding/json.star", "json")
