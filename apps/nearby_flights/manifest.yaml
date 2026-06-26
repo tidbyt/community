@@ -1,0 +1,7 @@
+﻿id: nearby-flights
+name: Nearby Flights
+summary: Live ADS-B flights near you
+desc: Displays live flight data from the OpenSky Network for aircraft within a configurable radius of your location. Shows callsign, heading, altitude, speed, and origin country for up to 8 nearby planes. Configure by US ZIP code or lat/lon coordinates.
+author: Jolars721
+fileName: nearbyflights.star
+packageName: nearby_flights
