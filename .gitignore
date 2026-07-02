@@ -26,3 +26,7 @@ BUILD.bazel
 *.webp
 *.gif
 *.tar.gz
+apps/homegame/REQUIREMENTS.md
+apps/homegame/push_to_tidbyt.ps1
+apps/homegame/push_to_tidbyt.sh
+apps/homegame/DEPLOY.md

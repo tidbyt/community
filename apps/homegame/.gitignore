@@ -1,0 +1,13 @@
+# Build artifacts
+*.webp
+*.gif
+
+# Test outputs
+test_output/
+tests/test_output/
+tests/*.webp
+
+# Do NOT ignore golden reference images and screenshots
+!tests/golden_images/
+!tests/golden_images/*.webp
+!screenshot.webp
