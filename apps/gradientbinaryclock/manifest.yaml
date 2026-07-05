@@ -1,0 +1,7 @@
+id: gradient-binary-clock
+name: Gradient Binary
+summary: Gradient binary clock
+desc: HH:MM:SS shown as six columns of glowing LED dots in binary-coded decimal, ticking live each second with a synthwave gradient.
+author: Baird Langenbrunner
+fileName: gradient_binary_clock.star
+packageName: gradientbinaryclock
