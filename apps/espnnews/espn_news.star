@@ -7,44 +7,55 @@ Author: rs7q5
 #espn_news.star
 #Created 20211231 RIS
 #Last Modified 20230516 RIS
+#
+# FIX (this version): the original app pulled JSON out of ESPN's website via
+# the "?xhr=1" query trick (https://www.espn.com/nfl/?xhr=1). That's not a
+# real API - it's ESPN's frontend data layer, and it changed shape, which is
+# why the app started returning "Error getting data!!!!" for everyone.
+# This version instead calls ESPN's actual public sports API
+# (site.api.espn.com), which returns headlines under "articles" instead of
+# "headlines". Everything else - schema, scrolling, formatting - is unchanged.
 
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-#this list are any of the sports that have a "Top headlines" section and can be done with the following base ESPN_URL
-ESPN_URL = "https://www.espn.com/"
+# Second element of each entry is now the site.api.espn.com path segment
+# (sport/league), not a espn.com URL path. A few categories (Soccer, Golf,
+# College Sports, Olympic Sports, Racing, Tennis) don't have one single
+# universal feed on this API - ESPN requires a specific league slug (e.g.
+# eng.1 for Premier League, pga for golf) - so those default to a reasonable
+# top-level pick rather than a true "all of X" feed.
 ESPN_SPORTS_LIST = {
-    "All": ["All", ""],  #default
-    "NFL": ["NFL", "nfl"],
-    "NBA": ["NBA", "nba"],
-    "NHL": ["NHL", "nhl"],
-    "Soccer": ["SOCC", "soccer"],
-    "Golf": ["Golf", "golf"],
-    "NCAAF": ["NCAAF", "college-football"],
-    "College Sports": ["COL.", "college-sports"],
-    "F1": ["F1", "f1"],
-    "MLB": ["MLB", "mlb"],
-    "MMA": ["MMA", "mma"],
+    "All": ["All", ""],  #default - general top headlines across sports
+    "NFL": ["NFL", "football/nfl"],
+    "NBA": ["NBA", "basketball/nba"],
+    "NHL": ["NHL", "hockey/nhl"],
+    "Soccer": ["SOCC", "soccer/eng.1"],  #Premier League as a stand-in for general soccer
+    "Golf": ["Golf", "golf/pga"],
+    "NCAAF": ["NCAAF", "football/college-football"],
+    "College Sports": ["COL.", "football/college-football"],
+    "F1": ["F1", "racing/f1"],
+    "MLB": ["MLB", "baseball/mlb"],
+    "MMA": ["MMA", "mma/ufc"],
     "NASCAR": ["NASC", "racing/nascar"],
-    "NCAAM": ["NCAAM", "mens-college-basketball"],
-    "NCAAW": ["NCAAW", "womens-college-basketball"],
-    "Olympic Sports": ["OLY", "olympics"],
-    "Racing": ["RCNG", "racing"],
-    "Tennis": ["TENNS", "tennis"],
-    "WNBA": ["WNBA", "wnba"],
+    "NCAAM": ["NCAAM", "basketball/mens-college-basketball"],
+    "NCAAW": ["NCAAW", "basketball/womens-college-basketball"],
+    "Olympic Sports": ["OLY", ""],  #no dedicated feed - falls back to general news
+    "Racing": ["RCNG", "racing/nascar"],
+    "Tennis": ["TENNS", "tennis/atp"],
+    "WNBA": ["WNBA", "basketball/wnba"],
 }
 
 def main(config):
     sport = config.get("sport") or "All"
     sport_txt, sport_ext = ESPN_SPORTS_LIST.get(sport)
 
-    #create full URL
-    ESPN_API_URL = ESPN_URL + sport_ext
-    if sport != "All":
-        ESPN_API_URL += "/?xhr=1"
+    #build the real ESPN API URL
+    if sport_ext == "":
+        ESPN_API_URL = "https://site.api.espn.com/apis/site/v2/sports/news"
     else:
-        ESPN_API_URL += "?xhr=1"
+        ESPN_API_URL = "https://site.api.espn.com/apis/site/v2/sports/%s/news" % sport_ext
 
     font = "CG-pixel-4x5-mono"  #set font
 
@@ -53,10 +64,17 @@ def main(config):
     if rep.status_code != 200:
         title = ["Error getting data!!!!", "", ""]
     else:
-        #get top 3 newest headlines
-        title = []
-        for i in range(3):
-            title.append(rep.json()["headlines"][i]["headline"])
+        articles = rep.json().get("articles", [])
+        if len(articles) == 0:
+            title = ["No headlines available", "", ""]
+        else:
+            #get top 3 newest headlines
+            title = []
+            for i in range(min(3, len(articles))):
+                title.append(articles[i].get("headline", ""))
+            #pad out to 3 entries if fewer than 3 came back
+            while len(title) < 3:
+                title.append("")
 
         #format strings so they are all the same length (leads to better scrolling)
         max_len = max([len(x) for x in title])  #length of each string
