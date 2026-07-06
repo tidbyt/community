@@ -64,17 +64,35 @@ def main(config):
     if rep.status_code != 200:
         title = ["Error getting data!!!!", "", ""]
     else:
-        articles = rep.json().get("articles", [])
-        if len(articles) == 0:
+        # defensive json parse: make sure we have a dict before .get()
+        ok_json = None
+        try:
+            ok_json = rep.json()
+        except Exception:
+            ok_json = None
+
+        if ok_json is None or type(ok_json) != dict:
             title = ["No headlines available", "", ""]
         else:
-            #get top 3 newest headlines
-            title = []
-            for i in range(min(3, len(articles))):
-                title.append(articles[i].get("headline", ""))
-            #pad out to 3 entries if fewer than 3 came back
-            while len(title) < 3:
-                title.append("")
+            articles = ok_json.get("articles", [])
+            if len(articles) == 0:
+                title = ["No headlines available", "", ""]
+            else:
+                #get top 3 newest headlines
+                title = []
+                for i in range(min(3, len(articles))):
+                    a = articles[i]
+                    # defensive extraction: headline -> title -> description -> str
+                    if type(a) == dict:
+                        headline_text = a.get("headline") or a.get("title") or a.get("description") or ""
+                    else:
+                        headline_text = str(a)
+                    title.append(headline_text)
+                #pad out to 3 entries if fewer than 3 came back (Starlark doesn't support while)
+                missing = 3 - len(title)
+                if missing > 0:
+                    for _ in range(missing):
+                        title.append("")
 
         #format strings so they are all the same length (leads to better scrolling)
         max_len = max([len(x) for x in title])  #length of each string
