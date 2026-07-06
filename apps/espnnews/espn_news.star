@@ -65,11 +65,7 @@ def main(config):
         title = ["Error getting data!!!!", "", ""]
     else:
         # defensive json parse: make sure we have a dict before .get()
-        ok_json = None
-        try:
-            ok_json = rep.json()
-        except Exception:
-            ok_json = None
+        ok_json = rep.json()
 
         if ok_json is None or type(ok_json) != dict:
             title = ["No headlines available", "", ""]
