@@ -1,0 +1,8 @@
+---
+id: noaa-water-temp
+name: NOAA Water Temp
+summary: Local water temp from NOAA
+desc: Shows current water temperature from nearby NOAA/NDBC stations, with station picking and display themes.
+author: Taylor Wilson
+fileName: noaa_water_temp.star
+packageName: noaawatertemp
