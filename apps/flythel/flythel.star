@@ -130,6 +130,7 @@ DEFAULT_GAME_DATA = """
 }
 """
 MLB_SCHED_ENDPOINT = "/api/v1/schedule/games/"
+MLB_TEAMS_ENDPOINT = "/api/v1/teams/{0}"
 MLB_BASE_URL = "https://statsapi.mlb.com{0}"
 
 def main(config):
@@ -157,10 +158,11 @@ def main(config):
     game = None
     if current_hour < hour_to_switch:
         # want to do yesterday's game, if it exists (will be 0-index if it is there)
-        event = sched.get("dates")[0]
-        if event.get("date") == yesterday:
-            # TODO: add handling for doubleheaders somehow
-            game = event.get("games")[0]
+        if len(sched.get("dates")) > 0:
+            event = sched.get("dates")[0]
+            if event.get("date") == yesterday:
+                # TODO: add handling for doubleheaders somehow
+                game = event.get("games")[0]
 
     # if we didn't find a game above, find one now
     if not game:
@@ -319,13 +321,16 @@ def render_preview(game, timezone, status, relative_or_absolute):
     else:
         footer = render_pitcher_preview(game, game_time.Message)
 
+    away_logo = TBD_LOGO if TEAM_INFO.get(away_id) == None else TEAM_INFO[away_id].Logo
+    home_logo = TBD_LOGO if TEAM_INFO.get(home_id) == None else TEAM_INFO[home_id].Logo
+
     return render.Column(
         cross_align = "center",
         children = [
             render.Row(
                 children = [
                     render.Image(
-                        src = TEAM_INFO[away_id].Logo,
+                        src = away_logo,
                         width = 26,
                     ),
                     render.Text(
@@ -334,7 +339,7 @@ def render_preview(game, timezone, status, relative_or_absolute):
                         color = INNING_COLOR,
                     ),
                     render.Image(
-                        src = TEAM_INFO[home_id].Logo,
+                        src = home_logo,
                         width = 26,
                     ),
                 ],
@@ -353,11 +358,33 @@ def render_preview_msg(msg, flashy):
         ) if not flashy else render_rainbow_word(msg, FIVE_WIDE_FONT),
     )
 
+def get_tbd_team_info(team_id):
+    query_params = {
+        "fields": "teams,franchiseName",
+    }
+    url = MLB_BASE_URL.format(MLB_TEAMS_ENDPOINT.format(team_id))
+    response = http.get(url, params = query_params, ttl_seconds = 86400)
+
+    if response.status_code != OK:
+        # if the http request failed, return some basic info in format the consumer is expecting
+        return json.decode("""{"teams": [{"franchiseName": "OPPONENT TBD"}]}""")
+    return response.json()
+
 def render_pitcher_preview(game, time_to_game):
     away = get_away_team_id(game)
     away_pitcher = get_away_probable_pitcher(game)
     home = get_home_team_id(game)
     home_pitcher = get_home_probable_pitcher(game)
+
+    away_tbd = False
+    home_tbd = False
+    info = ""
+    if TEAM_INFO.get(away) == None:
+        info = get_tbd_team_info(away)
+        away_tbd = True
+    elif TEAM_INFO.get(home) == None:
+        info = get_tbd_team_info(home)
+        home_tbd = True
 
     return animation.Transformation(
         duration = 200,
@@ -380,13 +407,13 @@ def render_pitcher_preview(game, time_to_game):
                         content = time_to_game,
                     ),
                 ),
-                render_player(away, away_pitcher),
+                render_tbd(info) if away_tbd else render_player(away, away_pitcher),
                 render.Box(
                     height = 6,
                     width = 64,
                     child = render_american_word("versus", FIVE_WIDE_FONT),
                 ),
-                render_player(home, home_pitcher),
+                render_tbd(info) if home_tbd else render_player(home, home_pitcher),
             ],
         ),
     )
@@ -396,6 +423,23 @@ def build_keyframe(offset, pct):
         percentage = pct,
         transforms = [animation.Translate(0, offset)],
         curve = "ease_in_out",
+    )
+
+def render_tbd(team):
+    bg = "#808080"
+    fg = "#D3D3D3"
+
+    sanitized = team.get("teams")[0].get("franchiseName")
+
+    return render.Box(
+        height = 6,
+        width = 64,
+        color = bg,
+        child = render.Text(
+            font = FIVE_WIDE_FONT if len(sanitized) < 14 else SMALL_FONT,
+            color = fg,
+            content = sanitized,
+        ),
     )
 
 def render_player(team, player):
@@ -1149,6 +1193,10 @@ CWS_TEAM_ID = 145  #Chicago White Sox
 MIA_TEAM_ID = 146  #Miami Marlins
 NYY_TEAM_ID = 147  #New York Yankees
 MIL_TEAM_ID = 158  #Milwaukee Brewers
+
+TBD_LOGO = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAAiUlEQVRYCe2UQQrAMAgE29If+iE/5BtbKAgeRGpymIu5GFjaLMPgqarPAZ4LfPt7egrgBO7KARGp4jIzszL3ECcwBXACpYR/RXKh4swEzv6HE5gCOIFSwiiV3zO5PFuZOIEpgBNoS5htsxX5/BucwBTACbQlzDbhjpg4gSmAE2hLuCOcb784cQIvcaMS2ZZcHkMAAAAASUVORK5CYII=
+""")
 
 MLB_LEAGUE_IMAGE = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAACDElEQVRoBeVXvUoEMRDenHsrWIj4BxanNnY2FjYKp6iVpeDbWAvWtj6AjfoAKqgP4AtcJYKIHgda2FisZnWO7GTiJrlNNrcuHNl8O0nm+2YyybF4fiuNAn4+H64l727GNyTMFmjYDvQ1rrmwLS21+X4rYbZA8AJwYgdHJxI/Fo9ImA3AqtgCVFqD81TE+TdqTBlbwXsGUESAPBClbChh2q+X4lCrd68CUMRUXlO2WITGaKIaro17FUDbq19DSoTW6n5umkELojcBKDI5Jpqd55eeZNlImhKmC3gTQNchbPd0f4ahCG+FdvdKstEFghdgZmqC5IJFWD49JO2KQOcC3J0fk0dYkWM63+dW9vpm07vr/XeTl9jE2NS2rH2vWrfbe4vSNI0YY5kJL4imdwOnAuA0tREEz4HFSBZ3Bsow51sAO+yiL4pkeizWQgAuKs8EeEwKorf/AjbpD4T+aiH61Pw69cCbAECCchS+uWiLRKjNFrAVr/YC8KKYzE4q9XF6DIqr+k59ce3o55qQg6DjJQMqJf/NdK1zAXyl1nkRrJo8ZoyLojIDuOPww5MMcx9flEgBcNRwX1cA23G685dhRwpQxsQhzyFmgTMBQo/+2FIrixEpAFwvIYq4D/gwtx+dx8x95T2gjqSpgJEZQBnWCROPwn8ngEieB9X5RQgyx2dRxCTBB6r1lgGh1pQvQzmLGvG9jN0AAAAASUVORK5CYII=
