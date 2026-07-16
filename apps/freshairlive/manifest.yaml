@@ -1,0 +1,8 @@
+---
+id: freshairlive
+name: FreshAir Live
+summary: Live local air quality
+desc: View current air quality, the dominant pollutant, a color-coded gauge, a likely pollution source, and a 12-hour outlook.
+author: Cjanderson16
+fileName: freshairlive.star
+packageName: freshairlive
