@@ -5,16 +5,12 @@ Description: A data-driven pixel-art view of Kīlauea using official USGS update
 Author: Dave Shilobod
 """
 
-load("building.json", building_fixture = "file")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
-load("erupting.json", erupting_fixture = "file")
 load("http.star", "http")
-load("normal.json", normal_fixture = "file")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("warning.json", warning_fixture = "file")
 
 DEVICE_WIDTH = 64
 DEVICE_HEIGHT = 32
@@ -80,6 +76,67 @@ MONTHS = [
     ("NOVEMBER", "NOV"),
     ("DECEMBER", "DEC"),
 ]
+
+FIXTURE_PAYLOADS = {
+    "quiet": {
+        "noticeId": "normal-visual-fixture",
+        "noticeType": "Daily Update",
+        "noticeTypeCd": "DU",
+        "sentUtc": "2026-07-19",
+        "sent_unixtime": 1784488015,
+        "noticeSections": [{
+            "vnum": "332010",
+            "vName": "Kilauea",
+            "alertLevel": "NORMAL",
+            "colorCode": "GREEN",
+            "synopsis": "HVO Kilauea GREEN/NORMAL - Kīlauea is not erupting. Monitoring parameters are at background levels.",
+        }],
+    },
+    "building": {
+        "noticeId": "DOI-USGS-HVO-2026-07-19T18:28:36+00:00",
+        "noticeType": "Daily Update",
+        "noticeTypeCd": "DU",
+        "sentUtc": "2026-07-19",
+        "sent_unixtime": 1784488015,
+        "noticeHighestAlertLevel": "ADVISORY",
+        "noticeHighestColorCode": "YELLOW",
+        "noticeSections": [{
+            "vnum": "332010",
+            "vName": "Kilauea",
+            "alertLevel": "ADVISORY",
+            "colorCode": "YELLOW",
+            "synopsis": "HVO Kilauea YELLOW/ADVISORY - The Halemaʻumaʻu eruption is paused. The next fountain episode is likely between July 24 and July 30.",
+        }],
+    },
+    "erupting": {
+        "noticeId": "DOI-USGS-HVO-2026-07-15T20:15:42+00:00",
+        "noticeType": "Volcano Notice for Aviation",
+        "noticeTypeCd": "VV",
+        "sentUtc": "2026-07-15",
+        "sent_unixtime": 1784147784,
+        "noticeSections": [{
+            "vnum": "332010",
+            "vName": "Kilauea",
+            "alertLevel": "WATCH",
+            "colorCode": "ORANGE",
+            "synopsis": "HVO Kilauea ORANGE/WATCH - Episode 51 of the ongoing Halemaʻumaʻu eruption continues at 10:20 a.m. HST on July 15.",
+        }],
+    },
+    "warning": {
+        "noticeId": "DOI-USGS-HVO-2026-04-10T03:31:42+00:00",
+        "noticeType": "Volcano Notice for Aviation",
+        "noticeTypeCd": "VV",
+        "sentUtc": "2026-04-10",
+        "sent_unixtime": 1775791902,
+        "noticeSections": [{
+            "vnum": "332010",
+            "vName": "Kilauea",
+            "alertLevel": "WATCH",
+            "colorCode": "RED",
+            "synopsis": "HVO Kilauea RED/WATCH - Episode 44 of the ongoing Halemaʻumaʻu eruption continues as of 5:00 p.m. HST on April 9, but with reduced ground hazards.",
+        }],
+    },
+}
 
 def main(config):
     mock_state = config.get("fixture") or config.get("mock_state")
@@ -202,18 +259,12 @@ def unavailable_status():
 
 def mock_status(mock_state):
     state = str(mock_state).lower()
-    fixtures = {
-        "quiet": normal_fixture,
-        "paused": building_fixture,
-        "building": building_fixture,
-        "erupting": erupting_fixture,
-        "warning": warning_fixture,
-    }
-    fixture = fixtures.get(state)
-    if fixture == None:
+    if state == "paused":
+        state = "building"
+    payload = FIXTURE_PAYLOADS.get(state)
+    if payload == None:
         return unavailable_status()
 
-    payload = json.decode(fixture.readall())
     fixture_time = int(payload.get("sent_unixtime", 0))
     status = normalize_notice(payload, fixture_time)
     if status == None:
