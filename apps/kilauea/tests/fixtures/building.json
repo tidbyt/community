@@ -1,0 +1,18 @@
+{
+  "noticeId": "DOI-USGS-HVO-2026-07-19T18:28:36+00:00",
+  "noticeType": "Daily Update",
+  "noticeTypeCd": "DU",
+  "sentUtc": "2026-07-19",
+  "sent_unixtime": 1784488015.0,
+  "noticeHighestAlertLevel": "ADVISORY",
+  "noticeHighestColorCode": "YELLOW",
+  "noticeSections": [
+    {
+      "vnum": "332010",
+      "vName": "Kilauea",
+      "alertLevel": "ADVISORY",
+      "colorCode": "YELLOW",
+      "synopsis": "HVO Kilauea YELLOW/ADVISORY - The Halemaʻumaʻu eruption is paused. The next fountain episode is likely between July 24 and July 30."
+    }
+  ]
+}

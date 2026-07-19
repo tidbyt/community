@@ -1,0 +1,8 @@
+---
+id: kilauea
+name: Kīlauea
+summary: Live volcano activity
+desc: Displays Kīlauea's latest USGS status as a data-driven pixel-art scene.
+author: daveshilobod
+fileName: kilauea.star
+packageName: kilauea

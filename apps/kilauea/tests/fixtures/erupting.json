@@ -1,0 +1,16 @@
+{
+  "noticeId": "DOI-USGS-HVO-2026-07-15T20:15:42+00:00",
+  "noticeType": "Volcano Notice for Aviation",
+  "noticeTypeCd": "VV",
+  "sentUtc": "2026-07-15",
+  "sent_unixtime": 1784147784,
+  "noticeSections": [
+    {
+      "vnum": "332010",
+      "vName": "Kilauea",
+      "alertLevel": "WATCH",
+      "colorCode": "ORANGE",
+      "synopsis": "HVO Kilauea ORANGE/WATCH - Episode 51 of the ongoing Halemaʻumaʻu eruption continues at 10:20 a.m. HST on July 15."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "noticeId": "DOI-USGS-HVO-2026-04-10T03:31:42+00:00",
+  "noticeType": "Volcano Notice for Aviation",
+  "noticeTypeCd": "VV",
+  "sentUtc": "2026-04-10",
+  "sent_unixtime": 1775791902,
+  "noticeSections": [
+    {
+      "vnum": "332010",
+      "vName": "Kilauea",
+      "alertLevel": "WATCH",
+      "colorCode": "RED",
+      "synopsis": "HVO Kilauea RED/WATCH - Episode 44 of the ongoing Halemaʻumaʻu eruption continues as of 5:00 p.m. HST on April 9, but with reduced ground hazards."
+    }
+  ]
+}

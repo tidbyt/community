@@ -1,0 +1,16 @@
+{
+  "noticeId": "normal-visual-fixture",
+  "noticeType": "Daily Update",
+  "noticeTypeCd": "DU",
+  "sentUtc": "2026-07-19",
+  "sent_unixtime": 1784488015,
+  "noticeSections": [
+    {
+      "vnum": "332010",
+      "vName": "Kilauea",
+      "alertLevel": "NORMAL",
+      "colorCode": "GREEN",
+      "synopsis": "HVO Kilauea GREEN/NORMAL - Kīlauea is not erupting. Monitoring parameters are at background levels."
+    }
+  ]
+}
