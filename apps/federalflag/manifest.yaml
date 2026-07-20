@@ -1,0 +1,8 @@
+---
+id: federal-flag
+name: Federal Flag
+summary: Automatic half-staff flag
+desc: Displays a U.S. flag and automatically lowers it during federal half-staff notices. The flag can wave gently or remain still.
+author: Ethan Wise
+fileName: federal_flag.star
+packageName: federalflag
