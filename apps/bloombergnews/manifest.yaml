@@ -1,0 +1,8 @@
+---
+id: bloomberg-news
+name: Bloomberg News
+summary: Latest Bloomberg headlines
+desc: Cycles the latest Bloomberg News headlines under a Terminal-style banner, with a build-your-own multi-section feed.
+author: Mike Waterhouse
+fileName: bloomberg_news.star
+packageName: bloombergnews
