@@ -1,0 +1,8 @@
+---
+id: tiktokfollowers
+name: TikTok Followers
+summary: TikTok follower counter
+desc: Shows the current follower count and username for a configured public TikTok account.
+author: elclaudioabierto
+fileName: tiktok_followers.star
+packageName: tiktokfollowers
