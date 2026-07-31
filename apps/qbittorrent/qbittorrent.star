@@ -84,7 +84,7 @@ def server_login(base_url, username, password):
     url = "{}/api/v2/auth/login".format(base_url)
     response = http.post(url, form_body = form_body, ttl_seconds = 60)
 
-    if response.body() == "Ok.":
+    if response.body() == "Ok." or response.status_code == 204:
         return response.headers["Set-Cookie"].split(";")[0][4:]
     else:
         return None
