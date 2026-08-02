@@ -1,0 +1,8 @@
+---
+id: live-tennis-scores
+name: Live Tennis
+summary: Live tennis point scores
+desc: Live point-by-point tennis scores across ATP, WTA, Challenger and ITF tours. Shows sets, games, current points, tiebreaks and the current server for every live match. Requires a free Live Tennis API key.
+author: bensynapse
+fileName: live_tennis_scores.star
+packageName: livetennisscores
