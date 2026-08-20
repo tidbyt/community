@@ -1,7 +1,7 @@
-# Islamic Prayer Times
+# Islamic Salah
 
-Displays Fajr, Dhuhr, Asr, Maghrib and Isha for a location chosen in the Tidbyt
-mobile app. The next prayer is highlighted in amber.
+Daily Islamic prayer times. Displays Fajr, Dhuhr, Asr, Maghrib and Isha for a
+location chosen in the Tidbyt mobile app, highlighting the next prayer in amber.
 
 ![](islamic_salah.png)
 
