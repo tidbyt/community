@@ -1,0 +1,8 @@
+---
+id: islamic-salah
+name: Islamic Salah
+summary: Daily Islamic prayer times
+desc: Display daily Islamic prayer times for a selected location, with a choice of calculation method and Standard/Shafi or Hanafi Asr.
+author: egemenuzunali
+fileName: islamic_salah.star
+packageName: islamicsalah
