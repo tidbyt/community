@@ -205,11 +205,18 @@ def clean_score(value):
 
 def team_label(competitor):
     team = competitor.get("team", {})
+    if str(team.get("id", "")) == DEFAULT_TEAM_ID:
+        return "NY COSMOS"
     abbreviation = team.get("abbreviation", "")
     if len(abbreviation) > 0:
         return abbreviation[:4].upper()
     name = team.get("shortDisplayName", team.get("displayName", "TEAM"))
     return name[:4].upper()
+
+def team_label_font(competitor):
+    if str(competitor.get("team", {}).get("id", "")) == DEFAULT_TEAM_ID:
+        return "CG-pixel-3x5-mono"
+    return "tb-8"
 
 def classify_result(selected, opponent):
     if selected.get("winner", False):
@@ -388,7 +395,7 @@ def render_team_row(match, competitor):
                 render.Box(width = 2, height = 12, color = selected and accent or "#202731"),
                 render_team_logo(match, competitor),
                 render.Box(
-                    width = 33,
+                    width = 37,
                     height = 12,
                     child = render.Row(
                         expanded = True,
@@ -396,12 +403,12 @@ def render_team_row(match, competitor):
                         cross_align = "center",
                         children = [
                             render.Box(width = 1, height = 1),
-                            render.Text(content = team_label(competitor), font = "tb-8", color = selected and "#FFFFFF" or "#B7C0CA"),
+                            render.Text(content = team_label(competitor), font = team_label_font(competitor), color = selected and "#FFFFFF" or "#B7C0CA"),
                         ],
                     ),
                 ),
                 render.Box(
-                    width = 16,
+                    width = 12,
                     height = 12,
                     child = render.Row(
                         expanded = True,
