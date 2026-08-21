@@ -64,33 +64,17 @@ def main(config):
     team_id = config.str("team", DEFAULT_TEAM_ID)
     timezone = config.str("$tz", DEFAULT_TIMEZONE)
     now = time.now().in_location(timezone)
-    fixture_json = config.str("_fixture_json", "")
-    data = len(fixture_json) > 0 and json.decode(fixture_json) or fetch_scoreboard(now)
+    data = fetch_scoreboard(now)
     if data == None:
         return render_message(team_id, "SCORES UNAVAILABLE", "TRY AGAIN SOON")
 
     event = select_event(data.get("events", []), team_id)
-    expected_state = config.str("_expected_state", "")
-    if expected_state == "none":
-        if event != None:
-            fail("expected no selected event")
-    elif len(expected_state) > 0 and event == None:
-        fail("expected a %s event" % expected_state)
     if event == None:
         return render_message(team_id, "NO MATCH FOUND", "CHECK BACK SOON")
 
     match = parse_event(event, team_id)
     if match == None:
-        if expected_state == "invalid":
-            return render_message(team_id, "MATCH DATA ERROR", "SCORE HIDDEN")
         return render_message(team_id, "MATCH DATA ERROR", "SCORE HIDDEN")
-
-    if len(expected_state) > 0 and match["state"] != expected_state:
-        fail("expected state %s, got %s" % (expected_state, match["state"]))
-    expected_result = config.str("_expected_result", "")
-    if len(expected_result) > 0 and match["result"] != expected_result:
-        fail("expected result %s, got %s" % (expected_result, match["result"]))
-    match["show_logos"] = not config.bool("_disable_logos", False)
 
     return render_match(match, timezone, now)
 
@@ -362,9 +346,7 @@ def fetch_team_logo(competitor):
         return None
     return response.body()
 
-def render_team_logo(match, competitor):
-    if not match.get("show_logos", True):
-        return render.Box(width = 13, height = 12)
+def render_team_logo(competitor):
     logo = fetch_team_logo(competitor)
     if logo == None:
         return render.Box(width = 13, height = 12)
@@ -393,7 +375,7 @@ def render_team_row(match, competitor):
             cross_align = "center",
             children = [
                 render.Box(width = 2, height = 12, color = selected and accent or "#202731"),
-                render_team_logo(match, competitor),
+                render_team_logo(competitor),
                 render.Box(
                     width = 37,
                     height = 12,
