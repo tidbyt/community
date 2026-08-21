@@ -53,12 +53,17 @@ IMAGE_LOGO = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAKCAYAAADVTVykAAABhUlE
 IMAGE_METRO_BUS = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAYAAAA7KqwyAAAAd0lEQVR42qWMsQ2AMAwET2IPkp4paGlYgxnYkykgKLSIKPgLJDogvPSS/f4zlxZ8H/CHOT/4UJe7Zlxrh6jCS0cxSIG6sWDT4aM3sdgwKSj0hIY/JuDmUlgsK66zJRU8SGKRVvxgwf4B3sVwKUO14Ma3D9QVA3AC2DYHRN4mmqoAAAAASUVORK5CYII=")
 IMAGE_XPRESS_BUS = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAYAAAA7KqwyAAAAaklEQVR4AZ3QsQ2AIBCFYRL3cAEWsLWlYQ1nYBEnYwobbAlG3yteLXeX/OX3igu69dwyGuj9aaAsJ7yjNoFVoxGO6DZgRRM5UB1Y1eDFigOXF9NyIKHHgWmSHnmgbsCdhlYDCyqGgUJD+wGOhfahrZQnuQAAAABJRU5ErkJggg==")
 IMAGE_NIGHT_BUS = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAQAAACRI2S5AAAAXElEQVR42n3PoQ2AQAAEwU2+k7VUgcXQBjXQJ1VgwBLIIXDwT07OmgPE0dO8djoCIPZuH45xswfs3Ksc426HS5NjXPjlGFx/gxUHryZfDoiTR5UPp+dmca4GswVu/YOM52Hx5vcAAAAASUVORK5CYII=")
-IMAGE_S1 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAa0lEQVR4AWMAAfEpWuZSU7WeSk7Tei01Tfs/NgyVeyI5TcMYrklyqtZHkCQxGKRWcrK6CQPIJpAAifgJA5D4QKpGoGVvGEAMcjDZNpLvR1DwkhSq07Q+iU7SMgRHCSh4QaaAnIDPeSA1ME0Aow/ZmIBU42QAAAAASUVORK5CYII=")
-IMAGE_S11 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAcUlEQVR4AWMAAfEpWuaSU7VPS03T/o8Pg9RITtMwRtKktZ2BGNDAwCQ5TXuH5GR1EwaQKYQ1aLOhatY6yQByAgNpAKyH/hrBfgS5m2hdaQysYD+CghcUUhDNhDUBLdopOknLEMwHBS/IFELxCFID0wQAw2VH51lki9YAAAAASUVORK5CYII=")
-IMAGE_S2 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAWElEQVR4AWMAgS0iluZAfBqI/+PDUDXGyJq2M+AHMLVMQLwDiE1AnNNEaGBD03wSxPjPQBqA6KG/RmhIMZGgiRXmR2NoSDERqWknEBvCBExAphARjydhmgBamVICM40gzAAAAABJRU5ErkJggg==")
-IMAGE_S21 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAbUlEQVR42p1QQQqAQAj0CYF+JFpa99ct65PqVIfqA9Uc6hTRKgyIOo4OIQbWWDhNRXQ2Sccb0Cuso0nsHpKxbmj+AWaz9IGghEINoEzGujqICyHxwK3o/xH21rh6Ce25CS0hYC+24ISv8zBzk04OP+ukjEgl2AAAAABJRU5ErkJggg==")
-IMAGE_S3_S31 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAbElEQVR4AWMAgWCFbPMQhdynIYp5r4H4PzYMllPIexIgl2eM0KSY+xEiSRiD1AbL5pgwQG36TwoG2cwANOEDqRqDFXLfMIAY5GCybSTfj6DgJSVUgxXzPgXL5xqCowQUvCBTQE7A5zyQGpgmAHpv3XJOylpCAAAAAElFTkSuQmCC")
+IMAGE_S1 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAe0lEQVR4nJ3QMQrCUAwG4E8REQUd2rs4dnCuntJVnB28QfEUbjpUEeomgTc4SKXvH5IlHwkZzfdriHLAFKXfueGNHZpJQics9adM/YzNOG36h74Ts8eAC8MzC7jKgEXANgPeA74yYBdwi8cA9EQdsIn34hon9J2XZipcPgPTFMpOhFi7AAAAAElFTkSuQmCC")
+IMAGE_S2 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAfElEQVR4nJ3QMQrCQBAF0KeICIIWpstBLC1SqzcVOyGFNwg5hZ0WKgHtZGALC4lkfzPNf8wwo1NZwRoHTFH4nSve2KOZJFRjoT9FmmdU47TpH/pOdI8B54ZnFnCZAVcB7xnwFrDLgK+AOzwGoCe2AZt4Ly5xQt95qbNB+wFiRRT5rnm6PQAAAABJRU5ErkJggg==")
+IMAGE_S3 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAf0lEQVR4nJ3QsQnCUBAG4E8REQQtkglcwtLCWp3CRRwopLZwg+AUdlpoELSTg1dYSCTvb675P+64wX5xgCUqjFH6nSve2KEZJXTETHfKNE9YD9Omf+g70a0DTvXPJOA8AxYB7xnwFvCZAV8Bt3j0QC02AZt4Ly5xQtd5qbPC+QNJwBTtrU0iEwAAAABJRU5ErkJggg==")
+IMAGE_S5 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAe0lEQVR4nJ3QMQrCQBAF0KdIEAQtzF0sLayN9/IwYi2YGwRPYaeFSiB2MrCFhUSyv5nmP2aYkf0ZVjigQOl3bnhjh2aS0Alz/SnTrLEZp03/0Heieww4MzzTgIsMuAz4yID3gG0G7AJWeA5AL2wDNvFeXOOEvvNSZ43LB8TiFSsuHHeqAAAAAElFTkSuQmCC")
+IMAGE_S7 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAfUlEQVR4nJ3QMQrCQBAF0KeICIIW5gS5hKWFtXodTyXWKbxByCnSaaES0E4GtrCQSPY30/zHDDNqjiWsccIUhd+54o0D6klCFRb6U6R5wXacNv1D34nuOeDc8MwCLjPgKuA9A94CdhnwFXCPxwD0xC5gHe9FGyf0nZc6GzQfCjkVTQGSqWEAAAAASUVORK5CYII=")
 IMAGE_AKN = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAVElEQVR4AWMAgX8NkuZA/BSIPwDxfxz4NRA/AWJjZE0fIZKEMVStCQPUpv8k4icMMOeRiN8wgBjkYLJtpMiPxiSG6icgNoRFiQk0jt7gcx5IDUwTAGj6M5mAtFVfAAAAAElFTkSuQmCC")
+
+# The current HVV ferry lines all use the same trapezoid/keystone-shaped
+# blue badge (see e.g. https://www.hvv.de/resource/blob/146504/... for the
+# "F62" line schedule), regardless of line number.
+IMAGE_FERRY = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAABFUlEQVR4nIWQPUoEQRCF36sZe3oWBXNv4IIHMFoQPMLcwBMIpuIZNDTeRNBgDcxM1EBR8AQGyyIogsguPb9d0q3JwroWvKCKqnpfFbOT2x2xa7twUw9QsDToYXtEOX1M4aEQOUC+in/De9Dm6MqvPYbcHt89Mcu3ULklruqRGkFbjV3NzdhEkUuaLAFJEMlikbQ9UcoV9rfd7/ZupJUDVJO/OVW0a6iK8+gVSu5t8oy6fIHJGJEWXBcw1c1eq1pv4hYcXqc4KmoFRzQ23NhA0c0JaGhyL8BFwAwzgv5Afz7NMwCCLM9ge8mcQo0QrxjG3v5AUxSMaOX7+N76jVOYlXW2raoifpyEappS3eyz/Jg8xMGC/htT4nI/c3ByYQAAAABJRU5ErkJggg==")
 
 # Configuration for backgrounds and colors for all known lines.
 LINE_CONFIG = {
@@ -68,13 +73,15 @@ LINE_CONFIG = {
     "u3": {"background-color": "#ffde00", "color": "#2f2f2f"},
     "u4": {"background-color": "#00aaad", "color": "#ffffff"},
 
-    # Suburban trains (S-Bahn)
+    # Suburban trains (S-Bahn). S11/S21/S31 no longer exist as of the 2025
+    # network expansion: what used to be S1/S2/S3 branches are now their own
+    # top-level lines (S5, S7) with their own official colors, see e.g.
+    # https://www.hvv.de/resource/blob/120104/... (network map).
     "s1": {"image": IMAGE_S1, "color": "#ffffff"},
-    "s11": {"image": IMAGE_S11, "color": "#1a962b"},
-    "s2": {"image": IMAGE_S2, "color": "#b41439"},
-    "s21": {"image": IMAGE_S21, "color": "#ffffff"},
-    "s3": {"image": IMAGE_S3_S31, "color": "#ffffff"},
-    "s31": {"image": IMAGE_S3_S31, "color": "#ffffff"},
+    "s2": {"image": IMAGE_S2, "color": "#ffffff"},
+    "s3": {"image": IMAGE_S3, "color": "#ffffff"},
+    "s5": {"image": IMAGE_S5, "color": "#ffffff"},
+    "s7": {"image": IMAGE_S7, "color": "#ffffff"},
 
     # AKN commuter trains
     "a1": {"image": IMAGE_AKN, "color": "#ffffff"},
@@ -187,6 +194,24 @@ def render_regional_train_icon(id, name):
         ]),
     ]))
 
+def render_ferry_icon(name):
+    """Render a trapezoid shaped ferry icon.
+
+    All HVV ferry lines share the same blue trapezoid/keystone badge,
+    regardless of line number, so unlike the other render_*_icon functions
+    this doesn't need a per-line LINE_CONFIG lookup.
+
+    Args:
+        name: The name (line number) of the ferry line.
+
+    Returns:
+        A definition of what to render.
+    """
+    return render.Box(width = 18, height = 15, padding = 2, child = render.Stack(children = [
+        render.Image(width = 14, height = 9, src = IMAGE_FERRY),
+        render.Box(width = 16, height = 9, child = render.Text(name, offset = -1, font = "tom-thumb", color = "#ffffff")),
+    ]))
+
 def render_line_icon(line):
     """Render an icon for a given line.
 
@@ -211,9 +236,11 @@ def render_line_icon(line):
     elif product == "bus" or \
          product == "express-bus":
         return render_bus_icon(id, name)
+    elif product == "ferry":
+        return render_ferry_icon(name)
 
-    # Fallback for ferries and anything else we don't have a dedicated icon
-    # for (e.g. taxi or long distance trains/buses): just an empty box.
+    # Fallback for anything we don't have a dedicated icon for (e.g. taxi or
+    # long distance trains/buses): just an empty box.
     return render.Box(width = 18, height = 15)
 
 def render_relative_departure_time(time_actual):
