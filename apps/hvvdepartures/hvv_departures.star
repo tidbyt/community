@@ -2,7 +2,7 @@
 Applet: HVV Departures
 Summary: HVV Departures
 Description: Display real-time departure times for trains, buses and ferries in Hamburg (HVV).
-Author: fxb (Felix Bruns)
+Author: fxb (Felix Bruns), Frank Dornberger
 """
 
 load("cache.star", "cache")
@@ -16,18 +16,8 @@ load("time.star", "time")
 
 # The API endpoints used to retrieve locations and departures.
 #
-# This applet used to run on https://transport.rest/'s HVV-specific API, but
-# HVV shut off the underlying HAFAS API that powered it, so that API no
-# longer exists (v5.hvv.transport.rest is gone, and the "hvv-rest" project
-# behind it has been archived: https://github.com/derhuerst/hvv-rest).
-#
-# It now uses https://transitous.org/, a community-run, GTFS/GTFS-RT-based
-# public transport router that covers Hamburg (HVV) among many other
-# regions, again without requiring an API key.
-#
-# Transitous asks API consumers to identify themselves via a descriptive
-# User-Agent header and to reach out if usage becomes non-trivial, see:
-#   https://transitous.org/api/
+# This applet uses APIs provided by https://transitous.org/, which provide
+# real-time data, without any API keys, reasonable rate-limits and for free.
 #
 # Please consider supporting the Transitous project:
 #   https://transitous.org/
@@ -60,9 +50,8 @@ IMAGE_S5 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAe0lEQV
 IMAGE_S7 = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAfUlEQVR4nJ3QMQrCQBAF0KeICIIW5gS5hKWFtXodTyXWKbxByCnSaaES0E4GtrCQSPY30/zHDDNqjiWsccIUhd+54o0D6klCFRb6U6R5wXacNv1D34nuOeDc8MwCLjPgKuA9A94CdhnwFXCPxwD0xC5gHe9FGyf0nZc6GzQfCjkVTQGSqWEAAAAASUVORK5CYII=")
 IMAGE_AKN = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAVElEQVR4AWMAgX8NkuZA/BSIPwDxfxz4NRA/AWJjZE0fIZKEMVStCQPUpv8k4icMMOeRiN8wgBjkYLJtpMiPxiSG6icgNoRFiQk0jt7gcx5IDUwTAGj6M5mAtFVfAAAAAElFTkSuQmCC")
 
-# The current HVV ferry lines all use the same trapezoid/keystone-shaped
-# blue badge (see e.g. https://www.hvv.de/resource/blob/146504/... for the
-# "F62" line schedule), regardless of line number.
+# All HVV ferry lines use the same trapezoid/keystone-shaped blue badge,
+# regardless of line number.
 IMAGE_FERRY = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAABFUlEQVR4nIWQPUoEQRCF36sZe3oWBXNv4IIHMFoQPMLcwBMIpuIZNDTeRNBgDcxM1EBR8AQGyyIogsguPb9d0q3JwroWvKCKqnpfFbOT2x2xa7twUw9QsDToYXtEOX1M4aEQOUC+in/De9Dm6MqvPYbcHt89Mcu3ULklruqRGkFbjV3NzdhEkUuaLAFJEMlikbQ9UcoV9rfd7/ZupJUDVJO/OVW0a6iK8+gVSu5t8oy6fIHJGJEWXBcw1c1eq1pv4hYcXqc4KmoFRzQ23NhA0c0JaGhyL8BFwAwzgv5Afz7NMwCCLM9ge8mcQo0QrxjG3v5AUxSMaOX7+N76jVOYlXW2raoifpyEappS3eyz/Jg8xMGC/htT4nI/c3ByYQAAAABJRU5ErkJggg==")
 
 # Configuration for backgrounds and colors for all known lines.
@@ -73,10 +62,7 @@ LINE_CONFIG = {
     "u3": {"background-color": "#ffde00", "color": "#2f2f2f"},
     "u4": {"background-color": "#00aaad", "color": "#ffffff"},
 
-    # Suburban trains (S-Bahn). S11/S21/S31 no longer exist as of the 2025
-    # network expansion: what used to be S1/S2/S3 branches are now their own
-    # top-level lines (S5, S7) with their own official colors, see e.g.
-    # https://www.hvv.de/resource/blob/120104/... (network map).
+    # Suburban trains (S-Bahn)
     "s1": {"image": IMAGE_S1, "color": "#ffffff"},
     "s2": {"image": IMAGE_S2, "color": "#ffffff"},
     "s3": {"image": IMAGE_S3, "color": "#ffffff"},
@@ -98,10 +84,9 @@ LINE_CONFIG = {
     "re": {"background-color": "#2f2f2f", "color": "#ffffff"},
 }
 
-# These are used as fallbacks in case there is no specific config above
-# (e.g. for a newly introduced line, such as Hamburg's S5). Basically this
-# will result in only rendering the plain line name, without any background
-# image or color.
+# These are used as fallbacks in case there is no specific config above.
+# Basically this will result in only rendering the plain line name, without
+# any background image or color.
 DEFAULT_SUBWAY_CONFIG = {"background-color": None, "color": "#ffffff"}
 DEFAULT_SUBURBAN_CONFIG = {"image": None, "color": "#ffffff"}
 DEFAULT_BUS_CONFIG = {"image": None, "color": "#ffffff"}
@@ -196,10 +181,6 @@ def render_regional_train_icon(id, name):
 
 def render_ferry_icon(name):
     """Render a trapezoid shaped ferry icon.
-
-    All HVV ferry lines share the same blue trapezoid/keystone badge,
-    regardless of line number, so unlike the other render_*_icon functions
-    this doesn't need a per-line LINE_CONFIG lookup.
 
     Args:
         name: The name (line number) of the ferry line.
@@ -347,9 +328,7 @@ def render_departure(departure, time_format):
         ],
     )
 
-# Maps our internal "category" (derived from a stop time's mode, line name
-# and agency, since Transitous does not expose the same fine-grained product
-# distinctions HVV's old API had) to the "product" string that
+# Maps a "category" (see 'classify_stop_time') to the "product" string that
 # 'render_line_icon' expects.
 CATEGORY_TO_PRODUCT = {
     "subway": "subway",
@@ -362,8 +341,8 @@ CATEGORY_TO_PRODUCT = {
     "ferry": "ferry",
 }
 
-# Maps our internal "category" to the Transitous API's "mode" enum value(s),
-# used to only request the modes we actually care about.
+# Maps a "category" (see 'classify_stop_time') to the Transitous API's
+# "mode" enum value used to request it.
 CATEGORY_TO_API_MODE = {
     "subway": "SUBWAY",
     "suburban": "SUBURBAN",
@@ -378,13 +357,9 @@ CATEGORY_TO_API_MODE = {
 def classify_stop_time(stop_time):
     """Classify a Transitous 'stopTimes' entry into one of our categories.
 
-    Transitous only exposes a coarse "mode" (SUBWAY, SUBURBAN, REGIONAL_RAIL,
-    BUS, FERRY, ...), unlike HVV's old API which had a dedicated "product" per
-    line (subway, suburban, akn, regional-train, regional-express-train, bus,
-    express-bus). AKN and RB/RE all show up as "REGIONAL_RAIL", and regular
-    and Xpress buses both show up as "BUS", so we further distinguish them
-    based on the line's (lowercased) short name, the same way the old code
-    told Xpress and NachtBus lines apart.
+    AKN and RB/RE all share the "REGIONAL_RAIL" mode, and regular and Xpress
+    buses both share the "BUS" mode, so those are further distinguished by
+    the line's (lowercased) short name.
 
     Args:
         stop_time: A single entry from the Transitous 'stoptimes' response.
@@ -443,9 +418,7 @@ def fetch_departures(station_id, categories, at_time = None, max_results = 2):
     for category in categories:
         modes[CATEGORY_TO_API_MODE[category]] = True
 
-    # Overfetch, since some of what we get back (e.g. long-distance trains
-    # mixed in with "REGIONAL_RAIL", or disabled bus/regional sub-categories)
-    # gets filtered out client-side afterwards.
+    # Overfetch, since results get filtered and classified client-side below.
     params = {
         "stopId": station_id,
         "n": str(max_results * 15),
@@ -515,14 +488,14 @@ def get_config_option_value(config, key, default = None):
     return data["value"] if data != None else default
 
 def is_legacy_station_id(station_id):
-    """Check whether a station ID is in HVV's old (now defunct) numeric format.
+    """Check whether a station ID is in HVV's old numeric format.
 
     Args:
         station_id: The configured station ID.
 
     Returns:
         True if this looks like an old HVV station ID (e.g. "90"), which
-        can't be resolved against the current (Transitous-based) API.
+        can't be resolved against the Transitous API.
     """
     return station_id != None and len(station_id) > 0 and station_id.isdigit()
 
@@ -615,8 +588,6 @@ def main(config):
     if is_anything_selected == False:
         return render_message("Choose at least one vessel", COLOR_MESSAGE_INFO)
 
-    # The station was configured before the switch away from HVV's old,
-    # now-defunct API, whose (purely numeric) station IDs no longer resolve.
     if is_legacy_station_id(station_id):
         return render_message("Please re-select your station in the app settings", COLOR_MESSAGE_INFO)
 
