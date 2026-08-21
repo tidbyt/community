@@ -17,6 +17,7 @@ run_case() {
         "_fixture_json=$fixture" \
         "_expected_state=$state" \
         "_expected_result=$result" \
+        "_disable_logos=true" \
         -o "$output_dir/$name.webp"
 }
 

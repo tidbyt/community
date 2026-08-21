@@ -13,6 +13,7 @@ load("time.star", "time")
 
 API = "https://site.api.espn.com/apis/site/v2/sports/soccer/usa.usl.l1/scoreboard"
 CACHE_TTL_SECONDS = 60
+LOGO_CACHE_TTL_SECONDS = 86400
 DEFAULT_TEAM_ID = "131582"
 DEFAULT_TIMEZONE = "America/New_York"
 LOOKBACK_DAYS = 14
@@ -89,6 +90,7 @@ def main(config):
     expected_result = config.str("_expected_result", "")
     if len(expected_result) > 0 and match["result"] != expected_result:
         fail("expected result %s, got %s" % (expected_result, match["result"]))
+    match["show_logos"] = not config.bool("_disable_logos", False)
 
     return render_match(match, timezone, now)
 
@@ -338,6 +340,38 @@ def score_color(match, competitor):
         return "#FFD65A"
     return "#FFFFFF"
 
+def fetch_team_logo(competitor):
+    team = competitor.get("team", {})
+    logo_url = team.get("logo", "")
+    if len(logo_url) == 0:
+        team_id = str(team.get("id", ""))
+        if len(team_id) == 0:
+            return None
+        logo_url = "https://a.espncdn.com/i/teamlogos/soccer/500/%s.png" % team_id
+    if logo_url.startswith("https://a.espncdn.com/"):
+        logo_url = logo_url.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=", 1) + "&h=24&w=24"
+    response = http.get(url = logo_url, ttl_seconds = LOGO_CACHE_TTL_SECONDS)
+    if response.status_code != 200:
+        return None
+    return response.body()
+
+def render_team_logo(match, competitor):
+    if not match.get("show_logos", True):
+        return render.Box(width = 13, height = 12)
+    logo = fetch_team_logo(competitor)
+    if logo == None:
+        return render.Box(width = 13, height = 12)
+    return render.Box(
+        width = 13,
+        height = 12,
+        child = render.Row(
+            expanded = True,
+            main_align = "center",
+            cross_align = "center",
+            children = [render.Image(logo, width = 10, height = 10)],
+        ),
+    )
+
 def render_team_row(match, competitor):
     competitor_id = str(competitor.get("team", {}).get("id", ""))
     selected = competitor_id == match["selected_id"]
@@ -352,15 +386,16 @@ def render_team_row(match, competitor):
             cross_align = "center",
             children = [
                 render.Box(width = 2, height = 12, color = selected and accent or "#202731"),
+                render_team_logo(match, competitor),
                 render.Box(
-                    width = 46,
+                    width = 33,
                     height = 12,
                     child = render.Row(
                         expanded = True,
                         main_align = "start",
                         cross_align = "center",
                         children = [
-                            render.Box(width = 3, height = 1),
+                            render.Box(width = 1, height = 1),
                             render.Text(content = team_label(competitor), font = "tb-8", color = selected and "#FFFFFF" or "#B7C0CA"),
                         ],
                     ),
