@@ -1,12 +1,18 @@
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
-load("random.star", "random")
 
 #Add in the needed code bases
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+
+DEFAULT_CANVAS_BASE_URL = "https://canvas.instructure.com"
+COURSES_CACHE_TTL_SECONDS = 3000
+ASSIGNMENTS_CACHE_TTL_SECONDS = 300
+DEFAULT_DUE_DATE_CUTOFF_DAYS = "8"
+MAX_DUE_DATE_CUTOFF_DAYS = 365
+PAGE_MIN_FRAME_COUNT = 60
+FRAME_DELAY_MS = 50
 
 #Code for the canvas logo
 CanvasLogo = base64.decode(
@@ -14,7 +20,13 @@ CanvasLogo = base64.decode(
 )
 
 #Method to make an event
-def showEvent(event):
+def showEvent(event, page_label = ""):
+    date_children = [
+        render.Text(event[0][5:10], color = "#d52e3a", font = "5x8"),
+    ]
+    if page_label != "":
+        date_children.append(render.Text(page_label, color = "#aaaaaa", font = "tom-thumb"))
+
     return render.Row(
         cross_align = "center",
         children = [
@@ -28,7 +40,16 @@ def showEvent(event):
                         width = 40,
                         child = render.Text(event[1]),
                     ),
-                    render.Text(event[0][5:10], color = "#d52e3a", font = "5x8"),
+                    render.Box(
+                        width = 47,
+                        height = 8,
+                        child = render.Row(
+                            expanded = True,
+                            main_align = "space_between",
+                            cross_align = "center",
+                            children = date_children,
+                        ),
+                    ),
                 ],
             ),
         ],
@@ -53,130 +74,152 @@ def makeError(type):
         ),
     )
 
-def getcourse(api_token):
-    class_cache = cache.get("class_data-" + api_token)
+def normalize_base_url(base_url):
+    base_url = base_url.strip().rstrip("/")
+    if base_url == "":
+        return DEFAULT_CANVAS_BASE_URL
+    if not base_url.startswith("http://") and not base_url.startswith("https://"):
+        return "https://" + base_url
+    return base_url
 
-    if class_cache != None:
-        print("Using Cached Courses")
-        classes = class_cache.split(",")
-        return classes, 0
-    else:
-        api_url = "https://canvas.instructure.com/api/v1/courses?per_page=30&access_token=" + api_token
-        response = http.get(api_url)
-        if response.status_code != 200:
-            return [], "Can not Connect to Canvas"
-        classes = []
-
-        data = str(response.body()).split('"id"')
-        if "Invalid access token." in data:
-            return [], "Invalid access token."
-        for course in data:
-            if "created_at" in course:
-                if len(course) >= 18:
-                    index = course.find("created_at")
-                    time_stamp = course[index + 13:index + 33]
-                    dur = time.now() - time.parse_time(time_stamp)
-                    if 8760 > dur.hours:
-                        classes.append(course[1:course.index(",")])
-
-        #cache for one day
-        cache_data = ",".join(classes)
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set("class_data-" + api_token, cache_data, ttl_seconds = 3000)
-        return classes, 0
-
-def get_cached_assignments(course_id, api_token):
-    cache_string = cache.get(str(course_id) + "-" + api_token)
-    if cache_string != None:
-        first_split = cache_string.split(";")
-        if "" in first_split:
-            first_split.remove("")
-        return [a.split(",") for a in first_split]
-    return None
-
-def get_remote_assignments(api_token, course_id):
-    api_url = "https://canvas.instructure.com/api/v1/courses/" + str(
-        course_id,
-    ) + "/assignments?bucket=upcoming&access_token=" + api_token
-    print(api_url)
-    rep = http.get(api_url)
-    if rep.status_code != 200:
+def get_courses(api_token, base_url):
+    response = http.get(
+        base_url + "/api/v1/courses",
+        headers = {"Authorization": "Bearer " + api_token},
+        params = {
+            "enrollment_state": "active",
+            "per_page": "100",
+        },
+        ttl_seconds = COURSES_CACHE_TTL_SECONDS,
+    )
+    if response.status_code == 401:
+        return [], "Invalid access token."
+    if response.status_code != 200:
         return [], "Can not Connect to Canvas"
-    data = rep.json()
-    return [
-        (assignment["due_at"], assignment["name"] + "")
-        for assignment in data
-        if assignment["due_at"] != None and
-           (time.parse_time(assignment["due_at"]) - time.now()).hours > 0 and
-           (time.parse_time(assignment["due_at"]) - time.now()).hours < 200
+
+    data = response.json()
+    if type(data) != "list":
+        return [], "Invalid Canvas response"
+
+    courses = []
+    for course in data:
+        if type(course) != "dict":
+            continue
+        course_id = course.get("id")
+        if type(course_id) == "int" or type(course_id) == "float":
+            courses.append(str(int(course_id)))
+        elif type(course_id) == "string" and course_id != "":
+            courses.append(course_id)
+    return courses, 0
+
+def get_remote_assignments(api_token, base_url, course_id, due_date_cutoff_hours):
+    response = http.get(
+        base_url + "/api/v1/courses/" + str(course_id) + "/assignments",
+        headers = {"Authorization": "Bearer " + api_token},
+        params = {
+            "bucket": "future",
+            "order_by": "due_at",
+            "per_page": "100",
+        },
+        ttl_seconds = ASSIGNMENTS_CACHE_TTL_SECONDS,
+    )
+    if response.status_code == 401:
+        return [], "Invalid access token."
+    if response.status_code != 200:
+        return [], "Can not Connect to Canvas"
+
+    data = response.json()
+    if type(data) != "list":
+        return [], "Invalid Canvas response"
+
+    assignments = []
+    now = time.now()
+    for assignment in data:
+        if type(assignment) != "dict":
+            continue
+
+        due_at = assignment.get("due_at")
+        if type(due_at) != "string" or due_at == "":
+            continue
+
+        due_time = time.parse_time(due_at)
+        if due_time <= now or (due_time - now).hours > due_date_cutoff_hours:
+            continue
+
+        name = assignment.get("name")
+        if type(name) != "string" or name == "":
+            name = "Untitled Assignment"
+        assignments.append((due_at, name))
+
+    return assignments, 0
+
+def get_events(api_token, base_url, course_id, due_date_cutoff_hours):
+    return get_remote_assignments(api_token, base_url, course_id, due_date_cutoff_hours)
+
+def get_due_date_cutoff_hours(config):
+    cutoff_days = str(config.get("due_date_cutoff_days", DEFAULT_DUE_DATE_CUTOFF_DAYS)).strip()
+    if not cutoff_days.isdigit() or int(cutoff_days) < 1:
+        cutoff_days = DEFAULT_DUE_DATE_CUTOFF_DAYS
+    return min(int(cutoff_days), MAX_DUE_DATE_CUTOFF_DAYS) * 24
+
+def make_assignment_page(assignments, page_number, total_pages):
+    page_label = "{}/{}".format(page_number, total_pages)
+    children = [
+        showEvent(assignments[0], page_label if len(assignments) == 1 else ""),
+        render.Box(width = 100, height = 1, color = "#ffffff"),
+    ]
+    if len(assignments) == 2:
+        children.append(showEvent(assignments[1], page_label))
+    return render.Column(children = children)
+
+def render_assignment_pages(assignments):
+    assignments = sorted(assignments, key = lambda assignment: time.parse_time(assignment[0]).unix)
+    total_pages = (len(assignments) + 1) // 2
+    pages = [
+        make_assignment_page(assignments[index:index + 2], index // 2 + 1, total_pages)
+        for index in range(0, len(assignments), 2)
     ]
 
-def cache_assignments(course_id, assignments, api_token):
-    cache_string = ";".join([a[0] + "," + a[1] for a in assignments])
+    if len(pages) == 1:
+        return render.Root(child = pages[0])
 
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(str(course_id) + "-" + api_token, cache_string, ttl_seconds = 300)
-
-def get_events(api_token, course_id):
-    assignment_data = get_cached_assignments(course_id, api_token)
-    if assignment_data == None:
-        print("Not Using Cached Classes for" + str(course_id))
-        assignment_data = get_remote_assignments(api_token, course_id)
-        cache_assignments(course_id, assignment_data, api_token)
-    return assignment_data, 0
+    page_animations = [
+        render.Animation(children = [page] * max(PAGE_MIN_FRAME_COUNT, page.frame_count()))
+        for page in pages
+    ]
+    return render.Root(
+        child = render.Sequence(children = page_animations),
+        delay = FRAME_DELAY_MS,
+        show_full_animation = True,
+    )
 
 def fake_events():
     first = ["2024-04-21T03:59:59Z", "Example Assigment #1"]
     second = ["2024-11-23T03:59:59Z", "Fake Homework #4"]
-    return render.Root(
-        child = render.Column(
-            children = [
-                showEvent(first),
-                render.Box(width = 100, height = 1, color = "#ffffff"),
-                showEvent(second),
-            ],
-        ),
-    )
+    return render_assignment_pages([first, second])
 
 def main(config):
     api_token = config.get("msg", "")
+    base_url = normalize_base_url(config.get("base_url", DEFAULT_CANVAS_BASE_URL))
+    due_date_cutoff_hours = get_due_date_cutoff_hours(config)
 
     if api_token == "":
         return fake_events()
 
-    classes, error_code = getcourse(api_token)
+    classes, error_code = get_courses(api_token, base_url)
 
     if error_code != 0:
         return makeError(error_code)
 
     canvas_data = []
     for course in classes:
-        event, error_code = get_events(api_token, course)
+        event, error_code = get_events(api_token, base_url, course, due_date_cutoff_hours)
         if error_code != 0:
             return makeError(error_code)
         canvas_data = canvas_data + event
 
-    if len(canvas_data) == 1:
-        return render.Root(
-            child = render.Column(
-                children = [
-                    showEvent(canvas_data[0]),
-                    render.Box(width = 100, height = 1, color = "#ffffff"),
-                ],
-            ),
-        )
-    elif len(canvas_data) >= 2:
-        index = random.number(0, len(canvas_data) - 2)
-        return render.Root(
-            child = render.Column(
-                children = [
-                    showEvent(canvas_data[index]),
-                    render.Box(width = 100, height = 1, color = "#ffffff"),
-                    showEvent(canvas_data[index + 1]),
-                ],
-            ),
-        )
+    if len(canvas_data) > 0:
+        return render_assignment_pages(canvas_data)
     elif len(canvas_data) == 0:
         if config.bool("no_assigment", False):
             return None
@@ -195,6 +238,20 @@ def get_schema():
                 desc = "",
                 icon = "compress",
                 default = "",
+            ),
+            schema.Text(
+                id = "base_url",
+                name = "Canvas URL",
+                desc = "Your institution's Canvas URL",
+                icon = "globe",
+                default = DEFAULT_CANVAS_BASE_URL,
+            ),
+            schema.Text(
+                id = "due_date_cutoff_days",
+                name = "Due within (days)",
+                desc = "Show assignments due within 1-365 days",
+                icon = "calendar",
+                default = DEFAULT_DUE_DATE_CUTOFF_DAYS,
             ),
             schema.Toggle(
                 id = "no_assigment",
