@@ -1,0 +1,8 @@
+---
+id: mechanical-7-clock
+name: Mechanical Clock
+summary: A brass mechanical clock
+desc: Displays the time on a calm brass seven-segment mechanism, with segments engaging and disengaging as the digits change.
+author: Psauter417a
+fileName: mechanical_7_clock.star
+packageName: mechanical7clock
