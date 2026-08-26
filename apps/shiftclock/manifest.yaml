@@ -1,0 +1,8 @@
+---
+id: shift-clock
+name: Shift Clock
+summary: Track time left in a shift
+desc: Shows the current time, remaining shift time, and a progress bar for configurable daily work hours.
+author: Psauter417
+fileName: shift_clock.star
+packageName: shiftclock
