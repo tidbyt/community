@@ -1,7 +1,7 @@
 """
 Applet: NASCAR Next Race
 Summary: Next NASCAR race or current standings
-Description: Shows NASCAR next race, standings, playoffs for Cup, Xfinity and Trucks - original version based heavily on F1 next race from AMillionAir
+Description: Shows NASCAR next race, standings, playoffs for Cup, O'Reilly Auto Parts and Trucks - original version based heavily on F1 next race from AMillionAir
 Author: jvivona
 """
 
@@ -13,6 +13,7 @@ Author: jvivona
 # 20231106 - jvivona - move data sources to gihub to take backpressure off datacenter
 # 20231107 - jvivona - cleanup for loop range
 # 20240918 - jvivona - add highlight for folks clinched into playoff rounds
+# 20260826 - Psauter417 - update Xfinity display name for O'Reilly Auto Parts title sponsorship
 
 load("animation.star", "animation")
 load("encoding/json.star", "json")
@@ -22,7 +23,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 24262
+VERSION = 26238
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900
@@ -58,7 +59,7 @@ EASE_IN_OUT = "ease_in_out"
 
 DISPLAY_VALUES = {
     "cup": ["cup", "#333333", "#fff", "NASCAR Cup"],
-    "xfinity": ["xfinity", "#4427ad", "#fff", "Xfinity Series"],
+    "xfinity": ["xfinity", "#00843d", "#fff", "O'Reilly Series"],
     "trucks": ["trucks", "#990000", "#fff", "Craftsman Trucks"],
     "mfg": "MFG Pts / Wins",
     "own": "Ownr Pts / Wins",
@@ -319,7 +320,7 @@ def get_schema():
                         value = "cup",
                     ),
                     schema.Option(
-                        display = "NASCAR Xfinity Series",
+                        display = "NASCAR O'Reilly Auto Parts Series",
                         value = "xfinity",
                     ),
                     schema.Option(
