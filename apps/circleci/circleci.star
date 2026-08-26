@@ -21,6 +21,9 @@ CIRCLECI_PIPELINES_API_URL = "https://circleci.com/api/v2/project/{}/pipeline"
 CIRCLECI_WORKFLOWS_API_URL = "https://circleci.com/api/v2/pipeline/{}/workflow"
 
 def main(config):
+    if _is_preview(config):
+        return _render_preview()
+
     if config.get("api_token") == None:
         return render_fail("Please inform API token")
 
@@ -41,7 +44,27 @@ def main(config):
     if latest_workflow == None:
         return render_fail("Can't fetch workflow")
 
-    return render_widget(config, latest_pipeline, latest_workflow)
+    return render_widget(config.str("repo"), latest_pipeline, latest_workflow)
+
+def _is_preview(config):
+    return not config.get("api_token") and not config.get("org") and not config.get("repo")
+
+def _render_preview():
+    return render_widget(
+        "octocat/hello-worId",
+        {
+            "trigger": {
+                "actor": {
+                    "login": "octocat",
+                    "avatar_url": "https://avatars.githubusercontent.com/u/583231?v=4",
+                },
+            },
+        },
+        {
+            "status": "success",
+            "stopped_at": None,
+        },
+    )
 
 def fetch_latest_pipeline(config):
     api_token = config.str("api_token")
@@ -99,8 +122,7 @@ def logo_for_status(status):
 
     return mapping.get(status, CIRCLECI_LOGO_WHITE)
 
-def render_widget(config, latest_pipeline, latest_workflow):
-    repo_name = config.str("repo")
+def render_widget(repo_name, latest_pipeline, latest_workflow):
     status = latest_workflow.get("status")
 
     author = latest_pipeline["trigger"]["actor"]["login"]
@@ -110,8 +132,8 @@ def render_widget(config, latest_pipeline, latest_workflow):
     if avatar_url != None:
         avatar = http.get(avatar_url).body()
 
-    stopped_at = time.parse_time(latest_workflow["stopped_at"])
-    when = humanize.time(stopped_at)
+    stopped_at = latest_workflow.get("stopped_at")
+    when = humanize.time(time.parse_time(stopped_at)) if stopped_at else "just now"
 
     return render.Root(
         child = render.Padding(
