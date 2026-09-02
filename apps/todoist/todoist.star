@@ -8,6 +8,7 @@ Author: zephyern
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("hash.star", "hash")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
@@ -51,7 +52,8 @@ DEFAULT_SHOW_IF_EMPTY = True
 
 NO_TASKS_CONTENT = "No Tasks :)"
 
-TODOIST_URL = "https://api.todoist.com/rest/v2/tasks"
+TODOIST_URL = "https://api.todoist.com/api/v1/tasks/filter"
+TODOIST_CACHE_VERSION = "api-v1-2026-09"
 
 OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcE3uxifd70n+JncXgagNue2eYtPYP05tbS77/hAd//mp4OQfMp+easxFROFLbCWsen/FCCDIzz8y5huFcAfV0hdyGL3mTGWaoUO2tVBvUUtGqPbOfb3HdJxMjuMb7C1fDFNqhdXhfJmo+UgRzRYzVZ/Q/C/sSl7U25DOrtKqhRs8I=")
 OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEYGPbL6d105xHQ68RZWY/KSrCK/ivqz2Y2AkrVuPO9iUFkYXBqoJs4phKRdeh2QxHjjGTuwQ7RakOEPrER+2VACdGHiiytCIpMZ5Qst1PeuMT5NECKqmHhW73MwReMBtvyPl0SbjdF8XijqzhK/YvcDTwVOdZZALaj+3dvGnqANk=")
@@ -62,24 +64,41 @@ def main(config):
         filter_name = "%s" % (config.get("name") or DEFAULT_NAME)
         filter = config.get("filter") or DEFAULT_FILTER
 
-        cache_key = "%s/%s" % (token, filter)
+        cache_key = "%s/%s/%s" % (
+            TODOIST_CACHE_VERSION,
+            hash.sha256(token),
+            hash.sha256(filter),
+        )
         content = cache.get(cache_key)
         if not content:
             print("Querying for tasks.")
-            rep = http.get(TODOIST_URL, headers = {"Authorization": "Bearer %s" % token}, params = {"filter": filter})
+            rep = http.get(
+                TODOIST_URL,
+                headers = {"Authorization": "Bearer %s" % token},
+                params = {
+                    "query": filter,
+                    "limit": "200",
+                },
+            )
 
             if rep.status_code == 200:
-                tasks = rep.json()
+                response = rep.json()
+                tasks = response.get("results") or []
                 num_tasks = len(tasks)
+                has_more = response.get("next_cursor") != None
             elif rep.status_code == 204:
                 num_tasks = 0
+                has_more = False
             else:
                 num_tasks = -1
+                has_more = False
 
             if num_tasks == -1:
                 content = "Error"
             elif num_tasks == 0:
                 content = NO_TASKS_CONTENT
+            elif has_more:
+                content = "200+"
             else:
                 content = humanize.plural(int(num_tasks), "Task")
 
@@ -120,7 +139,7 @@ def main(config):
 def oauth_handler(params):
     params = json.decode(params)
     res = http.post(
-        url = "https://todoist.com/oauth/access_token",
+        url = "https://api.todoist.com/oauth/access_token",
         headers = {
             "Accept": "application/json",
         },
@@ -128,6 +147,8 @@ def oauth_handler(params):
             code = params["code"],
             client_id = OAUTH2_CLIENT_ID,
             client_secret = OAUTH2_CLIENT_SECRET,
+            grant_type = "authorization_code",
+            redirect_uri = params["redirect_uri"],
         ),
         form_encoding = "application/x-www-form-urlencoded",
     )
@@ -151,7 +172,7 @@ def get_schema():
                 icon = "squareCheck",
                 handler = oauth_handler,
                 client_id = OAUTH2_CLIENT_ID or "fake-client-id",
-                authorization_endpoint = "https://todoist.com/oauth/authorize",
+                authorization_endpoint = "https://app.todoist.com/oauth/authorize",
                 scopes = [
                     "data:read",
                 ],

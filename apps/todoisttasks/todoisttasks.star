@@ -7,6 +7,7 @@ Author: Based on zephyern's code, rewritten by ChatGTP4 with directions from Nos
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("hash.star", "hash")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -17,153 +18,114 @@ DEFAULT_SHOW_IF_EMPTY = True
 
 NO_TASKS_CONTENT = "No Tasks :)"
 
-TODOIST_URL = "https://api.todoist.com/rest/v2/tasks"
+TODOIST_URL = "https://api.todoist.com/api/v1/tasks/filter"
+TODOIST_CACHE_VERSION = "api-v1-2026-09"
+
+PRIORITY_COLORS = ["#9b9b9b", "#48a9e6", "#f8b43a", "#ed786c"]
 
 OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcEQOfChp6DT4pbNdlJxTUzWzCkB+5yEIf8EP4/0PWuFsV+U1vNeV5LanJ12L/rnluXAeLQy9wki7zsxaOeeqGO1vLI47J1UR0um63dgzXTVj+Tdj9+m02XCPGWuhHE/oengWdSvjAVtfFW2qcUwMYFORNauBD1m7qH/fu4kzNWsnY=")
 OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcER6NHS+ZGzXEJ5a7JaRuCiTKmcifK5zlxUgjz3/HW0FkTq9LJSB+fsLPNjuOdnHQSfX3h5YPTcK7K7Onu1B2O3DV5F8T4edaIWTVg1FkMnfD7a4vrCXp74pxvwlvktrKQwjq9nsPGRw4MlKx/rBRKhfjadwx1xl0VKHMdH/dc2yQ=")
 
+def priority_color(priority):
+    priority = int(priority)
+    if priority < 1 or priority > 4:
+        priority = 1
+    return PRIORITY_COLORS[priority - 1]
+
+def fetch_model(token, filter):
+    response = http.get(
+        TODOIST_URL,
+        headers = {"Authorization": "Bearer %s" % token},
+        params = {
+            "query": filter,
+            "limit": "200",
+        },
+    )
+
+    if response.status_code == 200:
+        response_json = response.json()
+        tasks = response_json.get("results") or []
+        sorted_tasks = sorted(
+            tasks,
+            key = lambda task: task.get("priority") or 1,
+            reverse = True,
+        )
+        display_tasks = []
+        for task in sorted_tasks[:3]:
+            display_tasks.append({
+                "content": "%s" % task.get("content"),
+                "priority": task.get("priority") or 1,
+            })
+        return {
+            "status": "ok",
+            "tasks": display_tasks,
+        }
+
+    if response.status_code == 204:
+        return {
+            "status": "ok",
+            "tasks": [],
+        }
+
+    return {
+        "status": "error",
+        "tasks": [],
+    }
+
 def main(config):
     token = config.get("auth") or config.get("dev_api_key")
-    children = []
-    task_priority = []
-    content = ""
-    cache_key = ""
-    circle_children = []  # Initialize circle_children here
+    model = None
 
     if token:
         filter = config.get("filter") or DEFAULT_FILTER
-
-        cache_key = "%s/%s" % (token, filter)
-        content = cache.get(cache_key)
-        if not content:
-            rep = http.get(TODOIST_URL, headers = {"Authorization": "Bearer %s" % token}, params = {"filter": filter})
-            if rep.status_code == 200:
-                tasks = rep.json()
-                sorted_tasks = sorted(tasks, key = lambda task: task["priority"], reverse = True)
-            elif rep.status_code == 204:
-                sorted_tasks = []
-            else:
-                sorted_tasks = None
-
-            if sorted_tasks == None:
-                content = "Error"
-            elif not sorted_tasks:
-                content = NO_TASKS_CONTENT
-                circle_children = []
-                children = [
-                    render.Row(
-                        expanded = True,
-                        main_align = "space_evenly",
-                        cross_align = "center",
-                        children = [
-                            render.Circle(
-                                diameter = 6,
-                                color = "#3cba54",  # Green color
-                                child = render.Circle(color = "#332726", diameter = 2),
-                            ),
-                            render.Box(
-                                width = 46,
-                                child = render.Text(content = NO_TASKS_CONTENT),
-                            ),
-                        ],
-                    ),
-                ]
-            else:
-                task_descriptions = [task["content"] for task in sorted_tasks[:3]]
-                task_priority = [task["priority"] for task in sorted_tasks[:3]]
-                task_strings = []
-                for desc in task_descriptions:
-                    if type(desc) == list:
-                        desc = " ".join(desc)
-                    task_strings.append(desc)
-                content = task_strings
-
-                colors = ["#9b9b9b", "#48a9e6", "#f8b43a", "#ed786c"]
-
-                children = []
-                for i, task_desc in enumerate(content):
-                    children.append(render.Marquee(
-                        child = render.Text(content = task_desc),
-                        offset_start = 2,
-                        width = 46,
-                    ))
-
-                # Update circle colors based on the priority of the tasks
-                circle_colors = [colors[int(priority) - 1] for priority in task_priority]
-
-                # Generate circle children based on the number of tasks
-                circle_children = []
-                for i in range(len(content)):
-                    circle_children.append(render.Circle(
-                        diameter = 6,
-                        color = circle_colors[i],
-                        child = render.Circle(color = "#332726", diameter = 2),
-                    ))
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(cache_key, json.encode(content), ttl_seconds = 60)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(cache_key + "_priority", json.encode(task_priority), ttl_seconds = 60)
-
+        cache_key = "%s/%s/%s" % (
+            TODOIST_CACHE_VERSION,
+            hash.sha256(token),
+            hash.sha256(filter),
+        )
+        cached_model = cache.get(cache_key)
+        if cached_model:
+            model = json.decode(cached_model)
         else:
-            content = json.decode(content)
+            model = fetch_model(token, filter)
 
-    if content != NO_TASKS_CONTENT:
-        colors = ["#9b9b9b", "#48a9e6", "#f8b43a", "#ed786c"]
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
+            cache.set(cache_key, json.encode(model), ttl_seconds = 60)
 
-        children = []
-        for i, task_desc in enumerate(content):
-            children.append(render.Marquee(
-                child = render.Text(content = task_desc),
-                offset_start = 2,
-                width = 46,
-            ))
-
-        # Retrieve task priorities from the cache
-        task_priority = cache.get(cache_key + "_priority")
-
-        if task_priority:
-            task_priority = json.decode(task_priority)
-
-            # Update circle colors based on the priority of the tasks
-            circle_colors = [colors[int(priority) - 1] for priority in task_priority]
-
-            # Generate circle children based on the number of tasks
-            circle_children = []
-            for i in range(len(content)):
-                circle_children.append(render.Circle(
-                    diameter = 6,
-                    color = circle_colors[i],
-                    child = render.Circle(color = "#332726", diameter = 2),
-                ))
-
-        if content == NO_TASKS_CONTENT and not config.bool("show"):
-            # Don't display the app in the user's rotation
+    if not token:
+        display_tasks = [{
+            "content": "Please connect your Todoist account.",
+            "priority": 1,
+        }]
+    elif model.get("status") == "error":
+        display_tasks = [{
+            "content": "Todoist API error",
+            "priority": 1,
+        }]
+    elif not model.get("tasks"):
+        if not config.bool("show"):
+            # Don't display the app in the user's rotation.
             return []
-
+        display_tasks = [{
+            "content": NO_TASKS_CONTENT,
+            "priority": 1,
+        }]
     else:
-        children = [
-            render.Row(
-                expanded = True,
-                main_align = "space_evenly",
-                cross_align = "center",
-                children = [
-                    render.Circle(
-                        diameter = 6,
-                        color = "#9b9b9b",
-                        child = render.Circle(color = "#3cba54", diameter = 2),
-                    ),
-                    render.Box(
-                        width = 46,
-                        child = render.Marquee(
-                            child = render.Text(content = "Please connect your Todoist account."),
-                            width = 46,
-                        ),
-                    ),
-                ],
-            ),
-        ]
+        display_tasks = model["tasks"]
+
+    children = []
+    circle_children = []
+    for task in display_tasks:
+        children.append(render.Marquee(
+            child = render.Text(content = task["content"]),
+            offset_start = 2,
+            width = 46,
+        ))
+        circle_children.append(render.Circle(
+            diameter = 6,
+            color = priority_color(task["priority"]),
+            child = render.Circle(color = "#332726", diameter = 2),
+        ))
 
     return render.Root(
         delay = 100,
@@ -197,7 +159,7 @@ def main(config):
 def oauth_handler(params):
     params = json.decode(params)
     res = http.post(
-        url = "https://todoist.com/oauth/access_token",
+        url = "https://api.todoist.com/oauth/access_token",
         headers = {
             "Accept": "application/json",
         },
@@ -205,6 +167,8 @@ def oauth_handler(params):
             code = params["code"],
             client_id = OAUTH2_CLIENT_ID,
             client_secret = OAUTH2_CLIENT_SECRET,
+            grant_type = "authorization_code",
+            redirect_uri = params["redirect_uri"],
         ),
         form_encoding = "application/x-www-form-urlencoded",
     )
@@ -228,7 +192,7 @@ def get_schema():
                 icon = "squareCheck",
                 handler = oauth_handler,
                 client_id = OAUTH2_CLIENT_ID or "fake-client-id",
-                authorization_endpoint = "https://todoist.com/oauth/authorize",
+                authorization_endpoint = "https://app.todoist.com/oauth/authorize",
                 scopes = [
                     "data:read",
                 ],
