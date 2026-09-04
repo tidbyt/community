@@ -1,0 +1,5 @@
+id: mlbscoreboard
+name: MLB Scoreboard
+summary: Live MLB scoreboard
+desc: Displays live MLB scores, innings, outs, baserunners, and count information.
+author: Jeremy
