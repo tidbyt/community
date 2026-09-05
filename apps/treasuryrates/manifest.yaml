@@ -1,0 +1,8 @@
+---
+id: treasury-rates
+name: Treasury Rates
+summary: U.S. Treasury yields
+desc: Displays current U.S. Treasury yields for 2Y, 5Y, 10Y, and 30Y maturities, plus the 2s10s spread.
+author: John Hendrickson
+fileName: treasury_rates.star
+packageName: treasuryrates
