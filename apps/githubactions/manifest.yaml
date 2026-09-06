@@ -1,0 +1,8 @@
+---
+id: github-actions
+name: GitHub Actions
+summary: CI status for your repos
+desc: Shows GitHub Actions status for your repositories at a glance. Each row is one repo, coloured green when the last run passed, red when it failed, and amber while a run is in progress. Paste a fine-grained personal access token and the app lists the repositories that token can reach so you can tick the ones to watch. Works with private repositories.
+author: nrkramer
+fileName: github_actions.star
+packageName: githubactions
