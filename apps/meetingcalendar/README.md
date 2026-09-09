@@ -55,7 +55,7 @@ Use a dedicated calendar if appropriate. Never include real feed links or calend
 
 ## Development and backlog
 
-Use **Pixlet v0.34.0**, matching the community repository's pin. Run `pixlet serve meetingcalendar` or `pixlet check meetingcalendar` from the parent directory; the directory form loads all local Starlark modules. Python/Node test tooling is not required in production. Reproducible tests and synthetic previews live in [the source project](https://github.com/tlambrou/tidbyt-calendar/tree/codex/meeting-calendar-community).
+Use **Pixlet v0.34.0**, matching the community repository's pin. Run `pixlet serve meetingcalendar` or `pixlet check meetingcalendar` from the parent directory. The submission contains one Starlark file, generated from maintained source modules with `npm run community:bundle` in the source project. Python/Node test tooling is not required in production. Reproducible tests and synthetic previews live in [the source project](https://github.com/tlambrou/tidbyt-calendar/tree/codex/meeting-calendar-community).
 
 Optional foreground takeover and Siri/Apple Watch controls are reserved for a separate future user-hosted integration. Multi-calendar aggregation and Google/Microsoft OAuth are also outside this release; there are no placeholder settings for these features.
 
