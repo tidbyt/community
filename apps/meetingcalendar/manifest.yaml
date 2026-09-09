@@ -1,0 +1,8 @@
+---
+id: meeting-calendar
+name: Meeting Calendar
+summary: Events and live meetings
+desc: Rotate today's timed events from an iCloud, Google, or Outlook ICS subscription. Highlight live meetings and when you are next free. No separate hosting or subscription required.
+author: Tassos Lambrou
+fileName: meeting_calendar.star
+packageName: meetingcalendar
