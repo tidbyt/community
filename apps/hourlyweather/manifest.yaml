@@ -1,0 +1,8 @@
+---
+id: hourly-weather
+name: Hourly Weather
+summary: Hourly weather at a glance
+desc: Today's summary followed by 8 or 12 hourly forecasts with weather icons, temperature, precipitation probability and rainfall in mm. Rain includes showers, not snow. Amounts are gray when dry, green below 2.5, yellow from 2.5 to below 10, and red at least 10 mm/hour. Summary color reflects the wettest hour. Values are rounded; 999+ means at least 999.5 mm. Weather data by Open-Meteo.com (https://open-meteo.com/), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data are grouped, rounded and represented by icons.
+author: Johnny Chen
+fileName: hourly_weather.star
+packageName: hourlyweather
