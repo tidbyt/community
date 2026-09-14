@@ -291,7 +291,8 @@ def get_featured_items():
 
     # Extract the sandwich of the month
     sandwich_match = re.match(
-        r"Features([A-Z !&'\-.ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜ‘’…]+) ",
+        r"Features ?([A-Za-z !&'\-.ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜàáâãäåçèéêëìíîï" +
+        r"ñòóôõöøùúûü‘’…]+) [A-ZÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜ]",
         text,
     )
     if sandwich_match:
