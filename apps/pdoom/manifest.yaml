@@ -1,0 +1,8 @@
+---
+id: pdoom
+name: P(DOOM)
+summary: Countdown to daily doom
+desc: A darkly humorous memento-mori countdown to local midnight, interleaved with real, sourced quotations about catastrophic AI risk.
+author: Phil Weldon
+fileName: pdoom.star
+packageName: pdoom
