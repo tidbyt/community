@@ -202,13 +202,21 @@ def title_row(title, top = 14):
     )
 
 def render_event(event, now, alert_enabled, alert_window_mins):
-    date_str = format_date(event["start"])
     title = event["summary"]  # preserved exactly as in the calendar
 
     if event["all_day"]:
-        time_str = "All day"
+        time_str = "Today" if same_day(event["start"], now) else "Tomorrow"
+    elif event["start"] <= now and event["end"] > now:
+        time_str = "Now"
     else:
         time_str = format_time(event["start"])
+
+    # Show "Tomorrow" in the date row for any tomorrow look-ahead (timed or all-day).
+    showing_tomorrow = (
+        time_str == "Tomorrow" or
+        (not event["all_day"] and event["start"] > now and not same_day(event["start"], now))
+    )
+    date_str = "Tomorrow" if showing_tomorrow else format_date(event["start"])
 
     # Alert state: fire when we are within alert_window_mins of an upcoming event.
     alert = (
@@ -561,6 +569,23 @@ def select_event(events, now):
     tomorrow = add_seconds(now, 24 * 60 * 60)
     tomorrow_timed = [e for e in timed if same_day(e["start"], tomorrow) and e["start"] > now]
     if len(tomorrow_timed) == 0:
+        # No timed events tomorrow — check all-day events.
+        # "New" all-day events starting tomorrow take priority; fall back to
+        # multi-day events that started today and continue through tomorrow.
+        tomorrow_ord = days_from_civil(tomorrow.year, tomorrow.month, tomorrow.day)
+        new_tomorrow = [e for e in events if e["all_day"] and same_day(e["start"], tomorrow)]
+        if len(new_tomorrow) > 0:
+            new_tomorrow = sorted(new_tomorrow, key = all_day_sort_key)
+            return new_tomorrow[(now.unix // 60) % len(new_tomorrow)]
+        continuing = [
+            e
+            for e in events
+            if e["all_day"] and same_day(e["start"], now) and
+               days_from_civil(e["end"].year, e["end"].month, e["end"].day) > tomorrow_ord
+        ]
+        if len(continuing) > 0:
+            continuing = sorted(continuing, key = all_day_sort_key)
+            return continuing[(now.unix // 60) % len(continuing)]
         return None
     min_start = tomorrow_timed[0]["start"]
     for e in tomorrow_timed[1:]:
