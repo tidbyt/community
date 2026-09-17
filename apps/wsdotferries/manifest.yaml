@@ -1,0 +1,8 @@
+---
+id: wsdotferries
+name: WSDOT Ferries
+summary: WSF ferry departures
+desc: Shows the next two departures and a live drive-up car space bar for a Washington State Ferries terminal you choose.
+author: jayholler
+fileName: wsdotferries.star
+packageName: wsdotferries
