@@ -1,0 +1,8 @@
+---
+id: vbb-transport
+name: VBB Berlin
+summary: Live Berlin departures
+desc: Shows real-time departures from any stop in the VBB (Berlin/Brandenburg) public-transport network, color-coded by mode (S-Bahn, U-Bahn, tram, bus, regional).
+author: cpanato
+fileName: vbb_transport.star
+packageName: vbb_transport
