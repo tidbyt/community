@@ -1,0 +1,8 @@
+---
+id: norway-departures
+name: Norway Departures
+summary: Live departures in Norway
+desc: Live Entur departures for stations across Norway, including buses, trains, trams, metros and ferries. Defaults to Colletts gate toward Sentrum in Oslo. Includes walking time, cancellations and a large-type living-room display.
+author: jakobbbbbbb
+fileName: norway_departures.star
+packageName: norwaydepartures
