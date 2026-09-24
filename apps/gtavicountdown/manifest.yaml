@@ -1,0 +1,8 @@
+---
+id: gta-vi-countdown
+name: GTA VI Countdown
+summary: Days until GTA VI
+desc: Count the days until Grand Theft Auto VI launches on November 19, 2026.
+author: Alain Souchet
+fileName: gta_vi_countdown.star
+packageName: gtavicountdown
