@@ -36,7 +36,7 @@ def get_schema():
                 name = "Letterboxd list name",
                 desc = "The list name taken from the URL of your Letterboxd list",
                 icon = "link",
-                default = "flanagans-best-of-2025",
+                default = "flanagans-faves-of-2025",
             ),
             # Goal field for number of movies to watch
             schema.Text(
@@ -52,14 +52,14 @@ def get_schema():
 def main(config):
     # Get configuration values with defaults
     letterboxd_username = config.get("letterboxd_username", "flanaganfilm")
-    letterboxd_list_name = config.get("letterboxd_list_name", "flanagans-best-of-2025")
-    letterboxd_url = "https://letterboxd.com/%s/list/%s/detail/by/reverse/" % (letterboxd_username, letterboxd_list_name)
+    letterboxd_list_name = config.get("letterboxd_list_name", "flanagans-faves-of-2025")
+    letterboxd_url = "https://letterboxd.com/%s/list/%s/" % (letterboxd_username, letterboxd_list_name)
     movie_goal = int(config.get("movie_goal", "50"))
 
     # Fetch and parse the Letterboxd list page
     htmlstr = http.get(letterboxd_url).body()
     doc = html(htmlstr)
-    watchedMovies = doc.find(".list-detailed-entry")
+    watchedMovies = doc.find(".posteritem")
 
     # Display error message if no movies are found
     if watchedMovies.len() == 0:
@@ -86,13 +86,12 @@ def main(config):
     # Select a random movie from the list
     random_index = random.number(0, watchedMovies.len() - 1)
     movieDetails = watchedMovies.eq(random_index)
-    movieName = movieDetails.find(".name").text()
+    movieName = movieDetails.find(".react-component").attr("data-item-name")
 
     # Extract and process the movie's rating (if it exists)
     starImages = []
-    ratingClass = movieDetails.find(".rating").attr("class")
-    if ratingClass != None:
-        ratingOverTen = int(ratingClass.split("rated-")[1])
+    ratingOverTen = int(movieDetails.attr("data-owner-rating"))
+    if ratingOverTen > 0:
         fullStars = int(ratingOverTen / 2)
         halfStars = ratingOverTen % 2
 
