@@ -1,0 +1,8 @@
+---
+id: sleepermatchups
+name: Sleeper Matchups
+summary: Two live fantasy scores
+desc: Display two configurable head-to-head Sleeper fantasy football matchups with live scores and adjustable rotation speed.
+author: lrella4597
+fileName: sleepermatchups.star
+packageName: sleepermatchups
