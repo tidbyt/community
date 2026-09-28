@@ -1,0 +1,8 @@
+---
+id: nj-departures
+name: NJ Departures
+summary: Nearby NJ departures
+desc: Watch up to six nearby stops at once - NJ Transit buses, light rail and NY Waterway ferries - and see the next departure from each. Bus times are realtime; light rail and ferry come from published timetables.
+author: joshbrewster42
+fileName: nj_departures.star
+packageName: njdepartures
