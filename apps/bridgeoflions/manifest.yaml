@@ -1,0 +1,8 @@
+---
+id: bridge-of-lions
+name: Bridge of Lions
+summary: St. Augustine drawbridge
+desc: Shows GO when the Bridge of Lions in St. Augustine, FL is down and NO when it is up or about to open, based on its USCG schedule.
+author: Steven Dack
+fileName: bridge_of_lions.star
+packageName: bridgeoflions
