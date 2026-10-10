@@ -1,0 +1,8 @@
+---
+id: utah-transit
+name: Utah Transit
+summary: Live UTA departures
+desc: Shows realtime UTA departures with scheduled fallback for configurable stops, stations, routes, and service types.
+author: andrew-bierman
+fileName: utah_transit.star
+packageName: utahtransit
