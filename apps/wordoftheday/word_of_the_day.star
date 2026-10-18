@@ -7,19 +7,43 @@ Author: greg-n
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
-load("html.star", "html")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
 CACHE_KEY = "wotd"
-CACHE_TTL = 10800  # 3 hours
-WOTD_CALENDAR_URL = "https://www.merriam-webster.com/word-of-the-day/calendar"  # Most succinct wotd definition
+CACHE_TTL = 3600  # 1 hour
+
+# The calendar and word pages sit behind a bot challenge; the RSS feed is open and carries the word and an abbreviated definition.
+WOTD_FEED_URL = "https://www.merriam-webster.com/wotd/feed/rss2"
 
 def render_error():
     return render.Root(
         render.WrappedText("Something went wrong getting today's word!"),
     )
+
+def between(text, start, end):
+    start_index = text.find(start)
+    if start_index == -1:
+        return ""
+    start_index += len(start)
+    end_index = text.find(end, start_index)
+    if end_index == -1:
+        return ""
+    return text[start_index:end_index]
+
+def parse_feed(body):
+    """Returns (word, definition) for the newest item in the feed, or None."""
+    item_start = body.find("<item>")
+    if item_start == -1:
+        return None
+    item = body[item_start:]
+
+    word = between(item, "<title><![CDATA[", "]]></title>")
+    definition = between(item, "<merriam:shortdef><![CDATA[", "]]></merriam:shortdef>")
+    if word == "" or definition == "":
+        return None
+    return word, definition
 
 def main():
     print("Starting")
@@ -35,23 +59,20 @@ def main():
     else:
         print("Cache miss")
 
-        wotd_page_response = http.get(WOTD_CALENDAR_URL)
+        wotd_feed_response = http.get(WOTD_FEED_URL)
 
-        if wotd_page_response.status_code != 200:
-            print("Got code '%s' from page response" % wotd_page_response.status_code)
+        if wotd_feed_response.status_code != 200:
+            print("Got code '%s' from feed response" % wotd_feed_response.status_code)
             return render_error()
 
-        selector = html(wotd_page_response.body())
-        word_parsed = selector.find(".wod-l-hover").first().text()
-        definition_parsed = selector.find(".definition-block").first().children().first().text()
+        parsed = parse_feed(wotd_feed_response.body())
 
-        if word_parsed == "" or definition_parsed == "":
-            print("Failed to find word or definition from page")
+        if parsed == None:
+            print("Failed to find word or definition in feed")
             return render_error()
 
-        # Values begin with lower cased letters on the calendar note cards
-        word = word_parsed[0].upper() + word_parsed[1:] + ":"
-        definition = definition_parsed[0].upper() + definition_parsed[1:] + "."
+        word = parsed[0][0].upper() + parsed[0][1:] + ":"
+        definition = parsed[1][0].upper() + parsed[1][1:] + "."
 
         # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
