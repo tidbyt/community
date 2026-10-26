@@ -1,0 +1,8 @@
+---
+id: sky-watch
+name: Sky Watch
+summary: Nearby airborne aircraft
+desc: Show the nearest recently reported airborne aircraft around a chosen location, including callsign, type, altitude, ground distance, speed, and heading. Data from ADSB.lol under ODbL 1.0; coverage varies and updates are not guaranteed in real time.
+author: kbk86b
+fileName: sky_watch.star
+packageName: skywatch
