@@ -1,0 +1,8 @@
+---
+id: tfl-commute
+name: TfL Commute
+summary: Bus times and line status
+desc: Next buses at two London bus stops, and the status of up to three TfL lines.
+author: robcowie
+fileName: tfl_commute.star
+packageName: tflcommute
