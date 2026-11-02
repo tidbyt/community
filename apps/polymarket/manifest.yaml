@@ -1,0 +1,8 @@
+---
+id: polymarket
+name: Polymarket
+summary: Trending markets and movers
+desc: Follow trending prediction markets or breaking daily movers, with favorites, implied probabilities, and daily or weekly changes. Filter topics and rotate through up to eight events. Public data; no account required.
+author: Conor McLaughlin
+fileName: polymarket.star
+packageName: polymarket
