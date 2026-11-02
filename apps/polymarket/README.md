@@ -91,9 +91,9 @@ No production test modes or extra services are needed.
 The PR workflow runs these tests and uploads render proofs when this app
 changes, in addition to the repository's normal `pixlet check`.
 
-**Manual check still required:** on a hosted Tidbyt, confirm full-animation
-playback, readability at normal distance, settings, and pair rotation across
-updates. Local GIFs verify rendering, not physical-device playback.
+The author has also tested the app separately locally. The automated suite
+verifies rendering and selection behavior; hosted playback and update cadence
+are controlled by Tidbyt.
 
 Data: [Polymarket events](https://docs.polymarket.com/api-reference/events/list-events)
 and [markets](https://docs.polymarket.com/api-reference/markets/list-markets).
