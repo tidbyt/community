@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Exercise the actual Starlark with Pixlet and produce deterministic previews.
 
-Run: python3 apps/polymarket/tests/test_app.py [--output /absolute/output/directory]
-Requires the repository's pinned Pixlet and tests/requirements.txt.
+Run: python3 apps/polymarket/test_polymarket.py [--output /absolute/output/directory]
+Requires the repository's pinned Pixlet and test-requirements.txt.
 Temporary harnesses replace HTTP/cache calls; production settings are untouched.
 """
 
@@ -15,7 +15,7 @@ import tempfile
 from PIL import Image, ImageChops, ImageDraw
 
 
-SOURCE = Path(__file__).resolve().parents[1] / "polymarket.star"
+SOURCE = Path(__file__).resolve().parent / "polymarket.star"
 
 
 def market(name="Alice", yes="0.64", change=0.04, **kwargs):

@@ -71,8 +71,8 @@ Device images expire via `max_age`: 30 minutes for fresh renders, five for
 Use the Pixlet version in the repository's `PIXLET_VERSION` and Python 3.10+:
 
 ```sh
-python3 -m pip install -r apps/polymarket/tests/requirements.txt
-python3 apps/polymarket/tests/test_app.py --output /tmp/polymarket-tests
+python3 -m pip install -r apps/polymarket/test-requirements.txt
+python3 apps/polymarket/test_polymarket.py --output /tmp/polymarket-tests
 pixlet format apps/polymarket/polymarket.star --dry-run
 pixlet lint apps/polymarket/polymarket.star
 pixlet check apps/polymarket
