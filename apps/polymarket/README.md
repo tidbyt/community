@@ -88,8 +88,8 @@ expiry. Required image assertions check 64x32 output, exact duration, complete
 title/name coverage, stationary metrics, and the visible `OLD` indicator.
 No production test modes or extra services are needed.
 
-The PR workflow runs these tests and uploads render proofs when this app
-changes, in addition to the repository's normal `pixlet check`.
+The extra tests are run locally with the command above. The repository's
+existing PR workflow runs its normal `pixlet check`; this app adds no CI steps.
 
 The author has also tested the app separately locally. The automated suite
 verifies rendering and selection behavior; hosted playback and update cadence

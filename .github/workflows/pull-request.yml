@@ -27,17 +27,3 @@ jobs:
         run: ./.github/scripts/check-apps.sh
         env:
           TARGETS: "${{ steps.targets.outputs.targets }}"
-
-      - name: Test Polymarket behavior and rendering
-        if: contains(steps.targets.outputs.targets, 'apps/polymarket')
-        run: |
-          python3 -m pip install --target "${{ runner.temp }}/polymarket-deps" -r apps/polymarket/tests/requirements.txt
-          PYTHONPATH="${{ runner.temp }}/polymarket-deps" python3 apps/polymarket/tests/test_app.py --output "${{ runner.temp }}/polymarket-tests"
-
-      - name: Upload Polymarket render proofs
-        if: always() && contains(steps.targets.outputs.targets, 'apps/polymarket')
-        uses: actions/upload-artifact@v4
-        with:
-          name: polymarket-render-proofs
-          path: ${{ runner.temp }}/polymarket-tests
-          if-no-files-found: ignore
