@@ -1,0 +1,8 @@
+---
+id: enterprise
+name: Enterprise
+summary: A TOS Enterprise flyby
+desc: The original-series USS Enterprise sweeps across your Tidbyt, drops out of warp for a phaser battle with a Klingon, or comes right at you. Install it up to three times, one per part of the show.
+author: Knauerhase
+fileName: enterprise.star
+packageName: enterprise
