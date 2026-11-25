@@ -131,4 +131,3 @@ def main():
     temp = str(period["temperature"]) + " F" if period["temperature"] != None else "-- F"
     condition = truncate(period["shortForecast"], 19)
     return screen(risk, city["name"], temp + "  " + condition, color, "DriveTexas.org")
-
