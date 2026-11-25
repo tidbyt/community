@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 64 32" shape-rendering="crispEdges">
+  <rect width="64" height="32" fill="#000000"/>
+  <text x="32" y="8" text-anchor="middle" fill="#FFB000" font-family="monospace" font-size="6" font-weight="bold">BUNCO 101</text>
+  <rect x="8" y="11" width="48" height="1" fill="#00D9D9"/>
+  <text x="32" y="17" text-anchor="middle" fill="#FFFFFF" font-family="monospace" font-size="4">Three target dice</text>
+  <text x="32" y="22" text-anchor="middle" fill="#FFFFFF" font-family="monospace" font-size="4">in one roll make</text>
+  <text x="32" y="27" text-anchor="middle" fill="#FFFFFF" font-family="monospace" font-size="4">a Bunco.</text>
+</svg>
