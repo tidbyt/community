@@ -1,0 +1,6 @@
+id: texomaalerts
+name: Texoma Alerts
+summary: Texoma alerts & road risk
+desc: "Displays active National Weather Service alerts for Cooke, Fannin, and Grayson counties in Texas, plus Bryan, Johnston, Love, and Marshall counties in Oklahoma. Forecasts rotate across seven regional cities and provide a simple weather-based driving-risk estimate. It does not report live crashes or road closures; check DriveTexas.org for official road conditions. NWS API data is open for use. Independent app; not affiliated with NOAA or TxDOT."
+author: Dendrdd
+
