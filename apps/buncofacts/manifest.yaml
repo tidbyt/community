@@ -1,0 +1,8 @@
+---
+id: buncofacts
+name: Bunco Facts
+summary: 101 random Bunco facts
+desc: A rotating collection of Bunco facts, common rules, and dice probabilities.
+author: Dendrdd
+fileName: buncofacts.star
+packageName: buncofacts
