@@ -1,6 +1,6 @@
 id: random-number
-name: Random Number
-summary: Random number 1–100
+name: Random 1–100
+summary: Large random number 1–100
 desc: Displays one random number from 1 to 100 in large type.
 author: Dendrdd
 fileName: randomnumber.star
