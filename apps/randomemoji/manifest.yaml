@@ -1,0 +1,7 @@
+id: random-emoji
+name: Random Emoji
+summary: A random emoji face
+desc: Shows one large, randomly selected pixel-art emoji face.
+author: Dendrdd
+fileName: random_emoji.star
+packageName: randomemoji
